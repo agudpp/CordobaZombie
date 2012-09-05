@@ -1,0 +1,22 @@
+
+material Billboard/ZombieBlood
+{
+	technique
+	{
+		pass
+		{
+			ambient 0.512 0.512 0.512 1
+			diffuse 0.512 0.512 0.512 1
+			specular 0.5 0.5 0.5 1 92.1569
+
+			texture_unit
+			{
+				texture blood.jpg
+			}
+		}
+
+	}
+
+}
+
+

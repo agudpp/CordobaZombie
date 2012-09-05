@@ -1,0 +1,32 @@
+<!--
+-	Por ahora estamos soportando los siguientes tipos:
+-	NORMAL
+
+-	En caso que se definan mas habria que ir agregandolos y avisandonos a los
+-	programadores por supuesto :).
+	
+	Params:
+
+	name			: El nombre identificador del zombie, este va a ser usado
+					  crear zombies con un nombre.
+	normalVelocity	: La velocidad "caminata" del zombie.
+	attackVelocity	: La velocidad de ataque del zombie.
+	life			: cantidad de vida
+	attackPower		: fuerza del golpe.
+	entityName		: nombre del entity asociado al zombie
+	materialName	: material del zombie
+	type			: Tipo de zombie...
+-->
+
+<ZombieUnits>
+    <!-- Tambien puede ser ZNP abreviando el nombre por ejemplo -->
+    <Zombie name="ZombieNormalPolicia" 
+        normalVelocity="10" 
+        attackVelocity="15" 
+        life="150"
+        attackPower="3" 
+        entityName="zombie01.mesh" 
+        materialName="ZombieMat/Policia"
+        type="NORMAL"
+	/>
+</ZombieUnits>

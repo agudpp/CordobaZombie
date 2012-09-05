@@ -1,0 +1,4 @@
+<Camera>
+	<Limits minX="0" maxX="500" minY="255" maxY="255" minZ="255" maxZ="0.9"/>
+</Camera>
+

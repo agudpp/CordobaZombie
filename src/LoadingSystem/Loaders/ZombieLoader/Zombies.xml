@@ -1,0 +1,33 @@
+<Zombies>
+    <!-- Aca ponemos los distintos tipos y cantidad de zombies que vamos a 
+    	cargar para este nivel especifico y tambien especificamos el nombre
+    	del archivo de donde vamos a sacar los zombies (zombieBuilderFile) 
+    -->
+    <Zombies zombieBuilderFile="zombies.xml">
+        <Zombie nameID="IDZombieName" count="3"  />
+        <Zombie nameID="IDZombieName2" count="4"  />            
+    </Zombies>
+    
+    <!--  Aca definimos las zombies factories que vamos a construir y con su id
+    	posicion, etc... Todas para meterlas en el ZombieFactoryManager
+    	Tienen los siguientes campos:
+    	- name = Representa el nombre identificador de la Factory (para luego 
+    			 saber como llamarla cuando querramos construir zombies en algun
+    			 lugar especifico).
+		- tlx,tly,brx,bry	=	El rectangulo que determina la zona de creacion
+								de zombies (seria donde van a ir apareciendo los
+								zombies) Indicando topLeftX, topLeftY,....
+		- direction	=	El vector de direccion para donde deben salir los zombies
+						caminando (por ahora esto creo que no lo usamos)
+		- number	=	La cantidad de zombies que puede construir la factory,
+						una vez que construe N zombies deja de construir.		
+     -->
+    <ZombiesFactories>
+        <ZombieFactory name="BuenPastor">
+            <aabb tlx="1" tly="50" brx="50" bry="1" />
+            <direction x="1" y="0" />
+            <number N="4" /> 
+        </ZombieFactory>
+    </ZombiesFactories>
+    
+</Zombies>

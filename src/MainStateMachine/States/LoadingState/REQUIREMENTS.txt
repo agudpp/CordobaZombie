@@ -1,0 +1,5 @@
+Params:
+LOADING_BACKGROUND		=	nombre overlay del fondo a cargar
+LOADING_BAR				=	nombre overlay de la LoadingBar a usar
+LEVEL_INFO_FILE			= 	el archivo donde esta toda la configuracion del 
+							nivel (el que va a ser usado por el LoaderManager)

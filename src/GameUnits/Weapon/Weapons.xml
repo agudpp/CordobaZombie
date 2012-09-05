@@ -1,0 +1,40 @@
+<!-- Types:
+		W_BODY = 0,
+		W_SHORT,
+		W_LONG,
+		W_GRANADE,
+		W_NONE,
+		
+	Params:
+	name:		El nombre del arma identificador (univico).
+	entityName:	El nombre de la entity a cargar.
+	type:		El tipo de arma (que va asociar si es de una mano, 2 manos,
+				arma corta/larga/etc).
+	range:		El rango de alcance del arma
+	power:		Cuanto es el "poder" de golpe del arma.
+	effectName:	El nombre de efecto a cargar (fueguito del arma por ejemplo)
+	ammo		Cantidad de munision
+	animVelocityFactor: Es el "factor" con el cual vamos a reproducir la 
+				animacion del arma, por ejemplo, si esto es 2, entonces vamos 
+				a reproducir 2 veces mas rapido de lo normal la animacion de golpe
+				y por ende podemos pegar 2 veces mas rapido.
+				Por defecto la velocidad es 1.0, asique si este campo no esta
+				no se acelera la anim
+	magazine:	El tamanio del cargador, esto es cuantas balas puede disparar
+				sin tener que hacer un reload (solo para armas con balas).
+	
+ -->
+
+<Weapons>
+    <Weapon name="9mm" 
+        entityName="9mm.mesh" 
+        type="W_SHORT" 
+        range="100.0" 
+        power="30" 
+        effectName="nombreEffecto" 
+        ammo="100" 
+        animVelocityFactor="1.0" 
+        magazine="8"
+        />
+    
+</Weapons>

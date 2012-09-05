@@ -1,0 +1,32 @@
+Seleccion de objetos (estado inicial)
+-----------------------------------
+Este estado seria el que nos permite seleccionar objetos de cualquier tipo (por 
+ejemplo Zombies, Players, CollectableObjects?) sin que haya sido nada 
+seleccionado para mostrar informacion (caso ZombieUnit) o seleccionar players.
+Dependiendo que tipo de objeto seleccionamos emitiriamos un evento que se 
+encargue de seleccionar el estado siguiente correspondiente.
+
+
+Manejo Players
+---------------
+Este estado lo vamos a usar para manejar tanto la seleccion de un player como
+de varios. Vamos a tener en cuenta cuantos hay seleccionados y si se tira un 
+rayo con alguna tecla en particular entonces vemos que hacemos. Tambien va a
+manejar el hecho de mandar atacar unidades, hacer que se muevan, alcen objetos,
+etc...
+
+
+Manejo InputActionObjects
+-------------------------
+Con este estado vamos a manejar el caso de que tengamos un "ActionObject" que 
+pueden ser (ir a poner una bomba en un lugar determinado, ir a curar un player,
+acciones especiales -ataque aereo, bombardeo, etc-, entre otras).
+La idea es que este estado maneje estas acciones de una manera predefinida:
+- Setea un cursor especifico (grafico).
+- El evento puede ser ejecutado sobre: 1 player, un enemigo, el piso del mapa,
+cualquier parte del mapa, un objeto del mapa, etc....
+- Tiene asociada una accion que permite ejecutar esa accion en donde corresponde
+(objeto, Vector3 en el mapa, etc).
+
+
+

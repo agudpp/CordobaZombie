@@ -1,0 +1,25 @@
+<!-- 
+	type:
+				BOMB_NONE = 0,
+				BOMB_TIME,
+				BOMB_REMOTE,
+				BOMB_PROXIMITY
+	name:		El nombre IDentificador de la bomba (UniqueID).
+	entity:		El nombre de la entity a usar
+	visibile:	Si queremos que este visible o no (true | false)
+	power:		La potencia de explosion, esto es equivalente al de las armsa, 
+				sirve para saber cuanta vida va a sacar a los zombies.
+	range:		Distancia de alcance.
+	
+ -->
+
+<Bombs>
+    <Bomb
+        type="BOMB_TIME"
+        name="c4"
+        entity="9mm.mesh"
+        visible="true"
+        power="300"
+        range="15"
+    />
+</Bombs>
