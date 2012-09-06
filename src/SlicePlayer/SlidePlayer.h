@@ -12,7 +12,6 @@
 #include <vector>
 
 
-
 class SlidePlayer{
 
 public:
@@ -25,22 +24,41 @@ public:
 
 public:
 
-	int queue_slide ();
+	/*
+	 * Queue a single slide into the slide player.
+	 */
+	int queueSlide ();
 
-	int queue_slides();
+	/*
+	 * Queue a set of slides into the slide player.
+	 */
+	int queueSlides();
 
+	/*
+	 * Move to next slide.
+	 */
 	int next();
 
+	/*
+	 * Move to previous slide.
+	 */
 	int prev();
 
+	/*
+	 * Move to the i'th slide.
+	 */
 	int seek(int index);
 
-	int play_slides();
+	/*
+	 * Plays the slides one after the other, showing each of them during
+	 * 'tlapse' seconds.
+	 */
+	int playSlides(float tlapse);
 
 private:
 
-	std::vector<> 			mSlideVec;
-	std::vector<>::iterator mSlide;
+	std::vector<> 			mSlideVec; 	//Vector of slides to show
+	std::vector<>::iterator mSlide;		//Points to the actually showed slide
 
 };
 

@@ -7,9 +7,9 @@
 #include "SlidePlayer.h"
 
 
-int queue_slide ();
+int queueSlide ();
 
-int queue_slides();
+int queueSlides();
 
 int next();
 
@@ -17,4 +17,4 @@ int prev();
 
 int seek(int index);
 
-int play_slides();
+int playSlides();
