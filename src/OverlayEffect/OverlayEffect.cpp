@@ -15,6 +15,15 @@ namespace OvEff {
 OverlayEffectManager		*OverlayEffect::mMngr = 0;
 
 /**
+ * Set the OverlayElement to be used
+ * @param	e	The overlay element
+ */
+void OverlayEffect::setElement(Ogre::OverlayElement *e)
+{
+	mElement = e;
+}
+
+/**
  * Set the Overlay effect manager to be used
  * @param	em	the OverlayEffectManager
  */
@@ -40,7 +49,7 @@ OverlayEffect::~OverlayEffect()
 
 /**
  * Stops the effect (if is actually reproducing it
- * @note Removes the effect automatically from the manager
+ * @note	Removes the effect automatically from the manager
  */
 void OverlayEffect::stop(void)
 {

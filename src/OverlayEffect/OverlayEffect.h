@@ -32,7 +32,7 @@ public:
 	 * Set/Get the OverlayElement to be used
 	 * @param	e	The overlay element
 	 */
-	inline void setElement(Ogre::OverlayElement *e);
+	virtual void setElement(Ogre::OverlayElement *e);
 	inline Ogre::OverlayElement *getElement(void);
 
 	/**
@@ -96,14 +96,6 @@ protected:
 
 
 
-/**
- * Set/Get the OverlayElement to be used
- * @param	e	The overlay element
- */
-inline void OverlayEffect::setElement(Ogre::OverlayElement *e)
-{
-	mElement = e;
-}
 inline Ogre::OverlayElement *OverlayEffect::getElement(void)
 {
 	return mElement;
