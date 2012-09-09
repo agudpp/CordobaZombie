@@ -6,7 +6,6 @@ include(${DEV_ROOT_PATH}/DevPaths.cmake)
 set(CP /SoundSystem)
 set(SOUND_LIBRARIES openal vorbis vorbisfile)
 set(OPENAL_LIBRARIES ${SOUND_LIBRARIES})
-add_definitions(-std=c++0x)
 
 set(SRCS
 	${SRCS}

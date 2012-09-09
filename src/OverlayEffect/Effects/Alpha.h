@@ -17,35 +17,30 @@ class Alpha : public OverlayEffect {
 public:
 	/* Transition types */
 	enum Type {
-		FADE_IN,	// Materialize from thin air
+		FADE_IN,	// Appear out of thin air
 		FADE_OUT	// Dissappear
 	};
+
 public:
+	inline Alpha();
+	inline ~Alpha();
 
 	/**
-	 * This effect will automatically create the OverlayElement to be used.
-	 * By now we do not support to use other overlay (don't call the function
-	 * setElement())
-	 */
-	Alpha();
-	virtual ~Alpha();
-
-	/**
-	 * Set/Get the time the transition lasts
+	 * @brief	Set/Get the time the transition lasts
 	 * @param	t	Transition time
 	 */
 	inline void setTime(float t);
 	inline float getTime(void) const;
 
 	/**
-	 * Set/Get the effect type
+	 * @brief	Set/Get the effect type
 	 * @param	t	Transition type (i.e. FADE_IN or FADE_OUT)
 	 */
 	inline void setType(Type t);
 	inline Type getType(void) const;
 
 	/**
-	 * Set 'e' as the element to fade in/out.
+	 * @brief	Set 'e' as the element to fade in/out.
 	 * @param	e	The element that we want to "fade"
 	 */
 	void configure(Ogre::OverlayElement *e);
@@ -58,15 +53,16 @@ public:
 	void configure(Ogre::OverlayElement *e, Type t, float time=1.0f);
 
 	/**
-	 * Set the OverlayElement to be used (stub to configure(e))
+	 * @brief	Set the OverlayElement to be used (stub to configure(e))
 	 * @param	e	The overlay element
 	 */
 	void setElement(Ogre::OverlayElement *e);
 
 	/**
-	 * Remove the alpha fading effect from the currently attached OverlayElement
-	 * @remarks: references to the currently attached OverlayElement (if any)
-	 * 			 are lost.
+	 * @brief	Remove the alpha fading effect from the currently attached
+	 * 			OverlayElement. This makes the object fully visible.
+	 * @remark	references to the currently attached OverlayElement (if any)
+	 * 			are lost.
 	 */
 	inline void releaseElement(void);
 
@@ -87,12 +83,26 @@ protected:
 	virtual void exit(void);
 
 private:
-	Type					mType;
+	Type					mType;			// FADE_IN / FADE_OUT
 	float					mTime;
 	Ogre::Real				mAccumTime;
-	Ogre::TextureUnitState	*mTexture;
+	Ogre::TextureUnitState	*mTexture;		// OverlayElement's texture
 };
 
+
+////////////////////////////////////////////////////////////////////////////////
+inline Alpha::Alpha() :
+	mType(FADE_IN),
+	mTime(1.0f),
+	mTexture(0),
+	mAccumTime(0)
+{
+	mElement = 0;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+inline Alpha::~Alpha() { /* Default destructor suffices. */ }
 
 ////////////////////////////////////////////////////////////////////////////////
 inline void  Alpha::setTime(float t) { mTime = t; }

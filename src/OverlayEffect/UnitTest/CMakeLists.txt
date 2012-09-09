@@ -27,7 +27,6 @@ endif(WIN32)
  
 if(UNIX)
 	#set(CMAKE_BUILD_TYPE "debug")
-	add_definitions(-DDEBUG)
 	set(CMAKE_MODULE_PATH 
 	    "/usr/local/lib/OGRE/cmake/;${CMAKE_MODULE_PATH}"
 	    "/usr/lib/OGRE/cmake/;${CMAKE_MODULE_PATH}"	    
@@ -93,6 +92,8 @@ endif()
 
 
 set (DEV_ROOT_PATH $ENV{ESTRATEGIA2012_DEV_PATH})
+
+include(${DEV_ROOT_PATH}/CommonFlags.cmake)  # Customized compilation flags
  
 set(HDRS		
 
@@ -103,13 +104,11 @@ set(HDRS
 	${DEV_ROOT_PATH}/Common/DebugUtil/PrimitiveDrawer.h
 	${DEV_ROOT_PATH}/Extras/AppTester/AppTester.h
 	${DEV_ROOT_PATH}/Utils/MouseCursor/MouseCursor.h
-
 	
 	./Test.h
 )
  
 set(SRCS
-
 
 	${DEV_ROOT_PATH}/Common/DebugUtil/PrimitiveDrawer.cpp
 	${DEV_ROOT_PATH}/Common/GlobalObjects/GlobalObjects.cpp
@@ -118,7 +117,6 @@ set(SRCS
 
 	./Test.cpp
 	./main.cpp
-	
 )
  
 include_directories( ${OIS_INCLUDE_DIRS}
@@ -131,7 +129,6 @@ include_directories( ${OIS_INCLUDE_DIRS}
 	${DEV_ROOT_PATH}/Utils/MouseCursor
 	${DEV_ROOT_PATH}/Common/Math
 	
-	
 	${DEV_ROOT_PATH}/Extras/AppTester
 )
 
@@ -139,10 +136,8 @@ include(${DEV_ROOT_PATH}/Common/Math/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/PathfindingSystem/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/Common/Util/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/Common/GUIHelper/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/MenuSystem/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/OverlayEffect/AutoGen.cmake)
-
-
-
 
 
 add_executable(OgreApp WIN32 ${HDRS} ${SRCS})
