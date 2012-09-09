@@ -9,11 +9,11 @@
 #define CIVILBEENRESCUEDSTATE_H_
 
 
-#include "IState.h"
+#include "FSM/IState.h"
 #include "CivilUnit.h"
 
 
-class CivilBeenRescuedState : public IState<CivilUnit *>
+class CivilBeenRescuedState : public ia::IState<CivilUnit *>
 {
 public:
 	CivilBeenRescuedState();

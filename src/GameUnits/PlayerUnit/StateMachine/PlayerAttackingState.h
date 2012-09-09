@@ -11,11 +11,11 @@
 
 
 
-#include "IState.h"
+#include "FSM/IState.h"
 #include "PlayerUnit.h"
 
 
-class PlayerAttackingState : public IState<PlayerUnit *> {
+class PlayerAttackingState : public ia::IState<PlayerUnit *> {
 public:
 	PlayerAttackingState();
 	virtual ~PlayerAttackingState();

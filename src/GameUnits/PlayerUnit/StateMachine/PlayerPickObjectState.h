@@ -9,13 +9,13 @@
 #define PLAYERPICKOBJECTSTATE_H_
 
 
-#include "IState.h"
+#include "FSM/IState.h"
 #include "PlayerUnit.h"
 #include <OgreAnimation.h>
 #include <OgreAnimationState.h>
 
 
-class PlayerPickObjectState : public IState<PlayerUnit *>
+class PlayerPickObjectState : public ia::IState<PlayerUnit *>
 {
 public:
 	PlayerPickObjectState();

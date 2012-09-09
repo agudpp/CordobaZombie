@@ -12,12 +12,12 @@
 #include "DebugUtil.h"
 #include "CivilDefs.h"
 #include "GameUnit.h"
-#include "StateMachine.h"
+#include "FSM/StateMachine.h"
 
 
 class CivilUnit;
-typedef	StateMachine<CivilUnit *> CivilStateMachine;
-typedef SMTransitionTable<CivilUnit *> CivilSMTTable;
+typedef	ia::StateMachine<CivilUnit *> CivilStateMachine;
+typedef ia::SMTransitionTable<CivilUnit *> CivilSMTTable;
 
 class CivilUnit : public GameUnit
 {

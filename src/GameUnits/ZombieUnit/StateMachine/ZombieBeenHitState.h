@@ -10,10 +10,10 @@
 #define ZOMBIEBEENHITSTATE_H_
 
 
-#include "IState.h"
+#include "FSM/IState.h"
 #include "ZombieUnit.h"
 
-class ZombieBeenHitState : public IState<ZombieUnit *> {
+class ZombieBeenHitState : public ia::IState<ZombieUnit *> {
 public:
 	ZombieBeenHitState();
 	virtual ~ZombieBeenHitState();

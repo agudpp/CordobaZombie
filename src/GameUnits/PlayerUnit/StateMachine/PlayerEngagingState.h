@@ -9,10 +9,10 @@
 #ifndef PLAYERENGAGINGSTATE_H_
 #define PLAYERENGAGINGSTATE_H_
 
-#include "IState.h"
+#include "FSM/IState.h"
 #include "PlayerUnit.h"
 
-class PlayerEngagingState : public IState<PlayerUnit *> {
+class PlayerEngagingState : public ia::IState<PlayerUnit *> {
 public:
 	PlayerEngagingState();
 	virtual ~PlayerEngagingState();

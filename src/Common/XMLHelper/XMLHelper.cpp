@@ -5,7 +5,6 @@
  *      Author: agustin
  */
 
-#include "DebugUtil.h"
 #include "Util.h"
 #include "XMLHelper.h"
 
@@ -55,7 +54,7 @@ void XMLHelper::closeXml(void)
  * (starting from rootElement->getFirstChildElement())
  * @return	0	On error, or the element if we find it
  */
-const TiXmlElement *XMLHelper::findElement(const char *name, const char *attrName)
+const TiXmlElement *XMLHelper::findElement(const char *name, const char *attrName) const
 {
 	ASSERT(mDocument);
 	ASSERT(name);
@@ -103,5 +102,38 @@ const TiXmlElement *XMLHelper::getRootElement(void)
 {
 	if(!mDocument) return 0;
 	return mDocument->RootElement();
+}
+
+////////////////////////////////////////////////////////////////////////////
+////						Parse Static Functions						////
+////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Find a child element from a top level element
+ * @param	root	The root element where we will find the child element
+ * @param	name	The name of the element to find (value of the attr)
+ * @param	atName	The attribute name ("name" as default)
+ * @return	element	The founded element, or 0 if we cannot find it
+ */
+const TiXmlElement *XMLHelper::findChild(const TiXmlElement *root,
+		const char *name,
+		const char *atName)
+{
+	ASSERT(root);
+	ASSERT(name);
+	ASSERT(atName);
+
+	// find it
+	const TiXmlElement *first = root;
+	ASSERT(first);
+	first = first->FirstChildElement();
+	while(first){
+		const char *value = first->Attribute(atName);
+		if(value && std::strcmp(name, value) == 0) {
+			return first;
+		}
+		first = first->NextSiblingElement();
+	}
+	return 0;
 }
 

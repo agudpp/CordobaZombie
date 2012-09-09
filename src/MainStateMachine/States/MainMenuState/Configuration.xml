@@ -1,0 +1,20 @@
+<States>
+	<State name="Credits"
+	<VideoRanges
+		<Entering start=0 end=1 />
+		<Looping start=0 end=1 />
+		<Exiting start=0 end=1 />
+	</VideoRanges>
+	<CbMenuButtons>
+		<Button 
+			name="exitButton"
+			OverlayName="ov1"
+			<Effect name="alpha"
+					<!-- ... info para el OvEff::EffectBuilder --> 
+			/>
+			
+			
+		/>
+	</CbMenuButtons>
+	</State>
+</States>

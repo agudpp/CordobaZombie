@@ -8,10 +8,10 @@
 #ifndef PLAYERRELOADINGSTATE_H_
 #define PLAYERRELOADINGSTATE_H_
 
-#include "IState.h"
+#include "FSM/IState.h"
 #include "PlayerUnit.h"
 
-class PlayerReloadingState : public IState<PlayerUnit *>
+class PlayerReloadingState : public ia::IState<PlayerUnit *>
 {
 public:
 	PlayerReloadingState();

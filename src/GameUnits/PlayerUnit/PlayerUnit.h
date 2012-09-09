@@ -9,7 +9,7 @@
 #define PLAYERUNIT_H_
 
 
-#include "StateMachine.h"
+#include "FSM/StateMachine.h"
 #include "GameUnit.h"
 #include "PlayerDefs.h"
 #include "Weapon.h"
@@ -32,8 +32,8 @@
 class PlayerUnit;
 
 // zombie state machine
-typedef	StateMachine<PlayerUnit *> PlayerStateMachine;
-typedef SMTransitionTable<PlayerUnit *> PlayerSMTTable;
+typedef	ia::StateMachine<PlayerUnit *> PlayerStateMachine;
+typedef ia::SMTransitionTable<PlayerUnit *> PlayerSMTTable;
 
 typedef GenericFunctor<void, int>		PlayerCallback;
 

@@ -11,7 +11,8 @@
 
 namespace OvEff {
 
-struct EffectCb {
+class EffectCb {
+public:
 	enum EventID {
 		STARTING,		// when the effect will start
 		ENDING			// when the effect is ending

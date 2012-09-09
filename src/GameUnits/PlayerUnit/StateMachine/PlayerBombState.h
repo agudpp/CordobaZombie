@@ -9,11 +9,11 @@
 #define PLAYERBOMBSTATE_H_
 
 
-#include "IState.h"
+#include "FSM/IState.h"
 #include "PlayerUnit.h"
 
 
-class PlayerBombState : public IState<PlayerUnit *> {
+class PlayerBombState : public ia::IState<PlayerUnit *> {
 public:
 	PlayerBombState();
 	virtual ~PlayerBombState();

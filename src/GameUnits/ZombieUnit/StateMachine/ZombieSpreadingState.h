@@ -10,10 +10,10 @@
 #define ZOMBIESPREADINGSTATE_H_
 
 
-#include "IState.h"
+#include "FSM/IState.h"
 #include "ZombieUnit.h"
 
-class ZombieSpreadingState  : public IState<ZombieUnit *> {
+class ZombieSpreadingState  : public ia::IState<ZombieUnit *> {
 public:
 	ZombieSpreadingState();
 	virtual ~ZombieSpreadingState();

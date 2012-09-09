@@ -11,7 +11,7 @@
 
 namespace mm_states {
 
-struct VideRange {
+struct VideoRange {
 	float	start;
 	float	end;
 };

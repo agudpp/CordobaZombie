@@ -9,11 +9,11 @@
 #define ZOMBIEDYINGSTATE_H_
 
 
-#include "IState.h"
+#include "FSM/IState.h"
 #include "ZombieUnit.h"
 
 
-class ZombieDyingState : public IState<ZombieUnit *>
+class ZombieDyingState : public ia::IState<ZombieUnit *>
 {
 public:
 	ZombieDyingState();

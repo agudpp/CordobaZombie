@@ -14,6 +14,8 @@
 #include "SMDefines.h"
 #include "SMTransitionTable.h"
 
+namespace ia {
+
 template<typename T>
 class StateMachine {
 public:
@@ -131,5 +133,7 @@ private:
 	T							mRef;
 
 };
+
+}
 
 #endif /* STATEMACHINE_H_ */

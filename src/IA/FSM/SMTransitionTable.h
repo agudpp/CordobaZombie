@@ -19,6 +19,8 @@
 
 #define	StarState 0
 
+namespace ia
+{
 
 template<typename T>
 class SMTransitionTable {
@@ -118,9 +120,11 @@ private:
 
 
 private:
-	IState<T>			*mStartState;
+	IState<T>		*mStartState;
 	HashOfHashTable		mTable;
 	HashTable			mStarTable;
 };
+
+}
 
 #endif /* SMTRANSITIONTABLE_H_ */
