@@ -136,6 +136,7 @@ include(${DEV_ROOT_PATH}/Common/Math/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/PathfindingSystem/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/Common/Util/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/Common/GUIHelper/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/Common/XMLHelper/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/MenuSystem/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/OverlayEffect/AutoGen.cmake)
 

@@ -9,6 +9,7 @@
 #ifndef ALPHA_H_
 #define ALPHA_H_
 
+#include <OgreTextureUnitState.h>
 #include "OverlayEffect.h"
 
 namespace OvEff {

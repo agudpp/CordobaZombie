@@ -32,6 +32,19 @@ public:
 	void setFilename(const Ogre::String &name);
 
 	/**
+	 * @brief	View the currently set XML filename.
+	 * @return	The currently set XML filename ("" if nothing set)
+	 */
+	inline Ogre::String getFilename() const;
+
+	/**
+	 * @brief	Does the instance have a currently open XML file?
+	 * @return	true if there's an open file attached to the instance
+	 *			false otherwise
+	 */
+	inline bool hasOpenFile() const;
+
+	/**
 	 * Open/Close the filename
 	 */
 	void openXml(void);
@@ -40,7 +53,7 @@ public:
 	/**
 	 * Find an element (with attribute name) in the first nested elements
 	 * (starting from rootElement->getFirstChildElement())
-	 * @param	name		The name to looking for
+	 * @param	name		The element's name we're looking for
 	 * @param	attrName	The attribute name (usually "name")
 	 * @return	0			On error, or the element if we find it
 	 */
@@ -91,6 +104,20 @@ private:
 	TiXmlDocument		*mDocument;
 
 };
+
+
+/******************************************************************************/
+/****************************     INLINES     *********************************/
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+inline Ogre::String XMLHelper::getFilename() const { return mFileName; }
+
+
+////////////////////////////////////////////////////////////////////////////////
+inline bool XMLHelper::hasOpenFile() const { return (mDocument!=0); }
+
 
 ////////////////////////////////////////////////////////////////////////////////
 inline void XMLHelper::parseInt(const TiXmlElement *elem,

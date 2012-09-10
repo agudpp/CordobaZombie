@@ -20,6 +20,7 @@
 #include "DebugUtil.h"
 #include "MouseCursor.h"
 #include "OverlayEffectManager.h"
+#include "OverlayEffectBuilder.h"
 #include "Alpha.h"
 
 
@@ -46,10 +47,11 @@ private:
 	void handleInput(void);
 
 private:
-	MouseCursor					mMouseCursor;
-	Ogre::PanelOverlayElement*	mOverlayPanel;
-	OvEff::OverlayEffectManager	mOvEffMngr;
-	OvEff::Alpha*				mAlphaEffect;
+	MouseCursor						mMouseCursor;
+	Ogre::PanelOverlayElement*		mOverlayPanel;
+	OvEff::OverlayEffectManager		mOvEffMngr;
+	OvEff::OverlayEffectBuilder 	mOvBuilder;
+	OvEff::Alpha*					mAlphaEffect;
 };
 
 #endif /* TEST_H_ */

@@ -51,12 +51,9 @@ Test::Test()
 {
 	mMouseCursor.setVisible(true);
 	mMouseCursor.setWindowDimensions(GLOBAL_WINDOW->getWidth(), GLOBAL_WINDOW->getHeight());
+	testBEGIN("Setting OverlayEffectManager.%s", "\n");
 	OvEff::OverlayEffect::setManager(&mOvEffMngr);
-
-	printf("\n\n\33[01;34mOverlay fading controls:\n\33[22;32m"
-				" ¤\33[01;34m 1\33[22;32m :  fade in.\n"
-				" ¤\33[01;34m 2\33[22;32m :  fade out.\n"
-				"\33[0m\n");
+	testSUCCESS("Test passed.%s", "\n");
 }
 
 Test::~Test()
@@ -103,10 +100,32 @@ Test::handleInput()
 /* Load additional info */
 void Test::loadAditionalData(void)
 {
+	testBEGIN("Creating overlay.%s", "\n");
 	createOverlay();
+	testSUCCESS("Test passed.%s", "\n");
+
+	testBEGIN("Manually creating an Alpha OverlayEffect.%s", "\n");
 	mAlphaEffect = new OvEff::Alpha;
+	if (mAlphaEffect) {
+		testSUCCESS("Test passed.%s", "\n");
+	} else {
+		testFAIL("Error!%s", "\n");
+	}
+
+	testBEGIN("Attaching the alpha effect to the overlay.%s", "\n");
 	mAlphaEffect->setTime(2.0f);
 	mAlphaEffect->configure(mOverlayPanel);
+	testSUCCESS("Test passed.%s", "\n");
+
+	testBEGIN("Testing some OverlayEffectBuilder functionality.%s", "\n");
+	ASSERT(!mOvBuilder.hasOpenFile());
+	testSUCCESS("Test passed.%s", "\n");
+
+	printf("\n\n\33[01;34mOverlay fading controls:\n\33[22;32m"
+				" ¤\33[01;34m 1\33[22;32m :  fade in.\n"
+				" ¤\33[01;34m 2\33[22;32m :  fade out.\n"
+				"\33[0m\n");
+
 }
 
 

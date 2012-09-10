@@ -11,7 +11,8 @@
 #include <cstring>
 
 XMLHelper::XMLHelper() :
-mDocument(0)
+	mFileName(""),
+	mDocument(0)
 {
 
 }
