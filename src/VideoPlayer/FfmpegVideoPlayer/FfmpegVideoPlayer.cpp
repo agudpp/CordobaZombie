@@ -191,7 +191,6 @@ VideoPlayer::~VideoPlayer(){
 
     // Free frames
     av_free(pFrame);
-    av_free(audio_decoded_frame);
 
     // Free conversion context
     sws_freeContext(pImgConvertCtx);
@@ -199,15 +198,20 @@ VideoPlayer::~VideoPlayer(){
 
     // Free the codec contexts (should be closed to free them)
     avcodec_close(pCodecCtx);
-    avcodec_close(aCodecCtx);
 
+    if(audioStream != -1){
 
-	// In case there is a packet in audio_decoding_pkt
-	if(audio_decoding_pkt){
-		av_free_packet(audio_decoding_pkt);
-		delete audio_decoding_pkt;
-		audio_decoding_pkt = 0;
-	}
+    	av_free(audio_decoded_frame);
+        avcodec_close(aCodecCtx);
+
+		// In case there is a packet in audio_decoding_pkt
+		if(audio_decoding_pkt){
+			av_free_packet(audio_decoding_pkt);
+			delete audio_decoding_pkt;
+			audio_decoding_pkt = 0;
+		}
+
+    }
 
     //
     delete mMiniScreen;
@@ -230,19 +234,21 @@ int VideoPlayer::unload(void){
 
     // Close the codecsvideoStream (but not free them)
     avcodec_close(pCodecCtx);
-    avcodec_close(aCodecCtx);
-
-    // Close the video file
-    avformat_close_input(&pFormatCtx);
-    isLoaded = false;
 
     // Clear the packet queues
     empty_data_queues();
 
     // destroy contexts and devices from the audio player
-    alcCloseDevice(dev);
-    alcDestroyContext(ctx);
-    alcCloseDevice(dev);
+    if(audioStream != -1){
+		avcodec_close(aCodecCtx);
+		alcCloseDevice(dev);
+		alcDestroyContext(ctx);
+		alcCloseDevice(dev);
+    }
+
+    // Close the video file
+    avformat_close_input(&pFormatCtx);
+    isLoaded = false;
 
 }
 
@@ -256,14 +262,6 @@ int VideoPlayer::load(const char *fileName){
 
     // Allocation (if first time)
     pFormatCtx 	= avformat_alloc_context();
-
-    // Allocate audio frame
-    if(!audio_decoded_frame){
-    	audio_decoded_frame = avcodec_alloc_frame();
-    }
-    if(audio_decoded_frame==0){
-    	debugERROR("Could not alloc Audio frame\n"); return VIDEO_ERROR;
-    }
 
     // Allocate video frame
     if(!pFrame){
@@ -310,27 +308,22 @@ int VideoPlayer::load(const char *fileName){
     }else{
     	debugGREEN("Video Stream Number %d\n", videoStream);
     }
-    if(audioStream==-1){
-    	debugERROR("Didn't find an audio stream\n"); return VIDEO_ERROR;
-    }else{
-    	debugGREEN("Audio Stream Number %d\n", audioStream);
-    }
+//    if(audioStream==-1){
+//    	debugERROR("Didn't find an audio stream\n"); return VIDEO_ERROR;
+//    }else{
+//    	debugGREEN("Audio Stream Number %d\n", audioStream);
+//    }
 
     // Get a pointer to the codec context for the video stream
     pCodecCtx = pFormatCtx->streams[videoStream]->codec;
-    // Same for the audio
-    aCodecCtx = pFormatCtx->streams[audioStream]->codec;
+
+
 
     // Find the decoder for the video stream
     pCodec=avcodec_find_decoder(pCodecCtx->codec_id);
     if(pCodec==NULL){
     	debugERROR("Video codec not found\n"); return VIDEO_ERROR;
     }
-    aCodec=avcodec_find_decoder(aCodecCtx->codec_id);
-    if(aCodec==NULL){
-    	debugERROR("Audio codec not found\n"); return VIDEO_ERROR;
-    }
-
 
     // Inform the codec that we can handle truncated bitstreams -- i.e.,
     // bitstreams where frame boundaries can fall in the middle of packets
@@ -340,9 +333,6 @@ int VideoPlayer::load(const char *fileName){
     // Open codec
     if(avcodec_open2(pCodecCtx, pCodec, 0)<0){
     	debugERROR("Could not open video codec"); return VIDEO_ERROR;
-    }
-    if(avcodec_open2(aCodecCtx, aCodec, 0)<0){
-        debugERROR("Could not open audio codec"); return VIDEO_ERROR;
     }
 
     // Allocate an AVFrame structure for converted frame
@@ -379,29 +369,61 @@ int VideoPlayer::load(const char *fileName){
     //set some values
 	vtbasenum = pFormatCtx->streams[videoStream]->time_base.num;
 	vtbaseden = pFormatCtx->streams[videoStream]->time_base.den;
-	atbasenum = pFormatCtx->streams[audioStream]->time_base.num;
-	atbaseden = pFormatCtx->streams[audioStream]->time_base.den;
 
 	mVideoLength = static_cast<double>(pFormatCtx->duration)/
 				   static_cast<double>(AV_TIME_BASE);
-    isPlaying = false;
+
+	isPlaying = false;
     isLoaded = true;
     mplayingtime = 0;
 
 
-    print_video_info();
+    //For audio:
+    if(audioStream==-1){
 
-    if(aCodecCtx->sample_fmt != AV_SAMPLE_FMT_S16){
-    	debugERROR("Unsuported audio format :s\n");
-    	return VIDEO_ERROR;
+    	debugGREEN("Didn't find an audio stream. Playing only video.\n");
+
     }else{
-    	create_al_audio_player();
+    	debugGREEN("Audio Stream Number %d\n", audioStream);
+
+        // Allocate audio frame
+        if(!audio_decoded_frame){
+        	audio_decoded_frame = avcodec_alloc_frame();
+        }
+
+        if(audio_decoded_frame==0){
+        	debugERROR("Could not alloc Audio frame\n"); return VIDEO_ERROR;
+        }
+
+    	aCodecCtx = pFormatCtx->streams[audioStream]->codec;
+
+    	aCodec=avcodec_find_decoder(aCodecCtx->codec_id);
+		if(aCodec==NULL){
+			debugERROR("Audio codec not found\n"); return VIDEO_ERROR;
+		}
+
+	    if(avcodec_open2(aCodecCtx, aCodec, 0)<0){
+	        debugERROR("Could not open audio codec"); return VIDEO_ERROR;
+	    }
+
+		atbasenum = pFormatCtx->streams[audioStream]->time_base.num;
+		atbaseden = pFormatCtx->streams[audioStream]->time_base.den;
+
+	    if(aCodecCtx->sample_fmt != AV_SAMPLE_FMT_S16){
+	    	debugERROR("Unsuported audio format :s\n");
+	    	return VIDEO_ERROR;
+	    }else{
+	    	create_al_audio_player();
+	    }
+
+	    if(preload_audio() == VIDEO_ERROR){
+	    	debugERROR("Couldn't pre-load audio :s\n");
+	    	return VIDEO_ERROR;
+	    }
+
     }
 
-    if(preload_audio() == VIDEO_ERROR){
-    	debugERROR("Couldn't pre-load audio :s\n");
-    	return VIDEO_ERROR;
-    }
+    print_video_info();
 
     return VIDEO_OK;
 }
@@ -455,6 +477,7 @@ int VideoPlayer::seek_time_stamp(double ts){
 
 	return VIDEO_OK;
 }
+
 
 
 int VideoPlayer::empty_data_queues(void){
@@ -645,7 +668,10 @@ int VideoPlayer::update(double timesincelastframe){
 		get_more_data();
 	}
 
-	audio_ret = update_audio(timesincelastframe);
+	//if we have audio
+	if(audioStream != -1){
+		audio_ret = update_audio(timesincelastframe);
+	}
 
 	video_ret = update_video(timesincelastframe);
 
@@ -1047,14 +1073,15 @@ int VideoPlayer::audio_decode_frame(uint8_t **buffer, int buffer_size){
 
 int VideoPlayer::get_playing_time(double & t){
 
+	if(!audio_decoding_pkt || audioStream == -1){
+		// we can't get the synchronized time so we return the real time
+		t = mplayingtime;
+		return VIDEO_OK;
+	}
+
 	ALint val = 0;
 	alGetSourcei(source, AL_BUFFERS_PROCESSED, &val);
 	int nloadedbuffs = NUM_BUFFERS - val;
-
-	if(!audio_decoding_pkt){
-		// we don't know the time
-		return VIDEO_ERROR;
-	}
 
 	ASSERT(static_cast<double>(aCodecCtx->sample_rate) > 0);
 
@@ -1177,15 +1204,17 @@ void VideoPlayer::print_video_info(void){
 
 	    cyanPrint("VIDEO DEBUG\n");
 	    lightGreenPrint("Video nb of streams %d\n", pFormatCtx->nb_streams);
-	    cyanPrint("AUDIO DEBUG\n");
-	    const char *format = av_get_sample_fmt_name(aCodecCtx->sample_fmt);
-	    if(format){
-	    	lightGreenPrint("Audio sample format %s\n",format );
+	    if(audioStream != -1){
+			cyanPrint("AUDIO DEBUG\n");
+			const char *format = av_get_sample_fmt_name(aCodecCtx->sample_fmt);
+			if(format){
+				lightGreenPrint("Audio sample format %s\n",format );
+			}
+			lightGreenPrint("Audio nb of channels %d\n",aCodecCtx->channels);
+			lightGreenPrint("Audio nb of bits per sample %d\n",
+					av_get_bytes_per_sample(aCodecCtx->sample_fmt)*8);
+			lightGreenPrint("Audio frequency %dHz\n",aCodecCtx->sample_rate);
 	    }
-	    lightGreenPrint("Audio nb of channels %d\n",aCodecCtx->channels);
-	    lightGreenPrint("Audio nb of bits per sample %d\n",
-	    		av_get_bytes_per_sample(aCodecCtx->sample_fmt)*8);
-	    lightGreenPrint("Audio frequency %dHz\n",aCodecCtx->sample_rate);
 	    cyanPrint("OTHER DEBUGS\n");
 	    lightGreenPrint("AVCODEC_MAX_AUDIO_FRAME_SIZE: %d\n",
 	    		AVCODEC_MAX_AUDIO_FRAME_SIZE);

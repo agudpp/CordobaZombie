@@ -89,6 +89,7 @@ private:
 
 	void testCollectObject(void);
 
+	void createOverlay(void);
 
 
 private:

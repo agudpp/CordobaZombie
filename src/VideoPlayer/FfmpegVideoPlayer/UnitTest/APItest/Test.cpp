@@ -66,6 +66,7 @@
 //int video = 0;
 
 
+#define myvideo2 "/home/raul/Dropbox/CordobaZombie/menu/Menu_animacion/menu_ar3:2.ogg"
 #define myvideo "/home/raul/Dropbox/201Z-proyecto/Videos/caligaris.flv"
 
 
@@ -266,10 +267,46 @@ void Test::createCollectable(void)
 {
 }
 
+
+
+// create overlay uv test
+void Test::createOverlay(void)
+{
+	// load the fade
+	Ogre::PanelOverlayElement	*mOverlayPanel = 0;
+	Ogre::MaterialPtr			mFaderMaterial;
+	Ogre::TextureUnitState 		*mTexture = 0;
+
+	Ogre::OverlayManager& overlayManager = Ogre::OverlayManager::getSingleton();
+
+	mOverlayPanel = static_cast<Ogre::PanelOverlayElement*>(
+		overlayManager.createOverlayElement("Panel", "Fader"));
+	mOverlayPanel->setMetricsMode(Ogre::GMM_RELATIVE);
+	mOverlayPanel->setPosition(0, 0);
+	mOverlayPanel->setDimensions(0.5f, 0.5f);
+	mOverlayPanel->setMaterialName("BackpackMaterial"); // Optional background material
+
+	// Ensures that the material exists
+	mOverlayPanel->setUV(0,0,0.5,1);
+
+	// show the fade
+	mOverlayPanel->show();
+
+	// Create an overlay, and add the panel
+	Ogre::Overlay			*mOverlay = 0;
+	mOverlay = overlayManager.create("TestOverlay1");
+	mOverlay->add2D(mOverlayPanel);
+	mOverlay->show();
+}
+
+
+
+
 Test::Test():
 		VPAPI(0)
 {
 	//mMouseCursor.setImage("cursor.png");
+	createOverlay();
 	mMouseCursor.setVisible(true);
 	mMouseCursor.setWindowDimensions(GLOBAL_WINDOW->getWidth(),
 			GLOBAL_WINDOW->getHeight());
@@ -596,6 +633,8 @@ void Test::update()
 				//VPAPI->queue_video("../Videos/MartinSolveig_Dragonette-Hello.mp4", 20.0f, 25.0f);
 				VPAPI->queue_video(myvideo);
 				VPAPI->queue_video(myvideo, 5.0f, 10.0f);
+				VPAPI->queue_video(myvideo2);
+				VPAPI->queue_video(myvideo2, 5.0f, 10.0f);
 				VPAPI->queue_video(myvideo);
 				VPAPI->queue_video(myvideo, 5.0f, 10.0f);
 				VPAPI->set_repeat(true);
