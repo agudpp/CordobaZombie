@@ -43,9 +43,16 @@ OverlayEffect*
 OverlayEffectBuilder::createOverlayEffect(const Ogre::String &eName)
 {
 	OverlayEffect* e(0);
-	const TiXmlElement* wxml(mHelper.findElement(eName.c_str()));
+	const TiXmlElement* wxml(0);
 
-	if (mHelper.getRootElement()) {
+	if (!mHelper.hasOpenFile()) {
+		debugWARNING("No XML file open!%s", "\n");
+		return e;
+	} else {
+		wxml = mHelper.findElement(eName.c_str());
+	}
+
+	if (!mHelper.getRootElement()) {
 		debugERROR("Couldn't get the XML root element.%s", "\n");
 	} else if (!wxml) {
 		debugERROR("OverlayEffect named \"%s\" couldn't be found in the current"

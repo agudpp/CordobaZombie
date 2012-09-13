@@ -29,10 +29,10 @@ public:
 	/**
 	 * @brief	Sets the name of the XML file where the effects configurations
 	 *			are to be extracted from.
-	 * @remark	fname must be full path.
+	 * @remark	fname must be available to Ogre's ResourceGroupManager.
 	 *			On sucess, the file is left open.
 	 *			Any other file already in use gets closed.
-	 * @param	fname	File name (full path to)
+	 * @param	fname	File name (must be an available resource)
 	 * @return	true	Specified filename exists, configuration sucessfull.
 	 * 			false	Errors occurred while trying to open file "fname".
 	 */
