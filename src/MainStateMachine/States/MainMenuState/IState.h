@@ -17,6 +17,7 @@
 #include "XMLHelper.h"
 #include "CbMenuButton.h"
 #include "InputKeyboard.h"
+#include "GeneralTypedefs.h"
 
 class TiXmlElement;
 
@@ -29,7 +30,17 @@ namespace mm_states {
 
 enum Event {
 	Done	= 0,
+	Exit,
+	Credits,
+	Config,
+	History,
+	PlayGame,
+
 };
+
+class IState;
+
+typedef GenericFunctor2<void, IState *, Event> EventCallback;
 
 
 class IState : public CbMenuButton::Cb {
@@ -45,6 +56,12 @@ public:
 public:
 	IState(const Ogre::String &name);
 	virtual ~IState();
+
+	/**
+	 * Set the callback ptr where we have to call when the IState has to
+	 * emit some new event (this is the "main MachineState").
+	 */
+	static void setStateMachineCb(EventCallback *cb);
 
 	/**
 	 * Returns the associated video ranges to be used in this state
@@ -170,6 +187,8 @@ private:
 	float			mActualTimeDuration;
 	XMLHelper		mXMLHelper;
 	Ogre::String	mName;
+
+	static EventCallback *sEventCb;
 
 };
 

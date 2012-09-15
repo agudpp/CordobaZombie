@@ -169,12 +169,17 @@ enum KeyCode
 class InputKeyboard {
 public:
 	static inline bool isKeyDown(KeyCode);
+	static inline void capture(void);
 
 };
 
 inline bool InputKeyboard::isKeyDown(KeyCode k)
 {
 	return GLOBAL_KEYBOARD->isKeyDown(OIS::KeyCode(k));
+}
+inline void InputKeyboard::capture(void)
+{
+	GLOBAL_KEYBOARD->capture();
 }
 
 }

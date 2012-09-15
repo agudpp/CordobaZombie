@@ -8,15 +8,21 @@
 
 #include "StatesFactory.h"
 
+#include "DebugUtil.h"
+
+#include "CreditsState.h"
+#include "HistoryState.h"
+#include "MainState.h"
+#include "ConfigState.h"
+
 namespace mm_states {
 
-StatesFactory::StatesFactory() {
-	// TODO Auto-generated constructor stub
-
+bool StatesFactory::buildStates(std::vector<IState *> &result)
+{
+	// TODO: una vez que esten definidas las interfaces de los estados hacemos
+	// esta funcion
+	ASSERT(false);
 }
 
-StatesFactory::~StatesFactory() {
-	// TODO Auto-generated destructor stub
-}
 
 }

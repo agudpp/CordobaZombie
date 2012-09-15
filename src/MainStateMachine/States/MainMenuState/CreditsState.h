@@ -10,6 +10,8 @@
 #define CREDITSSTATE_H_
 
 #include <OgreString.h>
+#include <OgreOverlay.h>
+#include <OgreTextAreaOverlayElement.h>
 
 #include <vector>
 
@@ -87,6 +89,7 @@ private:
 	 */
 	void triggerHidingState(void);
 
+
 private:
 	typedef std::vector<OvEff::MenuButtonEffect>	ButtonsEffectVec;
 	typedef std::vector<Ogre::String>				StrVec;
@@ -94,6 +97,8 @@ private:
 	ButtonsEffectVec	mButtons;
 	int					mState;
 	StrVec				mBtnNames;
+	Ogre::Overlay		*mOverlay;
+	Ogre::TextAreaOverlayElement *mTextArea;
 
 };
 
