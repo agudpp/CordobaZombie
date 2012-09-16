@@ -45,15 +45,6 @@ typedef GenericFunctor2<void, IState *, Event> EventCallback;
 
 class IState : public CbMenuButton::Cb {
 public:
-
-	// The different video states
-	enum VideoState {
-		ENTERING	= 0, // when we are reproducing the video and we are entering
-		LOOPING,		 // when we have past the entering state
-		EXITING,		 // when we are exiting the state
-	};
-
-public:
 	IState(const Ogre::String &name);
 	virtual ~IState();
 
@@ -104,15 +95,17 @@ public:
 	virtual void load(void) = 0;
 
 	/**
-	 * This function is called when we start to reproduce some of the video
-	 * ranges associated with this state.
-	 * @param	vs		The videoState that is been reproduced, with this flag
-	 * 					we can determine with is the actual state.
-	 * @note Every time we enter (or during) a new VideoState we can get the
-	 * 		 duration of the video corresponding to that state from
-	 * 		 getActualVideoStateDuration
+	 * Function called right before we start the main loop (update()).
+	 * This function is called once and after that we start calling the update
+	 * function.
 	 */
-	virtual void update(VideoState vs) = 0;
+	virtual void beforeUpdate(void) = 0;
+
+	/**
+	 * This function is called every frame, here we have to implement all the
+	 * state logic.
+	 */
+	virtual void update(void) = 0;
 
 	/**
 	 * Function called once the state will be closed, so we have to unload all

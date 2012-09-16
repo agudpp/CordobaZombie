@@ -27,6 +27,17 @@
 
 
 class MainMenuState : public IMainState {
+
+	typedef std::vector<mm_states::IState *>	StatesVector;
+	typedef std::vector<mm_states::VideoRange>	VideoRangeVec;
+
+	// internal video states
+	enum VideoState {
+		Entering = 0,
+		Updating,
+	};
+
+
 	// The xml filename to be used to load all the information.
 	static const char *CONFIG_FILENAME;
 
@@ -119,20 +130,29 @@ private:
 	 * Auxiliary function to establish the new state / remove the old one
 	 */
 	void configureNewState(mm_states::IState *newState);
-	void configureOldState(mm_states::IState *oldState);
+
+	/**
+	 * Auxiliary function used to get the VideoState given the actual video
+	 * position and a VideoRangeVec
+	 * @param	range	The video range configuration of the state
+	 * @return	state	The resulting state (given the video actual position)
+	 */
+	VideoState getVideoState(const VideoRangeVec &range);
+
+	/**
+	 * Main function logic.
+	 */
+	void updateStateMachine(void);
 
 
 private:
-	typedef std::vector<mm_states::IState *>	StatesVector;
-	typedef std::vector<mm_states::VideoRange>	VideoRangeVec;
 
 	StatesVector					mStates;
 	mm_states::IState 				*mActualState;
-	mm_states::IState 				*mActualStateExiting;
 	mm_states::IState 				*mLastState;
 	mm_states::Event 				mLastEvent;
+	bool							mBeforeUpdateCalled;
 	VideoRangeVec					mEnteringRanges;
-	VideoRangeVec					mExitingRanges;
 	MenuManager						mMenuManager;
 	OvEff::OverlayEffectManager		mOvEffManager;
 

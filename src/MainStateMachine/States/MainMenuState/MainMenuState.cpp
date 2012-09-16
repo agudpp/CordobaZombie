@@ -15,7 +15,8 @@
 #include "StatesFactory.h"
 #include "GlobalObjects.h"
 #include "InputKeyboard.h"
-
+#include "InputMouse.h"
+#include "IMenu.h"
 
 const char *MainMenuState::CONFIG_FILENAME = "MainMenuConfiguration.xml";
 
@@ -40,15 +41,13 @@ void MainMenuState::newStateEvent(mm_states::IState *state, mm_states::Event e)
 {
 	ASSERT(state);
 	// check the event is from one of the actual states
-	if(state != mActualState || state != mActualStateExiting){
+	if(state != mActualState){
 		debugERROR("Event from an bad state:\n"
 				"State: %s\n"
 				"ActualState: %s\n"
-				"ActualStateExiting: %s\n"
 				"Event: %d\n",
 				state->name().c_str(),
 				(mActualState) ? mActualState->name().c_str() : "Null",
-				(mActualStateExiting) ? mActualStateExiting->name().c_str() : "Null",
 				e);
 		ASSERT(false);
 		return;
@@ -85,42 +84,67 @@ void MainMenuState::configureNewState(mm_states::IState *newState)
 
 	// load the new state
 	newState->load();
+	mBeforeUpdateCalled = false;
 
-	// the exiting state must pass to old state now
-	mLastState = mActualStateExiting;
-	if (mActualStateExiting) mActualStateExiting->unload();
+	// the old state
+	mLastState = mActualState;
+	if(mLastState) mLastState->unload();
 
-	// actual state now pass to exiting state...
-	mActualStateExiting = mActualState;
 	mActualState = newState;
 
 	// get the video ranges
-	mActualStateExiting->getVideoRanges(mExitingRanges);
 	mActualState->getVideoRanges(mEnteringRanges);
 
 	ASSERT(mEnteringRanges.size() == 3);
-	ASSERT(mExitingRanges.size() == 3);
-	ASSERT(mEnteringRanges[0] == mExitingRanges[2]); // they must be equal
 
 	// TODO Rulo:
 	debugRED("TODO Rulo: Configurar aca el video player o lo que sea que tengas"
 			" que hacer, el video a reproducir seria mEnteringRanges[0]\n");
 }
 
+
 ////////////////////////////////////////////////////////////////////////////////
-void MainMenuState::configureOldState(mm_states::IState *oldState)
+MainMenuState::VideoState MainMenuState::getVideoState(const VideoRangeVec &range)
 {
-	ASSERT(oldState);
-	ASSERT(mActualStateExiting == oldState);
-	mLastState = oldState;
-	mLastState->unload();
-	mActualStateExiting = 0;
+	// TODO: Rulo, pone aca lo correspondiente
+	ASSERT(false);
+	return Entering;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void MainMenuState::updateStateMachine(void)
+{
+	// check that we have state to update
+	if(!mActualState) return;
+
+	// check video position
+	VideoState actualVS = getVideoState(mEnteringRanges);
+
+	if (actualVS == Entering) {
+		// we don't have to do nothing, only update videoplayer
+		// TODO rulo, actualizar el video player aca
+		return;
+	}
+
+	// we are in the updating stage
+	if (mBeforeUpdateCalled == false) {
+		mBeforeUpdateCalled = true;
+		mActualState->beforeUpdate();
+		return;
+	}
+
+	// now update the state
+	mActualState->update();
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void MainMenuState::configureMenuManager(void)
 {
-	ASSERT(false);
+	// configure the IMenu
+	mMenuManager.build(GLOBAL_WINDOW->getWidth(),GLOBAL_WINDOW->getHeight(),
+			5,5);
+	IMenu::setMenuManager(&mMenuManager);
 }
 void MainMenuState::configureOvEffectManager(void)
 {
@@ -200,9 +224,9 @@ mm_states::IState *MainMenuState::nextState(mm_states::Event e,
 MainMenuState::MainMenuState() :
 IMainState("MainMenuState"),
 mActualState(0),
-mActualStateExiting(0),
 mLastState(0),
-mLastEvent(mm_states::Done)
+mLastEvent(mm_states::Done),
+mBeforeUpdateCalled(false)
 {
 
 }
@@ -258,11 +282,15 @@ MainMachineEvent MainMenuState::update(MainMachineInfo &info)
 
 		// capture input
 		input::InputKeyboard::capture();
+		input::InputMouse::capture();
 
 		// render the frame
 		if(!GLOBAL_ROOT->renderOneFrame()){
 			break;
 		}
+
+		// update the state machine
+		updateStateMachine();
 
 		// This must be called when we use the renderOneFrame approach
 		Ogre::WindowEventUtilities::messagePump();

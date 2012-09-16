@@ -97,60 +97,60 @@ void CreditsState::load(void)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void CreditsState::update(IState::VideoState vs)
+void CreditsState::beforeUpdate(void)
 {
-	switch(vs){
-	case IState::ENTERING:
-		return;
-	case IState::LOOPING:
-	{
-		if(mState == 0){
-			mState = STATE_SHOWING;
-		}
+	ASSERT(false);
+	// TODO
+}
 
-		// Internal states here
-		switch(mState){
-		case STATE_SHOWING:
-		{
-			// reproduce all the effects in all the buttons
-			const int size = mButtons.size();
-			debugWARNING("Descomentar la linea de abajo cuando tengamos los efectos\n");
+////////////////////////////////////////////////////////////////////////////////
+void CreditsState::update(void)
+{
+	// TODO: improve this
+
+	if(mState == 0){
+		mState = STATE_SHOWING;
+	}
+
+	// Internal states here
+	switch(mState){
+	case STATE_SHOWING:
+	{
+		// reproduce all the effects in all the buttons
+		const int size = mButtons.size();
+		debugWARNING("Descomentar la linea de abajo cuando tengamos los efectos\n");
 //			for(int i = 0; i < size; ++i) {mButtons[i].getEffect()->start();}
 
-			// TODO: reproduce the sounds (fade in) here
-			// TODO: show credits
-			ASSERT(mOverlay);
-			mOverlay->show();
-			++mState;
-		}
-		break;
-		case STATE_LOOP:
-		{
-			// here we have all the buttons ready and we start to show the
-			// credits
-		}
-		break;
-		case STATE_HIDING:
-		{
-			// hiding... do nothing (wait  the effect callback)
-		}
-		break;
-		case STATE_EXITING:
-		{
-			// exiting
-			stateFinish(Done);
-		}
-		break;
-		default:
-			ASSERT(false);
-
-		}
+		// TODO: reproduce the sounds (fade in) here
+		// TODO: show credits
+		ASSERT(mOverlay);
+		mOverlay->show();
+		++mState;
 	}
-	case IState::EXITING:
-		return;
+	break;
+	case STATE_LOOP:
+	{
+		// here we have all the buttons ready and we start to show the
+		// credits
+	}
+	break;
+	case STATE_HIDING:
+	{
+		// hiding... do nothing (wait  the effect callback)
+	}
+	break;
+	case STATE_EXITING:
+	{
+		// exiting
+		stateFinish(Done);
+	}
+	break;
 	default:
 		ASSERT(false);
+
 	}
+
+	return ;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

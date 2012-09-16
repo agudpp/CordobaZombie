@@ -34,38 +34,38 @@ public:
 };
 
 
-static inline void InputMouse::capture(void)
+inline void InputMouse::capture(void)
 {
 	GLOBAL_MOUSE->capture();
 }
-static inline bool InputMouse::isMouseDown(MouseButtonID btn)
+inline bool InputMouse::isMouseDown(MouseButtonID btn)
 {
-	return GLOBAL_MOUSE->getMouseState().buttonDown(btn);
+	return GLOBAL_MOUSE->getMouseState().buttonDown(OIS::MouseButtonID(btn));
 }
 
 // positions
-static inline int InputMouse::absX(void)
+inline int InputMouse::absX(void)
 {
 	return GLOBAL_MOUSE->getMouseState().X.abs;
 }
 
-static inline int InputMouse::relX(void)
+inline int InputMouse::relX(void)
 {
 	return GLOBAL_MOUSE->getMouseState().X.rel;
 }
-static inline int InputMouse::absY(void)
+inline int InputMouse::absY(void)
 {
 	return GLOBAL_MOUSE->getMouseState().Y.abs;
 }
-static inline int InputMouse::relY(void)
+inline int InputMouse::relY(void)
 {
 	return GLOBAL_MOUSE->getMouseState().Y.rel;
 }
-static inline int InputMouse::absZ(void)
+inline int InputMouse::absZ(void)
 {
 	return GLOBAL_MOUSE->getMouseState().Z.abs;
 }
-static inline int InputMouse::relZ(void)
+inline int InputMouse::relZ(void)
 {
 	return GLOBAL_MOUSE->getMouseState().Z.rel;
 }
