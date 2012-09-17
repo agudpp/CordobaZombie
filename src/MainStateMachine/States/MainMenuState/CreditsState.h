@@ -10,6 +10,8 @@
 #define CREDITSSTATE_H_
 
 #include <OgreString.h>
+#include <OgreOverlay.h>
+#include <OgreTextAreaOverlayElement.h>
 
 #include <vector>
 
@@ -52,16 +54,17 @@ public:
 	void load(void);
 
 	/**
-	 * This function is called when we start to reproduce some of the video
-	 * ranges associated with this state.
-	 * @param	vs		The videoState that is been reproduced, with this flag
-	 * 					we can determine with is the actual state.
-	 * @note Every time we enter (or during) a new VideoState we can get the
-	 * 		 duration of the video corresponding to that state from
-	 * 		 getActualVideoStateDuration
+	 * Function called right before we start the main loop (update()).
+	 * This function is called once and after that we start calling the update
+	 * function.
 	 */
-	void update(IState::VideoState vs);
+	void beforeUpdate(void);
 
+	/**
+	 * This function is called every frame, here we have to implement all the
+	 * state logic.
+	 */
+	void update(void);
 	/**
 	 * Function called once the state will be closed, so we have to unload all
 	 * the resources used by this class.
@@ -87,6 +90,7 @@ private:
 	 */
 	void triggerHidingState(void);
 
+
 private:
 	typedef std::vector<OvEff::MenuButtonEffect>	ButtonsEffectVec;
 	typedef std::vector<Ogre::String>				StrVec;
@@ -94,6 +98,8 @@ private:
 	ButtonsEffectVec	mButtons;
 	int					mState;
 	StrVec				mBtnNames;
+	Ogre::Overlay		*mOverlay;
+	Ogre::TextAreaOverlayElement *mTextArea;
 
 };
 

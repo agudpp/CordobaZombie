@@ -5,8 +5,6 @@
  *      Author: agustin
  */
 
-#include "Test.h"
-
 #include <OgreSceneNode.h>
 #include <iostream>
 #include <assert.h>
@@ -16,6 +14,9 @@
 #include <OgreMaterial.h>
 #include <OgreMaterialManager.h>
 #include <OgreString.h>
+
+#include "Test.h"
+#include "OverlayEffect.h"
 
 // create overlay uv test
 void Test::createOverlay(void)
@@ -97,9 +98,15 @@ Test::handleInput()
 }
 
 
+#define  ALPHA_XML	"Tests/OverlayEffectBuilder/alpha_effect.xml"
+#define  SLIDE_XML	"Tests/OverlayEffectBuilder/slide_effect.xml"
+
+
 /* Load additional info */
 void Test::loadAditionalData(void)
 {
+	OvEff::OverlayEffect* ovef(0);
+
 	testBEGIN("Creating overlay.%s", "\n");
 	createOverlay();
 	testSUCCESS("Test passed.%s", "\n");
@@ -117,15 +124,36 @@ void Test::loadAditionalData(void)
 	mAlphaEffect->configure(mOverlayPanel);
 	testSUCCESS("Test passed.%s", "\n");
 
-	testBEGIN("Testing some OverlayEffectBuilder functionality.%s", "\n");
+	testBEGIN("Testing OverlayEffectBuilder file opening.%s", "\n");
 	ASSERT(!mOvBuilder.hasOpenFile());
+	ASSERT(mOvBuilder.setFilename(ALPHA_XML));
+	ASSERT(mOvBuilder.setFilename(SLIDE_XML));
+	ASSERT(mOvBuilder.hasOpenFile());
+	testSUCCESS("Test passed.%s", "\n");
+
+	testBEGIN("Testing OverlayEffectBuilder effects creation.%s", "\n");
+	ovef = mOvBuilder.createOverlayEffect("Slide");
+	ASSERT(ovef);
+	delete ovef;
+	testSUCCESS("Test passed.%s", "\n");
+
+	testBEGIN("Testing OverlayEffectBuilder effects static creation.%s", "\n");
+	Ogre::String alpha("Alpha");
+	XMLHelper h;
+	h.setFilename(ALPHA_XML);
+	h.openXml();
+	ASSERT(h.hasOpenFile());
+	ovef = mOvBuilder.createOverlayEffect(*h.findElement("Alpha"), &alpha);
+	ASSERT(ovef);
+	ASSERT(static_cast<OvEff::Alpha*>(ovef));
+	delete ovef;
+	h.closeXml();
 	testSUCCESS("Test passed.%s", "\n");
 
 	printf("\n\n\33[01;34mOverlay fading controls:\n\33[22;32m"
 				" ¤\33[01;34m 1\33[22;32m :  fade in.\n"
 				" ¤\33[01;34m 2\33[22;32m :  fade out.\n"
 				"\33[0m\n");
-
 }
 
 

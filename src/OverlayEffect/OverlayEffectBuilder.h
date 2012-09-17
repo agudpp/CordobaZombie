@@ -15,24 +15,52 @@
 
 namespace OvEff {
 
+
+/* FWD references to supported OverlayEffects.
+ * Their names must be reflected in the "Supported names list" (see .cpp) */
 class Alpha;
 class Slide;
+
 
 class OverlayEffectBuilder
 {
 	/**
-	 * @remark	Default constructor/destructor will be sufficient.
+	 * @remark	Default constructor/destructor are sufficient.
 	 *			Destructor closes any open XML file.
 	 */
 
 public:
 	/**
+	 * @brief	Creates a new OverlayEffect from given XML element.
+	 * @remark	Param eName matching is case-insensitive.
+	 * @param	xmle	XML element from which to extract data.
+	 * 			eName	If not NULL, 'eName' specifies the name of the effect
+	 * 					detailed in 'xmle' (v.gr. Alpha, Slide, etc.)
+	 * @return	e		Newly allocated OverlayEffect (memory owned by caller)
+	 * 					0 on error.
+	 */
+	static OverlayEffect*
+	createOverlayEffect(const TiXmlElement& xmle, Ogre::String* eName);
+
+	/**
+	 * @brief	Stub to createOverlayEffect(xmle, eName)
+	 */
+	inline OverlayEffect*
+	operator()(const TiXmlElement& xmle, Ogre::String* eName);
+
+
+/************************************************************************
+ * NOTE: Following functionality opens an XML file for parsing.			*
+ *		 If the XML file to extract data from is already open,			*
+ *		 use the function createOverlayEffect( xmle, eName) instead.	*/
+public:
+	/**
 	 * @brief	Sets the name of the XML file where the effects configurations
 	 *			are to be extracted from.
-	 * @remark	fname must be full path.
+	 * @remark	fname must be available to Ogre's ResourceGroupManager.
 	 *			On sucess, the file is left open.
 	 *			Any other file already in use gets closed.
-	 * @param	fname	File name (full path to)
+	 * @param	fname	File name (must be an available resource)
 	 * @return	true	Specified filename exists, configuration sucessfull.
 	 * 			false	Errors occurred while trying to open file "fname".
 	 */
@@ -49,12 +77,12 @@ public:
 
 	/**
 	 * @brief	Creates a new OverlayEffect from given name
-	 * @param	eName	Effect name
+	 * @param	eName	Effect name (v.g. Alpha, Slide, etc.)
 	 * @return	e		Newly allocated OverlayEffect (memory owned by caller)
 	 * 					0 on error.
 	 */
 	OverlayEffect*
-	createOverlayEffect(const Ogre::String &eName);
+	createOverlayEffect(const Ogre::String& eName);
 
 private:
 	/**
@@ -63,7 +91,7 @@ private:
 	 * @return	e		Newly allocated OverlayEffect (memory owned by caller)
 	 * 					0 on error.
 	 */
-	OverlayEffect*
+	static OverlayEffect*
 	buildOverlayEffect(const TiXmlElement& txe);
 
 	/**
@@ -72,7 +100,7 @@ private:
 	 * @return	e		Newly allocated OverlayEffect (memory owned by caller)
 	 * 					0 on error.
 	 */
-	Alpha*
+	static Alpha*
 	buildAlpha(const TiXmlElement& txe);
 
 	/**
@@ -81,16 +109,25 @@ private:
 	 * @return	e		Newly allocated OverlayEffect (memory owned by caller)
 	 * 					0 on error.
 	 */
-	Slide*
+	static Slide*
 	buildSlide(const TiXmlElement& txe);
 
 private:
-	XMLHelper	mHelper;
+	XMLHelper mHelper;
 };
 
 
 /******************************************************************************/
 /****************************     INLINES     *********************************/
+
+
+////////////////////////////////////////////////////////////////////////////////
+inline OverlayEffect*
+OverlayEffectBuilder::operator()(const TiXmlElement& xmle, Ogre::String* eName)
+{
+	return createOverlayEffect(xmle, eName);
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 inline bool OverlayEffectBuilder::hasOpenFile() const

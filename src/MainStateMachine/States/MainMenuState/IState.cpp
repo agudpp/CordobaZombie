@@ -19,6 +19,16 @@
 
 namespace mm_states {
 
+EventCallback *IState::sEventCb = 0;
+
+////////////////////////////////////////////////////////////////////////////////
+void IState::setStateMachineCb(EventCallback *cb)
+{
+	ASSERT(cb);
+	sEventCb = cb;
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////
 void IState::parseVideoRange(const TiXmlElement *xml, VideoRange &vr) const
 {
@@ -133,10 +143,8 @@ void IState::buildButtons(std::vector<OvEff::MenuButtonEffect> &buttons,
 ////////////////////////////////////////////////////////////////////////////////
 void IState::stateFinish(Event e)
 {
-	ASSERT(false);
-	// TODO: aca tenemos que llamar a la maquina de estado de arriba nuestro
-	// (que seria nuestro MainMenuState) y avisarle que este estado termino
-	// con un evento tal.
+	ASSERT(sEventCb);
+	(*sEventCb)(this, e);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -145,7 +153,7 @@ void IState::stateFinish(Event e)
 IState::IState(const Ogre::String &name) :
 		mName(name)
 {
-
+	ASSERT(sEventCb);
 }
 
 IState::~IState()
