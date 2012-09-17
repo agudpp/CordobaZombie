@@ -137,11 +137,23 @@ void Test::loadAditionalData(void)
 	delete ovef;
 	testSUCCESS("Test passed.%s", "\n");
 
+	testBEGIN("Testing OverlayEffectBuilder effects static creation.%s", "\n");
+	Ogre::String alpha("Alpha");
+	XMLHelper h;
+	h.setFilename(ALPHA_XML);
+	h.openXml();
+	ASSERT(h.hasOpenFile());
+	ovef = mOvBuilder.createOverlayEffect(*h.findElement("Alpha"), &alpha);
+	ASSERT(ovef);
+	ASSERT(static_cast<OvEff::Alpha*>(ovef));
+	delete ovef;
+	h.closeXml();
+	testSUCCESS("Test passed.%s", "\n");
+
 	printf("\n\n\33[01;34mOverlay fading controls:\n\33[22;32m"
 				" ¤\33[01;34m 1\33[22;32m :  fade in.\n"
 				" ¤\33[01;34m 2\33[22;32m :  fade out.\n"
 				"\33[0m\n");
-
 }
 
 

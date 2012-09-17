@@ -14,6 +14,7 @@
 
 
 #include "DebugUtil.h"
+#include "GlobalObjects.h"
 
 #include "SoundManager.h"
 
@@ -44,10 +45,28 @@ fileExists(std::string fname)
 #  error "Unsupported platform. ABORTING COMPILATION."
 #endif
 
+#ifndef MAX
+#  define  MAX(a,b)  ((a)>(b)?(a):(b))
+#endif
+#ifndef MIN
+#  define  MIN(a,b)  ((a)>(b)?(b):(a))
+#endif
+
+
 
 // Expected maximum number of parallel playing sounds
 #define  NUM_PARALLEL_SOUNDS  1<<6  /* 64 */
 
+
+/**
+ ** TODO Actualizar todas las funciones para que consideren fading in/out.
+ **/
+
+
+/**
+ ** TODO Actualizar todas las funciones luego de la refactorización
+ **      de las estructuras internas EnvSound y ActiveSound.
+ **/
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -104,6 +123,72 @@ SoundManager::~SoundManager()
 	alcCloseDevice(device);
 
 	return;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+void
+SoundManager::fadeUpdate(SoundManager::EnvSound& s)
+{
+	ALint playing(AL_NONE);
+	float value(0.0f);
+
+	alGetSourcei(s.source->mSource, AL_PLAYING, &playing);
+	if (!playing
+			&& s.fadeStatus  != SoundManager::FADING_IN
+			&& s.globalState != SSplayback::SS_FADING_IN) {
+		/* Already paused or stopped, return swiftly. */
+		return;
+	}
+
+	// FADE_OUT
+	if ((s.fadeStatus &
+			(SoundManager::FADING_OUT  | SoundManager::FADING_OUT_AND_PAUSE)) ||
+		(s.globalState &
+			(SSplayback::SS_FADING_OUT | SSplayback::SS_FADING_OUT_AND_PAUSE))) {
+
+		// Slowly dissappear: reduce source's gain value
+		s.fadeAccTime -= GLOBAL_TIME_FRAME;
+		value = MAX(s.fadeAccTime / s.fadeTime, 0.0f);
+		alSourcef(s.source->mSource, AL_GAIN, value);
+
+		if (value <= 0.0f &&
+			(s.fadeStatus == SoundManager::FADING_OUT_AND_PAUSE
+			|| s.globalState == SSplayback::SS_FADING_OUT_AND_PAUSE)) {
+			// Fading finished, and playback pause requested.
+			alSourcePause(s.source->mSource);
+		}
+
+	// FADE_IN
+	} else if (s.fadeStatus == SoundManager::FADING_IN
+				|| s.globalState == SSplayback::SS_FADING_IN) {
+
+		// Slowly materialize: increase source's gain value
+		s.fadeAccTime += GLOBAL_TIME_FRAME;
+		value = MIN(s.fadeAccTime / s.fadeTime, s.volume);
+		alSourcef(s.source->mSource, AL_GAIN, value);
+
+		if (!playing) {
+			// A previous fade-out paused the sound, we must restart it.
+			alSourcePlay(s.source->mSource);
+		}
+
+		if (value >= s.volume) {
+			// Fading finished
+			s.fadeStatus  = SoundManager::FADING_NONE;
+			s.globalState = SSplayback::SS_PLAYING;
+		}
+
+	}
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+void
+SoundManager::fadeUpdate(SoundManager::ActiveSound& s)
+{
+	/** TODO: fadeUpdate(ActiveSound) */
+	debugRED("TODO: fadeUpdate(ActiveSound)%s", "\n");
 }
 
 
@@ -240,8 +325,7 @@ SoundManager::addLSoundSources(unsigned int numSources)
 void
 SoundManager::removeSoundSources(unsigned int numSources)
 {
-	/* TODO
-	 * Para un futuro. Por ahora no la implementamos. */
+	/* TODO: Para un futuro, por ahora no la implementamos. */
 	debugERROR("Función no implementada: %s\n", "SoundManager::removeSoundSources()");
 	ASSERT(false);
 }
@@ -477,6 +561,50 @@ SoundManager::globalRestart()
 }
 
 
+////////////////////////////////////////////////////////////////////////////////
+void
+SoundManager::globalFadeOut(const Ogre::Real& time, const bool pause)
+{
+	for (int i=0 ; i < mEnvSounds.size() ; i++) {
+		if (mEnvSounds[i].globalState == SSplayback::SS_PLAYING) {
+			ALSource src = mEnvSounds[i].source->mSource;
+			// Set times
+			mEnvSounds[i].fadeTime = time >= 0.0 ? time : 1.0f;
+			mEnvSounds[i].fadeAccTime = mEnvSounds[i].fadeTime;
+			// Save current volume
+			alGetSourcef(src, AL_GAIN, &mEnvSounds[i].volume);
+			// Override individual fade
+			mEnvSounds[i].fadeStatus = FADING_NONE;
+			mEnvSounds[i].globalState = pause ? SSplayback::SS_FADING_OUT_AND_PAUSE
+											  : SSplayback::SS_FADING_OUT;
+		}
+	}
+	for (int i=0 ; i < mActiveSounds.size() ; i++) {
+		if (mActiveSounds[i].globalState == SSplayback::SS_PLAYING) {
+			ALSource src = mActiveSounds[i].sSRC->mSource;
+			// Set times
+			mActiveSounds[i].fadeTime = time >= 0.0 ? time : 1.0f;
+			mActiveSounds[i].fadeAccTime = mActiveSounds[i].fadeTime;
+			// Save current volume
+			alGetSourcef(src, AL_GAIN, &mActiveSounds[i].volume);
+			// Override individual fade
+			mActiveSounds[i].fadeStatus = FADING_NONE;
+			mActiveSounds[i].globalState = pause ? SSplayback::SS_FADING_OUT_AND_PAUSE
+												 : SSplayback::SS_FADING_OUT;
+		}
+	}
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+void
+SoundManager::globalFadeIn(const Ogre::Real& time)
+{
+	/** TODO: globalFadeIn */
+	debugRED("TODO: globalFadeIn%s", "\n");
+}
+
+
 
 /******************************************************************************/
 /******************************************************************************/
@@ -680,6 +808,25 @@ SoundManager::restartEnvSound(const Ogre::String& sName)
 }
 
 
+////////////////////////////////////////////////////////////////////////////////
+void
+SoundManager::fadeOutEnvSound(const Ogre::String& sName, const Ogre::Real& time,
+							  const bool pause)
+{
+	/** TODO: fadeOutEnvSound */
+	debugRED("TODO: fadeOutEnvSound%s", "\n");
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+void
+SoundManager::fadeInEnvSound(const Ogre::String& sName, const Ogre::Real& time)
+{
+	/** TODO: fadeInEnvSound */
+	debugRED("TODO: fadeInEnvSound%s", "\n");
+}
+
+
 
 /******************************************************************************/
 /******************************************************************************/
@@ -840,3 +987,22 @@ SoundManager::restartSound(SoundAPI& sAPI)
 
 	return err;
 }
+
+
+////////////////////////////////////////////////////////////////////////////////
+void
+SoundManager::fadeOutSound(SoundAPI& sAPI, const Ogre::Real& time, const bool pause)
+{
+	/** TODO: fadeOutSound */
+	debugRED("TODO: fadeOutSound%s", "\n");
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+void
+SoundManager::fadeInSound(SoundAPI& sAPI, const Ogre::Real& time)
+{
+	/** TODO: fadeInSound */
+	debugRED("TODO: fadeInSound%s", "\n");
+}
+

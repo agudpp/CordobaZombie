@@ -46,17 +46,64 @@ class SoundManager
 {
 	friend class SoundAPI;
 
+	typedef enum {
+		FADING_OUT_AND_PAUSE = 0,
+		FADING_OUT	= 1,
+		FADING_IN	= 2,
+		FADING_NONE	= 4
+	} fadeState;
+
+
+	/**
+	 ** TODO: Refactorizar las estructuras internas EnvSound y ActiveSound
+	 **
+	 ** Crear una clase "ActiveSound" en el header de SoundSource,
+	 ** que herede de SoundSource y unifique las actuales EnvSound y ActiveSound
+	 **
+	 ** Prototipo:
+	 ** class ActiveSound : public SoundSource
+	 ** {
+	 ** public:
+	 **		SSplayback	 globalState;	// Global playback state
+	 **		fadeState	 fadeStatus;	// Individual fading out/in state
+	 **		float		 fadeTime;		// Fade out/in time
+	 **		float		 fadeAccTime;	// Fade out/in elapsed time
+	 **		float		 volume;		// OpenAL source's gain value (for fading)
+	 ** };
+	 **
+	 ** Las actuales estructuras internas EnvSound y ActiveSound
+	 ** del SoundManager se transformarían, resp., en lo siguiente:
+	 **
+	 **	typedef std::pair<Ogre::String, ActiveSound> EnvSound;
+	 **	typedef std::pair<SoundAPI*,    ActiveSound> ApiSound;
+	 **
+	 **	Y podríamos mantener tres vectores en el SoundManager:
+	 **		¤ uno con todos los sonidos activos (EnvSounds y ApiSounds mezclados
+	 **		  para evitar repetición de código en las funciones globales)
+	 **		¤ otro con punteros a los EnvSounds del vector de sonidos activos
+	 **		¤ otro con punteros a los ApiSounds del vector de sonidos activos
+	 **	Preguntarle al Agus si esto es un diseño eficiente.
+	 **/
+
 	struct EnvSound {
 		/* Environmental sound (sound name + source) */
 		Ogre::String name;
 		SoundSource* source;
-		SSplayback	 globalState;
+		SSplayback	 globalState;	// Global playback state
+		fadeState	 fadeStatus;	// Individual fading out/in state
+		float		 fadeTime;		// Fade out/in time
+		float		 fadeAccTime;	// Fade out/in elapsed time
+		float		 volume;		// OpenAL source's gain value (for fading)
 		EnvSound(const Ogre::String& sName,
 				 SoundSource* src  = 0,
 				 SSplayback gState = SSplayback::SS_FINISHED) :
 					 name(sName),
 					 source(src),
-					 globalState(gState)
+					 globalState(gState),
+					 fadeStatus(FADING_NONE),
+					 fadeTime(1.0f),
+					 fadeAccTime(0.0f),
+					 volume(0.0f)
 		{ /* Default ctor. suffices. */ }
 	};
 
@@ -64,13 +111,21 @@ class SoundManager
 		/* Game unit sound (sound api + source) */
 		SoundAPI*    sAPI;
 		SoundSource* sSRC;
-		SSplayback	 globalState;
+		SSplayback	 globalState;	// Global playback state
+		fadeState	 fadeStatus;	// Individual fading out/in state
+		float		 fadeTime;		// Fade out/in time
+		float		 fadeAccTime;	// Fade out/in elapsed time
+		float		 volume;		// OpenAL source's gain value (for fading)
 		ActiveSound(SoundAPI*     api = NULL,
 					SoundSource*  src = NULL,
 					SSplayback gState = SSplayback::SS_FINISHED) :
 						sAPI(api),
 						sSRC(src),
-						globalState(gState)
+						globalState(gState),
+						fadeStatus(FADING_NONE),
+						fadeTime(1.0f),
+						fadeAccTime(0.0f),
+						volume(0.0f)
 		{ /* Default ctor. suffices. */ }
 	};
 
@@ -109,6 +164,12 @@ private:
 	/* @remark
 	 * dtor releases OpenAL sound resources (context, device) */
 	~SoundManager();
+
+	/* Updates the sound playback volume, according to its fade in/out state. */
+	void fadeUpdate(SoundManager::EnvSound& s);
+
+	/* Updates the sound playback volume, according to its fade in/out state. */
+	void fadeUpdate(SoundManager::ActiveSound& s);
 
 
 	/*********************************************************************/
@@ -215,7 +276,7 @@ public:
 	 ** Removes "numSources" SoundSources from the SoundManager.
 	 **
 	 ** @remark
-	 ** TODO: CURRENTLY NOT IMPLEMENTED. DO NOT USE.
+	 ** FIXME: CURRENTLY NOT IMPLEMENTED. DO NOT USE.
 	 **/
 	void
 	removeSoundSources(unsigned int numSources);
@@ -225,7 +286,7 @@ public:
 	 ** Loads audio file "sName" for playback.
 	 **
 	 ** @params
-	 **  sName: name of the audio file (realtive path, only filename)
+	 **  sName: name of the audio file (realtive path, i.e., filename only)
 	 ** format: file's audio compression format (WAV, OGG, MP3)
 	 **   type: buffer's type (streaming vs mem.loaded)
 	 **
@@ -254,6 +315,7 @@ public:
 	 **/
 	void
 	unloadSound(const Ogre::String& sName);
+
 
 
 	/*********************************************************************/
@@ -303,6 +365,39 @@ public:
 	void
 	globalRestart();
 
+	/**
+	 ** @brief
+	 ** Fades out the playback volume of all playing sounds in the system.
+	 **
+	 ** @params
+	 **  time: fade-out time, in seconds. If negative, defaults to 1.0
+	 ** pause: whether to pause the sounds once muted. Default: true.
+	 **
+	 ** @remark
+	 ** If pause==true, globalFadeIn() will restart playbacks when called.
+	 **/
+	void
+	globalFadeOut(const Ogre::Real& time, const bool pause=true);
+
+	/**
+	 ** @brief
+	 ** Fades back in all (globally) faded-out sounds.
+	 **
+	 ** @params
+	 ** time: fade-in time, in seconds. If negative, defaults to 1.0
+	 **
+	 ** @remark
+	 ** Sounds (both environmental and attached to a unit's SoundAPI)
+	 ** which were faded-out manually, i.e. before calling globalFadeOut(),
+	 ** will NOT be modified by this function.
+	 **
+	 ** @remark
+	 ** Playback is restarted if the sounds had been faded-out and paused.
+	 **/
+	void
+	globalFadeIn(const Ogre::Real& time);
+
+
 
 	/*********************************************************************/
 	/******************    ENVIRONMENTAL SOUNDS    ***********************/
@@ -350,7 +445,7 @@ public:
 	 ** SS_NO_ERROR			Playback started
 	 ** SS_NO_SOURCES		No available sources to play sound.
 	 ** SS_FILE_NOT_FOUND	Sound "sName" not found (no buffer "sName" loaded).
-	 ** SS_INTERNAL_ERROR	Unespecified
+	 ** SS_INTERNAL_ERROR	Unspecified
 	 **/
 	SSerror
 	playEnvSound(const Ogre::String& sName, bool repeat=false);
@@ -358,7 +453,7 @@ public:
 	/**
 	 ** @brief
 	 ** Pauses environmental sound "sName"
-	 ** If no environmental sound with such name existed, nothing is done.
+	 ** If no environmental sound with such name exists, nothing is done.
 	 **/
 	void
 	pauseEnvSound(const Ogre::String& sName);
@@ -370,10 +465,10 @@ public:
 	 ** @remark
 	 ** The sound is detached from the active sounds list.
 	 ** The associated source and buffer are released.
-	 ** If no environmental sound "sName" existed, nothing is done.
+	 ** If no environmental sound "sName" exists, nothing is done.
 	 **/
 	void
-	stopEnvSound (const Ogre::String& sName);
+	stopEnvSound(const Ogre::String& sName);
 
 	/**
 	 ** @brief
@@ -387,10 +482,46 @@ public:
 	 ** @return
 	 ** SS_NO_ERROR			     Sound playback successfully restarted.
 	 ** SS_NO_BUFFER             "sName" didn't match any existent env. sound
-	 ** SS_INTERNAL_ERROR	     Unespecified.
+	 ** SS_INTERNAL_ERROR	     Unspecified.
 	 **/
 	SSerror
-	restartEnvSound (const Ogre::String& sName);
+	restartEnvSound(const Ogre::String& sName);
+
+	/**
+	 ** @brief
+	 ** Fades out environmental sound "sName" playback volume.
+	 **
+	 ** @params
+	 ** sName: name of the environmental sound
+	 **  time: fade-out time, in seconds. If negative, defaults to 1.0
+	 ** pause: whether to pause the sound once muted. Default: true.
+	 **
+	 ** @remarks
+	 ** If pause==true, fadeInEnvSound() will restart playback when called.
+	 ** If no environmental sound with such name exists, nothing is done.
+	 **/
+	void
+	fadeOutEnvSound(const Ogre::String& sName,
+					const Ogre::Real& time,
+					const bool pause=true);
+
+	/**
+	 ** @brief
+	 ** Fades back in the environmental sound "sName" playback volume
+	 ** to its original value.
+	 **
+	 ** @params
+	 ** sName: name of the environmental sound
+	 **  time: fade-in time, in seconds. If negative, defaults to 1.0
+	 **
+	 ** @remarks
+	 ** If "sName" hadn't been faded-out, nothing is done.
+	 ** If no environmental sound with such name exists, nothing is done.
+	 ** Playback is restarted if the sound had been faded-out and paused.
+	 **/
+	void
+	fadeInEnvSound(const Ogre::String& sName, const Ogre::Real& time);
+
 
 
 	/*********************************************************************/
@@ -433,7 +564,7 @@ private:
 	 ** SS_NO_ERROR			Life's beautiful.
 	 ** SS_NO_SOURCES		No available sources to play sound.
 	 ** SS_FILE_NOT_FOUND	Sound "sName" not found (no buffer "sName" loaded).
-	 ** SS_INTERNAL_ERROR	Unespecified.
+	 ** SS_INTERNAL_ERROR	Unspecified.
 	 **/
 	SSerror
 	playSound (SoundAPI& sAPI, const Ogre::String& sName, bool repeat=false);
@@ -465,15 +596,52 @@ private:
 	 ** @remark
 	 ** If paused or playing, playback restarts from the beginning.
 	 ** If stopped, or if no sound was being played by this SoundAPI,
-	 ** nothing gets done.
+	 ** nothing is done.
 	 **
 	 ** @return
 	 ** SS_NO_ERROR			     Sound playback successfully restarted.
 	 ** SS_NO_BUFFER             sAPI wasn't playing anything.
-	 ** SS_INTERNAL_ERROR	     Unespecified.
+	 ** SS_INTERNAL_ERROR	     Unspecified.
 	 **/
 	SSerror
 	restartSound (SoundAPI& sAPI);
+
+	/**
+	 ** @brief
+	 ** Fades out the sAPI's playback volume.
+	 **
+	 ** @params
+	 **  sAPI: SoundAPI
+	 **  time: fade-out time, in seconds. If negative, defaults to 1.0
+	 ** pause: whether to pause the sound once muted. Default: true.
+	 **
+	 ** @remark
+	 ** If stopped, or if no sound was being played by this SoundAPI,
+	 ** nothing is done.
+	 **
+	 ** @remarks
+	 ** If no sound was being played by this SoundAPI, nothing is done.
+	 ** If pause==true, fadeInSound() will restart playback when called.
+	 **/
+	void
+	fadeOutSound(SoundAPI& sAPI, const Ogre::Real& time, const bool pause=true);
+
+	/**
+	 ** @brief
+	 ** Fades back in the sAPI's playback volume to its original value.
+	 **
+	 ** @params
+	 ** sAPI: SoundAPI
+	 ** time: fade-in time, in seconds. If negative, defaults to 1.0
+	 **
+	 ** @remarks
+	 ** If "sAPI" hadn't been faded-out, nothing is done.
+	 ** If no sound was being played by this SoundAPI, nothing is done.
+	 ** Playback is restarted if the sound had been faded-out and paused.
+	 **/
+	void
+	fadeInSound(SoundAPI& sAPI, const Ogre::Real& time);
+
 
 
 	/*********************************************************************/
@@ -518,8 +686,7 @@ SoundManager::getInstance()
 
 
 ////////////////////////////////////////////////////////////////////////////////
-inline void
-SoundManager::setCamera(Ogre::Camera* cam) { mCam = cam; }
+inline void SoundManager::setCamera(Ogre::Camera* cam) { mCam = cam; }
 
 
 ////////////////////////////////////////////////////////////////////////////////

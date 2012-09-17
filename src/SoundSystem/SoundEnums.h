@@ -52,7 +52,7 @@ typedef enum {
 
 /* SoundSystem error codes */
 typedef enum {
-	SS_NO_ERROR,
+	SS_NO_ERROR = 0,
 	SS_NO_MEMORY,
 	SS_NO_SOURCES,			/* No free sources */
 	SS_NO_BUFFER,           /* NULL or invalid buffer parameter */
@@ -65,11 +65,14 @@ typedef enum {
 } SSerror;
 
 
-/* SoundSource playback state */
+/* SoundSource playback state (don't alter order!) */
 typedef enum {
-	SS_PLAYING,
-	SS_PAUSED,
-	SS_FINISHED
+	SS_PLAYING		= 0,
+	SS_PAUSED		= 1,
+	SS_FADING_OUT_AND_PAUSE = 2,
+	SS_FADING_OUT	= 4,
+	SS_FADING_IN	= 8,
+	SS_FINISHED		= 16
 } SSplayback;
 
 
