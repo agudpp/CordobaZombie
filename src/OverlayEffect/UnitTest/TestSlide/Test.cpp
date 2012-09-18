@@ -35,7 +35,7 @@ void Test::createOverlay(void)
 		overlayManager.createOverlayElement("Panel", "Fader"));
 	mOverlayPanel->setMetricsMode(Ogre::GMM_RELATIVE);
 	mOverlayPanel->setPosition(0, 0);
-	mOverlayPanel->setDimensions(0.25f, 0.25f);
+	mOverlayPanel->setDimensions(0.5f, 0.5f);
 	mOverlayPanel->setMaterialName("BackpackMaterial"); // Optional background material
 
 	// Ensures that the material exists
@@ -78,8 +78,8 @@ void Test::loadAditionalData(void)
 	createOverlay();
 	mSlideEffect = new OvEff::Slide;
 	mSlideEffect->setDuration(1.5f);
-	mSlideEffect->setTranslationPositions(Ogre::Vector2(1.0f,0.0f),
-			Ogre::Vector2(0.0f,0.0f));
+	mSlideEffect->setTranslationPositions(Ogre::Vector2(0.90f,0.0f),
+			Ogre::Vector2(-0.1f,0.0f));
 	mSlideEffect->setFunction(&mvfun);
 	mSlideEffect->setElement(mOverlayPanel);
 }

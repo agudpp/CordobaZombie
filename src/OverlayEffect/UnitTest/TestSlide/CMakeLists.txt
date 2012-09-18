@@ -27,7 +27,6 @@ endif(WIN32)
  
 if(UNIX)
 	#set(CMAKE_BUILD_TYPE "debug")
-	add_definitions(-DDEBUG)
 	set(CMAKE_MODULE_PATH 
 	    "/usr/local/lib/OGRE/cmake/;${CMAKE_MODULE_PATH}"
 	    "/usr/lib/OGRE/cmake/;${CMAKE_MODULE_PATH}"	    
@@ -93,6 +92,9 @@ endif()
 
 
 set (DEV_ROOT_PATH $ENV{ESTRATEGIA2012_DEV_PATH})
+
+include(${DEV_ROOT_PATH}/CommonFlags.cmake) # Customized compilation flags
+
  
 set(HDRS		
 
@@ -138,9 +140,10 @@ include_directories( ${OIS_INCLUDE_DIRS}
 include(${DEV_ROOT_PATH}/Common/Math/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/PathfindingSystem/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/Common/Util/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/Common/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/Common/GUIHelper/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/OverlayEffect/AutoGen.cmake)
-
+include(${DEV_ROOT_PATH}/MenuSystem/AutoGen.cmake)
 
 
 

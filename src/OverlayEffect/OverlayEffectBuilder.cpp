@@ -157,7 +157,7 @@ OverlayEffectBuilder::buildAlpha(const TiXmlElement& txe)
 	Alpha* a(0);
 	Alpha::Type type;
 
-	/* <Effect name="Alpha" type="FADE_OUT" time="2.0"/> */
+	/* <OverlayEffect name="Alpha" type="FADE_OUT" time="2.0"/> */
 	ASSERT(txe.Attribute("type"));
 	ASSERT(txe.Attribute("time"));
 
@@ -188,7 +188,7 @@ OverlayEffectBuilder::buildSlide(const TiXmlElement& txe)
 {
 	Slide* s(0);
 
-	/* <Effect name="Slide" orig="-0.1 0.5" dest="1.1 0.5" duration="3.7"/> */
+	/* <OverlayEffect name="Slide" orig="-0.1 0.5" dest="1.1 0.5" duration="3.7"/> */
 	ASSERT(txe.Attribute("orig"));
 	ASSERT(txe.Attribute("dest"));
 	ASSERT(txe.Attribute("duration"));
