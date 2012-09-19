@@ -8,7 +8,8 @@
 #include "SlidePlayer.h"
 
 ////////////////////////////////////////////////////////////////////////////////
-SlidePlayer::SlidePlayer():
+SlidePlayer::SlidePlayer(const Ogre::String &Overlay,
+		const Ogre::String &OverleyEffectConfFile):
 mSlide(0),
 mShowing(0),
 mOverlay(0),
@@ -29,7 +30,7 @@ mHiddenSEffect(0)
 	Ogre::OverlayManager&  overlayManager(Ogre::OverlayManager::getSingleton());
 
 	//
-	mOverlay = overlayManager.getByName("SlidePlayerOverlay/MainOverlay");
+	mOverlay = overlayManager.getByName(Overlay);
 
 	mCenter = static_cast<Ogre::PanelOverlayElement*>(
 			overlayManager.getOverlayElement("SlidePlayerElement/CenterSlide"));
@@ -63,9 +64,9 @@ mHiddenSEffect(0)
 
 
 	//Build slide effects for overlays using overlay effect builder.
-	if(!mOEBuilder.setFilename("SlidePlayerOverlayEffects.xml")){
-		debugERROR("Couldn't load overlay effects from xml file "
-				"SlidePlayerOverlayEffects.xml\n");
+	if(!mOEBuilder.setFilename(OverleyEffectConfFile)){
+		debugERROR("Couldn't load overlay effects from xml file %s\n",
+				OverleyEffectConfFile);
 	}
 	ASSERT(mOEBuilder.hasOpenFile());
 
@@ -89,12 +90,6 @@ mHiddenSEffect(0)
 	mPrevSEffect->setFunction(&mSVFun);
 	mNextSEffect->setFunction(&mSVFun);
 	mHiddenSEffect->setFunction(&mSVFun);
-
-//	//Attach slides to corresponding effects
-//	mPrevSEffect->setElement(mPrev);
-//	mCenterSEffect->setElement(mCenter);
-//	mNextSEffect->setElement(mNext);
-//	mHiddenSEffect->setElement(mHidden);
 
 	//Get the top left positions for the slides
 	mCenterTL 		= Ogre::Vector2(mCenter->getLeft(), mCenter->getTop());

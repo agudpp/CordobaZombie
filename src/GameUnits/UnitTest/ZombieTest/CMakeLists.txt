@@ -92,6 +92,8 @@ if (NOT OGRE_BUILD_PLATFORM_IPHONE)
 endif()
 
 set (DEV_ROOT_PATH $ENV{ESTRATEGIA2012_DEV_PATH})
+include(${DEV_ROOT_PATH}/CommonFlags.cmake) # Customized compilation flags
+
  
 set(HDRS		
 

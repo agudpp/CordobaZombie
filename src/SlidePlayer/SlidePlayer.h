@@ -7,18 +7,20 @@
 
 
 /*
- * This is the slide player, thought to be used for the history state of the
- * main state machine. It display slides and hides not displayed ones out of
- * out of the screen.
- * @Configuration:
- * 	You can configure slides sizes and display positions modifying the
- * 	SlidePlayer.overlay file under 'MainStates/HistoryState/' at the resource
- * 	folder.
- * 	You can define the slides names and images at the SlidePlayer.material
- * 	under 'MainStates/HistoryState/' at the resource folder.
- * 	Finally you can set the transition effect options in the
- * 	SlidePlayerOverlayEffect.xml file under 'MainStates/HistoryState/' at the
- * 	resource folder.
+ * [1]
+ *
+ * Slide Player Configuration:
+ *
+ * 		You can configure slides sizes and display positions creating a file similar
+ * 	to SlidePlayer.overlay file under 'MainStates/MainMenuState/HistoryState/'
+ * 	at the resource folder. You just need to change the name of the overlay, and
+ * 	adjust values for the elements variables as you wish.
+ * 		You can also set the transition effect options in the creating a file
+ * 	similar to SlidePlayerOverlayEffect.xml file under
+ * 	'MainStates/MainMenuState/HistoryState/' at the resource folder.
+ * 		You can then pass ass parameters the name of the new overlay and the
+ * 	name of the effect configuration file to the class constructor. Be sure
+ * 	that Ogre recognizes the new Overlay resource when you define it.
  */
 
 
@@ -73,9 +75,15 @@ public:
 public:
 
 	/*
-	 *
+	 * @param Overlay:
+	 * 	Name of the slide player overlay. Should be available to the Ogre
+	 * 	Overlay Manager, and should be well defined as described in [1].
+	 * @param OverlayEffectConfFile:
+	 * 	Name of the effect overlay effect configuration file the player should
+	 *  use.
 	 */
-	SlidePlayer();
+	SlidePlayer(const Ogre::String &Overlay,
+				const Ogre::String &OverleyEffectConfFile);
 
 	/*
 	 *
@@ -104,11 +112,15 @@ public:
 
 	/*
 	 * Move to next slide.
+	 * 	@Return SP_OK on success; SP_END_REACHED if the end has been reached and
+	 * we are not able to go further.
 	 */
 	int next();
 
 	/*
 	 * Move to previous slide.
+	 * 	@Return SP_OK on success; SP_END_REACHED if the end has been reached and
+	 * we are not able to go further.
 	 */
 	int prev();
 
@@ -124,9 +136,15 @@ public:
 	int playSlides(float tlapse);
 
 	/*
-	 * To update the slide player each frame
+	 * To update the slide player each frame.
 	 */
 	int update(void);
+
+
+	/*
+	 * Ask if the slides are moving in this moment.
+	 */
+	inline bool isMoving(void);
 
 private:
 
@@ -161,9 +179,8 @@ private:
 	//TODO uso mi propio overlay manager???
 	OvEff::OverlayEffectManager			mOvEffMngr;
 
-private:
 
-	inline bool isMoving(void);
+private:
 
 	/*
 	 * Show initial slides
