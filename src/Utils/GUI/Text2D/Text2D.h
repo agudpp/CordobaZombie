@@ -72,6 +72,17 @@ private:
 	 * Get the width of a string
 	 */
 	inline Ogre::Real getStringWidth(const Ogre::String &str) const;
+	inline Ogre::Real getSubStringWidth(const Ogre::String &str,
+			unsigned int from,	// string index (begin position)
+			unsigned int to,	// string index (end position)
+			const Ogre::Font *font) const;
+	inline Ogre::Real getCharWidth(uint32_t c, const Ogre::Font *font);
+
+	/**
+	 * Truncate horizontally the text (the text result will fits in the container
+	 * horizontally after the call of this function).
+	 */
+	void truncateHorizontally(Ogre::String &text);
 
 
 private:
@@ -93,7 +104,7 @@ inline Ogre::Real Text2D::getStringWidth(const Ogre::String &str) const
 			mTextArea->getFontName()).get());
 	const Ogre::Font *font = static_cast<Ogre::Font *>(
 			Ogre::FontManager::getSingleton().getByName(
-					mTextArea->getFontName().get()));
+					mTextArea->getFontName()).get());
 	Ogre::Real result = 0.0f;
 	const Ogre::Real fontSize = font->getSize();
 	const Ogre::Real space = font->getGlyphAspectRatio(0x0030) * fontSize;
@@ -104,6 +115,32 @@ inline Ogre::Real Text2D::getStringWidth(const Ogre::String &str) const
 		else result += font->getGlyphAspectRatio(str[i]) * fontSize;
 	}
 	return result;
+}
+
+inline Ogre::Real Text2D::getSubStringWidth(const Ogre::String &str,
+		unsigned int from,	// string index (begin position)
+		unsigned int to,	// string index
+		const Ogre::Font *font) const
+{
+	ASSERT(font);
+
+	Ogre::Real result = 0.0f;
+	const Ogre::Real fontSize = font->getSize();
+	const Ogre::Real space = font->getGlyphAspectRatio(0x0030) * fontSize;
+
+	ASSERT(from <= to);
+	ASSERT(to < str.length());
+
+	for(; from < to; from++) {
+		if (str[from] == 0x0020)   result += space;
+		else result += font->getGlyphAspectRatio(str[from]) * fontSize;
+	}
+	return result;
+}
+
+inline Ogre::Real Text2D::getCharWidth(uint32_t c, const Ogre::Font *font)
+{
+	return font->getGlyphAspectRatio(c) * font->getSize();
 }
 
 }
