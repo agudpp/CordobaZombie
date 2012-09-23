@@ -70,11 +70,17 @@ protected:
 	 ** @brief
 	 ** Starts/continues source playback on specified SoundBuffer.
 	 **
-	 ** @remark
+	 ** @remarks
 	 ** On first play, "buf" must contain a valid OpenAL buffer.
 	 ** On replay (after pause) buf can be NULL, or contain the same buffer
 	 ** used to start playback.
 	 ** If source was already playing, nothing is done.
+	 **
+	 ** @param
+	 **    buf: buffer with the sound to play
+	 **   gain: volume of the sound, in [ 0.0 , 1.0 ] scale
+	 **    pos: sound source position inside Ogre's 3D world
+	 ** repeat: whether to repeat on end (default: false)
 	 **
 	 ** @return
 	 ** SS_NO_ERROR			     Sound playback successfully started.
@@ -83,8 +89,9 @@ protected:
 	 **/
 	virtual SSerror
 	play(SoundBuffer* buf,
+		 const Ogre::Real& gain,
 		 const Ogre::Vector3& pos,
-		 bool  repeat=false) = 0;
+		 bool repeat=false) = 0;
 
 	/**
 	 ** @brief
@@ -93,6 +100,9 @@ protected:
 	 ** @remark
 	 ** Position gets updated only if state == SS_PLAYING.
 	 ** If state == SS_STOPPED, buffer gets detached.
+	 **
+	 ** @param
+	 ** pos: sound source position inside Ogre's 3D world
 	 **
 	 ** @return
 	 ** SS_PLAYING		Still playing buffer.
@@ -124,13 +134,20 @@ protected:
 	 ** If paused or playing, playback restarts from the beginning.
 	 ** If stopped or if no buffer is attached, nothing is done.
 	 **
+	 ** @param
+	 **   gain: volume of the sound, in [ 0.0 , 1.0 ] scale
+	 **    pos: sound source position inside Ogre's 3D world
+	 ** repeat: whether to repeat on end (default: false)
+	 **
 	 ** @return
 	 ** SS_NO_ERROR			Sound playback successfully restarted.
 	 ** SS_NO_BUFFER		Source wasn't playing anything, or stale buffer.
 	 ** SS_INTERNAL_ERROR	Unespecified.
 	 **/
 	virtual SSerror
-	restart(const Ogre::Vector3& pos = Ogre::Vector3(0.0f,0.0f,0.0f)) = 0;
+	restart(const Ogre::Real& gain,
+			const Ogre::Vector3& pos = Ogre::Vector3(0.0f,0.0f,0.0f),
+			const bool repeat = false) = 0;
 
 	/**
 	 ** @brief
@@ -152,6 +169,8 @@ protected:
 	SSsrctype		mType;    // Specific source type (LSS vs. SSS)
 	bool			mRepeat;  // Repeat on end?
 };
+
+
 
 
 /******************************************************************************/
@@ -202,6 +221,7 @@ SoundSource::isActive()
 
 ////////////////////////////////////////////////////////////////////////////////
 inline SSsrctype SoundSource::getType() { return mType; }
+
 
 ////////////////////////////////////////////////////////////////////////////////
 inline bool SoundSource::getRepeat() { return mRepeat; }

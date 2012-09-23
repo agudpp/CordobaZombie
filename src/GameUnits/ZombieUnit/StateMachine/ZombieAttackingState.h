@@ -51,8 +51,10 @@ inline void ZombieAttackingState::performAttack(ZombieUnit *ref)
 	// Play attacking sounds
 	const Ogre::String* hitSound(ref->mSounds.getRandomSound(ZombieUnit::SS_HIT_CODE));
 	if (hitSound) {
-		ref->mSAPI.stop();
-		ref->mSAPI.play(*hitSound);
+		if (std::rand() < RAND_MAX/8) {
+			ref->mSAPI.stop();
+			ref->mSAPI.play(*hitSound);
+		} // else: keep playing current sound
 	} else {
 		debugWARNING("No zombie hit sound.%s", "\n");
 	}
