@@ -23,7 +23,7 @@ public:
 		PLAYLIST_EMPTY,
 	};
 
-	static const double NO_VALUE = -1.0f;
+	static constexpr double NO_VALUE = -1.0f;
 	static const int VIDEO_ERROR = VideoPlayer::VIDEO_ERROR;
 	static const int VIDEO_ENDED = VideoPlayer::VIDEO_ENDED;
 	static const int VIDEO_OK = VideoPlayer::VIDEO_OK;

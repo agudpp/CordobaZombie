@@ -163,7 +163,7 @@ void TriangleAStar::findPath(size_t &size, NodePtr start, NodePtr end,
 	static NodePtr neighbor;
 	static bool tentative_is_better = false;
 	static bool haveToAdd = false;
-	static const GEdge *sharedEdge;
+	static GEdge *sharedEdge;
 
 	PriorityNode *neighborPNode;
 	size_t neighborID;
@@ -196,13 +196,13 @@ void TriangleAStar::findPath(size_t &size, NodePtr start, NodePtr end,
 			neighbor = neighbors[i];
 
 			// check if we can use this neighbor in base of the radius
-			sharedEdge = pn->node->getSharedEdge(neighbor);
-			if(sharedEdge->getLenght() < radius){
+			const GEdge *const_sharedEdge = pn->node->getSharedEdge(neighbor);
+			if(const_sharedEdge->getLenght() < radius){
 				// we cannot use this edge
 				continue;
 			}
 			// get the min stretch in the path
-			if(min > sharedEdge->getLenght()) min=sharedEdge->getLenght();
+			if(min > const_sharedEdge->getLenght()) min=const_sharedEdge->getLenght();
 
 			// check if we have the neighbor in the map
 			hashIt = nodePtrHashMap.find(neighbor);
@@ -227,8 +227,8 @@ void TriangleAStar::findPath(size_t &size, NodePtr start, NodePtr end,
 			haveToAdd = false;
 			if(!opensetChecker.test(neighborID)){
 				// add this node to the openset
-				neighborPNode->hValue = heuristic_function(sharedEdge,&endP);
-				neighborPNode->gValue = g_function(sharedEdge, &startP);
+				neighborPNode->hValue = heuristic_function(const_sharedEdge,&endP);
+				neighborPNode->gValue = g_function(const_sharedEdge, &startP);
 				haveToAdd = true;
 				tentative_is_better = true;
 			} else if(tentative_g_score < neighborPNode->gValue){

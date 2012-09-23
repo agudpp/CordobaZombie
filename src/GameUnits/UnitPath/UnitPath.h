@@ -22,7 +22,7 @@ typedef std::vector<sm::Vector2>	PointPath;
 class UnitPath {
 	static const int	MAX_INTERMEDIATE_POINTS		=	7;
 	static const int	MAX_INTERMEDIATE_POINTS_M1	=	MAX_INTERMEDIATE_POINTS-1;
-	static const float	T_FACTOR					=	(1.0f/MAX_INTERMEDIATE_POINTS);
+	static constexpr float	T_FACTOR					=	(1.0f/MAX_INTERMEDIATE_POINTS);
 public:
 	UnitPath();
 	~UnitPath();

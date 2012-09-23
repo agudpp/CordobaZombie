@@ -17,8 +17,8 @@
 
 class FirstInformationState : public IMainState
 {
-	static const float	SHOWING_TIME		=	3.65f;
-	static const float	FADING_TIME			=	1.0f;
+	static constexpr float	SHOWING_TIME		=	3.65f;
+	static constexpr float	FADING_TIME			=	1.0f;
 
 	enum {
 		STATE_FADE_IN = 0,

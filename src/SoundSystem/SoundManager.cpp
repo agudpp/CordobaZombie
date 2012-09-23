@@ -422,7 +422,13 @@ SoundManager::update()
 		 * See: http://goo.gl/s5omf */
 		up = (quatOri * Ogre::Vector3::UNIT_Y);
 		at = (quatOri * Ogre::Vector3::NEGATIVE_UNIT_Z);
-		ori = {at.x, at.y, at.z, up.x, up.y, up.z};
+
+		ori[0] = at.x;
+		ori[1] = at.y;
+	        ori[2] = at.z;
+		ori[3] = up.x;
+		ori[4] = up.y;
+                ori[5] = up.z;
 
 		alListener3f(AL_POSITION, pos.x, pos.y, pos.z);
 		alListenerfv(AL_ORIENTATION, ori);
