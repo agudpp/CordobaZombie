@@ -63,23 +63,24 @@
 
 
 /******************************************************************************/
-/*******************    GLOBAL VARIABLES AND DEFINES    ***********************/
+/*************************    GLOBAL VARIABLES     ****************************/
 
 
-/* Posiciones iniciales de los players. */
-const sm::Vector2 pos1(521.0, 1188.0);	// coral
-const sm::Vector2 pos2(1107.0, 1030.0);	// cardenal
+/* Posiciones de Zombie factories */
+const sm::Vector2 pos1(507.0, 788.0);
+const sm::Vector2 pos2(1107.0, 1030.0);
+/* Posición inicial del player (Coral) */
+const Ogre::Vector3 pos3(1117, 5, 1040);
+const Ogre::Vector3 pos4(1000, 7, 821);
 
 /* Ogre sounds resource name */
 const Ogre::String soundsGroupName("Sounds");
 
-/* Players y sus SoundAPIs */
-Ogre::Entity *coral = 0;
-Ogre::Entity *cardenal = 0;
-Ogre::SceneNode* coralNode = 0;
-Ogre::SceneNode* cardenalNode = 0;
-SoundAPI* coralSoundAPI = 0;
-SoundAPI* cardenalSoundAPI = 0;
+/* Players, y su SoundAPI */
+Ogre::Entity *coral=0;
+Ogre::Entity *cardenal=0;
+SoundAPI* sAPI=0;
+SoundAPI* sAPI2=0;
 
 /* Atributos del player (coral) */
 #define  NUM_LIFE  (1<<27)  // 128 M
@@ -100,10 +101,30 @@ SoundAPI* cardenalSoundAPI = 0;
 /* Archivos de audio */
 const char *audioFile0 = "roar.wav";
 const char *audioFile1 = "fxA20.ogg";
-const char *audioFile2 = "Siren.ogg";
+const char *audioFile2 = "M11.ogg";
 
-/* Tiempo para fadings (in & out) de sonidos. */
-#define  FADE_TIME  2.5f
+/* Listener propperties */
+ALfloat listenerPos[] = {0.0,0.0,0.0};
+ALfloat listenerVel[] = {0.0,0.0,0.0};
+ALfloat listenerOri[] = {0.0,0.0,-1.0,  // 'at' vector (i.e. my nose)
+						 0.0,1.0,0.0};  // 'up' vector (i.e. top of head)
+/* AT/UP vector explanation:
+ * http://stackoverflow.com/questions/7861306/clarification-on-openal-listener-orientation
+ */
+
+/* Sources propperties */
+ALfloat source0Pos[]={ -2.0, 0.0, 0.0};
+ALfloat source0Vel[]={ 0.0, 0.0, 0.0};
+ALfloat source1Pos[]={ 10.0, 0.0, 10.0};
+ALfloat source1Vel[]={ 0.0, 0.0, 0.0};
+
+/* Pitch is the sound playing "speed".
+ * 1.0 means normal speed. */
+float DEFAULT_PITCH = 1.0;
+/* Gain is sort of the sound "volume".
+ * 1.0 gives the sound full power. */
+float DEFAULT_GAIN = 0.8;
+
 
 /******************************************************************************/
 /***********************    AUXILIARY FUNCTIONS     ***************************/
@@ -136,17 +157,18 @@ printDevices(void)
 }
 
 
+#define  SOUND_CTRL_OPTIONS	 5
+
 
 void Test::handleInput()
 {
 	static SoundManager& sMgr(SoundManager::getInstance());
 	static bool mousePressed(false);
 	static bool keyPressed(false);
-	static std::vector<SSplayback> state(5, SSplayback::SS_PLAYING);
-
+	static std::vector<SSplayback> state(SOUND_CTRL_OPTIONS,
+										 SSplayback::SS_FINISHED);
 
 	// MOUSE
-
 	const OIS::MouseState& lMouseState = GLOBAL_MOUSE->getMouseState();
 	mMouseCursor.updatePosition(lMouseState.X.abs, lMouseState.Y.abs);
 
@@ -191,31 +213,30 @@ void Test::handleInput()
 	}
 	exit_mouse_input:
 
-
 	// KEYBOARD
 
-	// Test collect object
+	/* Test collect object */
 	if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_C)){
 		if (!keyPressed) {
 			keyPressed = true;
 			testCollectObject();
 		}
 
-	// Zombies creation
+	/* Zombies creation */
 	} else if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_G)){
 		if (!keyPressed) {
 			keyPressed = true;
 			testStart();
 		}
 
-	// Zombies attack mode
+	/* Zombies attack mode */
 	} else if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_E)){
 		if (!keyPressed) {
 			keyPressed = true;
 			testEngageEveryone();
 		}
 
-	// Toogle play/pause of all sounds.
+	/* Toogle play/pause of all sounds. */
 	} else if (GLOBAL_KEYBOARD->isKeyDown(OIS::KC_NUMPAD0)) {
 		if (!keyPressed) {
 			keyPressed = true;
@@ -230,7 +251,7 @@ void Test::handleInput()
 			}
 		}
 
-	// Toogle play/pause of units sounds.
+	/* Toogle play/pause of units sounds. */
 	} else if (GLOBAL_KEYBOARD->isKeyDown(OIS::KC_NUMPAD1)) {
 		if (!keyPressed) {
 			keyPressed = true;
@@ -245,7 +266,7 @@ void Test::handleInput()
 			}
 		}
 
-	// Toogle play/pause of environmental music.
+	/* Toogle play/pause of environmental music. */
 	} else if (GLOBAL_KEYBOARD->isKeyDown(OIS::KC_NUMPAD2)) {
 		if (!keyPressed) {
 			keyPressed = true;
@@ -260,7 +281,7 @@ void Test::handleInput()
 			}
 		}
 
-	// Restart all sounds.
+	/* Restart all sounds. */
 	} else if (GLOBAL_KEYBOARD->isKeyDown(OIS::KC_SPACE)) {
 		if (!keyPressed) {
 			keyPressed = true;
@@ -268,7 +289,7 @@ void Test::handleInput()
 			debugBLUE("Global sounds RESTARTED.%s", "\n");
 		}
 
-	// Stop all sounds.
+	/* Stop all sounds. */
 	} else if (GLOBAL_KEYBOARD->isKeyDown(OIS::KC_NUMPADENTER)) {
 		if (!keyPressed) {
 			keyPressed = true;
@@ -276,37 +297,7 @@ void Test::handleInput()
 			debugBLUE("Global sounds STOPPED.%s", "\n");
 		}
 
-	// Toogle fade in/out of all sounds.
-	} else if (GLOBAL_KEYBOARD->isKeyDown(OIS::KC_NUMPAD4)) {
-		if (!keyPressed) {
-			keyPressed = true;
-			if (state[3] != SSplayback::SS_FADING_OUT_AND_PAUSE) {
-				sMgr.globalFadeOut(FADE_TIME);
-				state[3] = SSplayback::SS_FADING_OUT_AND_PAUSE;
-				debugBLUE("Global sounds FADING OUT (%.2f seconds)\n", FADE_TIME);
-			} else {
-				sMgr.globalFadeIn(FADE_TIME);
-				state[3] = SSplayback::SS_FADING_IN;
-				debugBLUE("Global sounds FADING IN (%.2f seconds)\n", FADE_TIME);
-			}
-		}
-
-	// Toogle fade in/out of environmental music.
-	} else if (GLOBAL_KEYBOARD->isKeyDown(OIS::KC_NUMPAD5)) {
-		if (!keyPressed) {
-			keyPressed = true;
-			if (state[4] != SSplayback::SS_FADING_OUT_AND_PAUSE) {
-				sMgr.fadeOutEnvSound(audioFile1, FADE_TIME);
-				state[4] = SSplayback::SS_FADING_OUT_AND_PAUSE;
-				debugBLUE("Environmental music FADING OUT (%.2f seconds)\n", FADE_TIME);
-			} else {
-				sMgr.fadeInEnvSound(audioFile1, FADE_TIME);
-				state[4] = SSplayback::SS_FADING_IN;
-				debugBLUE("Environmental music FADING IN (%.2f seconds)\n", FADE_TIME);
-			}
-		}
-
-	// No relevant key press.
+	/* No relevant key-press */
 	} else {
 		if (keyPressed) {
 			keyPressed = false;
@@ -352,19 +343,9 @@ soundInitMisc()
 {
 	SSerror err(SSerror::SS_INTERNAL_ERROR);
 
-	// Put on some environmental music.
-	testBEGIN("Iniciando reproducción del sonido ambiente \"%s\".\n", audioFile1);
-	err = SoundManager::getInstance().playEnvSound(audioFile1, DEFAULT_ENV_GAIN, true);
-	if (err == SSerror::SS_NO_ERROR) {
-		testSUCCESS("Reproducción iniciada.%s", "\n");
-	} else {
-		testFAIL("Falló.%s","\n");
-		ASSERT(false);
-	}
-
-	// Start player sound, using his detached SoundAPI.
-	testBEGIN("Iniciando reproducción de los sonidos del player.\n");
-	err = coralSoundAPI->play(audioFile2, true, DEFAULT_UNIT_GAIN);
+	/* Put on some cuarteto. */
+	testBEGIN("Iniciando reproducción del sonido %s.\n", audioFile1);
+	err = SoundManager::getInstance().playEnvSound(audioFile1, true);
 	if (err == SSerror::SS_NO_ERROR) {
 		testSUCCESS("Reproducción iniciada.%s", "\n");
 	} else {
@@ -373,13 +354,11 @@ soundInitMisc()
 	}
 
 	printf("\n\n\33[01;34mSound playback control options:\n\33[22;32m"
-			" ¤ \33[01;34mSPACE\33[22;32m   : restart all playing sounds.\n"
-			" ¤ \33[01;34mNUMPAD 0\33[22;32m: toogle play/pause  of all sounds.\n"
-			" ¤ \33[01;34mNUMPAD 1\33[22;32m: toogle play/pause  of units' sounds.\n"
-			" ¤ \33[01;34mNUMPAD 2\33[22;32m: toogle play/pause  of environmental music.\n"
-			" ¤ \33[01;34mNUMPAD 4\33[22;32m: toogle fade in/out of all sounds.\n"
-			" ¤ \33[01;34mNUMPAD 5\33[22;32m: toogle fade in/out of environmental music.\n"
-			" ¤ \33[01;34mNUMPAD ENTER\33[22;32m: stop all playing sounds.\n"
+			" ¤ \33[01;34mSPACE\33[22;32m    :  restart all playing sounds.\n"
+			" ¤ \33[01;34mNUMPAD 0\33[22;32m :  toogle play/pause of all sounds.\n"
+			" ¤ \33[01;34mNUMPAD 1\33[22;32m :  toogle play/pause of units' sounds.\n"
+			" ¤ \33[01;34mNUMPAD 2\33[22;32m :  toogle play/pause of environmental music.\n"
+			" ¤ \33[01;34mNUMPAD ENTER\33[22;32m :  stop all playing sounds.\n"
 			"\33[0m\n");
 
 	return;
@@ -413,29 +392,29 @@ Test::createPlayer(void)
 	PlayerGroup::setLevelManager(&mLevelManager);
 	mPlayerGroup = new PlayerGroup;
 
-	for (int i = 0 ; i < 1 ; i++){
-		PlayerUnit *pu(0);
-//		Ogre::SceneNode* coralNode(0);	<-- global var
-//		Ogre::Entity* coral(0); 		<-- global var
+	for(int i = 0; i < 1; i++){
+		Ogre::Entity * ent = GLOBAL_SCN_MNGR->createEntity("coral.mesh");
+		Ogre::SceneNode *node = GLOBAL_SCN_MNGR->getRootSceneNode()->createChildSceneNode();
+		ASSERT(ent);
+		ASSERT(node);
 
-		coral = GLOBAL_SCN_MNGR->createEntity("coral.mesh");
-		coralNode = GLOBAL_SCN_MNGR->getRootSceneNode()->createChildSceneNode();
-		ASSERT(coral);
-		ASSERT(coralNode);
-
-		pu = new PlayerUnit;
-		pu->setEntity(coral);
-		pu->setSceneNode(coralNode);
-		pu->setHeight(5);
-		pu->build();
-		pu->setLife(NUM_LIFE);
+		PlayerUnit *zu = new PlayerUnit;
+		zu->setEntity(ent);
+		zu->setSceneNode(node);
+		zu->setHeight(5);
+		zu->build();
+		zu->setLife(NUM_LIFE);
 		//node->showBoundingBox(true);
-		pu->setMaxVelocity(MAX_VEL*2.0f);
-		pu->setVelocity(MAX_VEL);
-		pu->setPosition(pos1);
+		zu->setMaxVelocity(MAX_VEL*2.0f);
+		zu->setVelocity(MAX_VEL);
 
-		mPlayers.push_back(pu);
-		mPlayerGroup->addUnit(pu);
+		sm::Vector2 p;
+		p.x = 521 + 5*i;
+		p.y = 1188 + 30*i;
+		zu->setPosition(p);
+
+		mPlayers.push_back(zu);
+		mPlayerGroup->addUnit(zu);
 	}
 
 	CircularFormation *formation = new CircularFormation;
@@ -614,20 +593,20 @@ Test::createCollectable(void)
 Test::Test()
 {
 	std::vector<const char*> sounds;
-	// Setup sound system, by creating the sound manager.
+	/* Setup sound system, by creating the sound manager. */
 	testBEGIN("%s","Creando el SoundManager\n");
 	SoundManager& sMgr = SoundManager::getInstance();
 	testSUCCESS("%s","SoundManager creado\n");
 
-	// Print some info about the available audio devices.
+	/* Print some info about the available audio devices. */
 	printDevices();
 
-	// Attach an image to the mouse pointer.
+	/* Attach an image to the mouse pointer. */
 	mMouseCursor.setVisible(true);
 	mMouseCursor.setWindowDimensions(GLOBAL_WINDOW->getWidth(),
 									 GLOBAL_WINDOW->getHeight());
 
-	// Load sounds into the system.
+	/* Load sounds into the system */
 	sounds.push_back(audioFile0);
 	sounds.push_back((const char*)"fxZ1.ogg");
 	sounds.push_back((const char*)"fxZ2.ogg");
@@ -639,7 +618,6 @@ Test::Test()
 	sounds.push_back((const char*)"fxZ8.ogg");
 	sounds.push_back((const char*)"fxZ9.ogg");
 	sounds.push_back((const char*)"fxZ10.ogg");
-	// Loaded buffers.
 	for (int i=0 ; i<11 ; i++) {
 		testBEGIN("Cargando el sonido #%d: \"%s\"\n", i+1, sounds[i]);
 		if (sMgr.loadSound(sounds[i]) == SSerror::SS_NO_ERROR) {
@@ -649,7 +627,6 @@ Test::Test()
 			ASSERT(false);
 		}
 	}
-	// Streaming buffers.
 	testBEGIN("Cargando el sonido \"%s\"\n", audioFile1);  // o sino audioFile2
 	if (sMgr.loadSound(audioFile1, SSformat::SS_OGG, SSbuftype::SS_BUF_STREAM_OGG)
 			== SSerror::SS_NO_ERROR) {
@@ -658,10 +635,8 @@ Test::Test()
 		testFAIL("%s","Falló.\n");
 		ASSERT(false);
 	}
-	ASSERT(SSerror::SS_NO_ERROR == sMgr.loadSound(
-			audioFile2, SSformat::SS_OGG, SSbuftype::SS_BUF_STREAM_OGG));
 
-	// Create some sources to play the sounds.
+	/* Create some sources to play the sounds */
 	testBEGIN("%s","Creando LSources\n");
 	if (sMgr.addLSoundSources(NUM_LSOURCES) == SSerror::SS_NO_ERROR) {
 		testSUCCESS("%s","LSources creadas\n");
@@ -700,7 +675,8 @@ void Test::loadAditionalData(void)
 	// create a collision object (primera manzana)
 	static CollisionObject co;
 	co.bb.setSize(1014 - 548, 896-433);
-	co.bb.setPosition(sm::Vector2((1014+566)/2.0f , (893+433)/2.0f));
+	co.bb.setPosition(sm::Vector2((1014+566)/2.0f,
+			(893+433)/2.0f));
 	co.maskFlag = COL_FLAG_UNIT_PLAYER;
 	co.userDefined = 0;
 	DRAWER.createBox(co.bb);
@@ -708,32 +684,23 @@ void Test::loadAditionalData(void)
 	// Attach the camera to the SoundManager
 	SoundManager::getInstance().setCamera(GLOBAL_CAMERA);
 
-	// Create an external SoundAPI for the player
-	testBEGIN("Creando una SoundAPI externa al player\n");
-	coralSoundAPI = new SoundAPI(coralNode);
-	if (coralSoundAPI) {
-		testSUCCESS("SoundAPI creada.\n");
-	} else {
-		testFAIL("Falló.\n");
-		ASSERT(false);
-	}
-
-	// Initialize RNG
+	/* Initialize RNG */
 	std::srand(time(NULL));
 }
 
 
 
-/* Function called every frame.
- * Use Common::GlobalObjects::lastTimeFrame */
+/* function called every frame. Use GlobalObjects::lastTimeFrame */
 void Test::update()
 {
-	int size(0);
+	int size = 0;
+	sm::Vector2 trans, p;
+	ZombieUnit *zu(0);
 	static SoundManager& sMgr(SoundManager::getInstance());
-	static float counter(0.0f);
+	static float counter = 0.0f;
 
 	if (counter == 0.0f) {
-		// Start environmental and player sounds, and print control options.
+		/* Start environmental music and print cotrol options. */
 		soundInitMisc();
 		counter += (1E-20);
 	}
@@ -744,8 +711,9 @@ void Test::update()
 
 	// update the game objects
 	size = mZombies.size()-1;
-	for(int i=0 ; i <= size ; ++i){
+	for(int i = 0; i <= size; ++i){
 		mZombies[i]->update();
+		mZombies[i]->haveLineOfSightTo(mZombies[i%size], ZOMBIE_MAX_VISIBILITY_SQRDIST);
 	}
 }
 
@@ -757,11 +725,11 @@ Test::pauseUnitsSounds()
 	SoundManager& sMgr(SoundManager::getInstance());
 	bool playing = sMgr.isPlayingEnvSound(audioFile1);
 
-	// Pause everything.
+	/* Pause everything. */
 	sMgr.globalPause();
-	// If music was playing, play it again.
+	/* If music was playing, play it again. */
 	if (playing) {
-		sMgr.playEnvSound(audioFile1, DEFAULT_ENV_GAIN, true);
+		sMgr.playEnvSound(audioFile1);
 	}
 }
 
@@ -773,9 +741,9 @@ Test::playUnitsSounds()
 	SoundManager& sMgr(SoundManager::getInstance());
 	bool playing = sMgr.isPlayingEnvSound(audioFile1);
 
-	// Play everything again
+	/* Play everything again */
 	sMgr.globalPlay();
-	// If music wasn't playing, pause it.
+	/* If music wasn't playing, pause it. */
 	if (!playing) {
 		sMgr.pauseEnvSound(audioFile1);
 	}
@@ -798,8 +766,8 @@ Test::playEnvSounds()
 }
 
 
-void
-Test::testCollissionRaycast(void)
+
+void Test::testCollissionRaycast(void)
 {
 	CollisionObject co;
 	float tlx, tly, brx, bry;
