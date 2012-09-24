@@ -90,128 +90,28 @@ if (NOT OGRE_BUILD_PLATFORM_IPHONE)
 	add_definitions(-DBOOST_ALL_NO_LIB)
 	set(OGRE_LIBRARIES ${OGRE_LIBRARIES} ${Boost_LIBRARIES})
 endif()
-
 set (DEV_ROOT_PATH $ENV{ESTRATEGIA2012_DEV_PATH})
- 
-set(HDRS		
 
-	${DEV_ROOT_PATH}/Common/GlobalObjects/GlobalObjects.h
-	
-	${DEV_ROOT_PATH}/Common/DebugUtil/DebugUtil.h
-	${DEV_ROOT_PATH}/Common/DebugUtil/PrimitiveDrawer.h
-	${DEV_ROOT_PATH}/Extras/AppTester/AppTester.h
-	${DEV_ROOT_PATH}/Utils/MouseCursor/MouseCursor.h
-	${DEV_ROOT_PATH}/Common/QueueContainer/QueueContainer.h
-
-	
-	./Test.h
-)
- 
-set(SRCS
-
-
-	${DEV_ROOT_PATH}/Common/DebugUtil/PrimitiveDrawer.cpp
-	${DEV_ROOT_PATH}/Common/GlobalObjects/GlobalObjects.cpp
-
-	${DEV_ROOT_PATH}/Extras/AppTester/AppTester.cpp
-
-	./Test.cpp
-	./main.cpp
-	
-)
- 
 include_directories( ${OIS_INCLUDE_DIRS}
 	${OGRE_INCLUDE_DIRS}
 	${OGRE_SAMPLES_INCLUDEPATH}
 	${DEV_ROOT_PATH}/Common/DebugUtil
 	${DEV_ROOT_PATH}/Common
-	${DEV_ROOT_PATH}/Common/QueueContainer
+	${DEV_ROOT_PATH}/Common/tinyxml
 	${DEV_ROOT_PATH}/Common/GlobalObjects
 	${DEV_ROOT_PATH}/Utils/MouseCursor
 	
 	${DEV_ROOT_PATH}/Extras/AppTester
 )
 
-include(${DEV_ROOT_PATH}/CommonFlags.cmake)
-include(${DEV_ROOT_PATH}/PathfindingSystem/AutoGen.cmake)
-#include(${DEV_ROOT_PATH}/CameraController/AutoGen.cmake)
-include(${DEV_ROOT_PATH}/IA/AutoGen.cmake)
-include(${DEV_ROOT_PATH}/GameUnits/AutoGen.cmake)
+
+# ADD_PLACE
+
+
+
 include(${DEV_ROOT_PATH}/Common/Math/AutoGen.cmake)
-include(${DEV_ROOT_PATH}/Common/GUIHelper/AutoGen.cmake)
-include(${DEV_ROOT_PATH}/Common/DotSceneLoader/AutoGen.cmake)
-include(${DEV_ROOT_PATH}/CollisionSystem/AutoGen.cmake)
-include(${DEV_ROOT_PATH}/BillboardManager/AutoGen.cmake)
-include(${DEV_ROOT_PATH}/LevelManager/AutoGen.cmake)
-include(${DEV_ROOT_PATH}/UpdatableObjects/AutoGen.cmake)
-include(${DEV_ROOT_PATH}/MenuSystem/AutoGen.cmake)
-include(${DEV_ROOT_PATH}/Common/XMLHelper/AutoGen.cmake)
-include(${DEV_ROOT_PATH}/SoundSystem/AutoGen.cmake)
-
-
-add_executable(OgreApp WIN32 ${HDRS} ${SRCS})
- 
-set_target_properties(OgreApp PROPERTIES DEBUG_POSTFIX _d)
-
-# add imported target
-add_library(tinyxml STATIC IMPORTED)
-# point the imported target at the real file
-set_property(TARGET tinyxml PROPERTY
-                IMPORTED_LOCATION ${DEV_ROOT_PATH}/Common/tinyxml/tinyxmlpath.a)
-
-target_link_libraries(OgreApp ${OGRE_LIBRARIES} ${OIS_LIBRARIES} tinyxml box2D
-${OPENAL_LIBRARIES})
+include(${DEV_ROOT_PATH}/Common/Util/AutoGen.cmake)
  
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/dist/bin)
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/dist/media)
- 
-# post-build copy for win32
-if(WIN32 AND NOT MINGW)
-	add_custom_command( TARGET OgreApp PRE_BUILD
-		COMMAND if not exist .\\dist\\bin mkdir .\\dist\\bin )
-	add_custom_command( TARGET OgreApp POST_BUILD
-		COMMAND copy \"$(TargetPath)\" .\\dist\\bin )
-endif(WIN32 AND NOT MINGW)
-if(MINGW)
-	set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/dist/bin)
-endif(MINGW)
- 
-if(WIN32)
- 
-	install(TARGETS OgreApp
-		RUNTIME DESTINATION bin
-		CONFIGURATIONS All)
- 
-	install(DIRECTORY ${CMAKE_SOURCE_DIR}/dist/Media
-		DESTINATION ./
-		CONFIGURATIONS Release RelWithDebInfo Debug
-	)
- 
-	install(FILES ${CMAKE_SOURCE_DIR}/dist/bin/plugins.cfg
-		${CMAKE_SOURCE_DIR}/dist/bin/resources.cfg
-		DESTINATION bin
-		CONFIGURATIONS Release RelWithDebInfo
-	)
- 
-	install(FILES ${CMAKE_SOURCE_DIR}/dist/bin/plugins_d.cfg
-		${CMAKE_SOURCE_DIR}/dist/bin/resources_d.cfg
-		DESTINATION bin
-		CONFIGURATIONS Debug
-	)
- 
-	install(FILES ${OGRE_PLUGIN_DIR_REL}/OgreMain.dll
-		${OGRE_PLUGIN_DIR_REL}/RenderSystem_Direct3D9.dll
-		${OGRE_PLUGIN_DIR_REL}/RenderSystem_GL.dll
-		${OGRE_PLUGIN_DIR_REL}/OIS.dll
-		DESTINATION bin
-		CONFIGURATIONS Release RelWithDebInfo
-	)
- 
-	install(FILES ${OGRE_PLUGIN_DIR_DBG}/OgreMain_d.dll
-		${OGRE_PLUGIN_DIR_DBG}/RenderSystem_Direct3D9_d.dll
-		${OGRE_PLUGIN_DIR_DBG}/RenderSystem_GL_d.dll
-		${OGRE_PLUGIN_DIR_DBG}/OIS_d.dll
-		DESTINATION bin
-		CONFIGURATIONS Debug
-	)
-endif(WIN32)
+

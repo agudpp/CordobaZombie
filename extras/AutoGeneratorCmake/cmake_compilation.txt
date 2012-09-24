@@ -1,0 +1,63 @@
+
+Cómo compilar cualquier parte del proyecto usando Cmake.
+========================================================
+
+Los pasos siguientes describen cómo compilar desde 0 cualquier parte del
+proyecto, por ejemplo CameraController ó SoundSystem, manualmente usando cmake.
+
+Es necesario que el directorio donde se encuentran los .h y los .cpp
+únicamente contenga los archivos relevantes, i.e. que no haya
+"archivos basura" de IDEs como eclipse.
+
+La metodología usada por el Agus y Hobborg es trabajar con el proyecto de
+eclipse que se encuentra en el subdirectorio trunk del SVN. De esa forma los
+archivos basura se generan a esa altura (¡¡¡Y NO SE SUBEN AL REPO!!!),
+dejando limpio el directorio específico de trabajo donde vamos a compilar.
+
+Para hacer ésto basta con abrir eclipse y elegir:
+File --> Import --> Existing Projects into Workspace (Next) --> ...
+ ... --> Select root directory (Browse) --> "/svn/trunk"
+
+Como último paso previo, es necesario tener exportada una variable de entorno
+con el path de las fuentes del juego. El nombre de la variable es
+ESTRATEGIA2012_DEV_PATH. Para ello colocar en el .bashrc de su home:
+
+export ESTRATEGIA2012_DEV_PATH='/home/<YOUR_NAME>/<SVN_PATH>/trunk/src'
+
+donde "<SVN_PATH>" es el path donde se bajaron el repo del juego.
+Para aplicar esto cambios ejecutar el siguiente comando en consola:
+~$ source ~/.bashrc
+
+Ahora sí, los pasos para compilar:
+
+1. Generar binario con trunk/extras/AutoGeneratorCmake/autogenCmake.cpp
+   i.e. ~$ g++ -o autogenCmake *
+
+2. Copiar el binario en el directorio donde queremos realizar la compilación.
+
+3. Correr: ~$ ./autogenCmake . # notar el '.' final
+
+4. Editar el archivo generado "AutoGen.cmake":
+   En "set(ACTUAL_DIRS...", borrar el punto final de la primera entrada.
+   Comentar los archivos que no se deseen compilar.
+
+5. En el directorio UnitTest, que debería estar dentro del path donde estamos
+   por compilar, copiar los siguientes cuatro archivos:
+   (sacarlos del UnitTest de alguna otra rama)
+   ¤ main.cpp
+   ¤ Test.{h,cpp}
+   ¤ CMakeLists.txt
+
+6. Personalizar esos archivos (todos salvo main.cpp)
+   Test.{h,cpp}: dejar sólo los métodos Test(), ~Test(), loadAditionalData()
+                   y update(), sin código en el .cpp
+   CMakeLists.txt: donde están los "include(${DEV_ROOT_PATH}/...)"
+                   listar en ese formato todos los paths necesarios para lo
+                   que se desea compilar.
+
+7. Subir todo al SVN. Es importante hacerlo en este punto, para no subir
+   después todas las cochinadas que genera el cmake.
+
+8. En el directorio UnitTest/build hacer: ~$ cmake .. && make -j 8
+
+¡Listo! Programa compilado.

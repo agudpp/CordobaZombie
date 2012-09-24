@@ -30,7 +30,7 @@ public:
 		int le = mObjs.size()-1;
 		for(int i = le; i >= 0; --i){
 			if(mObjs[i] == o){
-				return; //ASSERT(false);
+				ASSERT(false);
 			}
 		}
 #endif
