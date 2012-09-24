@@ -132,6 +132,7 @@ include_directories( ${OIS_INCLUDE_DIRS}
 	${DEV_ROOT_PATH}/Extras/AppTester
 )
 
+include(${DEV_ROOT_PATH}/CommonFlags.cmake)
 include(${DEV_ROOT_PATH}/PathfindingSystem/AutoGen.cmake)
 #include(${DEV_ROOT_PATH}/CameraController/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/IA/AutoGen.cmake)

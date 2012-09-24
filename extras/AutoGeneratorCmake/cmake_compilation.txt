@@ -35,7 +35,7 @@ Ahora sí, los pasos para compilar:
 
 2. Copiar el binario en el directorio donde queremos realizar la compilación.
 
-3. Correr: ~$ ./autogenCmake .   # notar el '.' final
+3. Correr: ~$ ./autogenCmake . # notar el '.' final
 
 4. Editar el archivo generado "AutoGen.cmake":
    En "set(ACTUAL_DIRS...", borrar el punto final de la primera entrada.
@@ -49,7 +49,7 @@ Ahora sí, los pasos para compilar:
    ¤ CMakeLists.txt
 
 6. Personalizar esos archivos (todos salvo main.cpp)
-   Test.{h,cpp}:   dejar sólo los métodos Test(), ~Test(), loadAditionalData()
+   Test.{h,cpp}: dejar sólo los métodos Test(), ~Test(), loadAditionalData()
                    y update(), sin código en el .cpp
    CMakeLists.txt: donde están los "include(${DEV_ROOT_PATH}/...)"
                    listar en ese formato todos los paths necesarios para lo
@@ -61,4 +61,3 @@ Ahora sí, los pasos para compilar:
 8. En el directorio UnitTest/build hacer: ~$ cmake .. && make -j 8
 
 ¡Listo! Programa compilado.
-

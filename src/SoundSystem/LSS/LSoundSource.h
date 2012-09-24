@@ -41,8 +41,9 @@ protected:
 	 **/
 	SSerror
 	play(SoundBuffer* buf,
+		 const Ogre::Real& gain,
 		 const Ogre::Vector3& pos,
-		 bool  repeat=false);
+		 bool repeat=false);
 
 	/**
 	 ** @brief
@@ -70,7 +71,9 @@ protected:
 	 ** View SoundSource::restart()
 	 **/
 	SSerror
-	restart(const Ogre::Vector3& pos = Ogre::Vector3(0.0f,0.0f,0.0f));
+	restart(const Ogre::Real& gain,
+			const Ogre::Vector3& pos = Ogre::Vector3(0.0f,0.0f,0.0f),
+			const bool repeat = false);
 };
 
 

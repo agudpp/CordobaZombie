@@ -27,13 +27,21 @@
 class SoundManager;
 
 
+
+/**
+ ** TODO
+ ** Trater todas las funciones del .h como inlines.
+ **/
+
+
+
 class SoundAPI
 {
 	friend class SoundManager;
 
 public:
 	/**
-	 ** @remark
+	 ** @remarks
 	 ** Internal scene node can be specified on creation.
 	 ** The system's sound manager (see SoundManager.h) must be created first,
 	 ** before any SoundAPI.
@@ -45,7 +53,7 @@ public:
 	 ** @brief
 	 ** Set the Ogre SceneNode attached to this SoundAPI.
 	 **
-	 ** @remark
+	 ** @remarks
 	 ** Should be called right after creation.
 	 ** Argument must NOT be NULL.
 	 **/
@@ -84,14 +92,21 @@ public:
 	 ** If the SoundAPI was active (i.e. playing some sound, or in a paused
 	 ** playback state) nothing is done.
 	 **
-	 ** @returns
+	 ** @param
+	 **  sName: name of the audio file to play.
+	 ** repeat: whether to repeat on end (default: false)
+	 **   gain: volume of the sound, in [ 0.0 , 1.0 ] scale (default: 0.7)
+	 **
+	 ** @return
 	 ** SS_NO_ERROR			Sound playback successfully started.
 	 ** SS_NO_SOURCES		No available sources to play sound.
 	 ** SS_FILE_NOT_FOUND	Sound "sName" not found (inexistent buffer name).
 	 ** SS_INTERNAL_ERROR	Unespecified.
 	 **/
 	SSerror
-	play(const Ogre::String &sName, bool repeat=false);
+	play(const Ogre::String &sName,
+		 bool repeat = false,
+		 const Ogre::Real& gain = DEFAULT_UNIT_GAIN);
 
 	/**
 	 ** @brief
@@ -106,7 +121,7 @@ public:
 	 ** Stop currently playing sound.
 	 ** If no sound had been started by this API, nothing is done.
 	 **
-	 ** @remark
+	 ** @remarks
 	 ** Internally memory gets freed.
 	 ** If the sound is to be replayed again soon call pause();play(); instead.
 	 **/
@@ -117,7 +132,7 @@ public:
 	 ** @brief
 	 ** Restarts playback.
 	 **
-	 ** @remark
+	 ** @remarks
 	 ** If paused or playing, playback restarts from the beginning.
 	 ** If stopped, or if no sound was being played by this SoundAPI,
 	 ** nothing is done.
@@ -148,17 +163,6 @@ protected:
 protected:
 	SoundManager&	 mSoundManager;  // Cannot be NULL
 	Ogre::SceneNode* mNode;
-
-private:
-	/**
-	 ** @brief
-	 ** Display currently playing sound's name.
-	 **
-	 ** @remarks
-	 ** If the SoundAPI is inactive, empty string is returned.
-	 **/
-	const Ogre::String&
-	showAttachedSound();
 
 private:
 	Ogre::String mSoundName;  // Name of the currently playing sound.

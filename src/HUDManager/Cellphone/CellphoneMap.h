@@ -32,7 +32,7 @@ class GameUnit;
 
 class CellphoneMap
 {
-	static const Ogre::Real		UPDATE_TIME		=	0.5f;
+	static constexpr Ogre::Real		UPDATE_TIME		=	0.5f;
 public:
 	CellphoneMap();
 	~CellphoneMap();
