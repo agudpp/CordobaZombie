@@ -27,12 +27,17 @@ endif(WIN32)
  
 if(UNIX)
 	#set(CMAKE_BUILD_TYPE "debug")
-	add_definitions(-DDEBUG)
-	set(CMAKE_MODULE_PATH "/usr/local/lib/OGRE/cmake/;${CMAKE_MODULE_PATH}")
+
+	set(CMAKE_MODULE_PATH 
+		"/usr/lib/OGRE/cmake/;${CMAKE_MODULE_PATH}"
+		"/usr/local/lib/OGRE/cmake/;${CMAKE_MODULE_PATH}"	
+	)
 	set(OGRE_SAMPLES_INCLUDEPATH
-		/usr/local/share/OGRE/samples/Common/include/
+		/usr/share/OGRE/samples/Common/include/
+		/usr/local/share/OGRE/samples/Common/include/		
 	)
 endif(UNIX)
+
  
 if (CMAKE_BUILD_TYPE STREQUAL "")
   # CMake defaults to leaving CMAKE_BUILD_TYPE empty. This screws up
@@ -89,8 +94,8 @@ endif()
 
 
 set (DEV_ROOT_PATH $ENV{ESTRATEGIA2012_DEV_PATH})
-include(${DEV_ROOT_PATH}/CommonFlags.cmake)
- 
+include(${DEV_ROOT_PATH}/CommonFlags.cmake) # Customized compilation flags
+
 set(HDRS		
 
 	
@@ -152,6 +157,7 @@ include(${DEV_ROOT_PATH}/BillboardManager/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/LevelManager/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/OverlayEffect/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/InputManager/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/SlidePlayer/AutoGen.cmake)
 
 
 

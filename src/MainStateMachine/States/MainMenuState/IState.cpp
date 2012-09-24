@@ -19,7 +19,7 @@
 
 namespace mm_states {
 
-EventCallback *IState::sEventCb = 0;
+	EventCallback *IState::sEventCb = 0;
 
 ////////////////////////////////////////////////////////////////////////////////
 void IState::setStateMachineCb(EventCallback *cb)

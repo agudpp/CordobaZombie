@@ -19,7 +19,6 @@ class VideoPlayerAPI{
 
 public:
 	enum{
-
 		PLAYLIST_EMPTY,
 	};
 
@@ -52,6 +51,8 @@ public:
 
 	inline void set_repeat(bool v);
 
+	inline void setRepeatAll(bool v);
+
 	inline bool is_playing(void);
 
 	inline void set_visible(bool visible);
@@ -67,7 +68,8 @@ protected:
 	std::vector<Video>			playlist;
 	int							actualvideo;
 	bool						isplaying;
-	bool						repeat;
+	bool						mRepeat;
+	bool						mRepeatAll;
 
 };
 
@@ -78,7 +80,11 @@ inline bool VideoPlayerAPI::is_playing(void){
 }
 
 inline void VideoPlayerAPI::set_repeat(bool v){
-	repeat = v;
+	mRepeat = v;
+}
+
+inline void VideoPlayerAPI::setRepeatAll(bool v){
+	mRepeatAll = v;
 }
 
 inline int VideoPlayerAPI::pause(void){

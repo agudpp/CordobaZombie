@@ -637,7 +637,7 @@ void Test::update()
 				VPAPI->queue_video(myvideo2, 5.0f, 10.0f);
 				VPAPI->queue_video(myvideo);
 				VPAPI->queue_video(myvideo, 5.0f, 10.0f);
-				VPAPI->set_repeat(true);
+				VPAPI->setRepeatAll(true);
 				VPAPI->play();
 			}
 		}

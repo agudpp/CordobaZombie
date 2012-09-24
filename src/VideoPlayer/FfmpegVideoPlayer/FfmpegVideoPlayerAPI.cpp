@@ -19,7 +19,8 @@ VideoPlayerAPI::VideoPlayerAPI(Ogre::Vector4 * screensize):
 	videoplayer(0),
 	actualvideo(0),
 	isplaying(false),
-	repeat(false)
+	mRepeat(false),
+	mRepeatAll(false)
 {
 
 	Ogre::Vector4 *ss  = screensize;
@@ -36,7 +37,7 @@ VideoPlayerAPI::VideoPlayerAPI(Ogre::Vector4 * screensize):
 
 VideoPlayerAPI::~VideoPlayerAPI(){
 
-	delete videoplayer;		// esto se hace solo?
+	delete videoplayer;
 
 	while(!playlist.empty()){
 
@@ -191,9 +192,11 @@ int VideoPlayerAPI::update(double tslf){
 	if(err == VIDEO_ENDED || (flag && pt >= video->end)){
 		debugGREEN("Ended because reached video->end %lf %lf\n", pt, video->end);
 		videoplayer->unload();
-		actualvideo += 1;
+		if(!mRepeat){
+			actualvideo += 1;
+		}
 		if(actualvideo == playlist.size()){
-			if(repeat){
+			if(mRepeatAll){
 				actualvideo = 0;
 			}
 		}
@@ -217,9 +220,11 @@ int VideoPlayerAPI::next(void){
 
 	videoplayer->paint_black_screen();
 
-	actualvideo += 1;
+	if(!mRepeat){
+		actualvideo += 1;
+	}
 	if(actualvideo >= playlist.size()){
-		if(repeat){
+		if(mRepeatAll){
 			actualvideo = 0;
 		}
 	}

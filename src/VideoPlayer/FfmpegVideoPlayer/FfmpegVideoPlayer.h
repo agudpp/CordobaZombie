@@ -237,12 +237,8 @@ inline int VideoPlayer::get_playing_time_in_secs(double & s){
 }
 
 
-
+//TODO Revisar esta mierda de codigo!!!!
 inline const char *	VideoPlayer::get_video_name(void){
-
-	debugRAUL(" como hago para devolver codigo de error y referenciar "
-			"pFormatCtx->filename  sin que lo puedan modificar de afuera?.");
-
 
 	if(isLoaded){
 		return pFormatCtx->filename;

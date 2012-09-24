@@ -66,7 +66,7 @@ mHiddenSEffect(0)
 	//Build slide effects for overlays using overlay effect builder.
 	if(!mOEBuilder.setFilename(OverleyEffectConfFile)){
 		debugERROR("Couldn't load overlay effects from xml file %s\n",
-				OverleyEffectConfFile);
+				OverleyEffectConfFile.c_str());
 	}
 	ASSERT(mOEBuilder.hasOpenFile());
 

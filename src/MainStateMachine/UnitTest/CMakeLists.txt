@@ -28,9 +28,13 @@ endif(WIN32)
 if(UNIX)
 	#set(CMAKE_BUILD_TYPE "debug")
 	add_definitions(-DDEBUG)
-	set(CMAKE_MODULE_PATH "/usr/local/lib/OGRE/cmake/;${CMAKE_MODULE_PATH}")
+	set(CMAKE_MODULE_PATH 
+		"/usr/local/lib/OGRE/cmake/;${CMAKE_MODULE_PATH}"
+		"/usr/lib/OGRE/cmake/;${CMAKE_MODULE_PATH}"
+	)
 	set(OGRE_SAMPLES_INCLUDEPATH
 		/usr/local/share/OGRE/samples/Common/include/
+		/usr/share/OGRE/samples/Common/include/
 	)
 endif(UNIX)
  
@@ -89,6 +93,7 @@ endif()
 
 
 set (DEV_ROOT_PATH $ENV{ESTRATEGIA2012_DEV_PATH})
+include(${DEV_ROOT_PATH}/CommonFlags.cmake)  # Customized compilation flags
 
  
 set(HDRS		

@@ -47,6 +47,9 @@ const double EPS = 10e-12;
  *
  *	14. Quitar los parametros tslf de todas los metodos que no los necesitan
  *
+ *	15. Limpiar los buffers de sonido para que no haga ruido de basura al
+ *	darle play a un nuevo video.
+ *
  * TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
  */
 
