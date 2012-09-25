@@ -14,6 +14,7 @@
 #include <OgreString.h>
 #include <OgreFont.h>
 #include <OgreFontManager.h>
+#include <OgreOverlayManager.h>
 
 #include "DebugUtil.h"
 
@@ -60,11 +61,17 @@ public:
 	 * before
 	 * @param	str		The string to be used
 	 * @param	type	The configuration type we want to use
+	 * @param	width	The width that we want to be used (-1 to not change)
+	 * @param	height	The height to be used (-1 to avoid it)
+	 *
 	 * @note	The TextArea must be configured before calling this function.
 	 * 			We will use all the configuration established before in the
 	 * 			TextArea
 	 */
-	void configure(const Ogre::String &str, ConfigType type);
+	void configure(const Ogre::String &str,
+					ConfigType type,
+					Ogre::Real width = -1.0f,
+					Ogre::Real height = -1.0f);
 
 
 private:
@@ -76,13 +83,17 @@ private:
 			unsigned int from,	// string index (begin position)
 			unsigned int to,	// string index (end position)
 			const Ogre::Font *font) const;
-	inline Ogre::Real getCharWidth(uint32_t c, const Ogre::Font *font);
+	inline Ogre::Real getCharWidth(uint32_t c,
+									const Ogre::Font *font,
+									const Ogre::Real aspectRatio) const;
 
 	/**
 	 * Truncate horizontally the text (the text result will fits in the container
 	 * horizontally after the call of this function).
 	 */
-	void truncateHorizontally(Ogre::String &text);
+	void truncateHorizontally(Ogre::String &text,
+								Ogre::Real width,
+								Ogre::Real height);
 
 
 private:
@@ -105,16 +116,31 @@ inline Ogre::Real Text2D::getStringWidth(const Ogre::String &str) const
 	const Ogre::Font *font = static_cast<Ogre::Font *>(
 			Ogre::FontManager::getSingleton().getByName(
 					mTextArea->getFontName()).get());
+	ASSERT(font != 0);
+
 	Ogre::Real result = 0.0f;
-	const Ogre::Real fontSize = font->getSize();
-	const Ogre::Real space = font->getGlyphAspectRatio(0x0030) * fontSize;
+	const float viewportAspectCoef =
+			Ogre::OverlayManager::getSingleton().getViewportAspectRatio();
+/*	const Ogre::Real space = font->getGlyphAspectRatio(0x0020) * viewportAspectCoef;
 
 	const int len = str.length();
+
 	for(unsigned int i = 0; i < len; i++) {
 		if (str[i] == 0x0020)   result += space;
-		else result += font->getGlyphAspectRatio(str[i]) * fontSize;
+		else result += font->getGlyphAspectRatio(str[i]);
 	}
-	return result;
+
+	result *= viewportAspectCoef;
+	return result;*/
+
+	Ogre::Real fHeight, fAspectCoef, fWidth = 0;
+	fHeight = mTextArea->getCharHeight();
+	Ogre::Real fAspectRatio;
+	for (unsigned int iChar=0; iChar < str.length(); ++iChar) {
+	  fAspectRatio = font->getGlyphAspectRatio(str[iChar]);
+	  fWidth += fAspectRatio*fHeight;
+	}
+	return fWidth;
 }
 
 inline Ogre::Real Text2D::getSubStringWidth(const Ogre::String &str,
@@ -125,22 +151,29 @@ inline Ogre::Real Text2D::getSubStringWidth(const Ogre::String &str,
 	ASSERT(font);
 
 	Ogre::Real result = 0.0f;
-	const Ogre::Real fontSize = font->getSize();
-	const Ogre::Real space = font->getGlyphAspectRatio(0x0030) * fontSize;
+	const float viewportAspectCoef =
+			Ogre::OverlayManager::getSingleton().getViewportAspectRatio();
+	const Ogre::Real space = font->getGlyphAspectRatio(0x0020) * viewportAspectCoef;
 
 	ASSERT(from <= to);
 	ASSERT(to < str.length());
 
 	for(; from < to; from++) {
 		if (str[from] == 0x0020)   result += space;
-		else result += font->getGlyphAspectRatio(str[from]) * fontSize;
+		else result += font->getGlyphAspectRatio(str[from]);
 	}
+
+	result *= viewportAspectCoef;
 	return result;
 }
 
-inline Ogre::Real Text2D::getCharWidth(uint32_t c, const Ogre::Font *font)
+inline Ogre::Real Text2D::getCharWidth(uint32_t c,
+										const Ogre::Font *font,
+										const Ogre::Real aspectRatio) const
 {
-	return font->getGlyphAspectRatio(c) * font->getSize();
+//	debugBLUE("CharWidth: %c -> %f\n", c, font->getGlyphAspectRatio(c) * aspectRatio);
+//	return font->getGlyphAspectRatio(c) * aspectRatio;
+	return mTextArea->getCharHeight() * font->getGlyphAspectRatio(c);
 }
 
 }

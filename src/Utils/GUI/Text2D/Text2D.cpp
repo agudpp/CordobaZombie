@@ -13,16 +13,23 @@
 namespace gui_utils {
 
 ////////////////////////////////////////////////////////////////////////////////
-void Text2D::truncateHorizontally(Ogre::String &input)
+void Text2D::truncateHorizontally(Ogre::String &input,
+		Ogre::Real w,
+		Ogre::Real height)
 {
 	ASSERT(mTextArea);
-	const Ogre::Real width = mTextArea->getWidth();
+	const Ogre::Real width = (w > 0.0f) ? w : mTextArea->getWidth();
 	debugRED("Width container: %f\n", mTextArea->getWidth());
 	ASSERT(Ogre::FontManager::getSingleton().getByName(
 			mTextArea->getFontName()).get());
-	const Ogre::Font *font = static_cast<Ogre::Font *>(
+	Ogre::Font *font = static_cast<Ogre::Font *>(
 			Ogre::FontManager::getSingleton().getByName(
 					mTextArea->getFontName()).get());
+	const float viewportAspectCoef =
+				Ogre::OverlayManager::getSingleton().getViewportAspectRatio();
+
+
+	mTextArea->_update();
 
 	// start to subdivide the text into lines
 	const unsigned int size = input.length();
@@ -35,15 +42,19 @@ void Text2D::truncateHorizontally(Ogre::String &input)
 	debugGREEN("%s\n", input.c_str());
 
 
-	debugRED("Width container: %f, Width Text: %f\n", width, getStringWidth(input));
+	debugRED("Width container: %f, Width Text: %f, aspectRatio: %f\n",
+			width,
+			getStringWidth(input) * width,
+			viewportAspectCoef);
 	for(unsigned int i = 0; i < size; ++i){
 		if(input[i] == '\n'){
 			++lineCounts;
 			lastNewLine = i;
 			lastSpace = actualPosition = i + 1;
 			accumWidth = 0.0f;
+			continue;
 		}
-		accumWidth += getCharWidth(input[i], font);
+		accumWidth += (getCharWidth(input[i], font, viewportAspectCoef) * width);
 		if(input[i] == ' ' || input[i] == '\t') {
 			lastSpace = i;
 			continue;
@@ -61,6 +72,9 @@ void Text2D::truncateHorizontally(Ogre::String &input)
 	}
 	debugRED("lineCounts: %d\n", lineCounts);
 	debugBLUE("%s\n", input.c_str());
+
+	// set the width
+	mTextArea->setWidth(width);
 }
 
 
@@ -80,19 +94,23 @@ Text2D::~Text2D()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void Text2D::configure(const Ogre::String &str, ConfigType type)
+void Text2D::configure(const Ogre::String &str,
+						ConfigType type,
+						Ogre::Real width,
+						Ogre::Real height)
 {
 	ASSERT(mTextArea);
 
 	switch(type) {
 	case NONE:
-		debugRED("Width container: %f\n", mTextArea->getWidth());
 		mTextArea->setCaption(str);
+		// resize
+		mTextArea->setHeight((height > 0.0f) ? height : mTextArea->getHeight());
 		break;
 	case TRUNCATE_HORIZONTAL:
 	{
 		Ogre::String result = str;
-		truncateHorizontally(result);
+		truncateHorizontally(result, width, height);
 		mTextArea->setCaption(result);
 	}
 	break;
