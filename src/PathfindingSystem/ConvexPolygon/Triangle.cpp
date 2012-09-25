@@ -207,7 +207,7 @@ void Triangle::getCenterPoint(sm::Point &p) const
 
 void Triangle::getRandomPoint(sm::Point &r) const
 {
-	static constexpr float INV_MAX_RND = 1.0f/RAND_MAX;
+	static const float INV_MAX_RND = 1.0f/RAND_MAX;
 	float a = std::rand() * INV_MAX_RND;
 	float b = std::rand() * INV_MAX_RND;
 	if((a + b) > 1.0f){

@@ -17,9 +17,9 @@
 
 class CameraController
 {
-	static constexpr Ogre::Real COEFF_FACTOR	= 200.0f;
+	static const Ogre::Real COEFF_FACTOR	= 200.0f;
 	// the distance from the rotation axis
-	static constexpr Ogre::Real NODE_DISTANCE	= 130.0f;
+	static const Ogre::Real NODE_DISTANCE	= 130.0f;
 
 public:
 

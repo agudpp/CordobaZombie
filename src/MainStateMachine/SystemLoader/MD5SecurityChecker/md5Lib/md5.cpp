@@ -360,7 +360,7 @@ md5_append(md5_state_t *pms, const md5_byte_t *data, int nbytes)
 void
 md5_finish(md5_state_t *pms, md5_byte_t digest[16])
 {
-    static constexpr md5_byte_t pad[64] = {
+    static const md5_byte_t pad[64] = {
     0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,

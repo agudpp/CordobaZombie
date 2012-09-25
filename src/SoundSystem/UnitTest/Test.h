@@ -44,7 +44,7 @@ struct ZombiePair{
 
 class Test : public AppTester
 {
-	static constexpr float TIME_UPDATE_PERIOD = 1.0;
+	static const float TIME_UPDATE_PERIOD = 1.0;
 
 public:
 	Test();

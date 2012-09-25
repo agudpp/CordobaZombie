@@ -29,7 +29,7 @@ class ZombieUnit;
 
 class Cellphone : public HudElement
 {
-	static constexpr Ogre::Real		UPDATE_TIME		=	0.5f;
+	static const Ogre::Real		UPDATE_TIME		=	0.5f;
 public:
 	Cellphone();
 	virtual ~Cellphone();

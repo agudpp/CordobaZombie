@@ -26,11 +26,11 @@ class InputManager
 {
 	// define the bounds where the mouse will start to move the camera in %
 	// relative to the window size
-	static constexpr float	CAMERA_MOVE_BOUNDS_LIMITS	=	0.01f;
-	static constexpr float	CAMERA_MOVE_BOUNDS_L_LIMIT	=	CAMERA_MOVE_BOUNDS_LIMITS;
-	static constexpr float	CAMERA_MOVE_BOUNDS_R_LIMIT	=	1.0f-CAMERA_MOVE_BOUNDS_LIMITS;
-	static constexpr float	CAMERA_MOVE_BOUNDS_T_LIMIT	=	CAMERA_MOVE_BOUNDS_LIMITS;
-	static constexpr float	CAMERA_MOVE_BOUNDS_B_LIMIT	=	1.0f-CAMERA_MOVE_BOUNDS_LIMITS;
+	static const float	CAMERA_MOVE_BOUNDS_LIMITS	=	0.01f;
+	static const float	CAMERA_MOVE_BOUNDS_L_LIMIT	=	CAMERA_MOVE_BOUNDS_LIMITS;
+	static const float	CAMERA_MOVE_BOUNDS_R_LIMIT	=	1.0f-CAMERA_MOVE_BOUNDS_LIMITS;
+	static const float	CAMERA_MOVE_BOUNDS_T_LIMIT	=	CAMERA_MOVE_BOUNDS_LIMITS;
+	static const float	CAMERA_MOVE_BOUNDS_B_LIMIT	=	1.0f-CAMERA_MOVE_BOUNDS_LIMITS;
 
 
 	// typedefs

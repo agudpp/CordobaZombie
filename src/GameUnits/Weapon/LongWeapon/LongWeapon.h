@@ -14,7 +14,7 @@
 class LongWeapon : public Weapon
 {
 public:
-	static constexpr float SHOOT_VELOCITY	=	10.0f;
+	static const float SHOOT_VELOCITY	=	10.0f;
 
 	// Long weapons sound codes
 	enum {
