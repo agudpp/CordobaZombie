@@ -68,6 +68,10 @@ void Test::handleInput(void)
 /* Load additional info */
 void Test::loadAditionalData(void)
 {
+	// UGLY BUG FIX
+	Ogre::ResourceManager::ResourceMapIterator iter = Ogre::FontManager::getSingleton().getResourceIterator();
+	while (iter.hasMoreElements()) { iter.getNext()->load(); }
+
 	Ogre::OverlayManager &om = Ogre::OverlayManager::getSingleton();
 	Ogre::Overlay *ov = om.getByName("MainMenu/Credits");
 	ASSERT(ov);
@@ -78,9 +82,7 @@ void Test::loadAditionalData(void)
 	ASSERT(cont);
 	cont->hide();
 
-	// UGLY BUG FIX
-	Ogre::ResourceManager::ResourceMapIterator iter = Ogre::FontManager::getSingleton().getResourceIterator();
-	while (iter.hasMoreElements()) { iter.getNext()->load(); }
+
 
 	mTextArea = reinterpret_cast<Ogre::TextAreaOverlayElement *>(
 			ov->getChild("Credits/Text"));
@@ -94,8 +96,11 @@ void Test::loadAditionalData(void)
 						" puede ser que los ponga bien o puede ser que los ponga como el chori"
 						" lo que es capaz que mas probable");
 	mTextArea->setCaption(str);
+	mTextArea->setAlignment(Ogre::TextAreaOverlayElement::Center);
 
 	debugRED("Width container: %f\n", mTextArea->getWidth());
+
+	// print info
 
 }
 
@@ -113,10 +118,8 @@ void Test::update()
 			gui_utils::Text2D t2d(mTextArea);
 			debugRED("Width container: %f\n", mTextArea->getWidth());
 			Ogre::String str("Esto es una prueba de una cosa muy larrga pero sin enters, "
-					"vamos a ver cuantos enters va a meter y donde chota los va a meter"
-					" puede ser que los ponga bien o puede ser que los ponga como el chori"
-					" lo que es capaz que mas probable");
-			t2d.configure(str, gui_utils::Text2D::TRUNCATE_HORIZONTAL);
+					);
+			t2d.configure(str, gui_utils::Text2D::TRUNCATE_HORIZONTAL, 0.9f);
 
 		}
 	} else {

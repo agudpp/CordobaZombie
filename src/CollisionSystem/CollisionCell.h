@@ -24,11 +24,11 @@ public:
 	virtual ~CollisionCell(){};
 
 	// add new object
-	inline void addObject(const CollisionObject *o, int index)
+	inline void addObject(const CollisionObject *o)
 	{
 #ifdef DEBUG
-		int le = mObjs.size()-1;
-		for(int i = le; i >= 0; --i){
+		const int le = mObjs.size();
+		for(int i = 0; i < le; ++i){
 			if(mObjs[i] == o){
 				ASSERT(false);
 			}
@@ -40,7 +40,7 @@ public:
 
 
 	// remove object
-	inline void removeObject(const CollisionObject *o, int index)
+	inline void removeObject(const CollisionObject *o)
 	{
 		// TODO: muy lento, modificar esto
 		// Para solucionarlo lo que podemos hacer es meter dentro del objeto
@@ -50,10 +50,10 @@ public:
 		// tal que exitan 4 shorts en cada CollisionObject que indiquen la posicion
 		// en el arreglo en cada una de las celdas (4 posibles celdas que puede
 		// colisionar.....
-		int le = mObjs.size()-1;
-		for(int i = le; i >= 0; --i){
+		const int le = mObjs.size();
+		for(int i = 0; i < le; ++i){
 			if(mObjs[i] == o){
-				removeElement(i, le);
+				removeElement(i, le-1);
 				return;
 			}
 		}
@@ -67,7 +67,7 @@ public:
 
 	// get all the collision object intersecting one
 	inline void getAllCollisions(const CollisionObject *o,
-			std::vector<const CollisionObject *> &objs)
+			std::vector<const CollisionObject *> &objs) const
 	{
 		// TODO: mejorar esto, si ordemoos el arreglo por orden de aabb en el
 		// eje X entonces es mas rapido encontrar quines intersecan.
@@ -77,7 +77,8 @@ public:
 		const CollisionObject *aux;
 
 		// get the dynamic ones
-		for(int i = mObjs.size()-1; i>=0; --i){
+		const int le = mObjs.size();
+		for(int i = 0; i < le; ++i){
 			aux = mObjs[i];
 			if(o != aux && o->bb.collide(aux->bb)){
 				// check for furder collision here... or not?
@@ -93,7 +94,7 @@ public:
 
 	// get all the collision object intersecting one and using mask
 	inline void getAllCollisionsMask(const CollisionObject *o,
-			std::vector<const CollisionObject *> &objs)
+			std::vector<const CollisionObject *> &objs) const
 	{
 		// TODO: mejorar esto, si ordemoos el arreglo por orden de aabb en el
 		// eje X entonces es mas rapido encontrar quines intersecan.
@@ -102,7 +103,8 @@ public:
 		// Otra forma mas es usar un arbol o un quadtree para cada celda..
 		const CollisionObject *aux;
 
-		for(int i = mObjs.size()-1; i>=0; --i){
+		const int le = mObjs.size();
+		for(int i = 0; i < le; ++i){
 			aux = mObjs[i];
 			if(o != aux && (o->groupMask & aux->maskFlag) && o->bb.collide(aux->bb)){
 				// check for furder collision here... or not?
@@ -118,10 +120,11 @@ public:
 
 	// Returns all the collision objects using only mask group
 	inline void getAllCollisionsMask(std::set<const CollisionObject *> &objs,
-			mask_t groupMask, const sm::AABB &aabb)
+			mask_t groupMask, const sm::AABB &aabb) const
 	{
 		const CollisionObject *aux;
-		for(int i = mObjs.size()-1; i>=0; --i){
+		const int le = mObjs.size();
+		for(int i = 0; i < le; ++i){
 			aux = mObjs[i];
 			if((groupMask & aux->maskFlag) && aux->bb.collide(aabb)){
 				// check for furder collision here... or not?
@@ -132,10 +135,11 @@ public:
 
 	// Returns all the collision objects using mask group and a certain point
 	inline void getAllCollisionMask(std::vector<const CollisionObject *> &objs,
-			mask_t groupMask, const sm::Vector2 &p)
+			mask_t groupMask, const sm::Vector2 &p) const
 	{
 		const CollisionObject *aux;
-		for(int i = mObjs.size()-1; i>=0; --i){
+		const int le = mObjs.size();
+		for(int i = 0; i < le; ++i){
 			aux = mObjs[i];
 			if((groupMask & aux->maskFlag) && aux->bb.checkPointInside(p)){
 				// check for furder collision here... or not?
@@ -146,10 +150,11 @@ public:
 
 	// Returns all the collision objects using mask group and a certain point
 	inline void getAllCollisionMask(std::set<const CollisionObject *> &objs,
-			mask_t groupMask, const sm::Vector2 &p1, const sm::Vector2 &p2)
+			mask_t groupMask, const sm::Vector2 &p1, const sm::Vector2 &p2) const
 	{
 		const CollisionObject *aux;
-		for(int i = mObjs.size()-1; i>=0; --i){
+		const int le = mObjs.size();
+		for(int i = 0; i < le; ++i){
 			aux = mObjs[i];
 			if((groupMask & aux->maskFlag) &&
 					IntersectDetect::checkLineAABB(p1,p2,aux->bb)){
