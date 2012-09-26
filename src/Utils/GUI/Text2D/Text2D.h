@@ -32,6 +32,12 @@ public:
 		// not ensure that vertically we can show all the text
 		TRUNCATE_HORIZONTAL,
 
+		// Adjust the size of the text only horizontally, so the text will be
+		// adjusted horizontally but not vertically (the size of the font will
+		// be increased or decreased but the text will not change -no \n will be
+		// added for example-)
+		ADJUST_TEXT_TO_CONTAINER_H,
+
 		// Decrement the size of the characters (characters height) to show all
 		// the text in the container. This will split the string also if necessary
 		ADJUST_TEXT_TO_CONTAINER,
