@@ -378,7 +378,7 @@ Test::~Test()
 void Test::handleInput(void)
 {
 	sm::Vector2 tran;
-	static constexpr float VEL = 150.0f;
+	static const float VEL = 150.0f;
 	tran.x = tran.y = 0.0f;
 	static bool keyPres1 = false;
 	static bool keyPres = false;

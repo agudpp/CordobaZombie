@@ -177,18 +177,18 @@ private:
 
 
 		// add to all the cells the object
-		(mMatrix[tlx])[tly].addObject(mo, 0);
+		(mMatrix[tlx])[tly].addObject(mo);
 		if(brx != tlx){
 			// add to the tly cell to
-			(mMatrix[brx])[tly].addObject(mo,1);
+			(mMatrix[brx])[tly].addObject(mo);
 		}
 		// check if we have to other rows
 		if(bry != tly){
-			(mMatrix[tlx])[bry].addObject(mo,2);
+			(mMatrix[tlx])[bry].addObject(mo);
 			// check again if we have to add to the other column
 			if(brx != tlx){
 				// add to the tly cell to
-				(mMatrix[brx])[bry].addObject(mo,3);
+				(mMatrix[brx])[bry].addObject(mo);
 			}
 		}
 	}
@@ -203,18 +203,18 @@ private:
 		ASSERT(tly == bry || tly == bry+1);
 
 		// add to all the cells the object
-		(mMatrix[tlx])[tly].removeObject(mo, 0);
+		(mMatrix[tlx])[tly].removeObject(mo);
 		if(brx != tlx){
 			// add to the tly cell to
-			(mMatrix[brx])[tly].removeObject(mo,1);
+			(mMatrix[brx])[tly].removeObject(mo);
 		}
 		// check if we have to other rows
 		if(bry != tly){
-			(mMatrix[tlx])[bry].removeObject(mo,2);
+			(mMatrix[tlx])[bry].removeObject(mo);
 			// check again if we have to add to the other column
 			if(brx != tlx){
 				// add to the tly cell to
-				(mMatrix[brx])[bry].removeObject(mo,3);
+				(mMatrix[brx])[bry].removeObject(mo);
 			}
 		}
 	}

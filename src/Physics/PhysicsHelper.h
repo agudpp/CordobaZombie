@@ -14,9 +14,9 @@
 
 class PhysicsHelper
 {
-	static constexpr float	GRAVITY_FACTOR		=	9.8f;
-	static constexpr float	FLOOR_POSITION_Y	=	.0f;
-	static constexpr float	NEGLIBILE_FORCE		=	0.1f;	// when we have force
+	static const float	GRAVITY_FACTOR		=	9.8f;
+	static const float	FLOOR_POSITION_Y	=	.0f;
+	static const float	NEGLIBILE_FORCE		=	0.1f;	// when we have force
 														// lower than this we
 														// avoid it
 public:

@@ -76,7 +76,7 @@ public:
 	////////////////////////////////////////////////////////////////////////////
 
 	// Visibility radius (for targets)
-	static constexpr float	MAX_RADIUS_VISIBILITY			=	ZOMBIE_MAX_VISIBILITY_DIST;
+	static const float	MAX_RADIUS_VISIBILITY			=	ZOMBIE_MAX_VISIBILITY_DIST;
 
 	typedef std::vector<ZombieUnit *>	ZombieUnitVec;
 	typedef std::set<GameUnit *>		TargetList;

@@ -25,7 +25,7 @@ typedef QueueContainer<Shoot>	ShootContainer;
 
 
 class Shoot : public UpdatableObject {
-	static constexpr Ogre::Real COEFF_FACTOR	= 200.0f;
+	static const Ogre::Real COEFF_FACTOR	= 200.0f;
 	static const int COLL_FLAG	=	SHOOT_AFFECTABLE_MASK;
 public:
 	/**

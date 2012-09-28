@@ -30,7 +30,7 @@
 class GameUnit : public GameObject {
 	// set the distance that determine if we are in the pathpoint or not
 	// squared distance)
-	static constexpr float SQRD_PATHPOINT_DIST	=	30.0f;
+	static const float SQRD_PATHPOINT_DIST	=	30.0f;
 
 public:
 	GameUnit();
