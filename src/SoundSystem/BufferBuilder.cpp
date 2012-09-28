@@ -46,7 +46,7 @@ BufferBuilder::bufferFromFile(const std::string& sName,
 		delete *buffer;
 	}
 
-	if (format == SSformat::SS_NONE) {
+	if (format == SSformat::SS_NOTHING) {
 		/* Filetype not specified, checking file extension. */
 		size_t ext_idx = sName.find_last_of(".") + 1;
 		std::string ext = sName.substr(ext_idx, sName.size()-ext_idx);

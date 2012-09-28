@@ -16,6 +16,11 @@
 #include "SoundManager.h"
 
 
+/**
+ ** TODO
+ ** Pasar todas estas funciones al .h como inlines.
+ **/
+
 ////////////////////////////////////////////////////////////////////////////////
 /**
  ** @remark
@@ -53,10 +58,10 @@ SoundAPI::active()
 
 ////////////////////////////////////////////////////////////////////////////////
 SSerror
-SoundAPI::play(const Ogre::String &sName, bool repeat)
+SoundAPI::play(const Ogre::String &sName, bool repeat, const Ogre::Real& gain)
 {
 	mSoundName = sName;
-	return mSoundManager.playSound(*this, sName, repeat);
+	return mSoundManager.playSound(*this, sName, gain, repeat);
 }
 
 
@@ -81,13 +86,5 @@ SSerror
 SoundAPI::restart()
 {
 	return mSoundManager.restartSound(*this);
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-const Ogre::String&
-SoundAPI::showAttachedSound()
-{
-	return mSoundName;
 }
 

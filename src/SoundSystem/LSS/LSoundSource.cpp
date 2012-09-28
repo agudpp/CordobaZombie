@@ -42,6 +42,7 @@ LSoundSource::~LSoundSource()
 ////////////////////////////////////////////////////////////////////////////////
 SSerror
 LSoundSource::play(SoundBuffer* buf,
+		 	 	   const Ogre::Real& gain,
 				   const Ogre::Vector3& pos,
 				   bool  repeat)
 {
@@ -51,7 +52,7 @@ LSoundSource::play(SoundBuffer* buf,
 	ASSERT(alIsSource(mSource));
 	alGetSourcei(mSource, AL_SOURCE_STATE, &st);
 
-	/* Void call? */
+	// Void call?
 	if (!buf) {
 		if (!mBuffer) {
 			debug("Invalid buffer, cannot start playback.\n");
@@ -69,25 +70,25 @@ LSoundSource::play(SoundBuffer* buf,
 			return SSerror::SS_INTERNAL_ERROR;
 		}
 
-	/* Resume paused playback? */
+	// Resume paused playback?
 	} else if (buf == mBuffer) {
 		if (st == AL_PAUSED) {
 			alSourcePlay(mSource);
 		}
 		return SSerror::SS_NO_ERROR;
 
-	/* New buffer passed. */
+	// New buffer passed.
 	}  else if (!alIsBuffer(buf->buffer)
 				|| buf->type != SSbuftype::SS_BUF_LOADED) {
 		return SSerror::SS_NO_BUFFER;
 	}
 
-	/* Stop any previous playback. */
+	// Stop any previous playback.
 	if (st == AL_PLAYING || st == AL_PAUSED) {
 		alSourceStop(mSource);
 	}
 
-	/* Attach new buffer */
+	// Attach new buffer
 	alSourcei(mSource, AL_BUFFER, buf->buffer);
 	ASSERT(alGetError() == AL_NO_ERROR);
 	mBuffer = buf;
@@ -100,10 +101,11 @@ LSoundSource::play(SoundBuffer* buf,
 	}
 #endif
 
-	/* Set current position and repeat */
+	// Set current position, gain and repeat
 	alSource3f(mSource, AL_POSITION, pos.x, pos.y, pos.z);
+	alSourcef(mSource, AL_GAIN, gain);
 	alSourcei(mSource, AL_LOOPING, repeat);
-	/* Play modefoke, PLAY! */
+	// Play modefoke, PLAY!
 	alSourcePlay(mSource);
 
 	ASSERT(alGetError() == AL_NO_ERROR);
@@ -123,7 +125,7 @@ LSoundSource::update(const Ogre::Vector3& pos)
 
 	alGetSourcei(mSource, AL_SOURCE_STATE, &st);
 	if (st == AL_PLAYING) {
-		/* Update current position */
+		// Update current position.
 		alGetSourcei(mSource, AL_SOURCE_RELATIVE, &st);
 		if (!st) {
 			alSource3f(mSource, AL_POSITION, pos.x, pos.y, pos.z);
@@ -134,7 +136,7 @@ LSoundSource::update(const Ogre::Vector3& pos)
 		result = SSplayback::SS_PAUSED;
 
 	} else {
-		/* Must be a "finished" source. Detach buffer. */
+		// Must be a "finished" source. Detach buffer.
 		ASSERT(st == AL_STOPPED);
 		ASSERT(!mRepeat);
 		alSourcei(mSource, AL_BUFFER, AL_NONE);
@@ -185,10 +187,12 @@ LSoundSource::stop()
 
 ////////////////////////////////////////////////////////////////////////////////
 SSerror
-LSoundSource::restart(const Ogre::Vector3& pos)
+LSoundSource::restart(const Ogre::Real& gain,
+					  const Ogre::Vector3& pos,
+					  const bool repeat)
 {
 	ALint st(AL_NONE);
-	SSerror result = SSerror::SS_INTERNAL_ERROR;
+	SSerror result(SSerror::SS_NO_ERROR);
 
 	ASSERT(alGetError() == AL_NO_ERROR);
 	ASSERT(alIsSource(mSource));
@@ -197,10 +201,7 @@ LSoundSource::restart(const Ogre::Vector3& pos)
 		result = SSerror::SS_NO_BUFFER;
 
 	} else {
-		alGetSourcei(mSource, AL_SOURCE_RELATIVE, &st);
-		if (!st) {
-			alSource3f(mSource, AL_POSITION, pos.x, pos.y, pos.z);
-		}  // else: source relative to listener, no position update needed
+		// Check what should we do
 		alGetSourcei(mSource, AL_SOURCE_STATE, &st);
 		if (st == AL_PLAYING) {
 			alSourcePlay(mSource);
@@ -212,9 +213,19 @@ LSoundSource::restart(const Ogre::Vector3& pos)
 			result = SSerror::SS_NO_ERROR;
 
 		} else {  // st == AL_STOPPED || st == AL_INITIAL
-			debugRED("Invalid state, cannot restart playback.\n");
+			debugERROR("Invalid state, cannot restart playback.%s", "\n");
 			result = SSerror::SS_INTERNAL_ERROR;
 		}
+	}
+
+	if (result == SSerror::SS_NO_ERROR) {
+		// Set current position, gain and repeat
+		alGetSourcei(mSource, AL_SOURCE_RELATIVE, &st);
+		if (!st) {
+			alSource3f(mSource, AL_POSITION, pos.x, pos.y, pos.z);
+		}  // else: source relative to listener, no position update needed
+		alSourcef(mSource, AL_GAIN, gain);
+		alSourcei(mSource, AL_LOOPING, repeat);
 	}
 
 	ASSERT(alGetError() == AL_NO_ERROR);

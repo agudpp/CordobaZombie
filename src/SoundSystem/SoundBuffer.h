@@ -14,6 +14,8 @@
 
 #include <vector>
 #include <sys/types.h>		// off_t
+#include <iostream>
+#include <fstream>
 #include <vorbis/vorbisfile.h>  // OGG-vorbis parsing
 #include "SoundEnums.h"		// SSformat
 #include "DebugUtil.h"
@@ -26,6 +28,9 @@
 #  include <AL/alc.h>
 #else
 #  error "Unsupported platform, aborting compilation."
+#endif
+#ifdef DEBUG
+#  include <map>
 #endif
 
 
@@ -164,7 +169,8 @@ SoundBuffer::filler(ALBuffer& buf, size_t size, bool repeat)
 inline void
 SoundBuffer::restart()
 {
-	debugERROR("\nBuffer restart() called from SoundBuffer base class. This is WRONG!%s", "\n");
+	debugERROR("\nBuffer restart() called from SoundBuffer base class. "
+				"This is WRONG!%s", "\n");
 }
 
 
@@ -195,7 +201,7 @@ inline void
 StreamWAVSoundBuffer::restart()
 {
 	if(file && file->is_open()) {
-		file->seekg(dataStart);
+		file->seekg((long)dataStart, std::ifstream::beg);
 	}
 }
 
@@ -225,7 +231,18 @@ inline void
 StreamOGGSoundBuffer::restart()
 {
 	if(file && fileno(file) >= 0 && oggFile && oggFile->seekable) {
-		ov_pcm_seek(oggFile, 0);
+		int err(0);
+		err = ov_pcm_seek(oggFile, 0);
+#ifdef DEBUG
+		if (err != 0) {
+			std::map<int,const char*> errMap = {{OV_ENOSEEK, "OV_ENOSEEK"},
+												 {OV_EINVAL, "OV_EINVAL"},
+												 {OV_EREAD, "OV_EREAD"},
+												 {OV_EFAULT, "OV_EFAULT"},
+												 {OV_EBADLINK, "OV_EBADLINK"}};
+			debugERROR("Restart failed: %s\n", errMap[err]);
+		}
+#endif
 	}
 }
 
