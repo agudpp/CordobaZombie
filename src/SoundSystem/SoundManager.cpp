@@ -1,11 +1,16 @@
 /*
  * SoundManager.cpp
  *
- *	This class connects the SoundAPIs from the Units
- *	with the internal SoundSources of the sound system.
+ *	This class handles the whole sound system playback
+ *	by periodically updating all playing sources.
+ *	That includes the GameUnits' SoundAPIs (v.gr. zombies grunts, weapon shots)
+ *	and the environmental sounds (v.gr. background music)
  *
- *	It handles the sound system playback by periodically updating all sources.
- *	It's a singleton class.
+ *  Available audio file names (aka "sounds") must be loaded by means of
+ *  loadSound() interface. Environmental sounds are completely controlled
+ *  here, from creation to destruction.
+ *
+ *	The SoundManager is a SINGLETON CLASS.
  *
  *  Created on: May 9, 2012
  *     Company: CordobaZombie
@@ -445,7 +450,8 @@ SoundManager::update()
 		// See: http://goo.gl/s5omf
 		up = (quatOri * Ogre::Vector3::UNIT_Y);
 		at = (quatOri * Ogre::Vector3::NEGATIVE_UNIT_Z);
-		ori = {at.x, at.y, at.z, up.x, up.y, up.z};
+		ori[0] = at.x; ori[1] = at.y; ori[2] = at.z;
+		ori[3] = up.x, ori[4] = up.y, ori[5] = up.z;
 
 		alListener3f(AL_POSITION, pos.x, pos.y, pos.z);
 		alListenerfv(AL_ORIENTATION, ori);
@@ -933,6 +939,43 @@ SoundManager::fadeInEnvSound(const Ogre::String& sName, const Ogre::Real& time)
 
 
 ////////////////////////////////////////////////////////////////////////////////
+bool
+SoundManager::findPlayingAPI (const SoundAPI& sAPI) const
+{
+	if (sAPI.mActivationIndex < 0
+		|| mUnitSounds.size() <= sAPI.mActivationIndex
+		|| mUnitSounds[sAPI.mActivationIndex].first != &sAPI) {
+		return false;
+	} else {
+		ALint st(AL_NONE);
+		alGetSourcei(mUnitSounds[sAPI.mActivationIndex].second->mSource->mSource,
+					 AL_SOURCE_STATE, &st);
+		ASSERT((st==AL_PLAYING &&
+					(mUnitSounds[sAPI.mActivationIndex].second->mGlobalState
+						| SSplayback::SS_PLAYING
+						| SSplayback::SS_FADING_IN
+						| SSplayback::SS_FADING_OUT
+						| SSplayback::SS_FADING_OUT_AND_PAUSE))
+				|| (st==AL_PAUSED &&
+					(mUnitSounds[sAPI.mActivationIndex].second->mGlobalState
+						| SSplayback::SS_PAUSED
+						| SSplayback::SS_FADING_OUT_AND_PAUSE)));
+		return (st == AL_PLAYING);
+	}
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+bool
+SoundManager::findActiveAPI (const SoundAPI& sAPI) const
+{
+	return (sAPI.mActivationIndex >= 0
+			&& mUnitSounds.size() > sAPI.mActivationIndex
+			&& mUnitSounds[sAPI.mActivationIndex].first == &sAPI);
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
 SSerror
 SoundManager::playSound(SoundAPI& sAPI,
 					    const Ogre::String& sName,
@@ -1012,6 +1055,20 @@ SoundManager::playSound(SoundAPI& sAPI,
 	}
 
 	return err;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+void
+SoundManager::pauseSound(const SoundAPI& sAPI)
+{
+	int idx = sAPI.mActivationIndex;
+	if (findPlayingAPI(sAPI) &&
+			mUnitSounds[idx].second->mGlobalState != SSplayback::SS_PAUSED) {
+		mUnitSounds[idx].second->mSource->pause();
+		mUnitSounds[idx].second->mPlayState = SSplayback::SS_PAUSED;
+		mUnitSounds[idx].second->mGlobalState = SSplayback::SS_NONE;
+	}
 }
 
 
