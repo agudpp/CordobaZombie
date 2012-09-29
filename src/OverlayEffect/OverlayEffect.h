@@ -54,6 +54,11 @@ public:
 	 */
 	void start(void);
 
+	/**
+	 * Check if the effect is active
+	 */
+	inline bool isActive(void) const;
+
 protected:
 
 	/**
@@ -87,6 +92,7 @@ protected:
 protected:
 	Ogre::OverlayElement			*mElement;
 	EffectCb						*mCb;
+	bool                            mActive;
 
 	// pointer (index) used by the Manager
 	int								mIndex;
@@ -132,7 +138,11 @@ inline int OverlayEffect::getIndex(void) const
 {
 	return mIndex;
 }
-
+inline bool
+OverlayEffect::isActive(void) const
+{
+    return mActive;
+}
 
 
 }

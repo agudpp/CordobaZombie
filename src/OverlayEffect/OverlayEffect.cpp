@@ -35,7 +35,8 @@ void OverlayEffect::setManager(OverlayEffectManager *em)
 
 OverlayEffect::OverlayEffect() :
 mElement(0),
-mCb(0)
+mCb(0),
+mActive(false)
 {
 	ASSERT(mMngr);
 
@@ -55,6 +56,7 @@ void OverlayEffect::stop(void)
 {
 	if(!mMngr->hasEffect(this)) return;
 	mMngr->remove(this);
+	mActive = false;
 }
 
 /**
@@ -67,6 +69,7 @@ void OverlayEffect::start(void)
 		stop();
 	}
 	mMngr->add(this);
+	mActive = true;
 }
 
 

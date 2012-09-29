@@ -38,6 +38,9 @@ public:
 		}
 	};
 
+	// Some Useful functions here
+	static const VelFunction *LINEAL_FUNCTION;
+
 public:
 	Slide();
 	virtual ~Slide();

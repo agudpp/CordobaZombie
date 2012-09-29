@@ -27,7 +27,7 @@ public:
     }
 
     // stop restart the effect
-    inline void stopRestart(bool sr) {stopRestart = sr;}
+    inline void setStopRestart(bool sr) {stopRestart = sr;}
 
 
     void operator()(EffectCb::EventID id)

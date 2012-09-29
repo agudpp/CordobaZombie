@@ -12,8 +12,22 @@
 #include "Ogre.h"
 #include "GlobalObjects.h"
 
+// internal structures
+namespace {
+class LinealFun : public OvEff::Slide::VelFunction {
+public:
+    virtual float operator()(float x) const
+    {
+        return x;
+    }
+};
+static LinealFun linealFunc;
+}
+
 
 namespace OvEff {
+
+const Slide::VelFunction *Slide::LINEAL_FUNCTION = &linealFunc;
 
 Slide::Slide():
 		mFun(0)
