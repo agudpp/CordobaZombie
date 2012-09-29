@@ -15,7 +15,6 @@ set(SRCS
 	${DEV_ROOT_PATH}/SoundSystem/BufferBuilder.cpp
 	${DEV_ROOT_PATH}/SoundSystem/SoundBuffer.cpp
 	${DEV_ROOT_PATH}/SoundSystem/SoundManager.cpp
-	${DEV_ROOT_PATH}/SoundSystem/SoundAPI.cpp
 )
 
 set(HDRS

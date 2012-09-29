@@ -21,17 +21,7 @@
 #include <OgreSceneNode.h>
 #include "DebugUtil.h"
 #include "SoundEnums.h"
-
-
-/* FWD declaration, to avoid circular dependencies. */
-class SoundManager;
-
-
-
-/**
- ** TODO
- ** Trater todas las funciones del .h como inlines.
- **/
+#include "SoundManager.h"
 
 
 
@@ -46,8 +36,8 @@ public:
 	 ** The system's sound manager (see SoundManager.h) must be created first,
 	 ** before any SoundAPI.
 	 **/
-	SoundAPI(Ogre::SceneNode* sNode=NULL);
-	virtual ~SoundAPI();
+	inline SoundAPI(Ogre::SceneNode* sNode=NULL);
+	virtual inline ~SoundAPI();
 
 	/**
 	 ** @brief
@@ -65,7 +55,7 @@ public:
 	 ** API's scene node already set? (i.e. mNode != NULL)
 	 **/
 	inline bool
-	readyForPlayback();
+	readyForPlayback() const;
 
 	/**
 	 ** @brief
@@ -74,15 +64,15 @@ public:
 	 ** @remarks
 	 ** Returns true iff the SoundAPI is playing.
 	 **/
-	bool
-	playing();
+	inline bool
+	playing() const;
 
 	/**
 	 ** @brief
 	 ** True both if the SoundAPI is playing, or if it's in a paused state.
 	 **/
-	bool
-	active();
+	inline bool
+	active() const;
 
 	/**
 	 ** @brief
@@ -103,7 +93,7 @@ public:
 	 ** SS_FILE_NOT_FOUND	Sound "sName" not found (inexistent buffer name).
 	 ** SS_INTERNAL_ERROR	Unespecified.
 	 **/
-	SSerror
+	inline SSerror
 	play(const Ogre::String &sName,
 		 bool repeat = false,
 		 const Ogre::Real& gain = DEFAULT_UNIT_GAIN);
@@ -113,7 +103,7 @@ public:
 	 ** Pause currently playing sound.
 	 ** If no sound had been started by this API, nothing is done.
 	 **/
-	void
+	inline void
 	pause();
 
 	/**
@@ -125,7 +115,7 @@ public:
 	 ** Internally memory gets freed.
 	 ** If the sound is to be replayed again soon call pause();play(); instead.
 	 **/
-	void
+	inline void
 	stop();
 
 	/**
@@ -142,7 +132,7 @@ public:
 	 ** SS_NO_BUFFER		The SoundAPI wasn't playing anything.
 	 ** SS_INTERNAL_ERROR	Unespecified.
 	 **/
-	SSerror
+	inline SSerror
 	restart();
 
 	/**
@@ -173,23 +163,55 @@ private:
 /******************************************************************************/
 /****************************     INLINES     *********************************/
 
+////////////////////////////////////////////////////////////////////////////////
+inline SoundAPI::SoundAPI(Ogre::SceneNode* sNode) :
+	mSoundManager(SoundManager::getInstance()),
+	mNode(sNode),
+	mSoundName(),
+	mActivationIndex(-1)
+{ /* Default constructor suffices. */ }
+
+////////////////////////////////////////////////////////////////////////////////
+inline SoundAPI::~SoundAPI() { /* Default destructor suffices. */ }
 
 ////////////////////////////////////////////////////////////////////////////////
 inline void
 SoundAPI::setSceneNode(Ogre::SceneNode* sNode)
 {
-	ASSERT(sNode != NULL);
+	ASSERT(sNode);
 	mNode = sNode;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+inline bool SoundAPI::readyForPlayback() const { return mNode != 0; }
 
 ////////////////////////////////////////////////////////////////////////////////
-inline bool
-SoundAPI::readyForPlayback()
+inline bool SoundAPI::playing() const { return mSoundManager.findPlayingAPI(*this); }
+
+////////////////////////////////////////////////////////////////////////////////
+inline bool SoundAPI::active() const { return mSoundManager.findActiveAPI(*this); }
+
+
+////////////////////////////////////////////////////////////////////////////////
+inline SSerror
+SoundAPI::play(const Ogre::String &sName, bool repeat, const Ogre::Real& gain)
 {
-	return mNode != NULL;
+	mSoundName = sName;
+	return mSoundManager.playSound(*this, sName, gain, repeat);
 }
 
+////////////////////////////////////////////////////////////////////////////////
+inline void SoundAPI::pause() { mSoundManager.pauseSound(*this); }
+
+////////////////////////////////////////////////////////////////////////////////
+inline void SoundAPI::stop()
+{
+	mSoundManager.stopSound(*this);
+	mSoundName.clear();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+inline SSerror SoundAPI::restart() { return mSoundManager.restartSound(*this); }
 
 ////////////////////////////////////////////////////////////////////////////////
 inline const Ogre::String&
@@ -197,7 +219,6 @@ SoundAPI::getCurrentSound() const
 {
 	return mSoundName;
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////
 inline const Ogre::Vector3&
