@@ -139,6 +139,19 @@ void IState::buildButtons(std::vector<OvEff::MenuButtonEffect> &buttons,
 	}
 }
 
+/**
+ * Function which returns the actual TiXmlElement used by this IState.
+ * Returns the tixmlelement which points to the root of this IState section
+ * or 0 on error.
+ */
+const TiXmlElement *IState::getXmlElement(void) const
+{
+	return XMLHelper::findChild(
+	        mXMLHelper.getRootElement(),
+	        mName.c_str(),
+	        "name");
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 void IState::stateFinish(Event e)

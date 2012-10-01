@@ -80,7 +80,7 @@ const TiXmlElement *XMLHelper::findElement(const char *name, const char *attrNam
 /**
  * Returns all the first childs element of the root element
  */
-void XMLHelper::getFirstElements(std::vector<const TiXmlElement *> &elements)
+void XMLHelper::getFirstElements(std::vector<const TiXmlElement *> &elements) const
 {
 	ASSERT(mDocument);
 
@@ -99,7 +99,7 @@ void XMLHelper::getFirstElements(std::vector<const TiXmlElement *> &elements)
 /**
  * Returns the root element of the xml
  */
-const TiXmlElement *XMLHelper::getRootElement(void)
+const TiXmlElement *XMLHelper::getRootElement(void) const
 {
 	if(!mDocument) return 0;
 	return mDocument->RootElement();

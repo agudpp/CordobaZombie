@@ -134,6 +134,7 @@ include_directories( ${OIS_INCLUDE_DIRS}
 	${DEV_ROOT_PATH}/Extras/AppTester
 )
 
+include(${DEV_ROOT_PATH}/Utils/GUI/Text2D/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/MenuSystem/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/MainStateMachine/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/MainStateMachine/States/MainMenuState/AutoGen.cmake)

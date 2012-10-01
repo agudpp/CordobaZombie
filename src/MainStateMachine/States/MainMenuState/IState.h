@@ -155,10 +155,17 @@ protected:
 	 * @param	names		The list of names IDs to be builded from the XML
 	 *
 	 * @note: The effects and buttons are allocated dynamically so the caller
-	 * 		  is responsible the posterior deletion of that elements
+	 * 		  is responsible for the posterior deletion of that elements
 	 */
 	void buildButtons(std::vector<OvEff::MenuButtonEffect> &buttons,
 			const std::vector<Ogre::String> &names) const;
+
+	/**
+	 * Function which returns the actual TiXmlElement used by this IState.
+	 * Returns the tixmlelement which points to the root of this IState section
+	 * or 0 on error.
+	 */
+	const TiXmlElement *getXmlElement(void) const;
 
 private:
 	/**

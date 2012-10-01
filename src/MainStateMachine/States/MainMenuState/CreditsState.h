@@ -12,38 +12,30 @@
 #include <OgreString.h>
 #include <OgreOverlay.h>
 #include <OgreTextAreaOverlayElement.h>
+#include <OgreVector2.h>
 
 #include <vector>
 
 #include "IState.h"
 #include "CbMenuButton.h"
 #include "MenuButtonEffect.h"
+#include "Slide.h"
+#include "EffectRestarter.h"
+
+
 
 
 namespace mm_states {
 
 class CreditsState : public IState {
-
-	enum ButtonIndex {
-		Back = 0,
-	};
-
-	// flags
-	enum Flags {
-		NONE = 0,
-		STATE_SHOWING,
-		STATE_LOOP ,
-		STATE_HIDING,
-		STATE_EXITING,
-	};
-
 public:
 	CreditsState();
 	virtual ~CreditsState();
 
 
 	/**
-	 * Callback that receives the CbMenuButton and the Button id
+	 * Callback that receives the CbMenuButton and the Button id:
+	 * In this case we have not buttons, so do nothing
 	 */
 	void operator()(CbMenuButton *, CbMenuButton::ButtonID id);
 
@@ -92,14 +84,13 @@ private:
 
 
 private:
-	typedef std::vector<OvEff::MenuButtonEffect>	ButtonsEffectVec;
-	typedef std::vector<Ogre::String>				StrVec;
 
-	ButtonsEffectVec	mButtons;
-	int					mState;
-	StrVec				mBtnNames;
 	Ogre::Overlay		*mOverlay;
 	Ogre::TextAreaOverlayElement *mTextArea;
+	OvEff::Slide mSlideEffect;
+	Ogre::Vector2 mBeginPos;
+	OvEff::EffectRestarter mRestarter;
+
 
 };
 

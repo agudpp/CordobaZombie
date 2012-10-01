@@ -63,12 +63,12 @@ public:
 	/**
 	 * Returns all the first childs element of the root element
 	 */
-	void getFirstElements(std::vector<const TiXmlElement *> &elements);
+	void getFirstElements(std::vector<const TiXmlElement *> &elements) const;
 
 	/**
 	 * Returns the root element of the xml
 	 */
-	const TiXmlElement *getRootElement(void);
+	const TiXmlElement *getRootElement(void) const;
 
 	////////////////////////////////////////////////////////////////////////////
 	////						Parse Static Functions						////
