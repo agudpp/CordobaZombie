@@ -1,35 +1,36 @@
+/*
+ * FfmpegVideoPLayerAPI.cpp
+ * Raul Monti
+ * 30.09.2012
+ */
 
 #include "FfmpegVideoPlayerAPI.h"
 
-
-
-/*
- * TODO Method play(int videoindex, float from, float to)
- * 		plays the i-th video from the time 'from' to the time 'to'
- *
- * TODO	Method queue_video and play, with option to define start and end
- * 		in frames metric instead of seconds.
- */
 
 
 
 //Constructor
 
 VideoPlayerAPI::VideoPlayerAPI(Ogre::Vector4 * screensize):
-	videoplayer(0),
-	actualvideo(0),
-	isplaying(false),
-	mRepeat(false),
-	mRepeatAll(false)
+	mVideoPlayer(0),
+	mPlaylistIndex(0),
+	mPlaylistModeOn(false),
+	mPlaylistRepeatAll(false),
+	mPlaylistRepeatVideo(false),
+	mIsplaying(false),
+	mPlaylistStart(0),
+	mPlaylistEnd(0)
 {
 
 	Ogre::Vector4 *ss  = screensize;
 	if(ss){
-		videoplayer = new VideoPlayer(ss->x, ss->y, ss->z,ss->w);
+		mVideoPlayer = new VideoPlayer(ss->x, ss->y, ss->z,ss->w);
 	}else{
-		videoplayer = new VideoPlayer;
+		mVideoPlayer = new VideoPlayer;
 	}
-
+	mVideo.filename = 0;
+	mVideo.end = 0;
+	mVideo.start = 0;
 
 }
 
@@ -37,49 +38,28 @@ VideoPlayerAPI::VideoPlayerAPI(Ogre::Vector4 * screensize):
 
 VideoPlayerAPI::~VideoPlayerAPI(){
 
-	delete videoplayer;
+	delete mVideoPlayer;
 
-	while(!playlist.empty()){
-
-		free(playlist.back());
-		playlist.pop_back();
-
+	while(!mPlaylist.empty()){
+		if(mPlaylist.back() != 0){
+			free(mPlaylist.back());
+		}
+		mPlaylist.pop_back();
 	}
 }
 
 
 
-/*
- * Queue a video into the video play list. Can't queue if it's playing.
- */
-
-int VideoPlayerAPI::queue_video(const char * filename){
-
-	if(isplaying){
-		debugERROR("Attempt to queue while playing.\n");
-		return VIDEO_ERROR;
-	}
-
-	Video v = (Video) malloc(sizeof(struct sVideo));
-
-	v->filename = filename;
-	v->start = NO_VALUE;
-	v->end = NO_VALUE;
-
-	playlist.push_back(v);
-
-	debugRAUL("Video name %s\n", playlist.back()->filename);
-
-	return VIDEO_OK;
-}
 
 /*
  * Queue a video into the video play list. Can't queue if it's playing. The
- * video will be played from time 'from' to time 'to', both in seconds.
+ * video will be played from time 'from' to time 'to', both in seconds, if
+ * specified. Return the index of the queued video inside the playlist on
+ * success. VIDEO_ERROR if something goes wrong.
  */
-int VideoPlayerAPI::queue_video(const char * filename, double from, double to){
+int VideoPlayerAPI::queueVideo(const char * filename, double from, double to){
 
-	if(isplaying){
+	if(mIsplaying){
 		debugERROR("Attempt to queue while playing.\n");
 		return VIDEO_ERROR;
 	}
@@ -90,29 +70,60 @@ int VideoPlayerAPI::queue_video(const char * filename, double from, double to){
 	v->start = from;
 	v->end = to;
 
-	playlist.push_back(v);
+	mPlaylist.push_back(v);
 
-	debugRAUL("Video name %s\n", playlist[0]->filename);
+	debugRAUL("Queuing video %s\n", mPlaylist.back()->filename);
 
-	return VIDEO_OK;
+	return mPlaylist.size()-1;
 }
 
 /*
- * Play :P
+ * Plays from the playlist
  */
 
-int VideoPlayerAPI::play(void){
+int VideoPlayerAPI::playList( int from, int to){
 
-	if(playlist.empty()){
+	if(mPlaylist.empty()){
 		debugERROR("Empty playlist, can't play.\n");
-		return VIDEO_ERROR;
+		return PLAYLIST_EMPTY;
 	}
 
-	if(!isplaying){
-		isplaying = true;
+	// reset playlist limits
+	if(from >= 0 && from < mPlaylist.size()){
+		mPlaylistStart = from;
+	}else{
+		mPlaylistStart = 0;
 	}
 
-	debugBLUE("Video PLAY\n");
+	if(to >= 0 && to <= mPlaylist.size()){
+		mPlaylistEnd = to;
+	}else{
+		mPlaylistEnd = mPlaylist.size();
+	}
+
+	// reset playlist index
+	mPlaylistIndex = 0;
+
+	//Unload player if loaded
+	if(mVideoPlayer->is_loaded()){
+		mVideoPlayer->unload();
+	}
+
+	// Set mVideo as the first video in the play
+	// list and load it into the video player.
+	mVideo = *(mPlaylist[mPlaylistStart]);
+	this->load();
+
+	//
+	mPlaylistModeOn = true;
+
+	//
+	mVideoPlayer->play();
+
+	//
+	mIsplaying = true;
+
+	debugBLUE("Playing from playlist\n");
 
 	return VIDEO_OK;
 }
@@ -122,85 +133,114 @@ int VideoPlayerAPI::play(void){
  * Plays the vindex video loaded to the API.
  * vindex goes from 0 to playlist size -1.
  */
-int VideoPlayerAPI::play(int vindex){
+int VideoPlayerAPI::playFromPlaylist( int vindex, double from, double to)
+{
 
-	if(vindex < 0 || vindex >= playlist.size()){
+	if(vindex < 0 || vindex >= mPlaylist.size()){
 		return VIDEO_ERROR;
 	}
 
-	videoplayer->unload();
+	if(mVideoPlayer->is_loaded()){
+		mVideoPlayer->unload();
+	}
 
-	actualvideo = vindex;
+	mVideo = (*mPlaylist[vindex]);
+	this->load();
 
-	play();
+	mPlaylistModeOn = false;
+
+	mVideoPlayer->play();
+
+	mIsplaying = true;
 
 	return VIDEO_OK;
 
 }
 
 
-int VideoPlayerAPI::update(double tslf){
-
-	if(!isplaying){
-		//debugBLUE("SKIP UPDATE (NOT PLAYING)\n");
-		return VIDEO_OK;
+int
+VideoPlayerAPI::playSingleVideo(const char * filename, double from, double to)
+{
+	if(mVideoPlayer->is_loaded()){
+		mVideoPlayer->unload();
 	}
 
-	ASSERT(!playlist.empty());
+	mVideo.filename = filename;
+	mVideo.start = from;
+	mVideo.end = to;
 
-	// si no esta cargado entonces intentamos cargar el siguiente video
-	if(!videoplayer->is_loaded()){
-
-		if(actualvideo >= playlist.size()){
-			// no more videos to play
-			isplaying = false;
-			debugGREEN("Out of videos, then STOP\n");
-			return VIDEO_ENDED;
-		}
-		//else load video
-		if(videoplayer->load(playlist[actualvideo]->filename) == VIDEO_ERROR){
-			debugERROR("Can't load video player :S \n");
-			return VIDEO_ERROR;
-		}
-		if(playlist[actualvideo]->start != NO_VALUE){
-			// if want to start somewhere else
-			if (videoplayer->seek_time_stamp(playlist[actualvideo]->start)
-					== VIDEO_ERROR)
-			{
-				debugERROR("Can't seek in video :S \n");
-				return VIDEO_ERROR;
-			}
-		}
-		videoplayer->play();
-	}
-
-	int err = videoplayer->update(tslf);
-	if(err == VIDEO_ERROR){
-		debugERROR("VideoPlayer error while updating :S \n");
+	if( VIDEO_ERROR == this->load()){
 		return VIDEO_ERROR;
 	}
 
-	if(err == VIDEO_ENDED){
-		debugBLUE("Video ended :S \n");
+	mPlaylistModeOn = false;
+	mIsplaying = true;
+
+	mVideoPlayer->play();
+
+	return VIDEO_OK;
+}
+
+
+
+
+int VideoPlayerAPI::load(void){
+
+	if(mVideoPlayer->is_loaded()){
+		return VIDEO_ERROR;
 	}
 
-	double pt = 0;
-	videoplayer->get_playing_time_in_secs(pt);
-	Video video = playlist[actualvideo];
-	bool flag = video->end != NO_VALUE;
-
-	if(err == VIDEO_ENDED || (flag && pt >= video->end)){
-		debugGREEN("Ended because reached video->end %lf %lf\n", pt, video->end);
-		videoplayer->unload();
-		if(!mRepeat){
-			actualvideo += 1;
-		}
-		if(actualvideo == playlist.size()){
-			if(mRepeatAll){
-				actualvideo = 0;
-			}
+	// Load the video
+	if(mVideo.filename != 0){
+		if(mVideoPlayer->load(mVideo.filename) == VIDEO_ERROR){
+			return VIDEO_ERROR;
 		}
 	}
+
+	// Seek to the video start point
+	if(mVideo.start != NO_VALUE){
+		if(mVideoPlayer->seek_time_stamp(mVideo.start) == VIDEO_ERROR){
+			return VIDEO_ERROR;
+		}
+	}
+
+	return VIDEO_OK;
+}
+
+
+
+int VideoPlayerAPI::update(double tslf){
+
+	if(!mIsplaying){
+		// Not playing
+		return VIDEO_OK;
+	}
+
+	ASSERT(mVideoPlayer->is_loaded());
+
+	int err = VIDEO_OK;
+	double pt = 0.0f;
+	mVideoPlayer->get_playing_time_in_secs(pt);
+	bool ended = mVideo.end != NO_VALUE && pt >= mVideo.end;
+
+	if(!ended){
+		err = mVideoPlayer->update(tslf);
+
+		if(err == VIDEO_ERROR){
+			debugERROR("Problem updating the video :S\n");
+			return VIDEO_ERROR;
+		}
+	}
+
+	if(ended || err == VIDEO_ENDED){
+		if(mPlaylistModeOn){
+			this->next();
+		}else{
+			mIsplaying = false;
+		}
+		return VIDEO_ENDED;
+	}
+
 	return VIDEO_OK;
 }
 
@@ -212,22 +252,45 @@ int VideoPlayerAPI::update(double tslf){
 
 int VideoPlayerAPI::next(void){
 
-	if(playlist.empty()){
+	if(!mPlaylistModeOn){
 		return VIDEO_ERROR;
 	}
 
-	videoplayer->unload();
-
-	videoplayer->paint_black_screen();
-
-	if(!mRepeat){
-		actualvideo += 1;
+	if(mPlaylist.empty()){
+		return PLAYLIST_EMPTY;
 	}
-	if(actualvideo >= playlist.size()){
-		if(mRepeatAll){
-			actualvideo = 0;
+
+	if(mVideoPlayer->is_loaded()){
+		mVideoPlayer->unload();
+	}
+
+	mVideoPlayer->paint_black_screen();
+
+	if(!mPlaylistRepeatVideo){
+		// Move to next video if repeat video isn't activated.
+		mPlaylistIndex = (mPlaylistIndex + 1) % mPlaylist.size();
+
+	}else{
+		mVideo = *(mPlaylist[mPlaylistIndex]);
+		this->load();
+		mVideoPlayer->play();
+		return VIDEO_OK;
+	}
+
+	// Jump to start if we reached the last video and repeat all is activated.
+	if(mPlaylistIndex == mPlaylistEnd){
+		if(!mPlaylistRepeatAll){
+			mIsplaying = false;
+			return VIDEO_ENDED;
+		}else{
+			mPlaylistIndex = mPlaylistStart;
 		}
 	}
+
+	// Get next video and load it
+	mVideo = *(mPlaylist[mPlaylistIndex]);
+	this->load();
+	mVideoPlayer->play();
 
 	return VIDEO_OK;
 }
