@@ -15,6 +15,7 @@
 #include "CbMenuButton.h"
 #include "tinyxml.h"
 #include "MenuButtonEffect.h"
+#include "OverlayEffectBuilder.h"
 
 
 namespace mm_states {
@@ -63,17 +64,20 @@ void IState::parseCbMenuButton(const TiXmlElement *xml,
 	cbu->configureAll(cont);
 	button.setButton(cbu);
 
-	// create the effect
-	const TiXmlElement *effectXml = xml->FirstChildElement("Effect");
-	if(!effectXml){
-		debugWARNING("No effect set... we want this?\n");
-		return;
-	}
+    // create the effect
+	const TiXmlElement *effectXml = xml->FirstChildElement("OverlayEffect");
+    if(!effectXml){
+    	debugWARNING("No OverlayEffect for this button... Do we want this?\n");
+    } else {
+    	// accept any available effect
+    	OvEff::OverlayEffectBuilder oeb;
+    	OvEff::OverlayEffect* oe = oeb.createOverlayEffect(*effectXml, NULL);
+    	if (oe) {
+    		button.setEffect(oe);
+    	}
+    }
 
-	// else we have an effect, getit from the builder
-	// button.setEffect(OvEff::EffectBuilder(effectXml, cont);
-	debugERROR("TODO: USar el builder de carlox\n");
-
+    return;
 }
 
 
