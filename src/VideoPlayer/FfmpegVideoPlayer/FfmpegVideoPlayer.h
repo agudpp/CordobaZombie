@@ -122,7 +122,7 @@ public:
 
 	int 			update(double timesincelastframe);
 
-	inline void 	play(void);
+	void		 	play(void);
 
 	inline bool 	is_playing(void);
 
@@ -178,29 +178,6 @@ protected:
 
 };
 
-
-inline void VideoPlayer::play(void)
-{
-	if(isLoaded){
-		if(isPlaying){
-			debugWARNING("Warning: attempting to play video while already "
-					"playing\n");
-		}else{
-
-			//fetch some packets before start
-			while(get_more_data() != VIDEO_ENDED and
-					vDataQue.size() < VIDEO_QUEUE_MAX_SIZE and
-					aDataDque.size() < AUDIO_QUEUE_MAX_SIZE)
-			{
-			}
-
-			mplayingtime = 0;
-			isPlaying = true;
-		}
-	}else{
-		debugWARNING("Warning: attempting to play video while not loaded\n");
-	}
-}
 
 
 inline bool VideoPlayer::is_playing(void)

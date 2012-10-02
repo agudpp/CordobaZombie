@@ -283,7 +283,7 @@ void Test::createOverlay(void)
 		overlayManager.createOverlayElement("Panel", "Fader"));
 	mOverlayPanel->setMetricsMode(Ogre::GMM_RELATIVE);
 	mOverlayPanel->setPosition(0, 0);
-	mOverlayPanel->setDimensions(0.5f, 0.5f);
+	mOverlayPanel->setDimensions(0.1f, 0.1f);
 	mOverlayPanel->setMaterialName("BackpackMaterial"); // Optional background material
 
 	// Ensures that the material exists
@@ -593,35 +593,26 @@ void Test::update()
 		if (!keyPres) {
 			keyPres = true;
 			VPAPI->next();
-//			double len = 0;
-//			mVideoPlayer->get_video_length(len);
-//			len /= 3.0f;
-//			mVideoPlayer->seek_time_stamp(len);
 		}
 	}else if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_S)){
 		if (!keyPres) {
 			keyPres = true;
-			if(VPAPI){
-				VPAPI->set_visible(!VPAPI->is_visible());
-			}
+			VPAPI->setVisible(!VPAPI->isVisible());
 		}
 	}else if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_J)){
 		if (!keyPres) {
 			keyPres = true;
-			if(VPAPI){
-				VPAPI->play(1);
-			}
+			VPAPI->playFromPlaylist( 1, 15.0f, 19.0f);
 		}
 	}else if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_P)){
 		if (!keyPres) {
 			keyPres = true;
-			if(VPAPI){
-				if(VPAPI->is_playing()){
-					VPAPI->pause();
-				}else{
-					VPAPI->play();
-				}
-			}
+			VPAPI->pause();
+		}
+	}else if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_M)){
+		if (!keyPres) {
+			keyPres = true;
+			VPAPI->playSingleVideo(myvideo, 9.0f, 10.0f);
 		}
 	}else if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_V)){
 		if (!keyPres) {
@@ -629,16 +620,14 @@ void Test::update()
 			if(!VPAPI){
 				//VPAPI = new VideoPlayerAPI(&Ogre::Vector4(-0.5f,0.5f,0.5f,-0.5f));
 				VPAPI = new VideoPlayerAPI();
-				//VPAPI->queue_video("../Videos/TrailerdejuegoCordobaZombie.wmv");
-				//VPAPI->queue_video("../Videos/MartinSolveig_Dragonette-Hello.mp4", 20.0f, 25.0f);
-				VPAPI->queue_video(myvideo);
-				VPAPI->queue_video(myvideo, 5.0f, 10.0f);
-				VPAPI->queue_video(myvideo2);
-				VPAPI->queue_video(myvideo2, 5.0f, 10.0f);
-				VPAPI->queue_video(myvideo);
-				VPAPI->queue_video(myvideo, 5.0f, 10.0f);
-				VPAPI->setRepeatAll(true);
-				VPAPI->play();
+				VPAPI->queueVideo(myvideo);
+				VPAPI->queueVideo(myvideo, 5.0f, 7.3423f);
+				VPAPI->queueVideo(myvideo2);
+				VPAPI->queueVideo(myvideo2, 5.0f, 10.0f);
+
+				//VPAPI->setRepeatPlaylistVideo(true);
+				VPAPI->setRepeatPlaylistAll(true);
+				VPAPI->playList();
 			}
 		}
 	}else {

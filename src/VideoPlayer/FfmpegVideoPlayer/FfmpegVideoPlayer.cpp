@@ -222,38 +222,30 @@ VideoPlayer::~VideoPlayer(){
 
 
 
+void VideoPlayer::play(void)
+{
+	if(isLoaded){
+		if(isPlaying){
+			debugWARNING("Warning: attempting to play video while already "
+					"playing\n");
+		}else{
 
-int VideoPlayer::unload(void){
-	if(!isLoaded){
-		debugWARNING("Attempt to unload when nothing was loaded\n");
-		return VIDEO_OK;
+			//fetch some packets before start
+			while(get_more_data() != VIDEO_ENDED and
+					vDataQue.size() < VIDEO_QUEUE_MAX_SIZE and
+					aDataDque.size() < AUDIO_QUEUE_MAX_SIZE)
+			{
+			}
+
+			mplayingtime = 0;
+			isPlaying = true;
+		}
+	}else{
+		debugWARNING("Warning: attempting to play video while not loaded\n");
 	}
-
-	isPlaying = false;
-
-    // Free the RGB image
-    delete [] buffer;
-    av_free(pFrameRGB);
-
-    // Close the codecsvideoStream (but not free them)
-    avcodec_close(pCodecCtx);
-
-    // Clear the packet queues
-    empty_data_queues();
-
-    // destroy contexts and devices from the audio player
-    if(audioStream != -1){
-		avcodec_close(aCodecCtx);
-		alcCloseDevice(dev);
-		alcDestroyContext(ctx);
-		alcCloseDevice(dev);
-    }
-
-    // Close the video file
-    avformat_close_input(&pFormatCtx);
-    isLoaded = false;
-
 }
+
+
 
 
 int VideoPlayer::load(const char *fileName){
@@ -273,7 +265,6 @@ int VideoPlayer::load(const char *fileName){
     if(pFrame==0){
     	debugERROR("Could not alloc video frame\n"); return VIDEO_ERROR;
     }
-
 
     // Open video file
     if(avformat_open_input(&pFormatCtx, fileName, NULL, 0)!=0){
@@ -311,16 +302,9 @@ int VideoPlayer::load(const char *fileName){
     }else{
     	debugGREEN("Video Stream Number %d\n", videoStream);
     }
-//    if(audioStream==-1){
-//    	debugERROR("Didn't find an audio stream\n"); return VIDEO_ERROR;
-//    }else{
-//    	debugGREEN("Audio Stream Number %d\n", audioStream);
-//    }
 
     // Get a pointer to the codec context for the video stream
     pCodecCtx = pFormatCtx->streams[videoStream]->codec;
-
-
 
     // Find the decoder for the video stream
     pCodec=avcodec_find_decoder(pCodecCtx->codec_id);
@@ -426,13 +410,45 @@ int VideoPlayer::load(const char *fileName){
 
     }
 
-    print_video_info();
+    //print_video_info();
 
     return VIDEO_OK;
 }
 
 
 
+
+int VideoPlayer::unload(void){
+	if(!isLoaded){
+		debugWARNING("Attempt to unload when nothing was loaded\n");
+		return VIDEO_OK;
+	}
+
+	isPlaying = false;
+
+    // Free the RGB image
+    delete [] buffer;
+    av_free(pFrameRGB);
+
+    // Close the codecsvideoStream (but not free them)
+    avcodec_close(pCodecCtx);
+
+    // Clear the packet queues
+    empty_data_queues();
+
+    // destroy contexts and devices from the audio player
+    if(audioStream != -1){
+		avcodec_close(aCodecCtx);
+		alcCloseDevice(dev);
+		alcDestroyContext(ctx);
+		alcCloseDevice(dev);
+    }
+
+    // Close the video file
+    avformat_close_input(&pFormatCtx);
+    isLoaded = false;
+
+}
 
 
 
@@ -1240,8 +1256,6 @@ void VideoPlayer::print_video_info(void){
  */
 int VideoPlayer::paint_screen(unsigned char R, unsigned char G, unsigned char B)
 {
-
-	debugRAUL("Painting color %d %d %d\n", (int)R, (int)G, (int)B);
 
 	if(!rtt_texture.get()){
 		return VIDEO_ERROR;
