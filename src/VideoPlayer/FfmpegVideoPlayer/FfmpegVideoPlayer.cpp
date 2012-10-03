@@ -50,6 +50,9 @@ const double EPS = 10e-12;
  *	15. Limpiar los buffers de sonido para que no haga ruido de basura al
  *	darle play a un nuevo video.
  *
+ *	16. Buscar una mejor solucion para no usar viejos audio packets al hacer
+ *	get_playing_time luego de un seek. Usar la variable apnvfts es muy McCaco.
+ *
  * TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
  */
 
@@ -131,7 +134,9 @@ VideoPlayer::VideoPlayer(Ogre::Real left, Ogre::Real top,
 	decoding_pkt_size(0),
 	decoding_pkt_data(0),
 	synchroPTS(0),
-	buffLenInSec(0)
+	buffLenInSec(0),
+	lastPts(0),
+	apnvfts(0)
 {
 
 #if OGRE_ENDIAN == OGRE_ENDIAN_BIG
@@ -256,7 +261,7 @@ int VideoPlayer::load(const char *fileName){
 	}
 
     // Allocation (if first time)
-    pFormatCtx 	= avformat_alloc_context();
+    pFormatCtx = avformat_alloc_context();
 
     // Allocate video frame
     if(!pFrame){
@@ -465,8 +470,8 @@ int VideoPlayer::seek_time_stamp(double ts){
 		return VIDEO_ERROR;
 	}
 
-	double t = 0;
-	get_playing_time(t);
+	double t = static_cast<double>(lastPts)/static_cast<double>(AV_TIME_BASE);
+	debugGREEN("time .... %lf\n", t);
 	int flag = ts < t ? AVSEEK_FLAG_BACKWARD : 0;
 
 	int stream_index= -1;
@@ -483,16 +488,24 @@ int VideoPlayer::seek_time_stamp(double ts){
 	                  	  pFormatCtx->streams[stream_index]->time_base);
 	}
 
+	debugGREEN("Seeking in %s target %ld\n",
+					pFormatCtx->filename, seek_target);
 	if(av_seek_frame(pFormatCtx, stream_index, seek_target, flag) < 0) {
+		flag = 0 ? AVSEEK_FLAG_BACKWARD : 0;
+		if(av_seek_frame(pFormatCtx, stream_index, seek_target, flag) < 0){
+			debugERROR("Error while seeking in %s target %ld\n",
+				pFormatCtx->filename, seek_target);
+			return VIDEO_ERROR;
 
-		debugERROR("Error while seeking in %s\n",pFormatCtx->filename);
-	    return VIDEO_ERROR;
-
-	}else{
-
-		//clear queues to prepare for new data
-		empty_data_queues();
+		}
 	}
+
+	mplayingtime = ts;
+
+	//clear queues to prepare for new data
+	empty_data_queues();
+
+	apnvfts = true;
 
 	return VIDEO_OK;
 }
@@ -1066,6 +1079,9 @@ int VideoPlayer::audio_decode_frame(uint8_t **buffer, int buffer_size){
 		}
 
 		if(aDataDque.size() > 0){
+
+			apnvfts = false;
+
 			audio_decoding_pkt = aDataDque.front();
 			if(audio_decoding_pkt->pts != AV_NOPTS_VALUE){
 				synchroPTS = static_cast<double>(audio_decoding_pkt->pts);
@@ -1092,7 +1108,7 @@ int VideoPlayer::audio_decode_frame(uint8_t **buffer, int buffer_size){
 
 int VideoPlayer::get_playing_time(double & t){
 
-	if(!audio_decoding_pkt || audioStream == -1){
+	if(!audio_decoding_pkt || apnvfts || audioStream == -1){
 		// we can't get the synchronized time so we return the real time
 		t = mplayingtime;
 		return VIDEO_OK;
@@ -1168,6 +1184,8 @@ int VideoPlayer::get_more_data(void){
 			return VIDEO_ENDED;
 
 		}else{
+
+			lastPts = mPacket->pts;
 
 			if(mPacket->stream_index == videoStream){
 

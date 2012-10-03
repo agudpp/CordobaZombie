@@ -108,6 +108,10 @@ private:
     double						buffLenInSec;
     double						fxcxb;  // audio frequency*channel*bits
 
+    //
+    int64_t						lastPts;
+    // audio packet not valid for time stamp
+    bool						apnvfts;
 
 public:
 
