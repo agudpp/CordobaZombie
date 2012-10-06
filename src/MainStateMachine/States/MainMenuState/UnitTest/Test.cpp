@@ -44,10 +44,34 @@ void Test::handleInput(void)
 
 }
 
+void Test::simulateMainMenuStateRun(void)
+{
+    MainMachineInfo info; // empty info, no needed right now
+
+    debugGREEN("Creating MainMenuState\n");
+    MainMenuState *mms = new MainMenuState;
+
+    debugGREEN("Entering to MainMenuState\n");
+    mms->enter(info);
+
+    debugGREEN("Updating MainMenuState\n");
+    mms->update(info);
+
+    debugGREEN("Exiting MainMenuState\n");
+    mms->exit();
+
+    debugGREEN("Deleting MainMenuState\n");
+    delete mms;
+}
+
 
 /* Load additional info */
 void Test::loadAditionalData(void)
 {
+    simulateMainMenuStateRun();
+    return;
+
+
 	mMenuManager.build(GLOBAL_WINDOW->getWidth(),GLOBAL_WINDOW->getHeight(),
 				5,5);
 	IMenu::setMenuManager(&mMenuManager);

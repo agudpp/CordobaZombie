@@ -21,7 +21,7 @@ MenuButtonEffect::MenuButtonEffect(MenuButton *button, OverlayEffect *effect) :
 
 MenuButtonEffect::~MenuButtonEffect()
 {
-
+    if (mEffect != 0) mEffect->removeCallback(this);
 }
 
 void MenuButtonEffect::operator()(EffectCb::EventID id)

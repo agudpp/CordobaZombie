@@ -9,9 +9,13 @@
 #ifndef OVERLAYEFFECT_H_
 #define OVERLAYEFFECT_H_
 
+#include <algorithm>
+
 #include <OgreOverlayElement.h>
+#include <vector>
 
 #include "EffectCb.h"
+#include "DebugUtil.h"
 
 namespace OvEff {
 
@@ -36,11 +40,12 @@ public:
 	inline Ogre::OverlayElement *getElement(void);
 
 	/**
-	 * Set the callback to be used to call when the effect will start to be
+	 * Add the callback to be used to call when the effect will start to be
 	 * executed or when its ending
 	 * @param	cb	The callback
 	 */
-	inline void setCallback(EffectCb *cb);
+	inline void addCallback(EffectCb *cb);
+	inline void removeCallback(EffectCb *cb);
 
 	/**
 	 * Stops the effect (if is actually reproducing it
@@ -90,10 +95,11 @@ protected:
 
 
 protected:
-	Ogre::OverlayElement			*mElement;
-	EffectCb						*mCb;
-	bool                            mActive;
+	typedef std::vector<EffectCb *> EffectCbVec;
 
+	Ogre::OverlayElement			*mElement;
+	bool                            mActive;
+	EffectCbVec                     mCallbacks;
 	// pointer (index) used by the Manager
 	int								mIndex;
 
@@ -112,9 +118,24 @@ inline Ogre::OverlayElement *OverlayEffect::getElement(void)
  * executed or when its ending
  * @param	cb	The callback
  */
-inline void OverlayEffect::setCallback(EffectCb *cb)
+inline void OverlayEffect::addCallback(EffectCb *cb)
 {
-	mCb = cb;
+    ASSERT(std::find(mCallbacks.begin(), mCallbacks.end(), cb) == mCallbacks.end());
+    ASSERT(cb != 0);
+    // increment only in 1 the size
+    mCallbacks.reserve(mCallbacks.size() + 1);
+    mCallbacks.push_back(cb);
+}
+inline void OverlayEffect::removeCallback(EffectCb *cb)
+{
+    ASSERT(cb != 0);
+    for(size_t size = mCallbacks.size(), index = 0; index < size; ++index)
+        if (mCallbacks[index] == cb){
+            // swap with the last element
+            mCallbacks[index] = mCallbacks[size-1];
+            mCallbacks.pop_back();
+            return;
+        }
 }
 
 /**
@@ -122,12 +143,18 @@ inline void OverlayEffect::setCallback(EffectCb *cb)
  */
 inline void OverlayEffect::begin(void)
 {
-	if(mCb) {(*mCb)(EffectCb::STARTING);}
+	if(!mCallbacks.empty()) {
+	    for(size_t size = mCallbacks.size(), i = 0; i < size; ++i)
+	        (*mCallbacks[i])(EffectCb::STARTING);
+	}
 	enter();
 }
 inline void OverlayEffect::end(void)
 {
-	if(mCb) {(*mCb)(EffectCb::ENDING);}
+    if(!mCallbacks.empty()) {
+        for(size_t size = mCallbacks.size(), i = 0; i < size; ++i)
+            (*mCallbacks[i])(EffectCb::ENDING);
+    }
 	exit();
 }
 inline void OverlayEffect::setIndex(int i)
