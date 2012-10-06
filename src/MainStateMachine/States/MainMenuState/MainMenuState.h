@@ -24,6 +24,8 @@
 #include "DebugUtil.h"
 #include "VideoRange.h"
 #include "FfmpegVideoPlayerAPI.h"
+#include "OverlayEffectManager.h"
+#include "XMLHelper.h"
 
 
 
@@ -158,6 +160,9 @@ private:
 	MenuManager						mMenuManager;
 	OvEff::OverlayEffectManager		mOvEffManager;
 	VideoPlayerAPI					*mVideoPlayerAPI;
+	CallbackReceiber                mCbReceiver;
+	OvEff::OverlayEffectManager     mEffectMngr;
+	XMLHelper                       mXmlHelper;
 
 };
 

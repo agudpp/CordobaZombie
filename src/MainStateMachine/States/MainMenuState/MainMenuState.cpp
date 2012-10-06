@@ -114,6 +114,7 @@ MainMenuState::VideoState MainMenuState::getVideoState(void)
 
 	if(actualpos >= mEnteringRanges[0].start
 			&& actualpos <= mEnteringRanges[0].end){
+
 		return Entering;
 	}else{
 		return Updating;
@@ -127,11 +128,11 @@ void MainMenuState::updateStateMachine(void)
 	if(!mActualState) return;
 
 	// check video position
+
 	VideoState actualVS = getVideoState();
 
 	if (actualVS == Entering) {
 		// we don't have to do nothing, only update videoplayer
-		mVideoPlayerAPI->update(GLOBAL_TIME_FRAME);
 		return;
 	}
 
@@ -167,13 +168,13 @@ void MainMenuState::configureMenuManager(void)
 ////////////////////////////////////////////////////////////////////////////////
 void MainMenuState::configureOvEffectManager(void)
 {
-	ASSERT(false);
+	OvEff::OverlayEffect::setManager(&mOvEffManager);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void MainMenuState::configureSoundManager(void)
 {
-	ASSERT(false);
+	debugERROR("Carlox: mete tu codigo aca :)\n");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -259,14 +260,16 @@ mm_states::IState *MainMenuState::nextState(mm_states::Event e,
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 MainMenuState::MainMenuState() :
-IMainState("MainMenuState"),
-mActualState(0),
-mLastState(0),
-mLastEvent(mm_states::Done),
-mBeforeUpdateCalled(false),
-mVideoPlayerAPI(0)
+	IMainState("MainMenuState"),
+	mActualState(0),
+	mLastState(0),
+	mLastEvent(mm_states::Done),
+	mBeforeUpdateCalled(false),
+	mVideoPlayerAPI(0),
+	mCbReceiver(*this)
 {
-
+    // configure the callback for the IStates
+    mm_states::IState::setStateMachineCb(&mCbReceiver);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -289,26 +292,33 @@ void MainMenuState::enter(const MainMachineInfo &info)
 	ASSERT(mActualState == 0);
 	ASSERT(mStates.empty());
 
-	if (!mm_states::StatesFactory::buildStates(mStates)){
-		debugERROR("Error loading the States\n");
-		ASSERT(false);
-	}
-	ASSERT(!mStates.empty());
+	// parse xml file
+	mXmlHelper.setFilename(CONFIG_FILENAME);
+	mXmlHelper.openXml();
+	ASSERT(mXmlHelper.hasOpenFile());
 
 	// Load all the other stuff
 	try {
 		configureMenuManager();
 		configureOvEffectManager();
 		configureSoundManager();
+		configureVideoAPI();
 	} catch (ExceptionInfo &e) {
 		debugERROR("Error occurred [%d]: %s\n", e.errCode, e.info.c_str());
 		ASSERT(false);
 	}
 
+
+    if (!mm_states::StatesFactory::buildStates(mStates)){
+        debugERROR("Error loading the States\n");
+        ASSERT(false);
+    }
+    ASSERT(!mStates.empty());
+
 	// configure all the states with the information to be used
 	const int size = mStates.size();
 	for(int i = 0; i < size; ++i){
-		mStates[i]->setFilename(CONFIG_FILENAME);
+		mStates[i]->setXmlElement(mXmlHelper.getRootElement());
 	}
 
 	// set the main state
@@ -340,6 +350,11 @@ MainMachineEvent MainMenuState::update(MainMachineInfo &info)
 		// update the state machine
 		updateStateMachine();
 
+		// update all the other things
+		mMenuManager.update();
+        mVideoPlayerAPI->update(GLOBAL_TIME_FRAME);
+        mEffectMngr.update();
+
 		// This must be called when we use the renderOneFrame approach
 		Ogre::WindowEventUtilities::messagePump();
 
@@ -355,4 +370,5 @@ void MainMenuState::exit(void)
         delete mStates[i];
     }
     mStates.clear();
+    mXmlHelper.closeXml();
 }

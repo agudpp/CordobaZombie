@@ -175,8 +175,8 @@ add_library(tinyxml STATIC IMPORTED)
 set_property(TARGET tinyxml PROPERTY
                 IMPORTED_LOCATION ${DEV_ROOT_PATH}/Common/tinyxml/tinyxmlpath.a)
 
-target_link_libraries(OgreApp ${OGRE_LIBRARIES} ${OIS_LIBRARIES} tinyxml box2D
-${OPENAL_LIBRARIES} )
+target_link_libraries(OgreApp ${OGRE_LIBRARIES} ${OIS_LIBRARIES} tinyxml box2D 
+avcodec avutil avformat swscale ${OPENAL_LIBRARIES} )
  
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/dist/bin)
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/dist/media)

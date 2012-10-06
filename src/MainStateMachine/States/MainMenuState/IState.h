@@ -74,9 +74,9 @@ public:
 	inline float getActualVideoStateDuration(void);
 
 	/**
-	 * Configure the filename of the XML to extract the information (if is needed)
+	 * Set the XML to extract the information (if is needed)
 	 */
-	inline void setFilename(const Ogre::String &fname);
+	inline void setXmlElement(const TiXmlElement *elem);
 
 	/**
 	 * Get the filename of the State
@@ -185,8 +185,8 @@ private:
 
 private:
 	float			mActualTimeDuration;
-	XMLHelper		mXMLHelper;
 	Ogre::String	mName;
+	const TiXmlElement *mRootElement;
 
 	static EventCallback *sEventCb;
 
@@ -202,11 +202,9 @@ inline float IState::getActualVideoStateDuration(void)
 	return mActualTimeDuration;
 }
 
-inline void IState::setFilename(const Ogre::String &fname)
+inline void IState::setXmlElement(const TiXmlElement *elem)
 {
-	// open document
-	mXMLHelper.setFilename(fname);
-	mXMLHelper.openXml();
+	mRootElement = elem;
 }
 
 inline const Ogre::String &IState::name(void)

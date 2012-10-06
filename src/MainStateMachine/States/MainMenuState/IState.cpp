@@ -65,7 +65,7 @@ void IState::parseCbMenuButton(const TiXmlElement *xml,
 	button.setButton(cbu);
 
     // create the effect
-	const TiXmlElement *effectXml = xml->FirstChildElement("OverlayEffect");
+	const TiXmlElement *effectXml = xml->FirstChildElement("Effect");
     if(!effectXml){
     	debugWARNING("No OverlayEffect for this button... Do we want this?\n");
     } else {
@@ -85,7 +85,7 @@ void IState::parseCbMenuButton(const TiXmlElement *xml,
 void IState::getVideoRangesFromXML(std::vector<VideoRange> &vr) const
 {
 	// get the TiXmlElement from the document with the associated name
-	const TiXmlElement *elem = mXMLHelper.findElement(mName.c_str());
+	const TiXmlElement *elem = XMLHelper::findChild(mRootElement, mName.c_str());
 	ASSERT(elem);
 
 	vr.clear();
@@ -116,7 +116,7 @@ void IState::buildButtons(std::vector<OvEff::MenuButtonEffect> &buttons,
 {
 	if(names.empty()) return;
 
-	const TiXmlElement *elem = mXMLHelper.findElement(mName.c_str());
+	const TiXmlElement *elem = XMLHelper::findChild(mRootElement, mName.c_str());
 	ASSERT(elem);
 
 	// get the CBMenuButtons config if we have
@@ -151,7 +151,7 @@ void IState::buildButtons(std::vector<OvEff::MenuButtonEffect> &buttons,
 const TiXmlElement *IState::getXmlElement(void) const
 {
 	return XMLHelper::findChild(
-	        mXMLHelper.getRootElement(),
+	        mRootElement,
 	        mName.c_str(),
 	        "name");
 }
@@ -168,9 +168,10 @@ void IState::stateFinish(Event e)
 ////////////////////////////////////////////////////////////////////////////////
 
 IState::IState(const Ogre::String &name) :
-		mName(name)
+		mName(name),
+		mRootElement(0)
 {
-	ASSERT(sEventCb);
+	ASSERT(sEventCb != 0);
 }
 
 IState::~IState()
