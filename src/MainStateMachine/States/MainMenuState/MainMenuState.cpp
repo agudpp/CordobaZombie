@@ -236,6 +236,7 @@ MainMenuState::~MainMenuState()
 {
 	// TODO: Remove all the memory and resources used by this state
 	// calling exit()
+    exit();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -266,6 +267,9 @@ void MainMenuState::enter(const MainMachineInfo &info)
 	for(int i = 0; i < size; ++i){
 		mStates[i]->setFilename(CONFIG_FILENAME);
 	}
+
+	// set the main state
+	configureNewState(mStates[0]);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -302,5 +306,9 @@ MainMachineEvent MainMenuState::update(MainMachineInfo &info)
 ////////////////////////////////////////////////////////////////////////////////
 void MainMenuState::exit(void)
 {
-	ASSERT(false);
+	// remove all the states
+    for(size_t size = mStates.size(), i = 0; i < size; ++i){
+        delete mStates[i];
+    }
+    mStates.clear();
 }

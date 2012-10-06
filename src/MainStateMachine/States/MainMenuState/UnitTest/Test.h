@@ -22,6 +22,7 @@
 #include "CreditsState.h"
 #include "MenuManager.h"
 #include "OverlayEffectManager.h"
+#include "MainMenuState.h"
 
 
 class Test : public AppTester
@@ -42,6 +43,9 @@ private:
 
 	// handle input
 	void handleInput(void);
+
+	// simulate MainMenuState run
+	void simulateMainMenuStateRun(void);
 
 private:
 	MouseCursor				mMouseCursor;
