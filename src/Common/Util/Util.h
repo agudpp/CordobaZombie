@@ -86,6 +86,12 @@ public:
 	static bool readEnvVar(const std::string &var, std::string &result);
 
 
+	// Get the resource absolute path
+	static int getResourcePath( Ogre::String resourceGroup
+							  , Ogre::String resourceName
+							  , Ogre::String &resourcePath
+							  );
+
 private:
 	static Ogre::Quaternion parseQuaternion(TiXmlElement *XMLNode);
 	static Ogre::Vector3 parseVector3(TiXmlElement *XMLNode);
@@ -102,6 +108,8 @@ private:
 	// Find a vertex from a vector
 	static sm::Vertex *findVertex(const std::vector<sm::Vertex *> &vertexs,
 			const Ogre::Vector3 &ve);
+
+
 
 
 };
