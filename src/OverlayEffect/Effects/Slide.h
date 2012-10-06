@@ -134,7 +134,7 @@ inline void Slide::setDuration(float t)
 
 
 ////////////////////////////////////////////////////////////////////////////////
-inline virtual bool Slide::complement()
+inline bool Slide::complement()
 {
 	Ogre::Vector2 tmp(mOrig);
 	mOrig = mDest;
