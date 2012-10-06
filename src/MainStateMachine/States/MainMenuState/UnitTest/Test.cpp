@@ -77,9 +77,6 @@ void Test::loadAditionalData(void)
 	IMenu::setMenuManager(&mMenuManager);
 	OvEff::OverlayEffect::setManager(&mEffectManager);
 
-	mCreditsState.setFilename("Configurations.xml");
-	mCreditsState.load();
-
 }
 
 /* function called every frame. Use GlobalObjects::lastTimeFrame */
@@ -91,15 +88,6 @@ void Test::update()
 
 	handleInput();
 
-//	mTimer += GLOBAL_TIME_FRAME;
-//	if(mTimer < 1.0f){
-//		mCreditsState.update(mm_states::IState::ENTERING);
-//	} else if(mTimer < 5.0f){
-//		mCreditsState.update(mm_states::IState::LOOPING);
-//	} else if(mTimer < 7.0f) {
-//		mCreditsState.update(mm_states::IState::EXITING);
-//	} else {
-//	}
 
 	mMenuManager.update();
 	mEffectManager.update();

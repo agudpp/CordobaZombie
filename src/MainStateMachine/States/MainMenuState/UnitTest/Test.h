@@ -49,7 +49,6 @@ private:
 
 private:
 	MouseCursor				mMouseCursor;
-	mm_states::CreditsState mCreditsState;
 	float					mTimer;
 	MenuManager				mMenuManager;
 	OvEff::OverlayEffectManager mEffectManager;

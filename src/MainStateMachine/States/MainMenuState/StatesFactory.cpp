@@ -21,7 +21,7 @@ bool StatesFactory::buildStates(std::vector<IState *> &result)
 {
     result.clear();
     result.push_back(new MainState);
-    ASSERT(false && "descomentar las lineas de abajo");
+//    ASSERT(false && "descomentar las lineas de abajo");
 //    result.push_back(new ConfigState);
     result.push_back(new CreditsState);
 //    result.push_back(new HistoryState);
