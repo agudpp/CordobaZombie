@@ -113,7 +113,7 @@ MainMenuState::VideoState MainMenuState::getVideoState(void)
 	float actualpos = mVideoPlayerAPI->getVideoTime();
 
 	if(actualpos >= mEnteringRanges[0].start
-			&& actualpos <= mEnteringRanges[0].end){
+			&& actualpos < mEnteringRanges[0].end){
 
 		return Entering;
 	}else{
@@ -140,6 +140,8 @@ void MainMenuState::updateStateMachine(void)
 	if (mBeforeUpdateCalled == false) {
 		mBeforeUpdateCalled = true;
 		mActualState->beforeUpdate();
+
+		debugRAUL("BEFORE UPDATE\n");
 
 		mVideoPlayerAPI->load( 0
 				             , mEnteringRanges[1].start
@@ -188,7 +190,7 @@ void MainMenuState::configureVideoAPI(void)
 	ASSERT(mVideoPlayerAPI);
 	// TODO read video path from configuration .xml files
 	const char *videoPath =
-			mXmlHelper.findElement("MenuVideo").Attribute("path");
+			mXmlHelper.findElement("MenuVideo")->Attribute("path");
 	mVideoPlayerAPI->load(videoPath,0,0);
 	mVideoPlayerAPI->setVisible(true);
 }
