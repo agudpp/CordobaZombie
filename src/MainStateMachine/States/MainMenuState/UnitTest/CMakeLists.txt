@@ -159,6 +159,7 @@ include(${DEV_ROOT_PATH}/LevelManager/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/OverlayEffect/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/InputManager/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/SlidePlayer/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/VideoPlayer/FfmpegVideoPlayer/AutoGen.cmake)
 
 
 

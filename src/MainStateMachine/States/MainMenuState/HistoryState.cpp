@@ -37,15 +37,6 @@ HistoryState::HistoryState():
 
 
 HistoryState::~HistoryState() {
-
-	const int size = mButtons.size();
-
-	for(int i = 0; i < size; ++i){
-		delete mButtons[i].getEffect();
-		delete mButtons[i].getButton();
-	}
-
-	delete mSlidePlayer;
 }
 
 
@@ -134,6 +125,7 @@ void HistoryState::beforeUpdate(void)
 
 void HistoryState::update(void)
 {
+	mSlidePlayer->update();
 	return;
 }
 
@@ -142,7 +134,15 @@ void HistoryState::update(void)
 void HistoryState::unload(void)
 {
 	//Hide SlidePlayer
-	mSlidePlayer->hide();
+	//mSlidePlayer->hide();
+	const int size = mButtons.size();
+
+	for(int i = 0; i < size; ++i){
+		delete mButtons[i].getEffect();
+		delete mButtons[i].getButton();
+	}
+
+	delete mSlidePlayer;
 
 }
 

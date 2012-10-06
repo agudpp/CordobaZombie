@@ -105,6 +105,7 @@ private:
 	void configureMenuManager(void);
 	void configureOvEffectManager(void);
 	void configureSoundManager(void);
+	void configureVideoAPI(void);
 
 
 	/**
