@@ -46,8 +46,11 @@ private:
 inline void MenuButtonEffect::setEffect(OverlayEffect *e)
 {
 	ASSERT(e);
+	// if we had an old effect, first remove the callback
+	if (mEffect != 0) mEffect->removeCallback(this);
+
 	mEffect = e;
-	e->setCallback(this);
+	e->addCallback(this);
 }
 inline OverlayEffect *MenuButtonEffect::getEffect(void)
 {

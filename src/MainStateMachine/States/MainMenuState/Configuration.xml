@@ -32,4 +32,49 @@ Graficos:
 	
 	
 	</State>
+	<State name="MainState">
+    <VideoRanges>
+        <Entering start=0 end=1 />
+        <Looping start=0 end=1 />
+        <Exiting start=0 end=1 />
+    </VideoRanges>
+    <CbMenuButtons>
+        <Button
+            name="NewGameButton"
+            OverlayName="MainState/NewGameButton"
+            >
+            <Effect name="alpha"
+            />    <!-- ... info para el OvEff::EffectBuilder -->
+        </Button>
+        <Button
+            name="HistoryButton"
+            OverlayName="MainState/HistoryButton"
+            >
+            <Effect name="alpha"
+            />    <!-- ... info para el OvEff::EffectBuilder -->
+        </Button>
+        <Button
+            name="CreditsButton"
+            OverlayName="MainState/CreditsButton"
+            >
+            <Effect name="alpha"
+            />    <!-- ... info para el OvEff::EffectBuilder -->
+        </Button>
+        <Button
+            name="ConfigButton"
+            OverlayName="MainState/ConfigButton"
+            >
+            <Effect name="alpha"
+            />    <!-- ... info para el OvEff::EffectBuilder -->
+        </Button>
+        <Button
+            name="ExitButton"
+            OverlayName="MainState/ExitButton"
+            >
+            <Effect name="alpha"
+            />    <!-- ... info para el OvEff::EffectBuilder -->
+        </Button>
+    </CbMenuButtons>
+    
+    </State>
 </States>

@@ -8,7 +8,6 @@
 
 #include "OverlayEffect.h"
 #include "OverlayEffectManager.h"
-#include "DebugUtil.h"
 
 namespace OvEff {
 
@@ -35,7 +34,6 @@ void OverlayEffect::setManager(OverlayEffectManager *em)
 
 OverlayEffect::OverlayEffect() :
 mElement(0),
-mCb(0),
 mActive(false)
 {
 	ASSERT(mMngr);
