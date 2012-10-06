@@ -65,6 +65,15 @@ public:
 	 */
 	inline void setDuration(float t);
 
+	/**
+	 * @brief
+	 * Turns the effect into its complement
+	 * i.e., the origin and destiny positions are swapped.
+	 *
+	 * @return
+	 * true		the effect was changed into its complement
+	 */
+	inline virtual bool complement();
 
 protected:
 	/**
@@ -123,6 +132,15 @@ inline void Slide::setDuration(float t)
 	mTimeLapse = 1.0f/t;
 }
 
+
+////////////////////////////////////////////////////////////////////////////////
+inline virtual bool Slide::complement()
+{
+	Ogre::Vector2 tmp(mOrig);
+	mOrig = mDest;
+	mDest = tmp;
+	return true;
+}
 
 }
 

@@ -59,6 +59,17 @@ public:
 	 */
 	inline bool isActive(void) const;
 
+	/**
+	 * @brief
+	 * Turns the effect into its complement.
+	 * v.gr. a FADE_IN fade effect is changed into a FADE_OUT fade effect
+	 *
+	 * @return
+	 * true		the effect was changed into its complement
+	 * false	the effect has no complement, and was not changed
+	 */
+	virtual bool complement() = 0;
+
 protected:
 
 	/**
