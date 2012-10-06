@@ -1,4 +1,5 @@
 <States>
+	<Video name="MenuVideo" path="/home/raul/Dropbox/CordobaZombie/menu/Menu_animacion/menu_ar3:2.ogg"/>
 	<State name="Credits">
 	<VideoRanges>
 		<Entering start=0 end=1 />

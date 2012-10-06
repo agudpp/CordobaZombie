@@ -186,7 +186,8 @@ if(WIN32)
 	install(DIRECTORY ${CMAKE_SOURCE_DIR}/dist/Media
 		DESTINATION ./
 		CONFIGURATIONS Release RelWithDebInfo Debug
-	)
+	)		//TODO Rulo cambiar de video aca
+
  
 	install(FILES ${CMAKE_SOURCE_DIR}/dist/bin/plugins.cfg
 		${CMAKE_SOURCE_DIR}/dist/bin/resources.cfg

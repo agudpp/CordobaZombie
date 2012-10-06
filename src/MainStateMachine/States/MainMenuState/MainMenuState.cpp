@@ -99,8 +99,9 @@ void MainMenuState::configureNewState(mm_states::IState *newState)
 
 	// Load entering ranges to video api and play
 	mVideoPlayerAPI->load(0,mEnteringRanges[0].start, mEnteringRanges[0].end);
-	mVideoPlayerAPI->setRepeat(true);
+	mVideoPlayerAPI->setRepeat(false);
 	mVideoPlayerAPI->play();
+	mVideoPlayerAPI->setVisible(true);
 }
 
 
@@ -111,7 +112,9 @@ MainMenuState::VideoState MainMenuState::getVideoState(void)
 
 	float actualpos = mVideoPlayerAPI->getVideoTime();
 
-	if(actualpos >= mEnteringRanges[0].start && actualpos <= mEnteringRanges[0].end){
+	if(actualpos >= mEnteringRanges[0].start
+			&& actualpos < mEnteringRanges[0].end){
+
 		return Entering;
 	}else{
 		return Updating;
@@ -125,9 +128,7 @@ void MainMenuState::updateStateMachine(void)
 	if(!mActualState) return;
 
 	// check video position
-	// TODO Por que le pasas mEnteringRanges como parametro y no lo usas
-	// directamente adentro de la funcion? sera que no va a ser siempre el
-	// mismo vector el que pasemos?
+
 	VideoState actualVS = getVideoState();
 
 	if (actualVS == Entering) {
@@ -139,7 +140,16 @@ void MainMenuState::updateStateMachine(void)
 	if (mBeforeUpdateCalled == false) {
 		mBeforeUpdateCalled = true;
 		mActualState->beforeUpdate();
-		//TODO Rulo cambiar de video aca
+
+		debugRAUL("BEFORE UPDATE\n");
+
+		mVideoPlayerAPI->load( 0
+				             , mEnteringRanges[1].start
+						     , mEnteringRanges[1].end
+						     );
+		mVideoPlayerAPI->setRepeat(true);
+		mVideoPlayerAPI->setVisible(true);
+		mVideoPlayerAPI->play();
 		return;
 	}
 
@@ -156,15 +166,20 @@ void MainMenuState::configureMenuManager(void)
 			5,5);
 	IMenu::setMenuManager(&mMenuManager);
 }
+
+////////////////////////////////////////////////////////////////////////////////
 void MainMenuState::configureOvEffectManager(void)
 {
 	OvEff::OverlayEffect::setManager(&mOvEffManager);
 }
+
+////////////////////////////////////////////////////////////////////////////////
 void MainMenuState::configureSoundManager(void)
 {
 	debugERROR("Carlox: mete tu codigo aca :)\n");
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void MainMenuState::configureVideoAPI(void)
 {
 	// Construct video player api
@@ -173,10 +188,10 @@ void MainMenuState::configureVideoAPI(void)
 	}
 	// Load menu video
 	ASSERT(mVideoPlayerAPI);
-	// TODO read video path from configuration .xml file
-	mVideoPlayerAPI->load("",0,0);
-	mVideoPlayerAPI->setRepeat(true);
-	mVideoPlayerAPI->play();
+	// TODO read video path from configuration .xml files
+	const char *videoPath =
+			mXmlHelper.findElement("MenuVideo")->Attribute("path");
+	mVideoPlayerAPI->load(videoPath,0,0);
 	mVideoPlayerAPI->setVisible(true);
 }
 
@@ -247,13 +262,13 @@ mm_states::IState *MainMenuState::nextState(mm_states::Event e,
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 MainMenuState::MainMenuState() :
-IMainState("MainMenuState"),
-mActualState(0),
-mLastState(0),
-mLastEvent(mm_states::Done),
-mBeforeUpdateCalled(false),
-mVideoPlayerAPI(0),
-mCbReceiver(*this)
+	IMainState("MainMenuState"),
+	mActualState(0),
+	mLastState(0),
+	mLastEvent(mm_states::Done),
+	mBeforeUpdateCalled(false),
+	mVideoPlayerAPI(0),
+	mCbReceiver(*this)
 {
     // configure the callback for the IStates
     mm_states::IState::setStateMachineCb(&mCbReceiver);
