@@ -67,6 +67,16 @@ public:
 	 */
 	inline void releaseElement(void);
 
+	/**
+	 * @brief
+	 * Turns the effect into its complement
+	 * i.e., FADE_IN is changed into FADE_OUT and vice versa.
+	 *
+	 * @return
+	 * true		the effect was changed into its complement
+	 */
+	inline virtual bool complement();
+
 protected:
 	/**
 	 * Alpha effect start function, initializes the update cycle.
@@ -124,6 +134,19 @@ inline void Alpha::releaseElement()
 		mElement = 0;
 	}
 }
+
+////////////////////////////////////////////////////////////////////////////////
+inline bool Alpha::complement()
+{
+	if (mType == FADE_IN) {
+		mType = FADE_OUT;
+	} else {
+		ASSERT(mType == FADE_OUT);
+		mType = FADE_IN;
+	}
+	return true;
+}
+
 
 }
 
