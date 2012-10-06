@@ -10,7 +10,7 @@
 			name="exitButton"
 			OverlayName="ov1"
 			>
-			<Effect name="alpha"
+			<OverlayEffect name="alpha" type="FADE_OUT" time="2.0"
 			/>    <!-- ... info para el OvEff::EffectBuilder -->
 		</Button>
 	</CbMenuButtons>
@@ -43,35 +43,35 @@ Graficos:
             name="NewGameButton"
             OverlayName="MainState/NewGameButton"
             >
-            <Effect name="alpha"
+            <OverlayEffect name="alpha" type="FADE_OUT" time="2.0"
             />    <!-- ... info para el OvEff::EffectBuilder -->
         </Button>
         <Button
             name="HistoryButton"
             OverlayName="MainState/HistoryButton"
             >
-            <Effect name="alpha"
+            <OverlayEffect name="alpha" type="FADE_OUT" time="2.0"
             />    <!-- ... info para el OvEff::EffectBuilder -->
         </Button>
         <Button
             name="CreditsButton"
             OverlayName="MainState/CreditsButton"
             >
-            <Effect name="alpha"
+            <OverlayEffect name="alpha" type="FADE_OUT" time="2.0"
             />    <!-- ... info para el OvEff::EffectBuilder -->
         </Button>
         <Button
             name="ConfigButton"
             OverlayName="MainState/ConfigButton"
             >
-            <Effect name="alpha"
+            <OverlayEffect name="alpha" type="FADE_OUT" time="2.0"
             />    <!-- ... info para el OvEff::EffectBuilder -->
         </Button>
         <Button
             name="ExitButton"
             OverlayName="MainState/ExitButton"
             >
-            <Effect name="alpha"
+            <OverlayEffect name="alpha" type="FADE_OUT" time="2.0"
             />    <!-- ... info para el OvEff::EffectBuilder -->
         </Button>
     </CbMenuButtons>
