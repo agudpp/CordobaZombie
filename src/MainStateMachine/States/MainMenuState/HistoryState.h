@@ -19,7 +19,7 @@
 
 namespace mm_states {
 
-class HistoryState : public IState{
+class HistoryState : public IState, public OvEff::EffectCb{
 
 	enum ButtonIndex {
 		Back = 0,
@@ -67,7 +67,13 @@ public:
 	 * Function called once the state will be closed, so we have to unload all
 	 * the resources used by this class.
 	 */
+	void unload(void);
 
+	/*
+	 * Call back function to let buttons effect tell us when they have done
+	 * hiding.
+	 */
+	void operator()(EventID id);
 
 private:
 	typedef std::vector<OvEff::MenuButtonEffect>	ButtonsEffectVec;

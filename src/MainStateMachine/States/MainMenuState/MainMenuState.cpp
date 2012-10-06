@@ -97,18 +97,25 @@ void MainMenuState::configureNewState(mm_states::IState *newState)
 
 	ASSERT(mEnteringRanges.size() == 3);
 
-	// TODO Rulo:
-	debugRED("TODO Rulo: Configurar aca el video player o lo que sea que tengas"
-			" que hacer, el video a reproducir seria mEnteringRanges[0]\n");
+	// Load entering ranges to video api and play
+	mVideoPlayerAPI->load(0,mEnteringRanges[0].start, mEnteringRanges[0].end);
+	mVideoPlayerAPI->setRepeat(true);
+	mVideoPlayerAPI->play();
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////
-MainMenuState::VideoState MainMenuState::getVideoState(const VideoRangeVec &range)
+MainMenuState::VideoState MainMenuState::getVideoState(void)
 {
-	// TODO: Rulo, pone aca lo correspondiente
-	ASSERT(false);
-	return Entering;
+	ASSERT(mEnteringRanges.size() > 0);
+
+	float actualpos = mVideoPlayerAPI->getVideoTime();
+
+	if(actualpos >= range[0].start && actualpos <= range[0].end){
+		return Entering;
+	}else{
+		return Updating;
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -118,11 +125,14 @@ void MainMenuState::updateStateMachine(void)
 	if(!mActualState) return;
 
 	// check video position
+	// TODO Por que le pasas mEnteringRanges como parametro y no lo usas
+	// directamente adentro de la funcion? sera que no va a ser siempre el
+	// mismo vector el que pasemos?
 	VideoState actualVS = getVideoState(mEnteringRanges);
 
 	if (actualVS == Entering) {
 		// we don't have to do nothing, only update videoplayer
-		// TODO rulo, actualizar el video player aca
+		mVideoPlayerAPI->update(GLOBAL_TIME_FRAME);
 		return;
 	}
 
@@ -130,6 +140,7 @@ void MainMenuState::updateStateMachine(void)
 	if (mBeforeUpdateCalled == false) {
 		mBeforeUpdateCalled = true;
 		mActualState->beforeUpdate();
+		//TODO Rulo cambiar de video aca
 		return;
 	}
 
@@ -153,6 +164,21 @@ void MainMenuState::configureOvEffectManager(void)
 void MainMenuState::configureSoundManager(void)
 {
 	ASSERT(false);
+}
+
+void MainMenuState::configureVideoAPI(void)
+{
+	// Construct video player api
+	if(mVideoPlayerAPI == 0){
+		mVideoPlayerAPI = new VideoPlayerAPI;
+	}
+	// Load menu video
+	ASSERT(mVideoPlayerAPI);
+	// TODO read video path from configuration .xml file
+	mVideoPlayerAPI->load("",0,0);
+	mVideoPlayerAPI->setRepeat(true);
+	mVideoPlayerAPI->play();
+	mVideoPlayerAPI->setVisible(true);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -226,7 +252,8 @@ IMainState("MainMenuState"),
 mActualState(0),
 mLastState(0),
 mLastEvent(mm_states::Done),
-mBeforeUpdateCalled(false)
+mBeforeUpdateCalled(false),
+mVideoPlayerAPI(0)
 {
 
 }
@@ -236,6 +263,9 @@ MainMenuState::~MainMenuState()
 {
 	// TODO: Remove all the memory and resources used by this state
 	// calling exit()
+	if(mVideoPlayerAPI){
+		delete mVideoPlayerAPI;
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -266,6 +296,7 @@ void MainMenuState::enter(const MainMachineInfo &info)
 	for(int i = 0; i < size; ++i){
 		mStates[i]->setFilename(CONFIG_FILENAME);
 	}
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -23,6 +23,7 @@
 #include "GeneralTypedefs.h"
 #include "DebugUtil.h"
 #include "VideoRange.h"
+#include "FfmpegVideoPlayerAPI.h"
 
 
 
@@ -137,7 +138,7 @@ private:
 	 * @param	range	The video range configuration of the state
 	 * @return	state	The resulting state (given the video actual position)
 	 */
-	VideoState getVideoState(const VideoRangeVec &range);
+	VideoState getVideoState(void);
 
 	/**
 	 * Main function logic.
@@ -155,6 +156,7 @@ private:
 	VideoRangeVec					mEnteringRanges;
 	MenuManager						mMenuManager;
 	OvEff::OverlayEffectManager		mOvEffManager;
+	VideoPlayerAPI					*mVideoPlayerAPI;
 
 };
 

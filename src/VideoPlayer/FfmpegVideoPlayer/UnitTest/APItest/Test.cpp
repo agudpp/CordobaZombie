@@ -117,156 +117,6 @@ void Test::createLevelManager(void)
 	mLevelManager.showTriangles();
 }
 
-// create game objects
-void Test::createPlayer(void)
-{
-	GameObject::collMng = mLevelManager.getCollisionManager();
-	Ogre::Real	MAX_VEL = 180.0f;
-	PlayerSMTTable *tt = PlayerFSMBuilder::build();
-	PlayerUnit::setSMTransitionTable(tt);
-
-	// Create the player group
-	PlayerGroup::setLevelManager(&mLevelManager);
-	mPlayerGroup = new PlayerGroup;
-
-
-	for(int i = 0; i < 1; i++){
-		Ogre::Entity * ent = GLOBAL_SCN_MNGR->createEntity("coral.mesh");
-		Ogre::SceneNode *node = GLOBAL_SCN_MNGR->getRootSceneNode()->createChildSceneNode();
-
-		PlayerUnit *zu = new PlayerUnit;
-		zu->setEntity(ent);
-		zu->setSceneNode(node);
-		zu->setHeight(5);
-		zu->build();
-		zu->setLife(9);
-		node->showBoundingBox(true);
-		zu->setMaxVelocity(MAX_VEL*2.0f);
-		zu->setVelocity(MAX_VEL);
-
-		sm::Vector2 p;
-		p.x = 507 + 5*i;
-		p.y = 788 + 30*i;
-		zu->setPosition(p);
-
-		mPlayers.push_back(zu);
-		mPlayerGroup->addUnit(zu);
-	}
-
-	CircularFormation *formation = new CircularFormation;
-	mPlayerGroup->setCreator(mPlayers[0]);
-	mPlayerGroup->setFormation(formation);
-	mPlayerGroup->build();
-
-
-	static ShootContainer sc;
-	Shoot::setCollisionManager(mLevelManager.getCollisionManager());
-	Shoot::setContainer(&sc);
-	Shoot::setUpdObjsManager(&mUpdMngr);
-	for(int i = 0; i < 10; ++i){
-		Shoot *s = new Shoot;
-		s->build(Ogre::Math::RangeRandom(8,16));
-	}
-	Weapon::setShootContainer(&sc);
-	Gun9mm *w = new Gun9mm;
-	w->setOwner(mPlayers.back());
-	w->setPower(1);
-	w->setSqrRange(90000.0);
-	w->setEntity(GLOBAL_SCN_MNGR->createEntity("9mm.mesh"));
-	Weapon::Ammunition ammo;
-	ammo.ammo = 25;
-	w->setAmmunition(ammo);
-	mPlayers.back()->addNewWeapon(w);
-}
-
-void Test::createZombies(void)
-{
-	// set the collision system
-	Ogre::Real	MAX_VEL = 50.0f;
-	ZombieSMTTable *tt = ZombieFSMBuilder::build();
-	ZombieUnit::setSMTransitionTable(tt);
-
-	// create the batery for the zombies
-	static BillboardBatery bbb;
-	bbb.createSet(20, "Billboard/ZombieBlood", 10);
-	ZombieUnit::setBillboardBBlood(&bbb);
-
-	static ZombieQueue q;
-	ZombieUnit::setQueue(&q);
-
-	sm::Vector2 p;
-	for(int i = 0; i < 1; ++i){
-		Ogre::Entity * ent = GLOBAL_SCN_MNGR->createEntity("zombie01.mesh");
-		Ogre::SceneNode *node = GLOBAL_SCN_MNGR->getRootSceneNode()->createChildSceneNode();
-
-		ZombieUnit *zu = new ZombieUnit;
-		zu->setEntity(ent);
-		zu->setSceneNode(node);
-		zu->setHeight(5);
-		zu->setAttackPower(1);
-		zu->build();
-		zu->setLife(19);
-		node->showBoundingBox(true);
-
-		zu->setWalkVelocity(MAX_VEL);
-		zu->setAttackVelocity(MAX_VEL*2.0f);
-		zu->setVelocity(MAX_VEL);
-
-		p.x = 1107;
-		p.y = 1030;
-		zu->setPosition(p);
-		mZombies.push_back(zu);
-	}
-}
-
-void Test::createBombs(void)
-{
-	Bomb::setCollisionManager(mLevelManager.getCollisionManager());
-	Bomb::setUpdObjsManager(&mUpdMngr);
-
-	Ogre::Entity *ent = GLOBAL_SCN_MNGR->createEntity("granada.mesh");
-	mBomb = new ProximityBomb;
-	mBomb->setEntity(ent);
-	mBomb->hide();
-	mBomb->setPower(99);
-	mBomb->setRadius(50);
-	static_cast<ProximityBomb *>(mBomb)->setActivationTime(5.0f);
-	mPlayers.back()->addBomb(mBomb);
-
-}
-
-// create billboardset
-void Test::createBillboardSet(void)
-{
-	mBillboardSet = GLOBAL_SCN_MNGR->createBillboardSet("testbb", 3);
-	mBillboardSet->createBillboard(Ogre::Vector3::ZERO + Ogre::Vector3(0,0,0),Ogre::ColourValue::Green);
-	mBillboardSet->createBillboard(Ogre::Vector3::ZERO + Ogre::Vector3(0,0,0),Ogre::ColourValue::Green);
-	mBillboardSet->createBillboard(Ogre::Vector3::ZERO + Ogre::Vector3(0,0,0),Ogre::ColourValue::Green);
-//	mBillboardSet->createBillboard(Ogre::Vector3::ZERO + Ogre::Vector3(0,0,0),Ogre::ColourValue::Green);
-//	mBillboardSet->createBillboard(Ogre::Vector3::ZERO + Ogre::Vector3(0,0,0),Ogre::ColourValue::Green);
-	mBillboardSet->setDefaultDimensions(50,50);
-	mBillboardSet->setBillboardType(Ogre::BBT_PERPENDICULAR_COMMON);
-	mBillboardSet->setCommonDirection(Ogre::Vector3::UNIT_Y);
-	mBillboardSet->setCommonUpVector(Ogre::Vector3::UNIT_Z);
-	mBillboardSet->setMaterialName("Billboard/GreenCircle");
-	mBillboardSet->setVisible(true);
-	mBillboardSet->setBounds(Ogre::AxisAlignedBox(
-			Ogre::Vector3(0,0,0), Ogre::Vector3(25000,25000,25000)),25000*0.5f);
-
-	debug("Number of billboards: %d\n", mBillboardSet->getNumBillboards());
-//	mZombies[0]->getSceneNode()->attachObject(mBillboardSet);
-
-	Ogre::SceneNode *node = GLOBAL_SCN_MNGR->getRootSceneNode()->createChildSceneNode();
-	node->attachObject(mBillboardSet);
-//	mBillboardSet->setCullIndividually(true);
-
-}
-
-
-void Test::createCollectable(void)
-{
-}
-
 
 
 // create overlay uv test
@@ -305,8 +155,12 @@ void Test::createOverlay(void)
 Test::Test():
 		VPAPI(0)
 {
-	//mMouseCursor.setImage("cursor.png");
 	createOverlay();
+
+	VPAPI = new VideoPlayerAPI();
+	VPAPI->setRepeat(true);
+	//VPAPI->setVisible(false);
+
 	mMouseCursor.setVisible(true);
 	mMouseCursor.setWindowDimensions(GLOBAL_WINDOW->getWidth(),
 			GLOBAL_WINDOW->getHeight());
@@ -424,24 +278,9 @@ void Test::handleInput(void)
 				pu->objectSelected();
 			} else {
 				if(pu){
-//					pu->moveUnitTo(sm::Vector2(v.x, v.z));
-
 					pu->plantBomb(mBomb, sm::Vector2(v.x,v.z));
 				}
 			}
-
-//			Ogre::Billboard *b = mBillboardSet->getBillboard(0);
-//			b->setPosition(v);
-
-//			Ogre::SceneNode *n = mBillboardSet->getParentSceneNode();
-//			v.y += 1.0f;
-//			n->setPosition(v);
-//			mBillboardSet->_updateBounds();
-
-
-
-//			mPlayerGroup->moveGroupTo(sm::Vector2(v.x, v.z));
-//			mPlayers[0]->moveUnitTo(sm::Vector2(v.x, v.z));
 		}
 	} else {
 		mousePressed = false;
@@ -520,18 +359,6 @@ void Test::loadAditionalData(void)
 {
 
 	createLevelManager();
-	//testCollisionRaycast();
-	//createPlayer();
-	//createBombs();
-	//createZombies();
-	//createBillboardSet();
-	//createCollectable();
-
-
-	//VIDEOPLAYER
-	//mVideoPlayer = new VideoPlayer();
-	//mUpdMngr.addObject((UpdatableObject*)mVideoPlayer);
-	//ENDVIDEOPLAYER
 
 	Ogre::DotSceneLoader dsl;
 //	dsl.parseDotScene("metros.scene", "Popular", GLOBAL_SCN_MNGR);
@@ -589,46 +416,50 @@ void Test::update()
 //	b->setPosition(Ogre::Vector3(zp.x, 1, zp.y));
 
 	t2 = gettimestamp();
-	if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_N)){
+	if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_1)){
 		if (!keyPres) {
 			keyPres = true;
-			VPAPI->next();
+			VPAPI->load(myvideo);
 		}
-	}else if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_S)){
+	}else if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_2)){
 		if (!keyPres) {
 			keyPres = true;
-			VPAPI->setVisible(!VPAPI->isVisible());
+			VPAPI->load(myvideo2);
 		}
-	}else if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_J)){
+	}else if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_3)){
 		if (!keyPres) {
 			keyPres = true;
-			VPAPI->playFromPlaylist( 1, 15.0f, 19.0f);
+			VPAPI->load(myvideo,5.0f,10.0f);
+		}
+	}else if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_4)){
+		if (!keyPres) {
+			keyPres = true;
+			ASSERT(VideoPlayerAPI::VIDEO_ERROR == VPAPI->load(myvideo2,15.0f,10.0f));
+		}
+	}else if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_G)){
+		if (!keyPres) {
+			keyPres = true;
+			VPAPI->play();
 		}
 	}else if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_P)){
 		if (!keyPres) {
 			keyPres = true;
 			VPAPI->pause();
 		}
-	}else if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_M)){
-		if (!keyPres) {
-			keyPres = true;
-			VPAPI->playSingleVideo(myvideo, 9.0f, 10.0f);
-		}
 	}else if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_V)){
 		if (!keyPres) {
 			keyPres = true;
-			if(!VPAPI){
-				//VPAPI = new VideoPlayerAPI(&Ogre::Vector4(-0.5f,0.5f,0.5f,-0.5f));
-				VPAPI = new VideoPlayerAPI();
-				VPAPI->queueVideo(myvideo);
-				VPAPI->queueVideo(myvideo, 5.0f, 7.3423f);
-				VPAPI->queueVideo(myvideo2);
-				VPAPI->queueVideo(myvideo2, 5.0f, 10.0f);
-
-				//VPAPI->setRepeatPlaylistVideo(true);
-				VPAPI->setRepeatPlaylistAll(true);
-				VPAPI->playList();
-			}
+			VPAPI->setVisible(!VPAPI->isVisible());
+		}
+	}else if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_5)){
+		if (!keyPres) {
+			keyPres = true;
+			VPAPI->load(0,4.4f,7.9f);
+		}
+	}else if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_6)){
+		if (!keyPres) {
+			keyPres = true;
+			VPAPI->load();
 		}
 	}else {
 		keyPres = false;

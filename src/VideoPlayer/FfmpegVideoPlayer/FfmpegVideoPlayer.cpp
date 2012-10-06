@@ -471,7 +471,6 @@ int VideoPlayer::seek_time_stamp(double ts){
 	}
 
 	double t = static_cast<double>(lastPts)/static_cast<double>(AV_TIME_BASE);
-	debugGREEN("time .... %lf\n", t);
 	int flag = ts < t ? AVSEEK_FLAG_BACKWARD : 0;
 
 	int stream_index= -1;
@@ -488,8 +487,8 @@ int VideoPlayer::seek_time_stamp(double ts){
 	                  	  pFormatCtx->streams[stream_index]->time_base);
 	}
 
-	debugGREEN("Seeking in %s target %ld\n",
-					pFormatCtx->filename, seek_target);
+//	debugGREEN("Seeking in %s target %ld\n",
+//					pFormatCtx->filename, seek_target);
 	if(av_seek_frame(pFormatCtx, stream_index, seek_target, flag) < 0) {
 		flag = 0 ? AVSEEK_FLAG_BACKWARD : 0;
 		if(av_seek_frame(pFormatCtx, stream_index, seek_target, flag) < 0){

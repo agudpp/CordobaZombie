@@ -37,7 +37,9 @@ HistoryState::HistoryState():
 
 
 HistoryState::~HistoryState() {
+
 	const int size = mButtons.size();
+
 	for(int i = 0; i < size; ++i){
 		delete mButtons[i].getEffect();
 		delete mButtons[i].getButton();
@@ -52,13 +54,23 @@ HistoryState::~HistoryState() {
 
 void HistoryState::operator()(CbMenuButton * b, CbMenuButton::ButtonID id)
 {
-	if(b == mButtons[Back].getButton() && id == CbMenuButton::LEFT_BUTTON){
-		mState = STATE_HIDING;
-	}else if(b == mButtons[Prev].getButton() && id == CbMenuButton::LEFT_BUTTON){
+	if(b == mButtons[Back].getButton() && id == CbMenuButton::LEFT_BUTTON)
+	{
+		int size = mButtons.size();
+		for(int i = 0; i < size; i++){
+			mButtons[i].getEffect()->start();
+		}
+	}
+	else if(b == mButtons[Prev].getButton() && id == CbMenuButton::LEFT_BUTTON)
+	{
 		mSlidePlayer->prev();
-	}else if(b == mButtons[Next].getButton() && id == CbMenuButton::LEFT_BUTTON){
+	}
+	else if(b == mButtons[Next].getButton() && id == CbMenuButton::LEFT_BUTTON)
+	{
 		mSlidePlayer->next();
-	}else{
+	}
+	else
+	{
 		ASSERT(false);
 	}
 
@@ -66,13 +78,25 @@ void HistoryState::operator()(CbMenuButton * b, CbMenuButton::ButtonID id)
 
 
 ////////////////////////////////////////////////////////////////////////////////
-
+/*
+ * En load entre otras cosas cargamos las slides. La secuencia de slides debe
+ * ser definida en un archivo '.materials' y debe estar cargado en Ogre.
+ * Los nombres de cada slide deben ser de la forma
+ * "HistorySlidePlayerMaterials/#" con # un entero que arranca en 1 para la
+ * primera slide y se va incrementando en uno para cada slide que sigue
+ * marcando el asi el numero de slide en la secuencia.
+ */
 
 void HistoryState::load(void){
 
 	// we will load all the buttons
 	buildButtons(mButtons, mBtnNames);
 	ASSERT(mButtons.size() == mBtnNames.size());
+
+	int size = mButtons.size();
+	for(int i = 0; i < size; i++){
+		mButtons[i].getEffect()->addCallback(this);
+	}
 
 	// Load the slides
 	Ogre::MaterialManager& materialman = Ogre::MaterialManager::getSingleton();
@@ -92,55 +116,45 @@ void HistoryState::load(void){
 	mState = STATE_SHOWING;
 }
 
+
+
 ////////////////////////////////////////////////////////////////////////////////
 
 void HistoryState::beforeUpdate(void)
 {
+	// reproduce all the effects in all the buttons
+	const int size = mButtons.size();
+	for(int i = 0; i < size; ++i) {mButtons[i].getEffect()->start();}
 
+	ASSERT(mSlidePlayer);
+	mSlidePlayer->show();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void HistoryState::update(void)
 {
-	switch(mState){
-	case STATE_SHOWING:
-	{
-		// reproduce all the effects in all the buttons
-		const int size = mButtons.size();
-		debugWARNING("Descomentar la linea de abajo cuando tengamos los efectos\n");
-//			for(int i = 0; i < size; ++i) {mButtons[i].getEffect()->start();}
-
-		// TODO: reproduce the sounds (fade in) here
-		// TODO: show credits
-		ASSERT(mSlidePlayer);
-		mSlidePlayer->show();
-		++mState;
-	}
-	break;
-	case STATE_LOOP:
-	{
-		//Dont do nothing here
-	}
-	break;
-	case STATE_HIDING:
-	{
-		// hiding... do nothing (wait  the effect callback)
-	}
-	break;
-	case STATE_EXITING:
-	{
-		// exiting
-		stateFinish(Done);
-	}
-	break;
-	default:
-		ASSERT(false);
-
-	}
-
-	return ;
+	return;
 }
 
 
+////////////////////////////////////////////////////////////////////////////////
+void HistoryState::unload(void)
+{
+	//Hide SlidePlayer
+	mSlidePlayer->hide();
+
 }
+
+void HistoryState::operator()(EventID id){
+	// Buttons have finished hiding, send finish event to the MainMenuState
+	if(id == ENDING && mState != STATE_EXITING){
+		mState = STATE_EXITING;
+		stateFinish(Event::Done);
+	}
+}
+
+} //namespace mm_state
+
+
+
