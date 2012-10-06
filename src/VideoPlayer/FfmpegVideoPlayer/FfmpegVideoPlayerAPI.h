@@ -10,6 +10,8 @@
 #include "FfmpegVideoPlayer.h"
 
 
+#define VIDEOS_RESOURCE_GROUP "Videos"
+
 
 typedef struct sVideo{
 	char *path;

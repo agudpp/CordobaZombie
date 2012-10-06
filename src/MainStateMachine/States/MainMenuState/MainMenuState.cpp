@@ -17,6 +17,7 @@
 #include "InputKeyboard.h"
 #include "InputMouse.h"
 #include "IMenu.h"
+#include "Util.h"
 
 const char *MainMenuState::CONFIG_FILENAME = "MainMenuConfiguration.xml";
 
@@ -189,9 +190,11 @@ void MainMenuState::configureVideoAPI(void)
 	// Load menu video
 	ASSERT(mVideoPlayerAPI);
 	// TODO read video path from configuration .xml files
-	const char *videoPath =
-			mXmlHelper.findElement("MenuVideo")->Attribute("path");
-	mVideoPlayerAPI->load(videoPath,0,0);
+	Ogre::String videoPath;
+	Common::Util::getResourcePath( Ogre::String(VIDEOS_RESOURCE_GROUP),
+	Ogre::String(mXmlHelper.findElement("MenuVideo")->Attribute("videoName")),
+	videoPath);
+	mVideoPlayerAPI->load(videoPath.c_str(),0,0);
 	mVideoPlayerAPI->setVisible(true);
 }
 

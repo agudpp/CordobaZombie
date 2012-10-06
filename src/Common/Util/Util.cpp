@@ -9,6 +9,26 @@
 
 #include "Util.h"
 
+
+/* Multiplatform auxiliary function */
+#if defined(_WIN32) || defined(CYGWIN)
+static inline bool
+fileExists(std::string fname)
+{
+	return System::IO::File::Exists(fname);
+}
+#elif defined(linux) || defined(_linux) || defined(__linux) || defined(__linux__)
+#  include <unistd.h>
+static inline bool
+fileExists(std::string fname)
+{
+	return !access(fname.c_str(), R_OK);
+}
+#else
+#  error "Unsupported platform. ABORTING COMPILATION."
+#endif
+
+
 namespace Common
 {
 
@@ -476,7 +496,44 @@ void Util::getMeshInformation(const Ogre::Mesh* const mesh,
     }
 }
 
+////////////////////////////////////////////////////////////////////////////////
+int Util::getResourcePath( Ogre::String resourceGroup
+				         , Ogre::String resourceName
+						 , Ogre::String &resourcePath
+						 )
+{
+	std::string sNameFullPath;
 
+	/* First find audio file absolute path */
+	Ogre::ResourceGroupManager& resGM = Ogre::ResourceGroupManager::getSingleton();
+	Ogre::FileInfoListPtr files = resGM.findResourceFileInfo(
+			resourceGroup, resourceName);
+
+	if (files.isNull()) {
+		debug("%s","Recurso no encontrado.\n");
+		return -1;
+
+	} else {
+		Ogre::FileInfoList::iterator it;
+		for (it = files->begin() ; it < files->end() ; it++) {
+			/* Compose audio file absolute path */
+			sNameFullPath.append(it->archive->getName()+"/"+resourceName);
+			if (fileExists(sNameFullPath)) {
+				break;
+			} else {
+				sNameFullPath.clear();
+			}
+		}
+		/* Found? */
+		if (it == files->end() || sNameFullPath.size() <= 0) {
+			debug("%s","Recurso no encontrado.\n");
+			return -1;		}
+	}
+
+	resourcePath = sNameFullPath;
+
+	return 0;
+}
 
 
 }
