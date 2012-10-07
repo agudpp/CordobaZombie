@@ -69,7 +69,7 @@ void MainMenuState::newStateEvent(mm_states::IState *state, mm_states::Event e)
 			// WTF
 			debugERROR("We are trying to go to a state that doesn't exists:\n"
 					"ActualState: %s\n NewState: %s\n Event: %d\n",
-					mActualState->name().c_str(), newState->name().c_str(), e);
+					mActualState->name().c_str(), "NULL", e);
 			ASSERT(false);
 		}
 	}

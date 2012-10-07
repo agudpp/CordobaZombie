@@ -87,6 +87,11 @@ private:
      */
     void exitState(void);
 
+    /**
+     * Check the input events
+     */
+    void checkInput(void);
+
 private:
     typedef std::vector<OvEff::MenuButtonEffect>    MenuButtonEffVec;
 

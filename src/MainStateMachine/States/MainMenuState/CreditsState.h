@@ -63,24 +63,16 @@ public:
 	 */
 	void unload(void);
 
-	/**
-	 * This function have to be implemented to receive the input events from the
-	 * keyboard (for example, if the user press Escape or other key).
-	 * The Logic have to be implemented in the state itself and not in the
-	 * MainMenuState
-	 * @param	key		The keyboard pressed
-	 *
-	 * @note	We only will call this function with KeyPress event (only once
-	 * 			if the user still pressing the key, this function will be called
-	 * 			once).
-	 */
-	void keyPressed(input::KeyCode key);
-
 private:
 	/**
 	 * Trigger the hiding state
 	 */
 	void triggerHidingState(void);
+
+	/**
+	 * Check input
+	 */
+	void checkInput(void);
 
 
 private:

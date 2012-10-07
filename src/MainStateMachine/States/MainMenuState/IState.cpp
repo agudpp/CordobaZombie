@@ -49,12 +49,6 @@ void IState::parseCbMenuButton(const TiXmlElement *xml,
 	// check if we have the overlay
 	Ogre::OverlayContainer *cont = static_cast<Ogre::OverlayContainer *>(
 			om.getOverlayElement(xml->Attribute("OverlayName")));
-#ifdef DEBUG
-	if(!cont){
-		debug("OverlayName %s no esta\n", xml->Attribute("OverlayName"));
-		ASSERT(false);
-	}
-#endif
 
 	// construct the button
 	ASSERT(button.getButton() == 0);
@@ -62,6 +56,9 @@ void IState::parseCbMenuButton(const TiXmlElement *xml,
 
 	// configure the button from the overlay
 	cbu->configureAll(cont);
+
+	// we will receive the events for this button
+	cbu->setCallback(this);
 
 	button.setButton(cbu);
 
@@ -88,6 +85,13 @@ void IState::getVideoRangesFromXML(std::vector<VideoRange> &vr) const
 {
 	// get the TiXmlElement from the document with the associated name
 	const TiXmlElement *elem = XMLHelper::findChild(mRootElement, mName.c_str());
+
+#ifdef DEBUG
+	if (elem == 0) {
+	    debugERROR("XML element not found %s\n", mName.c_str());
+	}
+
+#endif
 	ASSERT(elem);
 
 	vr.clear();

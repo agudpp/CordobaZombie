@@ -23,9 +23,19 @@ namespace mm_states {
 
 
 ////////////////////////////////////////////////////////////////////////////////
-void CreditsState::triggerHidingState(void)
+void
+CreditsState::triggerHidingState(void)
 {
 
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void
+CreditsState::checkInput(void)
+{
+    if(input::InputKeyboard::isKeyDown(input::KC_ESCAPE)){
+        stateFinish(Event::Done);
+    }
 }
 
 
@@ -96,11 +106,16 @@ void CreditsState::load(void)
 	    debugERROR("Invalid XML, it haven't the section Credits\n");
 	    return;
 	}
-	Ogre::String str = credits->GetText();
-	gui_utils::Text2D textConfigurator(mTextArea);
-
-	textConfigurator.configure(str,
-	        gui_utils::Text2D::ADJUST_TEXT_TO_CONTAINER_H);
+	const char *creditsStr = credits->Attribute("text");
+	if (creditsStr == 0) {
+	    debugERROR("No credits information \"Text\" could be obtained..?\n");
+	    return;
+	}
+	Ogre::String str = creditsStr;
+	debugERROR("Uncomment the following lines\n");
+//	gui_utils::Text2D textConfigurator(mTextArea);
+//	textConfigurator.configure(str,
+//	        gui_utils::Text2D::ADJUST_TEXT_TO_CONTAINER_H);
 
 	// configure the translation position
 	Ogre::Vector2 endPos;
@@ -129,9 +144,7 @@ void CreditsState::beforeUpdate(void)
 ////////////////////////////////////////////////////////////////////////////////
 void CreditsState::update(void)
 {
-	//TODO: I think that we have nothing to do here, the effect will be updated
-    // by the OverlayManager in the MainState so...
-
+    checkInput();
 	return ;
 }
 
@@ -144,12 +157,5 @@ void CreditsState::unload(void)
 
 }
 
-////////////////////////////////////////////////////////////////////////////////
-void CreditsState::keyPressed(input::KeyCode key)
-{
-	if(key == input::KC_ESCAPE){
-	    stateFinish(Event::Done);
-	}
-}
 
 }

@@ -113,19 +113,6 @@ public:
 	 */
 	virtual void unload(void) = 0;
 
-	/**
-	 * This function have to be implemented to receive the input events from the
-	 * keyboard (for example, if the user press Escape or other key).
-	 * The Logic have to be implemented in the state itself and not in the
-	 * MainMenuState
-	 * @param	key		The keyboard pressed
-	 *
-	 * @note	We only will call this function with KeyPress event (only once
-	 * 			if the user still pressing the key, this function will be called
-	 * 			once).
-	 */
-	virtual void keyPressed(input::KeyCode key) = 0;
-
 protected:
 
 	/**
@@ -166,6 +153,12 @@ protected:
 	 * or 0 on error.
 	 */
 	const TiXmlElement *getXmlElement(void) const;
+
+	/**
+     * Check if some key was pressed
+     * @param   key     The key to check
+     */
+    inline bool isKeyPressed(input::KeyCode key);
 
 private:
 	/**
@@ -210,6 +203,11 @@ inline void IState::setXmlElement(const TiXmlElement *elem)
 inline const Ogre::String &IState::name(void)
 {
 	return mName;
+}
+
+inline bool IState::isKeyPressed(input::KeyCode key)
+{
+    return input::InputKeyboard::isKeyDown(key);
 }
 
 }

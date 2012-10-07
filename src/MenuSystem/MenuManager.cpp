@@ -113,6 +113,13 @@ void MenuManager::removeMenu(IMenu *menu)
 			}
 		}
 	}
+
+	// remove it from the the sets
+	const MenuSet::iterator eIt = mLastInside.end();
+	MenuSet::iterator it = mLastInside.find(menu);
+	if (it != eIt){
+	    mLastInside.erase(it);
+	}
 }
 ////////////////////////////////////////////////////////////////////////////////
 bool MenuManager::hasMenu(IMenu *menu)

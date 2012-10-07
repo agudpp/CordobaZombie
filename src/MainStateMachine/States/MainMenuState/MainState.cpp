@@ -36,6 +36,14 @@ MainState::exitState(void)
     mState = Exiting;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+void
+MainState::checkInput(void)
+{
+    if(isKeyPressed(input::KC_ESCAPE)){
+       exitState();
+   }
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -124,7 +132,8 @@ void
 MainState::update(void)
 {
     if (mState == Looping){
-        // do nothing... ?
+        // check input here only
+        checkInput();
     } else if (mState == Exiting){
         // check if the buttons get hide
         ASSERT(!mMenuButtonsEff.empty());
@@ -145,19 +154,12 @@ MainState::unload(void)
         delete mMenuButtonsEff[i].getEffect();
         delete mMenuButtonsEff[i].getButton();
     }
+    mMenuButtonsEff.clear();
     debugWARNING("Probably here we are not deleting the resources used by "
             "the button (for example the overlays), and if we are not unloading"
             " this resources in a posterior stage, this will be in the main "
             "gameloop and this isn't right\n");
 }
 
-////////////////////////////////////////////////////////////////////////////////
-void
-MainState::keyPressed(input::KeyCode key)
-{
-    if(key == input::KC_ESCAPE){
-        exitState();
-    }
-}
 
 }
