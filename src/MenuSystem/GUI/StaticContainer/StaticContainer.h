@@ -31,9 +31,9 @@ protected:
 	 * NOT IMPLEMENTED FUNCTIONS! this static containers shouldn't be added to
 	 * the menu manager
 	 */
-	void mouseInside(const MenuMouse *);
-	void mouseOutside(const MenuMouse *);
-	void mouseMoving(const MenuMouse *);
+	void mouseInside(void);
+	void mouseOutside(void);
+	void mouseMoving(void);
 
 };
 

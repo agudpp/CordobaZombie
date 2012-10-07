@@ -39,7 +39,7 @@ public:
 	/**
 	 * Function called when the mouse is inside of this menu
 	 */
-	void mouseInside(const MenuMouse *)
+	void mouseInside()
 	{
 //		std::cout << "MouseInside: " << name << std::endl;
 		p->setUV(0.5,0,1,1);
@@ -48,7 +48,7 @@ public:
 	/**
 	 * Function called when the mouse goes outside from the menu
 	 */
-	void mouseOutside(const MenuMouse *)
+	void mouseOutside()
 	{
 		p->setUV(0,0,0.5,1);
 //		std::cout << "mouseOutside: " << name << std::endl;
@@ -58,7 +58,7 @@ public:
 	/**
 	 * Function called when the mouse is moving inside of this menu
 	 */
-	void mouseMoving(const MenuMouse *)
+	void mouseMoving()
 	{
 //		std::cout << "mouseMoving: " << name << std::endl;
 	}

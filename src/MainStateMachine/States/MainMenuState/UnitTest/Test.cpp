@@ -75,7 +75,6 @@ void Test::loadAditionalData(void)
 	mMenuManager.build(GLOBAL_WINDOW->getWidth(),GLOBAL_WINDOW->getHeight(),
 				5,5);
 	IMenu::setMenuManager(&mMenuManager);
-	OvEff::OverlayEffect::setManager(&mEffectManager);
 
 }
 
@@ -90,6 +89,5 @@ void Test::update()
 
 
 	mMenuManager.update();
-	mEffectManager.update();
 
 }

@@ -21,7 +21,6 @@
 #include "MouseCursor.h"
 #include "CreditsState.h"
 #include "MenuManager.h"
-#include "OverlayEffectManager.h"
 #include "MainMenuState.h"
 
 
@@ -51,7 +50,6 @@ private:
 	MouseCursor				mMouseCursor;
 	float					mTimer;
 	MenuManager				mMenuManager;
-	OvEff::OverlayEffectManager mEffectManager;
 
 
 };

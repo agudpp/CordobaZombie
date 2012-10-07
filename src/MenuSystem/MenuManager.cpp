@@ -7,8 +7,9 @@
 
 #include <algorithm>
 
-#include "GlobalObjects.h"
+
 #include "MenuManager.h"
+#include "InputMouse.h"
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -143,9 +144,8 @@ bool MenuManager::update(void)
 	static bool lastStepClicked = false;
 	static bool acatualStepClicked = false;
 
-	const OIS::MouseState &ms = GLOBAL_MOUSE->getMouseState();
-
-	p.x = ms.X.abs; p.y = ms.Y.abs;
+	p.x = input::InputMouse::absX();
+	p.y = input::InputMouse::absY();
 	eIt = mLastInside.end();
 
 	// if the mouse move then we do all the logic
@@ -153,14 +153,15 @@ bool MenuManager::update(void)
 		// the mouse doesn't move, then we only update all the actual menues
 		// for only check the mouse state
 		for(it = mLastInside.begin(); it != eIt; ++it){
-			(*it)->mouseMoving(&ms);
+			(*it)->mouseMoving();
 		}
 
 		return !mLastInside.empty();
 	}
 
 	// now check for all the menus that the mouse is inside of
-	int x = getXPosition(ms.X.abs), y = getYPosition(ms.Y.abs);
+	int x = getXPosition(input::InputMouse::absX()),
+	        y = getYPosition(input::InputMouse::absY());
 
 	MenuCell &cell = mMatrix[x][y];
 	IMenu *m;
@@ -173,7 +174,7 @@ bool MenuManager::update(void)
 			// is and old one
 			m = *it;
 			mLastInside.erase(it);
-			m->mouseOutside(&ms);
+			m->mouseOutside();
 		}
 	}
 
@@ -184,11 +185,11 @@ bool MenuManager::update(void)
 			it = mLastInside.find(m);
 			if(it == mLastInside.end()){
 				// is not in the last inside, so is a new one
-				m->mouseInside(&ms);
+				m->mouseInside();
 				mLastInside.insert(m);
 			} else {
 				// is in the last inside, so we only have to update it
-				m->mouseMoving(&ms);
+				m->mouseMoving();
 			}
 		}
 	}

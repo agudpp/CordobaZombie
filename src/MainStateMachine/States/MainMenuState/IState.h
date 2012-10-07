@@ -158,7 +158,7 @@ protected:
 	 * 		  is responsible for the posterior deletion of that elements
 	 */
 	void buildButtons(std::vector<OvEff::MenuButtonEffect> &buttons,
-			const std::vector<Ogre::String> &names) const;
+			const std::vector<Ogre::String> &names);
 
 	/**
 	 * Function which returns the actual TiXmlElement used by this IState.
@@ -181,7 +181,7 @@ private:
 	 * @param	button	The button to be configured
 	 */
 	void parseCbMenuButton(const TiXmlElement *xml,
-			OvEff::MenuButtonEffect &button) const;
+			OvEff::MenuButtonEffect &button);
 
 private:
 	float			mActualTimeDuration;

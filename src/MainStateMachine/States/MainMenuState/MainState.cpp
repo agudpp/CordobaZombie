@@ -8,6 +8,9 @@
 
 #include "MainState.h"
 
+#include <OgreOverlay.h>
+#include <OgreOverlayManager.h>
+
 #include "DebugUtil.h"
 
 namespace mm_states {
@@ -25,12 +28,10 @@ const char *MainState::BUTTONS_NAMES[NUMBER_BUTTONS] =  {
 void
 MainState::exitState(void)
 {
-    debugERROR("TODO: tenemos que esconder todos los botones (esto seria el "
-             "efecto reversa que habria que implementar, o podemos meter "
-             "otros efectos de salida distintos a los de entrada (al pedo "
-             "complicarla) )");
      for(size_t i = 0, size = mMenuButtonsEff.size(); i < size; ++i){
-        // TODO:
+        const bool res = mMenuButtonsEff[i].getEffect()->complement();
+        ASSERT(res);
+        mMenuButtonsEff[i].getEffect()->start();
     }
     mState = Exiting;
 }
@@ -95,16 +96,24 @@ MainState::load(void)
         buttonNames.push_back(BUTTONS_NAMES[i]);
     }
     buildButtons(mMenuButtonsEff, buttonNames);
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void
 MainState::beforeUpdate(void)
 {
+    // show the overlay
+    Ogre::Overlay *overlay = Ogre::OverlayManager::getSingleton().getByName(
+            "MainMenu/MainState");
+    ASSERT(overlay);
+    overlay->show();
+
     // reproduce the effect of all the buttons
     for(size_t i = 0, size = mMenuButtonsEff.size(); i < size; ++i){
         ASSERT(mMenuButtonsEff[i].getEffect());
         mMenuButtonsEff[i].getEffect()->start();
+        mMenuButtonsEff[i].getEffect()->getElement()->show();
     }
 
     mState = Looping;

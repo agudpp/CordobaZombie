@@ -18,6 +18,7 @@
 #include "InputMouse.h"
 #include "IMenu.h"
 #include "Util.h"
+#include "MouseCursor.h"
 
 const char *MainMenuState::CONFIG_FILENAME = "MainMenuConfiguration.xml";
 
@@ -129,7 +130,6 @@ void MainMenuState::updateStateMachine(void)
 	if(!mActualState) return;
 
 	// check video position
-
 	VideoState actualVS = getVideoState();
 
 	if (actualVS == Entering) {
@@ -347,6 +347,11 @@ MainMachineEvent MainMenuState::update(MainMachineInfo &info)
 		input::InputKeyboard::capture();
 		input::InputMouse::capture();
 
+		// update position of the mouse cursor
+		GLOBAL_CURSOR->updatePosition(
+		        input::InputMouse::absX(),
+		        input::InputMouse::absY());
+
 		// render the frame
 		if(!GLOBAL_ROOT->renderOneFrame()){
 			break;
@@ -358,7 +363,7 @@ MainMachineEvent MainMenuState::update(MainMachineInfo &info)
 		// update all the other things
 		mMenuManager.update();
         mVideoPlayerAPI->update(GLOBAL_TIME_FRAME);
-        mEffectMngr.update();
+        mOvEffManager.update();
 
 		// This must be called when we use the renderOneFrame approach
 		Ogre::WindowEventUtilities::messagePump();

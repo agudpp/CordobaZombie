@@ -17,6 +17,11 @@ MenuManager	*IMenu::mMenuManager = 0;
 void IMenu::setMenuManager(MenuManager *mm)
 {
 	ASSERT(mm);
+#ifdef DEBUG
+    if (mMenuManager != 0) {
+        debugWARNING("We are setting another Mngr to the IMenu\n");
+    }
+#endif
 	mMenuManager = mm;
 }
 

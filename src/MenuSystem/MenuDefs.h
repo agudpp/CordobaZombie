@@ -12,9 +12,6 @@
 #include "GlobalObjects.h"
 
 
-typedef OIS::MouseState		MenuMouse;
-
-
 #define BIT_SET(i)		(1 << i)
 
 

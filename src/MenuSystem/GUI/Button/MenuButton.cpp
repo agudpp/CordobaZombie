@@ -12,6 +12,7 @@
 
 #include "DebugUtil.h"
 #include "GUIHelper.h"
+#include "InputMouse.h"
 
 #include "MenuButton.h"
 
@@ -143,7 +144,7 @@ void MenuButton::configureAll(Ogre::OverlayContainer *cont)
 /**
  * Function called when the mouse is inside of this menu
  */
-void MenuButton::mouseInside(const MenuMouse *ms)
+void MenuButton::mouseInside()
 {
 	if(!mActive){
 		return;
@@ -152,7 +153,7 @@ void MenuButton::mouseInside(const MenuMouse *ms)
 	// change the image to S_MOUSE_OVER
 	configureAtlas(S_MOUSE_OVER);
 
-	if(ms->buttonDown(OIS::MB_Left)){
+	if(input::InputMouse::isMouseDown(input::MB_Left)){
 		mFlags |= FLAG_LEFT_PRESSED;
 	} else {
 		mFlags &= ~FLAG_LEFT_PRESSED;
@@ -162,7 +163,7 @@ void MenuButton::mouseInside(const MenuMouse *ms)
 /**
  * Function called when the mouse goes outside from the menu
  */
-void MenuButton::mouseOutside(const MenuMouse *ms)
+void MenuButton::mouseOutside()
 {
 	// configure again the img
 	if(mActive){
@@ -180,7 +181,7 @@ void MenuButton::mouseOutside(const MenuMouse *ms)
 /**
  * Function called when the mouse is moving inside of this menu
  */
-void MenuButton::mouseMoving(const MenuMouse *ms)
+void MenuButton::mouseMoving()
 {
 	if(!mActive){
 		return;
@@ -188,12 +189,12 @@ void MenuButton::mouseMoving(const MenuMouse *ms)
 
 	// if is active... check if is clicked
 	if(mFlags & FLAG_LEFT_PRESSED){
-		if(!ms->buttonDown(OIS::MB_Left)){
+		if(!input::InputMouse::isMouseDown(input::MB_Left)){
 			mFlags &= ~FLAG_LEFT_PRESSED;
 			configureAtlas(S_MOUSE_OVER);
 		}
 	} else {
-		if(ms->buttonDown(OIS::MB_Left)){
+		if(input::InputMouse::isMouseDown(input::MB_Left)){
 			mFlags |= FLAG_LEFT_PRESSED;
 			// callback
 			leftPressed();
@@ -202,11 +203,11 @@ void MenuButton::mouseMoving(const MenuMouse *ms)
 	}
 
 	if(mFlags & FLAG_RIGHT_PRESSED){
-		if(!ms->buttonDown(OIS::MB_Right)){
+		if(!input::InputMouse::isMouseDown(input::MB_Right)){
 			mFlags &= ~FLAG_RIGHT_PRESSED;
 		}
 	} else {
-		if(ms->buttonDown(OIS::MB_Right)){
+		if(input::InputMouse::isMouseDown(input::MB_Right)){
 			mFlags |= FLAG_RIGHT_PRESSED;
 			// callback
 			rightPressed();
