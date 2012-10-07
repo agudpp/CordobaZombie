@@ -117,6 +117,7 @@ void Test::loadAditionalData(void)
 		testSUCCESS("Test passed.%s", "\n");
 	} else {
 		testFAIL("Error!%s", "\n");
+		exit(EXIT_FAILURE);
 	}
 
 	testBEGIN("Attaching the alpha effect to the overlay.%s", "\n");

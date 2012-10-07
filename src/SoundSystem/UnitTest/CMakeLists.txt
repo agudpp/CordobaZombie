@@ -89,8 +89,10 @@ endif()
 
 set (DEV_ROOT_PATH $ENV{ESTRATEGIA2012_DEV_PATH})
 
-include(${DEV_ROOT_PATH}/CommonFlags.cmake)  # Customized compilation flags
- 
+# Customized compilation flags and link libraries
+include(${DEV_ROOT_PATH}/CommonFlags.cmake)
+target_link_libraries(OgreApp ${COMMON_FLAGS})
+
 set(HDRS		
 	${DEV_ROOT_PATH}/Extras/AppTester/AppTester.h
 	./Test.h
