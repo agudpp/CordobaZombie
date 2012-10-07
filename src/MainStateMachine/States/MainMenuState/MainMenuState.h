@@ -161,7 +161,6 @@ private:
 	OvEff::OverlayEffectManager		mOvEffManager;
 	VideoPlayerAPI					*mVideoPlayerAPI;
 	CallbackReceiber                mCbReceiver;
-	OvEff::OverlayEffectManager     mEffectMngr;
 	XMLHelper                       mXmlHelper;
 
 };

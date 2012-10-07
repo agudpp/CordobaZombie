@@ -10,9 +10,10 @@
 #define OVERLAYEFFECT_H_
 
 #include <algorithm>
+#include <vector>
 
 #include <OgreOverlayElement.h>
-#include <vector>
+
 
 #include "EffectCb.h"
 #include "DebugUtil.h"
@@ -156,17 +157,19 @@ inline void OverlayEffect::begin(void)
 {
 	if(!mCallbacks.empty()) {
 	    for(size_t size = mCallbacks.size(), i = 0; i < size; ++i)
-	        (*mCallbacks[i])(EffectCb::STARTING);
+	        (*(mCallbacks[i]))(EffectCb::STARTING);
 	}
 	enter();
+	mActive = true;
 }
 inline void OverlayEffect::end(void)
 {
     if(!mCallbacks.empty()) {
         for(size_t size = mCallbacks.size(), i = 0; i < size; ++i)
-            (*mCallbacks[i])(EffectCb::ENDING);
+            (*(mCallbacks[i]))(EffectCb::ENDING);
     }
 	exit();
+	mActive = false;
 }
 inline void OverlayEffect::setIndex(int i)
 {

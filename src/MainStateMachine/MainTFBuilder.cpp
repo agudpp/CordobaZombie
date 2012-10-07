@@ -5,12 +5,18 @@
  *      Author: agustin
  */
 
-#include "DebugUtil.h"
+
 #include "MainTFBuilder.h"
 
+#include "DebugUtil.h"
+#include "MainStateMachineDefs.h"
 // States
-#include "LoadingState.h"
+#include "FirstInformationState.h"
 #include "SponsorsState.h"
+#include "MainMenuState.h"
+
+#include "LoadingState.h"
+#include "ExitState.h"
 
 
 MainTFBuilder::MainTFBuilder()
@@ -34,13 +40,27 @@ MainTransitionFunction *MainTFBuilder::build(const TiXmlElement  *elem)
 	MainTransitionFunction *tt = new MainTransitionFunction;
 
 	//states
-	LoadingState *loadingState = new LoadingState;
+	FirstInformationState *firstInformation= new FirstInformationState;
 	SponsorsState *sponsors = new SponsorsState;
+	MainMenuState *mainMenu = new MainMenuState;
+	LoadingState *loadingState = new LoadingState;
+	ExitState *exitState = new ExitState;
+
+
 
 	loadingState->setLoaderManager(mLoaderManager);
 //	tt->setStartState(loadingState);
 
-	tt->setStartState(sponsors);
+	// build the transitions
+	tt->setStartState(firstInformation);
+
+	tt->addNewEntry(firstInformation, MainMachineEvent::MME_DONE, sponsors);
+	tt->addNewEntry(sponsors, MainMachineEvent::MME_DONE, mainMenu);
+	tt->addNewEntry(mainMenu, MainMachineEvent::MME_DONE, mainMenu);
+	tt->addNewEntry(mainMenu, MainMachineEvent::MME_EXIT, exitState);
+
+	// TODO: tenemos que agregar newGame -> loading state por ejemplo?
+
 
 	return tt;
 }

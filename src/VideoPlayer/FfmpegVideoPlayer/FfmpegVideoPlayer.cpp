@@ -185,6 +185,9 @@ VideoPlayer::VideoPlayer(Ogre::Real left, Ogre::Real top,
     // Register all formats and codecs
     av_register_all();
 
+    // remove all the logs
+    av_log_set_level(AV_LOG_QUIET);
+
 }
 
 

@@ -82,13 +82,30 @@ MouseCursor::MouseCursor() :
     mMaterial = Ogre::MaterialManager::getSingleton().create(
     		MOUSE_CURSOR_MATERIAL_NAME,	"Popular");
     ASSERT(!mMaterial.isNull());
-    mCursorContainer = (Ogre::OverlayContainer*)
-    		Ogre::OverlayManager::getSingletonPtr()->createOverlayElement(
-    				"Panel", "MouseCursor");
+
+    // check if the container already exists
+    try {
+        mCursorContainer = (Ogre::OverlayContainer*)
+            Ogre::OverlayManager::getSingletonPtr()->getOverlayElement(
+                    "MouseCursor");
+    } catch(...) {
+        // create the new one
+        mCursorContainer = (Ogre::OverlayContainer*)
+                Ogre::OverlayManager::getSingletonPtr()->createOverlayElement(
+                        "Panel", "MouseCursor");
+    }
+
     mCursorContainer->setMaterialName(mMaterial->getName());
     mCursorContainer->setPosition(0, 0);
-    mGuiOverlay = Ogre::OverlayManager::getSingletonPtr()->create(
-    		"MouseCursor");
+
+    mGuiOverlay = Ogre::OverlayManager::getSingletonPtr()->getByName(
+                "MouseCursor");
+
+    if (mGuiOverlay == 0){
+        mGuiOverlay = Ogre::OverlayManager::getSingletonPtr()->create(
+                "MouseCursor");
+    }
+
     mGuiOverlay->setZOrder(649);
     mGuiOverlay->add2D(mCursorContainer);
     mGuiOverlay->show();

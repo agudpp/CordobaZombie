@@ -36,19 +36,19 @@ void StaticContainer::setMaterial(const Ogre::String &mat)
 }
 
 
-void StaticContainer::mouseInside(const MenuMouse *)
+void StaticContainer::mouseInside()
 {
 	debugRED("ERROR: some container was added to the menu manager... or "
 			"someone is calling this function...\n");
 	ASSERT(false);
 }
-void StaticContainer::mouseOutside(const MenuMouse *)
+void StaticContainer::mouseOutside()
 {
 	debugRED("ERROR: some container was added to the menu manager... or "
 			"someone is calling this function...\n");
 	ASSERT(false);
 }
-void StaticContainer::mouseMoving(const MenuMouse *)
+void StaticContainer::mouseMoving()
 {
 	debugRED("ERROR: some container was added to the menu manager... or "
 			"someone is calling this function...\n");

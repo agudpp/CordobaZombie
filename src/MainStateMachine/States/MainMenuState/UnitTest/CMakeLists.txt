@@ -137,7 +137,7 @@ include_directories( ${OIS_INCLUDE_DIRS}
 include(${DEV_ROOT_PATH}/Utils/GUI/Text2D/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/MenuSystem/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/MainStateMachine/AutoGen.cmake)
-include(${DEV_ROOT_PATH}/MainStateMachine/States/MainMenuState/AutoGen.cmake)
+#include(${DEV_ROOT_PATH}/MainStateMachine/States/MainMenuState/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/Common/XMLHelper/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/Common/QueueContainer/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/Utils/GUI/AutoGen.cmake)

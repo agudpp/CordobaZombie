@@ -29,6 +29,11 @@ void OverlayEffect::setElement(Ogre::OverlayElement *e)
 void OverlayEffect::setManager(OverlayEffectManager *em)
 {
 	ASSERT(em);
+#ifdef DEBUG
+	if (mMngr != 0) {
+	    debugWARNING("We are setting another Mngr to the OverlayEffects\n");
+	}
+#endif
 	mMngr = em;
 }
 
@@ -54,7 +59,6 @@ void OverlayEffect::stop(void)
 {
 	if(!mMngr->hasEffect(this)) return;
 	mMngr->remove(this);
-	mActive = false;
 }
 
 /**
@@ -67,7 +71,6 @@ void OverlayEffect::start(void)
 		stop();
 	}
 	mMngr->add(this);
-	mActive = true;
 }
 
 

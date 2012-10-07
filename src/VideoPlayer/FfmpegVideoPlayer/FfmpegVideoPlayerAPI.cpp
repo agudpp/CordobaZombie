@@ -132,7 +132,6 @@ int VideoPlayerAPI::update(double tslf){
 
 	if(ended || err == VIDEO_ENDED){
 		if(mRepeat){
-			debugRAUL("entra\n");
 			this->load( 0, mVideo.start, mVideo.end);
 			this->play();
 			return VIDEO_OK;

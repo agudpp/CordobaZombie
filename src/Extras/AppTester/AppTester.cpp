@@ -10,6 +10,7 @@
 #include "GlobalObjects.h"
 #include "Util.h"
 #include "AppTester.h"
+#include "MouseCursor.h"
 
 /******************************************************************************/
 void AppTester::handleKeyboardInputCamera(void)
@@ -248,10 +249,8 @@ bool AppTester::loadInitialConfig(void)
 	mCamera->setAspectRatio(
 			Ogre::Real(vp->getActualWidth()) / Ogre::Real(vp->getActualHeight()));
 
-
 	////////////////////////////////////////////////////////////////////////////
 	Ogre::ResourceGroupManager::getSingleton().initialiseAllResourceGroups();
-
 
 	// here we are ready to run the editor
 	mReadyToRun = true;
@@ -387,6 +386,12 @@ AppTester::AppTester() :
 	std::string fname = path + "resources.cfg";
 	debugGREEN("Trying to parse the resource file %s\n", fname.c_str());
 	loadAditionalResourcesFromFile(fname, path);
+
+    // Create the mouseCursor
+    GLOBAL_CURSOR = new MouseCursor;
+    GLOBAL_CURSOR->setVisible(true);
+    GLOBAL_CURSOR->setWindowDimensions(GLOBAL_WINDOW->getWidth(),
+            GLOBAL_WINDOW->getHeight());
 
 	loadScene();
 }

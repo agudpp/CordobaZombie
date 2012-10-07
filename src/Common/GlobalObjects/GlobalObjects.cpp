@@ -25,6 +25,8 @@ Ogre::RenderWindow	*GlobalObjects::window = 0;
 
 LevelManager		*GlobalObjects::levelMngr = 0;
 
+MouseCursor         *GlobalObjects::mouseCursor = 0;
+
 
 
 

@@ -25,6 +25,7 @@ typedef struct {
 enum MainMachineEvent {
 	MME_ERROR = -1,
 	MME_DONE = 0,
+	MME_EXIT,
 
 
 };

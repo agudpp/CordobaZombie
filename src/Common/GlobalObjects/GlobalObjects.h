@@ -24,9 +24,11 @@
 #define GLOBAL_ROOT					Common::GlobalObjects::ogreRoot
 #define GLOBAL_WINDOW				Common::GlobalObjects::window
 #define GLOBAL_LVL_MNGR				Common::GlobalObjects::levelMngr
+#define GLOBAL_CURSOR				Common::GlobalObjects::mouseCursor
 
 
 class LevelManager;
+class MouseCursor;
 
 
 namespace Common {
@@ -51,6 +53,9 @@ public:
 
 	/* The LevelManager used actually */
 	static LevelManager			*levelMngr;
+
+	// Globarl Mouse cursor
+	static MouseCursor          *mouseCursor;
 
 
 public:

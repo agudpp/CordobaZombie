@@ -23,6 +23,12 @@ public:
 	MenuButtonEffect(MenuButton	*button = 0, OverlayEffect *effect = 0);
 	virtual ~MenuButtonEffect();
 
+	// Implement the copy and = operator (because we need to register the
+	// callbacks again
+	//
+	inline MenuButtonEffect(const MenuButtonEffect &other);
+	inline MenuButtonEffect &operator=(const MenuButtonEffect &other);
+
 	/**
 	 * Set / Get the button/effect
 	 */
@@ -43,6 +49,24 @@ private:
 	OverlayEffect	*mEffect;
 };
 
+
+
+inline
+MenuButtonEffect::MenuButtonEffect(const MenuButtonEffect &other)
+{
+    mMenuButton = other.mMenuButton;
+    mEffect = other.mEffect;
+    if (mEffect != 0) mEffect->addCallback(this);
+}
+inline MenuButtonEffect &
+MenuButtonEffect::operator=(const MenuButtonEffect &other)
+{
+    mMenuButton = other.mMenuButton;
+    if (mEffect != 0) mEffect->removeCallback(this);
+    mEffect = other.mEffect;
+    if (mEffect != 0) mEffect->addCallback(this);
+}
+
 inline void MenuButtonEffect::setEffect(OverlayEffect *e)
 {
 	ASSERT(e);
@@ -50,7 +74,7 @@ inline void MenuButtonEffect::setEffect(OverlayEffect *e)
 	if (mEffect != 0) mEffect->removeCallback(this);
 
 	mEffect = e;
-	e->addCallback(this);
+	mEffect->addCallback(this);
 }
 inline OverlayEffect *MenuButtonEffect::getEffect(void)
 {
