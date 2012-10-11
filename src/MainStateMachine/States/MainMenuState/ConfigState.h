@@ -1,21 +1,137 @@
 /*
  * ConfigState.h
  *
- *  Created on: 03/09/2012
- *      Author: agustin
- *
+ *  Created on: Sep 16, 2012
+ *     Company: CordobaZombie
+ *      Author: Budde, Carlos Esteban.
  */
 
 #ifndef CONFIGSTATE_H_
 #define CONFIGSTATE_H_
 
+#include <vector>
+#include <boost/signal.hpp>
+
+#include <OgreString.h>
+#include <OgreOverlay.h>
+
+#include "IState.h"
+#include "CbMenuButton.h"
+
+
 namespace mm_states {
 
-class ConfigState {
+/* NOTE:                                                *
+ * For a list of the buttons this State supports        *
+ * check the "Supported buttons names list" in the .cpp */
+
+
+class ConfigState : public IState
+{
+	// Internal state flags
+	enum State {
+		STATE_NONE = 0,
+		STATE_LOOPING,
+		STATE_EXITING,
+	};
+
 public:
 	ConfigState();
 	virtual ~ConfigState();
+
+	/**
+	 * @brief
+	 * Callback when a menu button is pressed.
+	 *
+	 * @param
+	 *  b: Menu's pressed button
+	 * id: Mouse button used (left, middle or right)
+	 *
+	 * @remarks
+	 * This function can't be mapped
+	 */
+	void
+	operator()(CbMenuButton *b, CbMenuButton::ButtonID id);
+
+	/**
+	 * @brief
+	 * Load all the resources used by this state.
+	 *
+	 * @remarks
+	 * This is the first function to be called for this state,
+	 * prior even to "beforeUpdate()"
+	 * This is function #1
+	 */
+	void
+	load();
+
+	/**
+	 * @brief
+	 * Final initializations prior to starting the update() loop.
+	 *
+	 * @remarks
+	 * This function should be called after load() and right before
+	 * the first invocation of update() in the main loop.
+	 * This is function #2
+	 */
+	void
+	beforeUpdate();
+
+	/**
+	 * @brief
+	 * Frame update for the state's internal status.
+	 *
+	 * @remarks
+	 * This function is called every frame in the MainState main loop.
+	 * All the specific state's logic is located here.
+	 * This is function #3
+	 */
+	void
+	update();
+
+	/**
+	 * @brief
+	 * Unload all the resources used by this state.
+	 *
+	 * @remarks
+	 * This is function #4
+	 */
+	void
+	unload();
+
+protected:
+	/**
+	 * @brief
+	 * Begin the state's exit animations (i.e., buttons and panel hiding)
+	 *
+	 * @remarks
+	 * This is function #5
+	 */
+	void
+	exitConfigState();
+
+	/**
+	 * @brief
+	 * Check for user keyboard event
+	 */
+	void
+	checkInput();
+
+private:
+	// FIXME Eclipse doesn't recognize this (correct) syntax
+	typedef boost::signal<void()>		actions;  // Buttons actions
+	typedef std::vector<Ogre::String>	StrVec;
+	typedef std::vector<OvEff::MenuButtonEffect>  ButtonsEffectVec;
+	typedef std::vector<actions*>		ButtonsActionsVec;
+
+	static StrVec				sButtonsNames;	// Buttons names
+	ButtonsActionsVec			mButtonsActions;// Buttons actions
+	ButtonsEffectVec			mButtonsEff;	// Buttons and visual effects
+	Ogre::PanelOverlayElement*	mPanel;			// Image to display
+	OvEff::Alpha*				mPanelEff;		// Effect for the image
+	State						mState;
 };
+
 
 }
 
