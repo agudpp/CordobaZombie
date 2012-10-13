@@ -10,14 +10,16 @@
 #ifndef EFFECTRESTARTER_H_
 #define EFFECTRESTARTER_H_
 
+#include <boost/signals.hpp>
+#include <boost/bind.hpp>
+
 #include "DebugUtil.h"
-#include "EffectCb.h"
 #include "OverlayEffect.h"
 
 
 namespace OvEff {
 
-class EffectRestarter : public EffectCb {
+class EffectRestarter {
 public:
     EffectRestarter(OverlayEffect *oe, bool stopRestarting = false) :
         effect(oe),
@@ -30,10 +32,10 @@ public:
     inline void setStopRestart(bool sr) {stopRestart = sr;}
 
 
-    void operator()(EffectCb::EventID id)
+    void operator()(OverlayEffect::EventID id)
     {
         if (effect == 0 || stopRestart) return;
-        if(id == EffectCb::ENDING) effect->start();
+        if(id == OverlayEffect::ENDING) effect->start();
     }
 
     OverlayEffect *effect;

@@ -22,7 +22,6 @@ GUIObject::~GUIObject() {
 	// remove the panel
 	if(mCont){
 		GUIHelper::fullDestroyOverlayElement(mCont);
-//		Ogre::OverlayManager::getSingleton().destroyOverlayElement(mCont);
 	}
 }
 

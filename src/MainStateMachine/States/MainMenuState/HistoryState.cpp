@@ -6,6 +6,8 @@
  *
  */
 
+#include <boost/bind.hpp>
+
 #include "HistoryState.h"
 #include "DebugUtil.h"
 #include <sstream>
@@ -86,7 +88,8 @@ void HistoryState::load(void){
 
 	int size = mButtons.size();
 	for(int i = 0; i < size; i++){
-		mButtons[i].getEffect()->addCallback(this);
+		mButtons[i].getEffect()->addCallback(
+		        boost::bind(&HistoryState::operator(), this, _1));
 	}
 
 	// Load the slides
@@ -146,11 +149,12 @@ void HistoryState::unload(void)
 
 }
 
-void HistoryState::operator()(EventID id){
+void HistoryState::operator()(OvEff::OverlayEffect::EventID id)
+{
 	// Buttons have finished hiding, send finish event to the MainMenuState
-	if(id == ENDING && mState != STATE_EXITING){
+	if(id == OvEff::OverlayEffect::ENDING && mState != STATE_EXITING){
 		mState = STATE_EXITING;
-		stateFinish(Event::Done);
+		stateFinish(mm_states::Done);
 	}
 }
 

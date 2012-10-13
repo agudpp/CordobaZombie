@@ -9,17 +9,20 @@
 #ifndef HISTORYSTATE_H_
 #define HISTORYSTATE_H_
 
-#include <OgreString.h>
-#include "SlidePlayer.h"
+
+#include <boost/signal.hpp>
 #include <vector>
 
+#include <OgreString.h>
+
+#include "SlidePlayer.h"
 #include "IState.h"
 #include "CbMenuButton.h"
 #include "MenuButtonEffect.h"
 
 namespace mm_states {
 
-class HistoryState : public IState, public OvEff::EffectCb{
+class HistoryState : public IState {
 
 	enum ButtonIndex {
 		Back = 0,
@@ -73,7 +76,7 @@ public:
 	 * Call back function to let buttons effect tell us when they have done
 	 * hiding.
 	 */
-	void operator()(EventID id);
+	void operator()(OvEff::OverlayEffect::EventID id);
 
 private:
 	typedef std::vector<OvEff::MenuButtonEffect>	ButtonsEffectVec;
@@ -83,7 +86,6 @@ private:
 	StrVec				mBtnNames;
 	int					mState;
 	SlidePlayer			*mSlidePlayer;
-
 };
 
 }
