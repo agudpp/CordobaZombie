@@ -16,6 +16,7 @@
 #include "Util.h"
 #include "LoaderManager.h"
 #include "GlobalObjects.h"
+#include "MouseCursor.h"
 
 #include "tinyxml.h"
 
@@ -121,6 +122,12 @@ static void configureGlobalObjects(SystemLoader &sl)
 	Common::GlobalObjects::mouse = sl.getInputInfo().mouse;
 	ASSERT(Common::GlobalObjects::mouse);
 
+	// configure the MouseCursor used by all the states
+    Common::GlobalObjects::mouseCursor = new MouseCursor;
+    Common::GlobalObjects::mouseCursor->setVisible(true);
+    Common::GlobalObjects::mouseCursor->setWindowDimensions(
+            GLOBAL_WINDOW->getWidth(),
+            GLOBAL_WINDOW->getHeight());
 }
 
 

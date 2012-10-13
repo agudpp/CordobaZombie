@@ -73,6 +73,13 @@ public:
 	MainMenuState();
 	virtual ~MainMenuState();
 
+    /**
+     * Function used to get the resources files used by the state.
+     * The list returned is the list of the resources used by and only by this
+     * state.
+     */
+    virtual void getResources(IMainState::ResourcesInfoVec &resourcesList);
+
 	/**
 	 * Entering the state with additional info
 	 */

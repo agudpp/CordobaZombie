@@ -5,11 +5,14 @@
  *      Author: agustin
  */
 
+#include "SystemLoader.h"
+
+#include <iostream>
+
 #include <OgreString.h>
 #include <OgreConfigFile.h>
 
 #include "DebugUtil.h"
-#include "SystemLoader.h"
 #include "Util.h"
 
 
@@ -269,8 +272,6 @@ void SystemLoader::loadOgreSystem(void) throw (SystemLoader::ErrorException)
 
 	// reinit all the resources group
 	Ogre::ResourceGroupManager::getSingleton().initialiseAllResourceGroups();
-
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -295,8 +296,34 @@ void SystemLoader::loadInputSystem(void) throw (SystemLoader::ErrorException)
 	size_t hWnd = 0;
 
 	ASSERT(mOgreInfo.window);
-	mOgreInfo.window->getCustomAttribute("WINDOW", &hWnd);
-	mInputInfo.inputManager = OIS::InputManager::createInputSystem(hWnd);
+//	mOgreInfo.window->getCustomAttribute("WINDOW", &hWnd);
+//	mInputInfo.inputManager = OIS::InputManager::createInputSystem(hWnd);
+
+
+    // override OIS construction to avoid grabbing mouse
+    debugWARNING("We are configuring this to release the mouse and keyboard "
+                "once Ogre crash... Probably we want to remove this lines to fuck"
+                " the users up? xD\n");
+    OIS::ParamList pl;
+    size_t windowHnd = 0;
+    std::ostringstream windowHndStr;
+
+    mOgreInfo.window->getCustomAttribute("WINDOW", &windowHnd);
+    windowHndStr << windowHnd;
+    pl.insert(std::make_pair(std::string("WINDOW"), windowHndStr.str()));
+#if defined OIS_WIN32_PLATFORM
+    pl.insert(std::make_pair(std::string("w32_mouse"), std::string("DISCL_FOREGROUND" )));
+    pl.insert(std::make_pair(std::string("w32_mouse"), std::string("DISCL_NONEXCLUSIVE")));
+    pl.insert(std::make_pair(std::string("w32_keyboard"), std::string("DISCL_FOREGROUND")));
+    pl.insert(std::make_pair(std::string("w32_keyboard"), std::string("DISCL_NONEXCLUSIVE")));
+#elif defined OIS_LINUX_PLATFORM
+    pl.insert(std::make_pair(std::string("x11_mouse_grab"), std::string("false")));
+    pl.insert(std::make_pair(std::string("x11_mouse_hide"), std::string("false")));
+    pl.insert(std::make_pair(std::string("x11_keyboard_grab"), std::string("false")));
+    pl.insert(std::make_pair(std::string("XAutoRepeatOn"), std::string("true")));
+#endif
+    mInputInfo.inputManager = OIS::InputManager::createInputSystem(pl);
+    // end override OIS construction to avoid grabbing mouse
 
 	// creates the mouse and keyboard objects (we will use unbuffered input
 	// system, the second parameter set this)

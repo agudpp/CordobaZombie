@@ -294,6 +294,19 @@ MainMenuState::~MainMenuState()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+void
+MainMenuState::getResources(IMainState::ResourcesInfoVec &resourcesList)
+{
+    resourcesList.clear();
+
+    IMainState::ResourcesInfo rinfo;
+    rinfo.filePath = "/MainStates/MainMenuState/resources.cfg";
+    rinfo.groupNames.push_back("MainMenuState");
+
+    resourcesList.push_back(rinfo);
+}
+
+////////////////////////////////////////////////////////////////////////////////
 void MainMenuState::enter(const MainMachineInfo &info)
 {
 	// load all the states

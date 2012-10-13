@@ -75,21 +75,21 @@ bool FirstInformationState::showInfo(Ogre::Real ftime)
 ////////////////////////////////////////////////////////////////////////////////
 void FirstInformationState::deallocateAll(void)
 {
-	for(int i = 0; i < mOverlays.size(); i++){
-		GUIHelper::fullDestroyOverlay(mOverlays[i]);
-	}
+//	for(int i = 0; i < mOverlays.size(); i++){
+//		GUIHelper::fullDestroyOverlay(mOverlays[i]);
+//	}
 	mOverlays.clear();
-	for(int i = 0; i < mToRemoveOverlays.size(); i++){
-		GUIHelper::fullDestroyOverlay(mToRemoveOverlays[i]);
-	}
+//	for(int i = 0; i < mToRemoveOverlays.size(); i++){
+//		GUIHelper::fullDestroyOverlay(mToRemoveOverlays[i]);
+//	}
 	mToRemoveOverlays.clear();
 
 	// destroy all
 	mOverlay = 0;
-	if(mFader){
-		GUIHelper::fullDestroyOverlay(mFader);
-		mFader = 0;
-	}
+//	if(mFader){
+//		GUIHelper::fullDestroyOverlay(mFader);
+    mFader = 0;
+//	}
 	mTexture = 0;
 }
 
@@ -124,6 +124,17 @@ void FirstInformationState::configure(Ogre::Real ft, Ogre::Real st)
 	mFaderTime = ft;
 }
 
+void
+FirstInformationState::getResources(IMainState::ResourcesInfoVec &resourcesList)
+{
+    resourcesList.clear();
+
+    IMainState::ResourcesInfo rinfo;
+    rinfo.filePath = "/MainStates/FirstInfoState/resources.cfg";
+    rinfo.groupNames.push_back("FirstInfoState");
+
+    resourcesList.push_back(rinfo);
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 void FirstInformationState::enter(const MainMachineInfo &info)
