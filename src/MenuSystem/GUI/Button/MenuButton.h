@@ -63,6 +63,11 @@ public:
 	bool configure(int atlasSize);
 
 	/**
+	 * Reset the atlas to the main state
+	 */
+	inline void resetAtlas(void);
+
+	/**
 	 * This function is called when the material has change and we need to
 	 * recalculate the TextureWidth and the atlas size.
 	 */
@@ -146,6 +151,10 @@ inline bool MenuButton::isActive(void) const
 	return mActive;
 }
 
+inline void MenuButton::resetAtlas(void)
+{
+    configureAtlas(S_ACTIVE);
+}
 
 inline void MenuButton::setActionType(MenuButton::ActionType t)
 {

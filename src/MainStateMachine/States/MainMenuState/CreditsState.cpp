@@ -53,7 +53,7 @@ CreditsState::CreditsState() :
 
 CreditsState::~CreditsState()
 {
-
+    if (mOverlay != 0) GUIHelper::fullDestroyOverlay(mOverlay);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -66,6 +66,8 @@ void CreditsState::operator()(CbMenuButton *, CbMenuButton::ButtonID id)
 ////////////////////////////////////////////////////////////////////////////////
 void CreditsState::load(void)
 {
+    // check if we had already loaded the overlay (is cached)
+    if (mOverlay != 0 ) return;
 	//
 	debugWARNING("UGLY workaround to load all the fonts first.. Move this to the"
 			" MainMenu loading lines (where we will load all the resources and "
@@ -151,10 +153,7 @@ void CreditsState::update(void)
 ////////////////////////////////////////////////////////////////////////////////
 void CreditsState::unload(void)
 {
-	// TODO: destroy the overlay and else
-    GUIHelper::fullDestroyOverlay(mOverlay);
-    mOverlay = 0;
-
+    mOverlay->hide();
 }
 
 

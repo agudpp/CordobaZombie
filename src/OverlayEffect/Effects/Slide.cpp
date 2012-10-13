@@ -30,7 +30,8 @@ namespace OvEff {
 const Slide::VelFunction *Slide::LINEAL_FUNCTION = &linealFunc;
 
 Slide::Slide():
-		mFun(0)
+		mFun(0),
+		mTimeLapse(0.0f)
 {
 
 }
