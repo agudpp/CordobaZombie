@@ -132,6 +132,7 @@ MainState::beforeUpdate(void)
     }
 
     mState = Looping;
+    mReturnEvent = Event::Done;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -155,7 +156,11 @@ MainState::update(void)
 void
 MainState::unload(void)
 {
-
+    // complement the effects again
+    for(size_t i = 0, size = mMenuButtonsEff.size(); i < size; ++i){
+        mMenuButtonsEff[i].getEffect()->complement();
+        mMenuButtonsEff[i].getButton()->resetAtlas();
+    }
 }
 
 
