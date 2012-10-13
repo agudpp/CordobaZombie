@@ -188,6 +188,7 @@ VideoPlayer::VideoPlayer(Ogre::Real left, Ogre::Real top,
     // remove all the logs
     av_log_set_level(AV_LOG_QUIET);
 
+
 }
 
 

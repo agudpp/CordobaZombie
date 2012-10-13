@@ -146,6 +146,11 @@ public:
 	 */
 	inline bool isMoving(void);
 
+
+	/**
+	 * If has at least one slide
+	 */
+	inline bool hasSlides(void);
 private:
 
 	//
@@ -186,6 +191,7 @@ private:
 	 * Show initial slides
 	 */
 	int initSlides(void);
+
 };
 
 
@@ -218,5 +224,9 @@ inline int SlidePlayer::hide(void)
 	return SP_OK;
 }
 
+inline bool SlidePlayer::hasSlides(void)
+{
+	return mSlideVec.size() > 0;
+}
 
 #endif // SLIDE_PLAYER_H_
