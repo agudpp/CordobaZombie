@@ -176,7 +176,7 @@ set_property(TARGET tinyxml PROPERTY
                 IMPORTED_LOCATION ${DEV_ROOT_PATH}/Common/tinyxml/tinyxmlpath.a)
 
 target_link_libraries(OgreApp ${OGRE_LIBRARIES} ${OIS_LIBRARIES} tinyxml box2D 
-avcodec avutil avformat swscale ${OPENAL_LIBRARIES} )
+avcodec avutil avformat swscale ${OPENAL_LIBRARIES} ${COMMON_LIBRARIES})
  
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/dist/bin)
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/dist/media)

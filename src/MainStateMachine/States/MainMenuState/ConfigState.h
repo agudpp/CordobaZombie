@@ -17,9 +17,12 @@
 
 #include "IState.h"
 #include "CbMenuButton.h"
+#include "MenuButtonEffect.h"
+#include "Alpha.h"
 
 
 namespace mm_states {
+
 
 /* NOTE:                                                *
  * For a list of the buttons this State supports        *
@@ -46,9 +49,6 @@ public:
 	 * @param
 	 *  b: Menu's pressed button
 	 * id: Mouse button used (left, middle or right)
-	 *
-	 * @remarks
-	 * This function can't be mapped
 	 */
 	void
 	operator()(CbMenuButton *b, CbMenuButton::ButtonID id);
@@ -60,7 +60,6 @@ public:
 	 * @remarks
 	 * This is the first function to be called for this state,
 	 * prior even to "beforeUpdate()"
-	 * This is function #1
 	 */
 	void
 	load();
@@ -72,7 +71,6 @@ public:
 	 * @remarks
 	 * This function should be called after load() and right before
 	 * the first invocation of update() in the main loop.
-	 * This is function #2
 	 */
 	void
 	beforeUpdate();
@@ -84,7 +82,6 @@ public:
 	 * @remarks
 	 * This function is called every frame in the MainState main loop.
 	 * All the specific state's logic is located here.
-	 * This is function #3
 	 */
 	void
 	update();
@@ -92,24 +89,18 @@ public:
 	/**
 	 * @brief
 	 * Unload all the resources used by this state.
-	 *
-	 * @remarks
-	 * This is function #4
 	 */
 	void
 	unload();
 
-protected:
 	/**
 	 * @brief
 	 * Begin the state's exit animations (i.e., buttons and panel hiding)
-	 *
-	 * @remarks
-	 * This is function #5
 	 */
 	void
 	exitConfigState();
 
+protected:
 	/**
 	 * @brief
 	 * Check for user keyboard event
@@ -119,17 +110,17 @@ protected:
 
 private:
 	// FIXME Eclipse doesn't recognize this (correct) syntax
-	typedef boost::signal<void()>		actions;  // Buttons actions
+	typedef boost::signal<void ()>		actions;  // Buttons actions
 	typedef std::vector<Ogre::String>	StrVec;
 	typedef std::vector<OvEff::MenuButtonEffect>  ButtonsEffectVec;
 	typedef std::vector<actions*>		ButtonsActionsVec;
 
-	static StrVec				sButtonsNames;	// Buttons names
-	ButtonsActionsVec			mButtonsActions;// Buttons actions
-	ButtonsEffectVec			mButtonsEff;	// Buttons and visual effects
-	Ogre::PanelOverlayElement*	mPanel;			// Image to display
-	OvEff::Alpha*				mPanelEff;		// Effect for the image
-	State						mState;
+	static StrVec			sButtonsNames;	// Buttons names
+	ButtonsActionsVec		mButtonsActions;// Buttons actions
+	ButtonsEffectVec		mButtonsEff;	// Buttons and their visual effects
+	Ogre::OverlayContainer*	mPanel;			// Image to display
+	OvEff::OverlayEffect*	mPanelEff;		// Fading effect for the image
+	State					mState;
 };
 
 

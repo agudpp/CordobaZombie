@@ -6,10 +6,17 @@
  *      Author: Budde, Carlos Esteban.
  */
 
-#include "ConfigState.h"
-#include "DebugUtil.h"
 #include <boost/signal.hpp>
 #include <boost/bind.hpp>
+
+#include <OgreOverlay.h>
+#include <OgreOverlayManager.h>
+#include <OgreOverlayContainer.h>
+
+#include "ConfigState.h"
+#include "OverlayEffect.h"
+#include "OverlayEffectBuilder.h"
+#include "DebugUtil.h"
 
 
 /**
@@ -37,6 +44,8 @@ namespace { /* Unnamed namespace provides internal linkage. */
 
 namespace mm_states {
 
+ConfigState::StrVec	ConfigState::sButtonsNames;
+
 ////////////////////////////////////////////////////////////////////////////////
 ConfigState::ConfigState() :
 		IState("ConfigState"),  // State name: "ConfigState"
@@ -63,7 +72,7 @@ ConfigState::ConfigState() :
 		// Register mapped actions
 		actions* acts = new actions;
 		for ( uint j=0
-			; j < sizeof(buttonsActionsList[i]) / sizeof(buttonsActionsList[i][0])
+			; j < sizeof(buttonsActionsList[0]) / sizeof(buttonsActionsList[0][0])
 			; j++) {
 			if (buttonsActionsList[i][j]) {
 				// If some function was mapped, connect it to the button.
@@ -78,8 +87,20 @@ ConfigState::ConfigState() :
 ////////////////////////////////////////////////////////////////////////////////
 ConfigState::~ConfigState()
 {
-	// Everything should have been released in the unload() function,
-	// nothing left to do here.
+	ASSERT(sButtonsNames.size() == mButtonsEff.size());
+	ASSERT(sButtonsNames.size() == mButtonsActions.size());
+
+	for (uint i=0 ; i < mButtonsEff.size() ; i++) {
+		delete mButtonsEff[i].getButton();
+		delete mButtonsEff[i].getEffect();
+		delete mButtonsActions[i];
+	}
+	mButtonsEff.clear();
+	mButtonsActions.clear();
+	sButtonsNames.clear();
+
+	delete mPanelEff;
+	delete mPanel;
 }
 
 
@@ -102,55 +123,61 @@ ConfigState::load()
 	Ogre::Real (*parseReal)(const Ogre::String&, Ogre::Real);
 	Ogre::OverlayManager& om(Ogre::OverlayManager::getSingleton());
 	Ogre::Overlay* overlay(0);
+	Ogre::String effectName("Alpha");
 	OvEff::OverlayEffectBuilder oeb;
-	TiXmlElement* img(0);
+	const TiXmlElement* img(0);
 
 	if (mState != STATE_NONE) {
+		debugWARNING("load() called from wrong state\n");
 		return;
 	} else {
 		mState = STATE_LOOPING;
 	}
 
-	// Create all the buttons, and make them invisible.
-	buildButtons(mButtonsEff, sButtonsNames);
-	ASSERT(mButtonsEff.size() == sButtonsNames.size());
-	for (uint i=0 ; i < mButtonsEff.size() ; i++) {
-		mButtonsEff[i].getButton()->setVisible(false);
-	}
+	// Construct the members once, and keep them cached until destruction.
+	if (!mButtonsEff.size()) {
 
-	// Load the KeyConfig panel, and make it invisible.
-	overlay = om.getByName("MainMenu/ConfigState");
-	if (!overlay) {
-		debugERROR("No \"MainMenu/ConfigState\" field in the "
-				"overlays.overlay file \n");
-		return;
-	}
-	mPanel = overlay->getChild("ConfigState/KeyConfig");
-	if (!mPanel) {
-		debugERROR("No \"KeyConfig\" element in the \"MainMenu/ConfigState\" "
-					"field, inside the overlays.overlay file\n");
-		return;
-	}
-	overlay->show();
-	mPanel->hide();
+		// Create the buttons, and make them invisible.
+		buildButtons(mButtonsEff, sButtonsNames);
+		ASSERT(mButtonsEff.size() == sButtonsNames.size());
+		for (uint i=0 ; i < mButtonsEff.size() ; i++) {
+			mButtonsEff[i].getButton()->setVisible(false);
+		}
 
-	// Read image fading effect from configuration XML file.
-	img = getXmlElement();
-	if (!img) {
-		debugERROR("No MainMenu configurations XML file!.\n");
-		return;
-	} else {
-		img = img->FirstChildElement("Config");
-		if (!img) {
-			debugERROR("No \"Config\" section in the MainMenu "
-						"configurations XML file.\n");
+		// Load the KeyConfig panel, and make it invisible.
+		overlay = om.getByName("MainMenu/ConfigState");
+		if (!overlay) {
+			debugERROR("No \"MainMenu/ConfigState\" field in the "
+					"overlays.overlay file \n");
 			return;
 		}
-	}
-	mPanelEff = oeb.createOverlayEffect(*img, &Ogre::String("Alpha"));
+		mPanel = overlay->getChild("ConfigState/KeyConfig");
+		if (!mPanel) {
+			debugERROR("No \"KeyConfig\" element in the \"MainMenu/ConfigState\" "
+						"field, inside the overlays.overlay file\n");
+			return;
+		}
+		overlay->show();
+		mPanel->hide();
 
-	// Finally map the KeyConfig panel to the effect.
-	mPanelEff->setElement(mPanel);
+		// Read image fading effect from configuration XML file.
+		img = getXmlElement();
+		if (!img) {
+			debugERROR("No MainMenu configurations XML file!.\n");
+			return;
+		} else {
+			img = img->FirstChildElement("Config");
+			if (!img) {
+				debugERROR("No \"Config\" section in the MainMenu "
+							"configurations XML file.\n");
+				return;
+			}
+		}
+		mPanelEff = oeb.createOverlayEffect(*img, &effectName);
+
+		// Finally map the KeyConfig panel to the effect.
+		mPanelEff->setElement(mPanel);
+	}
 
 	return;
 }
@@ -220,17 +247,8 @@ ConfigState::unload()
 	ASSERT(sButtonsNames.size() == mButtonsEff.size());
 	ASSERT(sButtonsNames.size() == mButtonsActions.size());
 
-	for (uint i=0 ; i < mButtonsEff.size() ; i++) {
-		delete mButtonsEff[i].getButton();
-		delete mButtonsEff[i].getEffect();
-		delete mButtonsActions[i];
-	}
-	mButtonsEff.clear();
-	mButtonsActions.clear();
-	sButtonsNames.clear();
-
-	delete mPanelEff;
-	delete mPanel;
+	// All the functionality was relocated inside the class' destructor
+	// Members are kept cached until destruction
 }
 
 
