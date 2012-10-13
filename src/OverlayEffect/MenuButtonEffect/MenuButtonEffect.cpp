@@ -21,17 +21,16 @@ MenuButtonEffect::MenuButtonEffect(MenuButton *button, OverlayEffect *effect) :
 
 MenuButtonEffect::~MenuButtonEffect()
 {
-    if (mEffect != 0) mEffect->removeCallback(this);
 }
 
-void MenuButtonEffect::operator()(EffectCb::EventID id)
+void MenuButtonEffect::operator()(OverlayEffect::EventID id)
 {
 	ASSERT(mMenuButton);
 
-	if(id == EffectCb::STARTING){
+	if(id == OverlayEffect::STARTING){
 		// we have to remove the menuButton from the Manager
 		mMenuButton->setEnable(false);
-	} else if(id == EffectCb::ENDING){
+	} else if(id == OverlayEffect::ENDING){
 		// activate again
 		mMenuButton->setEnable(true);
 	}

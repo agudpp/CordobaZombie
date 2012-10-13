@@ -58,6 +58,13 @@ MainState::MainState() :
 MainState::~MainState()
 {
 	unload();
+	// we must clear all the menu Buttons
+    for(size_t i = 0, size = mMenuButtonsEff.size(); i < size; ++i){
+        ASSERT(mMenuButtonsEff[i].getEffect());
+        delete mMenuButtonsEff[i].getEffect();
+        delete mMenuButtonsEff[i].getButton();
+    }
+    mMenuButtonsEff.clear();
 }
 
 
@@ -92,9 +99,9 @@ MainState::operator()(CbMenuButton *button, CbMenuButton::ButtonID id)
 void
 MainState::load(void)
 {
-    // we can assume we have no buttons loaded
+    // check if we had buttons already loaded
     if (!mMenuButtonsEff.empty()){
-        debugERROR("We are trying to load two times the same buttons?\n");
+        // buttons cached!
         return;
     }
     // build the buttons
@@ -148,17 +155,7 @@ MainState::update(void)
 void
 MainState::unload(void)
 {
-    // we must clear all the menu Buttons
-    for(size_t i = 0, size = mMenuButtonsEff.size(); i < size; ++i){
-        ASSERT(mMenuButtonsEff[i].getEffect());
-        delete mMenuButtonsEff[i].getEffect();
-        delete mMenuButtonsEff[i].getButton();
-    }
-    mMenuButtonsEff.clear();
-    debugWARNING("Probably here we are not deleting the resources used by "
-            "the button (for example the overlays), and if we are not unloading"
-            " this resources in a posterior stage, this will be in the main "
-            "gameloop and this isn't right\n");
+
 }
 
 

@@ -9,16 +9,17 @@
 #ifndef MENUBUTTONEFFECT_H_
 #define MENUBUTTONEFFECT_H_
 
-#include "DebugUtil.h"
+#include <boost/bind.hpp>
+#include <boost/signal.hpp>
 
-#include "EffectCb.h"
+#include "DebugUtil.h"
 #include "OverlayEffect.h"
 
 class MenuButton;
 
 namespace OvEff {
 
-class MenuButtonEffect : public EffectCb {
+class MenuButtonEffect {
 public:
 	MenuButtonEffect(MenuButton	*button = 0, OverlayEffect *effect = 0);
 	virtual ~MenuButtonEffect();
@@ -42,11 +43,12 @@ public:
 	 * Function to be implemented
 	 * @param	id	The event ID
 	 */
-	void operator()(EffectCb::EventID id);
+	void operator()(OverlayEffect::EventID id);
 
 private:
 	MenuButton		*mMenuButton;
 	OverlayEffect	*mEffect;
+	boost::signals::scoped_connection mConnection;
 };
 
 
@@ -56,25 +58,32 @@ MenuButtonEffect::MenuButtonEffect(const MenuButtonEffect &other)
 {
     mMenuButton = other.mMenuButton;
     mEffect = other.mEffect;
-    if (mEffect != 0) mEffect->addCallback(this);
+    if (mEffect != 0) {
+        mConnection = mEffect->addCallback(boost::bind(
+                &MenuButtonEffect::operator(), this, _1));
+    }
 }
 inline MenuButtonEffect &
 MenuButtonEffect::operator=(const MenuButtonEffect &other)
 {
     mMenuButton = other.mMenuButton;
-    if (mEffect != 0) mEffect->removeCallback(this);
+    if (mConnection.connected()) mConnection.disconnect();
     mEffect = other.mEffect;
-    if (mEffect != 0) mEffect->addCallback(this);
+    if (mEffect != 0) {
+        mConnection = mEffect->addCallback(boost::bind(
+                &MenuButtonEffect::operator(), this, _1));
+    }
 }
 
 inline void MenuButtonEffect::setEffect(OverlayEffect *e)
 {
 	ASSERT(e);
 	// if we had an old effect, first remove the callback
-	if (mEffect != 0) mEffect->removeCallback(this);
+	if (mConnection.connected()) mConnection.disconnect();
 
 	mEffect = e;
-	mEffect->addCallback(this);
+	mConnection = mEffect->addCallback(boost::bind(
+	               &MenuButtonEffect::operator(), this, _1));
 }
 inline OverlayEffect *MenuButtonEffect::getEffect(void)
 {

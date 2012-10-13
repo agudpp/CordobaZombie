@@ -11,11 +11,10 @@
 
 #include <algorithm>
 #include <vector>
+#include <boost/signal.hpp>
 
 #include <OgreOverlayElement.h>
 
-
-#include "EffectCb.h"
 #include "DebugUtil.h"
 
 namespace OvEff {
@@ -23,6 +22,16 @@ namespace OvEff {
 class OverlayEffectManager;
 
 class OverlayEffect {
+public:
+    enum EventID {
+        STARTING,       // when the effect will start
+        ENDING          // when the effect is ending
+    };
+
+
+    typedef boost::signal<void (OverlayEffect::EventID)>   OverlayEffectSignal;
+    typedef boost::signals::connection       Connection;
+
 public:
 	OverlayEffect();
 	virtual ~OverlayEffect();
@@ -45,8 +54,8 @@ public:
 	 * executed or when its ending
 	 * @param	cb	The callback
 	 */
-	inline void addCallback(EffectCb *cb);
-	inline void removeCallback(EffectCb *cb);
+	inline Connection addCallback(const OverlayEffectSignal::slot_type &cb);
+	inline void removeCallback(const Connection &cb);
 
 	/**
 	 * Stops the effect (if is actually reproducing it
@@ -107,11 +116,9 @@ protected:
 
 
 protected:
-	typedef std::vector<EffectCb *> EffectCbVec;
-
 	Ogre::OverlayElement			*mElement;
 	bool                            mActive;
-	EffectCbVec                     mCallbacks;
+	OverlayEffectSignal             mCallbacks;
 	// pointer (index) used by the Manager
 	int								mIndex;
 
@@ -130,24 +137,14 @@ inline Ogre::OverlayElement *OverlayEffect::getElement(void)
  * executed or when its ending
  * @param	cb	The callback
  */
-inline void OverlayEffect::addCallback(EffectCb *cb)
+inline OverlayEffect::Connection
+OverlayEffect::addCallback(const OverlayEffectSignal::slot_type &cb)
 {
-    ASSERT(std::find(mCallbacks.begin(), mCallbacks.end(), cb) == mCallbacks.end());
-    ASSERT(cb != 0);
-    // increment only in 1 the size
-    mCallbacks.reserve(mCallbacks.size() + 1);
-    mCallbacks.push_back(cb);
+    return mCallbacks.connect(cb);
 }
-inline void OverlayEffect::removeCallback(EffectCb *cb)
+inline void OverlayEffect::removeCallback(const Connection &cb)
 {
-    ASSERT(cb != 0);
-    for(size_t size = mCallbacks.size(), index = 0; index < size; ++index)
-        if (mCallbacks[index] == cb){
-            // swap with the last element
-            mCallbacks[index] = mCallbacks[size-1];
-            mCallbacks.pop_back();
-            return;
-        }
+   mCallbacks.disconnect(cb);
 }
 
 /**
@@ -155,19 +152,13 @@ inline void OverlayEffect::removeCallback(EffectCb *cb)
  */
 inline void OverlayEffect::begin(void)
 {
-	if(!mCallbacks.empty()) {
-	    for(size_t size = mCallbacks.size(), i = 0; i < size; ++i)
-	        (*(mCallbacks[i]))(EffectCb::STARTING);
-	}
+	mCallbacks(OverlayEffect::STARTING);
 	enter();
 	mActive = true;
 }
 inline void OverlayEffect::end(void)
 {
-    if(!mCallbacks.empty()) {
-        for(size_t size = mCallbacks.size(), i = 0; i < size; ++i)
-            (*(mCallbacks[i]))(EffectCb::ENDING);
-    }
+    mCallbacks(OverlayEffect::ENDING);
 	exit();
 	mActive = false;
 }
