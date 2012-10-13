@@ -108,7 +108,6 @@ ConfigState::operator()(CbMenuButton *b, CbMenuButton::ButtonID id)
 {
 	for (uint i=0 ; i < mButtonsEff.size() ; i++) {
 		if (b == mButtonsEff[i].getButton()) {
-			debugBLUE("Called button %s\n", buttonsNamesList[i]);
 			mButtonsActions[i]->operator()();
 		}
 	}
@@ -156,8 +155,8 @@ ConfigState::load()
 						"field, inside the overlays.overlay file\n");
 			return;
 		}
-		mPanel->show();
-		overlay->hide();
+		overlay->show();
+		mPanel->hide();
 
 		// Read image fading effect from configuration XML file.
 		img = getXmlElement();
@@ -191,8 +190,10 @@ ConfigState::beforeUpdate()
 	ASSERT(mPanelEff);
 
 	// Display the KeyConfig panel and buttons via their effects.
+	mPanel->show();
 	mPanelEff->start();
 	for (uint i=0 ; i < mButtonsEff.size() ; i++) {
+		mButtonsEff[i].getButton()->getContainer()->show();
 		mButtonsEff[i].getEffect()->start();
 	}
 }
@@ -209,12 +210,15 @@ ConfigState::update()
 		for (uint i=0 ; i < mButtonsEff.size() ; i++) {
 			if (mButtonsEff[i].getEffect()->isActive()) {
 				return;  // Can't quit yet
+			} else {
+				mButtonsEff[i].getButton()->setEnable(false);
 			}
 		}
 		if (mPanelEff->isActive()) {
 			return;  // Can't quit yet
+		} else {
+			mPanel->hide();
 		}
-		debugRED("Finished exit cycle\n");
 		// Everything's over now, and we've lost.
 		stateFinish(mm_states::Event::Done);
 	}
@@ -229,7 +233,6 @@ ConfigState::exitConfigState()
 {
 	bool success(false);
 
-	debugRED("Starting exit cicle\n");
 	mState = STATE_EXITING;
 
 	for (uint i=0 ; i < mButtonsEff.size() ; i++) {
@@ -276,7 +279,6 @@ void
 ConfigState::checkInput()
 {
     if(isKeyPressed(input::KC_ESCAPE)) {
-    	debugBLUE("Pressed ESC key\n");
         exitConfigState();
     }
 }
