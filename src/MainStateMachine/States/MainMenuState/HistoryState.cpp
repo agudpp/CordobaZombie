@@ -35,22 +35,42 @@ HistoryState::HistoryState():
 
 ////////////////////////////////////////////////////////////////////////////////
 
-
 HistoryState::~HistoryState() {
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////
 
+void HistoryState::hideToExit(void){
+	int size = mButtons.size();
+	if(size == 0){
+		mState = STATE_EXITING;
+		stateFinish(Event::Done);
+	}else{
+		for(int i = 0; i < size; i++){
+			mButtons[i].getEffect()->start();
+		}
+	}
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+
+void HistoryState::checkInput(void)
+{
+    if(input::InputKeyboard::isKeyDown(input::KC_ESCAPE)){
+        this->hideToExit();
+    }
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
 
 void HistoryState::operator()(CbMenuButton * b, CbMenuButton::ButtonID id)
 {
 	if(b == mButtons[Back].getButton() && id == CbMenuButton::LEFT_BUTTON)
 	{
-		int size = mButtons.size();
-		for(int i = 0; i < size; i++){
-			mButtons[i].getEffect()->start();
-		}
+		this->hideToExit();
 	}
 	else if(b == mButtons[Prev].getButton() && id == CbMenuButton::LEFT_BUTTON)
 	{
