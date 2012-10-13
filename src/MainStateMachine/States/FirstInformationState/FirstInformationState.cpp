@@ -218,16 +218,10 @@ MainMachineEvent FirstInformationState::update(MainMachineInfo &info)
 				press = true;
 
 				// go to the next overlay if exists
-				mToRemoveOverlays.push_back(mOverlay);
-				mOverlay->hide();
-				mFader->show();
-				mOverlay = showNext();
-				if(!mOverlay){
-					mState = STATE_END;
-				} else {
-					mOverlay->show();
-					mState = STATE_FADE_IN;
-					mAccumTime = mFaderTime;
+				if (mState != STATE_FADE_OUT){
+                    mState = STATE_FADE_OUT;
+                    mAccumTime = 0;
+                    mFader->show();
 				}
 			}
 		} else {
