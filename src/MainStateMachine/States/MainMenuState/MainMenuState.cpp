@@ -142,8 +142,6 @@ void MainMenuState::updateStateMachine(void)
 		mBeforeUpdateCalled = true;
 		mActualState->beforeUpdate();
 
-		debugRAUL("BEFORE UPDATE\n");
-
 		mVideoPlayerAPI->load( 0
 				             , mEnteringRanges[1].start
 						     , mEnteringRanges[1].end

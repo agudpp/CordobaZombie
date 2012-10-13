@@ -71,9 +71,7 @@ ConfigState::ConfigState() :
 
 		// Register mapped actions
 		actions* acts = new actions;
-		for ( uint j=0
-			; j < sizeof(buttonsActionsList[0]) / sizeof(buttonsActionsList[0][0])
-			; j++) {
+		for ( uint j=0 ; j < MAX_NFUN ; j++) {
 			if (buttonsActionsList[i][j]) {
 				// If some function was mapped, connect it to the button.
 				acts->connect(boost::bind(buttonsActionsList[i][j], this));
@@ -110,6 +108,7 @@ ConfigState::operator()(CbMenuButton *b, CbMenuButton::ButtonID id)
 {
 	for (uint i=0 ; i < mButtonsEff.size() ; i++) {
 		if (b == mButtonsEff[i].getButton()) {
+			debugBLUE("Called button %s\n", buttonsNamesList[i]);
 			mButtonsActions[i]->operator()();
 		}
 	}
@@ -151,29 +150,30 @@ ConfigState::load()
 					"overlays.overlay file \n");
 			return;
 		}
-		mPanel = overlay->getChild("ConfigState/KeyConfig");
+		mPanel = overlay->getChild("ConfigState/KeyConfigPanel");
 		if (!mPanel) {
 			debugERROR("No \"KeyConfig\" element in the \"MainMenu/ConfigState\" "
 						"field, inside the overlays.overlay file\n");
 			return;
 		}
-		overlay->show();
-		mPanel->hide();
+		mPanel->show();
+		overlay->hide();
 
 		// Read image fading effect from configuration XML file.
 		img = getXmlElement();
 		if (!img) {
 			debugERROR("No MainMenu configurations XML file!.\n");
 			return;
-		} else {
-			img = img->FirstChildElement("Config");
-			if (!img) {
-				debugERROR("No \"Config\" section in the MainMenu "
-							"configurations XML file.\n");
-				return;
-			}
 		}
-		mPanelEff = oeb.createOverlayEffect(*img, &effectName);
+		img = img->FirstChildElement("KeyConfigPanel");
+		if (!img) {
+			debugERROR("No \"PanelEffect\" sub-section inside the ConfigState "
+						"section of the MainMenu configurations XML file.\n");
+			return;
+		}
+		mPanelEff = oeb.createOverlayEffect(
+					*(img->FirstChildElement("OverlayEffect")), &effectName);
+		ASSERT(mPanelEff);
 
 		// Finally map the KeyConfig panel to the effect.
 		mPanelEff->setElement(mPanel);
@@ -214,6 +214,7 @@ ConfigState::update()
 		if (mPanelEff->isActive()) {
 			return;  // Can't quit yet
 		}
+		debugRED("Finished exit cycle\n");
 		// Everything's over now, and we've lost.
 		stateFinish(mm_states::Event::Done);
 	}
@@ -227,13 +228,17 @@ void
 ConfigState::exitConfigState()
 {
 	bool success(false);
+
+	debugRED("Starting exit cicle\n");
 	mState = STATE_EXITING;
+
 	for (uint i=0 ; i < mButtonsEff.size() ; i++) {
 		// Hide buttons
 		success = mButtonsEff[i].getEffect()->complement();
 		ASSERT(success);
 		mButtonsEff[i].getEffect()->start();
 	}
+
 	// Hide KeyConfig panel
 	success = mPanelEff->complement();
 	ASSERT(success);
@@ -271,6 +276,7 @@ void
 ConfigState::checkInput()
 {
     if(isKeyPressed(input::KC_ESCAPE)) {
+    	debugBLUE("Pressed ESC key\n");
         exitConfigState();
     }
 }
