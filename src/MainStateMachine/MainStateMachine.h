@@ -40,7 +40,11 @@ public:
 	 */
 	MainMachineInfo &getInfo(void);
 
-
+private:
+	// Functions used to load/unload all the resources needed/used by the
+	// actual state
+	void loadResources(IMainState *);
+	void unloadResources(IMainState *);
 
 private:
 	MainTransitionFunction 		*mTransitionFunction;

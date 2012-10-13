@@ -9,11 +9,25 @@
 #define IMAINSTATE_H_
 
 #include <string>
+#include <vector>
 
 #include "MainStateMachineDefs.h"
 
+#ifdef DEBUG
+#include "DebugUtil.h"
+#endif
+
 class IMainState
 {
+public:
+
+    struct ResourcesInfo {
+        std::string filePath;
+        std::vector<std::string> groupNames;
+    };
+
+    typedef std::vector<IMainState::ResourcesInfo> ResourcesInfoVec;
+
 public:
 	IMainState(const std::string &name = "unknown"):mName(name){};
 	virtual ~IMainState(){};
@@ -23,6 +37,19 @@ public:
 	 */
 	inline void setName(const std::string &name);
 	inline const std::string &getName(void) const;
+
+	/**
+	 * Function used to get the resources files used by the state.
+	 * The list returned is the list of the resources used by and only by this
+	 * state.
+	 */
+	virtual void getResources(ResourcesInfoVec &resourcesList)
+	{
+	    debugERROR("Esta clase tiene que estar reimplementada en las clases que "
+	            "heredan, en este caso el estado %s no lo tiene implementado\n",
+	            mName.c_str());
+	    resourcesList.clear();
+	}
 
 	/**
 	 * Entering the state with additional info
@@ -55,5 +82,6 @@ inline const std::string &IMainState::getName(void) const
 {
 	return mName;
 }
+
 
 #endif /* IMAINSTATE_H_ */

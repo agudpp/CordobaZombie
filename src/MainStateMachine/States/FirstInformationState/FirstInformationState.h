@@ -26,6 +26,8 @@ class FirstInformationState : public IMainState
 		STATE_FADE_OUT,
 		STATE_END,
 	};
+
+
 public:
 	FirstInformationState();
 	virtual ~FirstInformationState();
@@ -36,6 +38,13 @@ public:
 	 * @param	st		The Sponsors showing time
 	 */
 	void configure(Ogre::Real ft, Ogre::Real st);
+
+	/**
+     * Function used to get the resources files used by the state.
+     * The list returned is the list of the resources used by and only by this
+     * state.
+     */
+    virtual void getResources(IMainState::ResourcesInfoVec &resourcesList);
 
 	/**
 	 * Entering the state with additional info

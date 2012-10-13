@@ -30,6 +30,13 @@ public:
 	 */
 	void configure(Ogre::Real ft, Ogre::Real st);
 
+    /**
+     * Function used to get the resources files used by the state.
+     * The list returned is the list of the resources used by and only by this
+     * state.
+     */
+    void getResources(IMainState::ResourcesInfoVec &resourcesList);
+
 	/**
 	 * Entering the state with additional info
 	 */
