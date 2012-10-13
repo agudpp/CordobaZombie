@@ -115,11 +115,11 @@ private:
 	typedef std::vector<OvEff::MenuButtonEffect>  ButtonsEffectVec;
 	typedef std::vector<actions*>		ButtonsActionsVec;
 
-	static StrVec			sButtonsNames;	// Buttons names
-	ButtonsActionsVec		mButtonsActions;// Buttons actions
-	ButtonsEffectVec		mButtonsEff;	// Buttons and their visual effects
-	Ogre::OverlayContainer*	mPanel;			// Image to display
-	OvEff::OverlayEffect*	mPanelEff;		// Fading effect for the image
+	static StrVec			sButtonsNames;	 // Buttons names
+	ButtonsActionsVec		mButtonsActions; // Buttons actions
+	ButtonsEffectVec		mButtonsEff;	 // Buttons and their visual effects
+	Ogre::OverlayContainer*	mPanel;			 // Image to display
+	OvEff::OverlayEffect*	mPanelEff;		 // Fading effect for the image
 	State					mState;
 };
 

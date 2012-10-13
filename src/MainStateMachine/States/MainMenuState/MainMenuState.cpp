@@ -225,6 +225,7 @@ mm_states::IState *MainMenuState::nextState(mm_states::Event e,
 		default:
 			debugERROR("Event %d is not supported?\n", e);
 			ASSERT(false);
+			break;
 		}
 
 	} else if (stateName == "CreditsState"){
@@ -258,6 +259,8 @@ mm_states::IState *MainMenuState::nextState(mm_states::Event e,
 				mActualState->name().c_str());
 		ASSERT(false);
 	}
+
+	return 0;
 }
 
 
@@ -370,6 +373,8 @@ MainMachineEvent MainMenuState::update(MainMachineInfo &info)
 
 		Common::GlobalObjects::lastTimeFrame = (timer.getMilliseconds() - timeStamp) * 0.001;
 	}
+
+	return MME_DONE;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
