@@ -30,7 +30,7 @@ namespace { /* Unnamed namespace provides internal linkage. */
 
 	// Buttons names
 	const char* buttonsNamesList[] = {
-			"Back"
+			"ExitButton"
 	};
 
 	// Actions mapped to each button name (follows buttons names order)
@@ -127,7 +127,7 @@ ConfigState::load()
 	OvEff::OverlayEffectBuilder oeb;
 	const TiXmlElement* img(0);
 
-	if (mState != STATE_NONE) {
+	if (mState == STATE_LOOPING) {
 		debugWARNING("load() called from wrong state\n");
 		return;
 	} else {
@@ -204,19 +204,21 @@ ConfigState::update()
 {
 	if (mState == STATE_LOOPING) {
 		checkInput();
-	} else if (mState != STATE_EXITING) {
-		return;  // Nothing to do
-	}
-	for (uint i=0 ; i < mButtonsEff.size() ; i++) {
-		if (mButtonsEff[i].getEffect()->isActive()) {
+
+	} else if (mState == STATE_EXITING) {
+		for (uint i=0 ; i < mButtonsEff.size() ; i++) {
+			if (mButtonsEff[i].getEffect()->isActive()) {
+				return;  // Can't quit yet
+			}
+		}
+		if (mPanelEff->isActive()) {
 			return;  // Can't quit yet
 		}
+		// Everything's over now, and we've lost.
+		stateFinish(mm_states::Event::Done);
 	}
-	if (mPanelEff->isActive()) {
-		return;  // Can't quit yet
-	}
-	// Everything's over now, and we've lost.
-	stateFinish(mm_states::Event::Done);
+
+	return;
 }
 
 
@@ -243,12 +245,24 @@ ConfigState::exitConfigState()
 void
 ConfigState::unload()
 {
+	bool success(false);
+
 	ASSERT(mState == STATE_EXITING);
 	ASSERT(sButtonsNames.size() == mButtonsEff.size());
 	ASSERT(sButtonsNames.size() == mButtonsActions.size());
 
-	// All the functionality was relocated inside the class' destructor
+	// Members memory release was relocated inside the class' destructor
 	// Members are kept cached until destruction
+
+	for (uint i=0 ; i < mButtonsEff.size() ; i++) {
+		// Set buttons to reappear fresh next time we're called
+		success = mButtonsEff[i].getEffect()->complement();
+		mButtonsEff[i].getButton()->resetAtlas();
+		ASSERT(success);
+	}
+	// Set KeyConfig panel to reappear next time we're called
+	success = mPanelEff->complement();
+	ASSERT(success);
 }
 
 
