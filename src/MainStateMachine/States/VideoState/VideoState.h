@@ -19,7 +19,11 @@ class VideoState : public IMainState
 private:
 	static const int VIDEO_STATE_LIST_SIZE = 0;
 	static const char* VIDEO_STATE_LIST[VIDEO_STATE_LIST_SIZE] = {};
-
+	enum{
+		ERROR = -1,
+		OK,
+		DONE,
+	};
 
 public:
 	VideoState();
@@ -43,10 +47,23 @@ public:
 	 */
 	void exit(void);
 
+private:
+
+	/**
+	 * Check input
+	 */
+	int checkInput(void);
+
+	/**
+	 * Load and play next video.
+	 */
+	int nextVideo(void);
+
 
 public:
 
 	VideoPlayerAPI	mVpapi;
+	int				mVideoIndex;
 
 };
 

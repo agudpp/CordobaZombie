@@ -76,6 +76,19 @@ public:
 	void operator()(EventID id);
 
 private:
+	/*
+	 * Hide buttons as first step to start exiting from this state. When the
+	 * buttons end hiding, a callback is captured to exit the state.
+	 */
+	void hideToExit(void);
+
+	/**
+	 * Check input
+	 */
+	void checkInput(void);
+
+
+private:
 	typedef std::vector<OvEff::MenuButtonEffect>	ButtonsEffectVec;
 	typedef std::vector<Ogre::String>				StrVec;
 
