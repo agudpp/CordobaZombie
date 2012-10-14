@@ -145,10 +145,15 @@ MainState::update(void)
     } else if (mState == Exiting){
         // check if the buttons get hide
         ASSERT(!mMenuButtonsEff.empty());
-        if (!mMenuButtonsEff[0].getEffect()->isActive()){
-            // some button stop been active, so we have to exit
-            stateFinish(mReturnEvent);
+        if (mMenuButtonsEff[0].getEffect()->isActive()){
+            return;
         }
+
+        // some button stop been active, so we have to exit
+        for(size_t i = 0, size = mMenuButtonsEff.size(); i < size; ++i){
+            mMenuButtonsEff[i].getButton()->setEnable(false);
+        }
+        stateFinish(mReturnEvent);
     }
 }
 
