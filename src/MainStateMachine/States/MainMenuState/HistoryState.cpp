@@ -57,12 +57,12 @@ HistoryState::~HistoryState() {
  * Los nombres de cada slide deben ser de la forma
  * "HistorySlidePlayerMaterials/#" con # un entero que arranca en 1 para la
  * primera slide y se va incrementando en uno para cada slide que sigue
- * marcando el asi el numero de slide en la secuencia.
+ * marcando asi el numero de slide en la secuencia.
  */
 
 void HistoryState::load(void){
 
-//	debugRAUL("LOADING !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n\n\n");
+//	debugRAUL("LOADING History State\n");
 
 	// we will load all the buttons
 	if(mBtnNames.empty()){
@@ -77,6 +77,12 @@ void HistoryState::load(void){
 		ASSERT(mButtons.size() == btnNames.size());
 
 		debugRAUL("Builded %d buttons\n", (int)mButtons.size());
+
+		// set callbacks
+		for(size_t i = 0; i < NUMBER_BUTTONS; ++i){
+			mButtons[i].getEffect()->addCallback(
+			        boost::bind(&HistoryState::operator(), this, _1));
+		}
 
 	}
 
@@ -120,6 +126,8 @@ void HistoryState::beforeUpdate(void)
 {
 //	debugRAUL("BEFORE UPDATE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n\n\n");
 
+	mState = STATE_SHOWING;
+
 	// reproduce all the effects in all the buttons
 	for(size_t i = 0, size = mButtons.size(); i < size; ++i) {
 		debugRAUL("Before update, start button %d effect\n", (int)i);
@@ -130,8 +138,6 @@ void HistoryState::beforeUpdate(void)
 
 	ASSERT(mSlidePlayer);
 	mSlidePlayer->show();
-
-	mState = STATE_SHOWING;
 
 }
 
@@ -173,6 +179,7 @@ void HistoryState::operator()(CbMenuButton * b, CbMenuButton::ButtonID id)
 	if(b == mButtons[mm_states::HistoryState::exitButton].getButton()
 			&& id == CbMenuButton::LEFT_BUTTON)
 	{
+		mState = STATE_HIDDING;
 		this->hideToExit();
 	}
 	else if(b == mButtons[mm_states::HistoryState::prevButton].getButton()
@@ -200,7 +207,7 @@ void HistoryState::operator()(CbMenuButton * b, CbMenuButton::ButtonID id)
 void HistoryState::operator()(OvEff::OverlayEffect::EventID id)
 {
 	// Buttons have finished hiding, send finish event to the MainMenuState
-	if(id == OvEff::OverlayEffect::ENDING && mState != STATE_EXITING){
+	if(id == OvEff::OverlayEffect::ENDING && mState == STATE_HIDDING){
 
 		for(size_t i = 0, size = mButtons.size(); i < size; ++i){
 			mButtons[i].getButton()->setEnable(false);
@@ -221,25 +228,13 @@ void HistoryState::hideToExit(void){
 
 	const size_t size = mButtons.size();
 
-	if(size == 0){
-
-		mState = STATE_EXITING;
-		stateFinish(mm_states::Event::Done);
-
-	}else{
-
-		// set callbacks
-		for(size_t i = 0; i < size; ++i){
-			mButtons[i].getEffect()->addCallback(
-			        boost::bind(&HistoryState::operator(), this, _1));
-		}
-		// complement effects and start playing them
-		for(size_t i = 0; i < size; i++){
-			ASSERT(mButtons[i].getEffect());
-			mButtons[i].getEffect()->complement();
-			mButtons[i].getEffect()->start();
-		}
+	// complement effects and start playing them
+	for(size_t i = 0; i < size; i++){
+		ASSERT(mButtons[i].getEffect());
+		mButtons[i].getEffect()->complement();
+		mButtons[i].getEffect()->start();
 	}
+
 }
 
 
@@ -248,7 +243,10 @@ void HistoryState::hideToExit(void){
 void HistoryState::checkInput(void)
 {
     if(input::InputKeyboard::isKeyDown(input::KC_ESCAPE)){
-        this->hideToExit();
+    	if(mState == STATE_SHOWING){
+    		mState = STATE_HIDDING;
+    		this->hideToExit();
+    	}
     }
 }
 

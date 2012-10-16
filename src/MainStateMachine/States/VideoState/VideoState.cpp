@@ -18,6 +18,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
+//TODO Cargar la lista de videos desde un xml
+
 namespace{
 	const int VIDEO_STATE_LIST_SIZE = 2;
 
@@ -34,7 +36,9 @@ namespace{
 
 VideoState::VideoState():
 	IMainState("VideoState"),
-	mVideoIndex(0)
+	mVpapi(0),
+	mVideoIndex(0),
+	keyPress(false)
 {
 }
 
@@ -56,27 +60,34 @@ void VideoState::enter(const MainMachineInfo &info)
 	mVideoIndex = 0;
 
 	if(!mVpapi){
-		mVpapi = new VideoPlayerAPI;
+		Ogre::Vector4 screensize(-1.0f, 1.0f, 1.0f, -1.0f);
+		mVpapi = new VideoPlayerAPI(&screensize);
 	}
 
 	ASSERT(mVpapi);
 
 	ASSERT(VIDEO_STATE_LIST_SIZE > 0)
-	Ogre::String videoPath;
-	Common::Util::getResourcePath(Ogre::String("Videos"),
-			Ogre::String(VIDEO_STATE_LIST[0]), videoPath);
-	if(VideoPlayerAPI::VIDEO_ERROR == mVpapi->load(videoPath.c_str())){
-		debugERROR("Can't play videos in video state.\n");
-		this->exit();
-	}
-	mVpapi->setRepeat(false);
-	mVpapi->setVisible(true);
 
-	if( VideoPlayerAPI::VIDEO_OK != mVpapi->play()){
-		debugERROR("Can't play videos in VideoState :S player doesn't play\n");
-		this->exit();
-	}
+	// If got videos, try to load one
+	for(int i = 0; i < VIDEO_STATE_LIST_SIZE; i++, mVideoIndex++){
+		Ogre::String videoPath;
+		Common::Util::getResourcePath(Ogre::String("Videos"),
+				Ogre::String(VIDEO_STATE_LIST[i]), videoPath);
 
+		if(VideoPlayerAPI::VIDEO_OK == mVpapi->load(videoPath.c_str())){
+			if( VideoPlayerAPI::VIDEO_OK == mVpapi->play()){
+				mVpapi->setRepeat(false);
+				mVpapi->setVisible(true);
+				break;
+			}else{
+				debugERROR("Can't play %s an VideoState :S\n",
+						VIDEO_STATE_LIST[i]);
+			}
+		}else{
+			debugERROR("Can't load %s at VideoState :S.\n",
+					VIDEO_STATE_LIST[i]);
+		}
+	}
 }
 
 
@@ -87,7 +98,12 @@ int VideoState::checkInput(void)
 
 	GLOBAL_KEYBOARD->capture();
 	if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_ESCAPE)){
-		return this->nextVideo();
+		if(!keyPress){
+			keyPress = true;
+			return this->nextVideo();
+		}
+	}else{
+		keyPress = false;
 	}
 
     return OK;
@@ -135,33 +151,35 @@ MainMachineEvent VideoState::update(MainMachineInfo &info)
 
 		timeStamp = timer.getMilliseconds();
 
+		// Check input
 		int ret = this->checkInput();
 		if(ret == ERROR){
-			return MME_ERROR;
+			debugERROR("Problem checking input at VideoState\n");
+			return MME_DONE;
 		}else if(ret == DONE){
 			return MME_DONE;
 		}
 
-//		debugRAUL("is playing %d\n", mVpapi.isPlaying());
-//		debugRAUL("is visible %d\n", mVpapi.isVisible());
-//		debugRAUL("TSLF %lf\n",frameTime);
-
+		// Update Video
 		ret = mVpapi->update(frameTime);
 		if (ret == VideoPlayerAPI::VIDEO_ERROR){
 			debugERROR("Error while updating the videoPlayerApi in "
-					"video state\n");
-			return MME_ERROR;
+					"VideoState\n");
+			return MME_DONE;
 		}else if( ret == VideoPlayerAPI::VIDEO_ENDED){
+			// Get next video to play
 			ret = this->nextVideo();
 			if(ret == DONE){
 				return MME_DONE;
 			}else if(ret == ERROR){
-				return MME_ERROR;
+				debugERROR("Problem getting next video in VideoState\n");
+				return MME_DONE;
 			}
 		}
 
 		// render the frame
 		if(!GLOBAL_ROOT->renderOneFrame()){
+			debugERROR("Problem while rendering frame at VideoState\n");
 			return MME_DONE; //TODO: poner un erro real aca
 		}
 		// This must be called when we use the renderOneFrame approach
@@ -180,7 +198,6 @@ MainMachineEvent VideoState::update(MainMachineInfo &info)
 void VideoState::exit(void)
 {
 	//borrar cosas
-
 	if(mVpapi){
 		delete mVpapi;
 	}

@@ -18,7 +18,7 @@ class VideoState : public IMainState
 private:
 
 	enum{
-		ERROR = -1,
+		ERROR = 0,
 		OK,
 		DONE,
 	};
@@ -70,6 +70,7 @@ public:
 
 	VideoPlayerAPI	*mVpapi;
 	int				mVideoIndex;
+	bool			keyPress;
 
 };
 

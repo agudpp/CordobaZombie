@@ -37,6 +37,7 @@ class HistoryState : public IState {
 	enum Flags {
 		NONE = 0,
 		STATE_SHOWING,
+		STATE_HIDDING,
 		STATE_EXITING,
 	};
 

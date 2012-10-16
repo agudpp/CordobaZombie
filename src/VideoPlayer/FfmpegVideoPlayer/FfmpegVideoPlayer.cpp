@@ -96,7 +96,7 @@ const double EPS = 10e-12;
  *
  */
 
-
+////////////////////////////////////////////////////////////////////////////////
 
 VideoPlayer::VideoPlayer(Ogre::Real left, Ogre::Real top,
 						 Ogre::Real right, Ogre::Real bottom):
@@ -157,7 +157,10 @@ VideoPlayer::VideoPlayer(Ogre::Real left, Ogre::Real top,
     		-100000.0f * Ogre::Vector3::UNIT_SCALE,
     		100000.0f * Ogre::Vector3::UNIT_SCALE));
 
+    ASSERT(GLOBAL_SCN_MNGR);
 	miniScreenNode = GLOBAL_SCN_MNGR->getRootSceneNode()->createChildSceneNode();
+
+//	GLOBAL_SCN_MNGR->getRootSceneNode()->setVisible(true, true);
 
     miniScreenNode->attachObject(mMiniScreen);
 
@@ -166,10 +169,13 @@ VideoPlayer::VideoPlayer(Ogre::Real left, Ogre::Real top,
     static Ogre::MaterialPtr rendmat =
     		Ogre::MaterialManager::getSingleton().create("RttMat",
     		Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+
     renderMaterial = rendmat;
+    ASSERT(renderMaterial.get());
+
     Ogre::Technique* matTechnique = renderMaterial->createTechnique();
     matTechnique->createPass();
-    renderMaterial->getTechnique(0)->getPass(0)->setLightingEnabled(false);
+    renderMaterial->getTechnique(0)->getPass(0)->setLightingEnabled(true);
 
     //A temporary texture for the screen before something is loaded
     static Ogre::TexturePtr rtttex =
@@ -180,6 +186,8 @@ VideoPlayer::VideoPlayer(Ogre::Real left, Ogre::Real top,
 			Ogre::PF_X8R8G8B8, Ogre::TU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
 
     rtt_texture = rtttex;
+    ASSERT(rtt_texture.get());
+
     //set material texture
 	renderMaterial->getTechnique(0)->getPass(0)->removeAllTextureUnitStates();
     renderMaterial->getTechnique(0)->getPass(0)->createTextureUnitState(
@@ -197,29 +205,26 @@ VideoPlayer::VideoPlayer(Ogre::Real left, Ogre::Real top,
 }
 
 
-
-
+////////////////////////////////////////////////////////////////////////////////
 
 VideoPlayer::~VideoPlayer(){
 	//close and free some stuff
-	if(isLoaded){
-		unload();
-	}
+	if(isLoaded){ unload(); }
 
     // Free frames
-    av_free(pFrame);
+	if(pFrame){	av_free(pFrame); pFrame = 0; }
 
     // Free conversion context
-    sws_freeContext(pImgConvertCtx);
-
+	if(pImgConvertCtx){	sws_freeContext(pImgConvertCtx); pImgConvertCtx = 0; }
 
     // Free the codec contexts (should be closed to free them)
-    avcodec_close(pCodecCtx);
+	if(pCodecCtx){ avcodec_close(pCodecCtx); pCodecCtx = 0;	}
 
     if(audioStream != -1){
-
-    	av_free(audio_decoded_frame);
-        avcodec_close(aCodecCtx);
+    	if(audio_decoded_frame){
+    		av_free(audio_decoded_frame); audio_decoded_frame = 0;
+    	}
+    	if(aCodecCtx){ avcodec_close(aCodecCtx); aCodecCtx = 0;	}
 
 		// In case there is a packet in audio_decoding_pkt
 		if(audio_decoding_pkt){
@@ -229,12 +234,12 @@ VideoPlayer::~VideoPlayer(){
 		}
 
     }
-
     //
-    delete mMiniScreen;
+    if(mMiniScreen){ delete mMiniScreen; mMiniScreen = 0; }
 }
 
 
+////////////////////////////////////////////////////////////////////////////////
 
 void VideoPlayer::play(void)
 {
@@ -260,7 +265,7 @@ void VideoPlayer::play(void)
 }
 
 
-
+////////////////////////////////////////////////////////////////////////////////
 
 int VideoPlayer::load(const char *fileName){
 
@@ -430,7 +435,7 @@ int VideoPlayer::load(const char *fileName){
 }
 
 
-
+////////////////////////////////////////////////////////////////////////////////
 
 int VideoPlayer::unload(void){
 	if(!isLoaded){
@@ -711,6 +716,8 @@ int VideoPlayer::update(double timesincelastframe){
 	//if we have audio
 	if(audioStream != -1){
 		audio_ret = update_audio(timesincelastframe);
+	}else{
+		audio_ret = VIDEO_ENDED;
 	}
 
 	video_ret = update_video(timesincelastframe);
@@ -721,7 +728,8 @@ int VideoPlayer::update(double timesincelastframe){
 		return VIDEO_ERROR;
 	}
 
-	if(audio_ret == VIDEO_ENDED and video_ret == VIDEO_ENDED)
+	if( (audioStream == -1 || audio_ret == VIDEO_ENDED)  &&
+	    video_ret == VIDEO_ENDED )
 	{
 		ASSERT(vDataQue.empty());
 		ASSERT(aDataDque.empty());
@@ -735,7 +743,7 @@ int VideoPlayer::update(double timesincelastframe){
 }
 
 
-
+////////////////////////////////////////////////////////////////////////////////
 
 /**
  * Update the video texture (the screen where the video is being played) if
@@ -812,6 +820,8 @@ int VideoPlayer::update_video(double tslf){ // FIXME al dope el tslf
 			img += 3;
 		}
 
+		//SaveFrame(pFrameRGB, pCodecCtx->width, pCodecCtx->height, 1);
+
 		PixelBuffer->unlock();
 	}
 
@@ -819,7 +829,7 @@ int VideoPlayer::update_video(double tslf){ // FIXME al dope el tslf
 }
 
 
-
+////////////////////////////////////////////////////////////////////////////////
 
 /**
  * Update the video player audio. It checks if al player needs data in its
@@ -892,8 +902,7 @@ int VideoPlayer::update_audio(double tslf){ // FIXME tslf esta al dope
 }
 
 
-
-
+////////////////////////////////////////////////////////////////////////////////
 
 /**
  *	When called assures to fill stream with len bytes of audio data.
@@ -1328,7 +1337,7 @@ void VideoPlayer::SaveFrame(AVFrame *pFrame, int width, int height, int iFrame)
     int  y;
 
     // Open file
-    sprintf(szFilename, "../Frames/frame%d.ppm", iFrame);
+    sprintf(szFilename, "./Frames/frame%d.ppm", iFrame);
     pFile=fopen(szFilename, "wb");
     if(pFile==NULL)
         return;

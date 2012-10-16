@@ -110,8 +110,12 @@ int VideoPlayerAPI::play(void){
 
 int VideoPlayerAPI::update(double tslf){
 
-	if(!mIsplaying){
-		// Not playing
+	if(!mVideoPlayer->is_loaded())
+	{
+		return VIDEO_ENDED;
+	}
+	else if(!mIsplaying)
+	{
 		return VIDEO_OK;
 	}
 
