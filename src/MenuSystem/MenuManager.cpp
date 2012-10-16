@@ -12,6 +12,22 @@
 #include "InputMouse.h"
 
 
+namespace {
+inline int getIndex(const std::vector<IMenu *> &vec, const IMenu *elem)
+{
+    for(size_t size = vec.size(), i = 0; i < size; ++i)
+        if (vec[i] == elem) return i;
+    return -1;
+}
+
+inline void removeElement(std::vector<IMenu *> &vec, const size_t index)
+{
+    ASSERT(index < vec.size());
+    vec[index] = vec[vec.size()-1];
+    vec.pop_back();
+}
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 void MenuManager::getCellsFromAABB(const sm::AABB &aabb,
 		std::vector<MenuCell *> &cells)
@@ -114,11 +130,10 @@ void MenuManager::removeMenu(IMenu *menu)
 		}
 	}
 
-	// remove it from the the sets
-	const MenuSet::iterator eIt = mLastInside.end();
-	MenuSet::iterator it = mLastInside.find(menu);
-	if (it != eIt){
-	    mLastInside.erase(it);
+	// remove it from the the vec
+	int index = getIndex(mLastInside, menu);
+	if (index > 0) {
+	    removeElement(mLastInside, index);
 	}
 }
 ////////////////////////////////////////////////////////////////////////////////
@@ -146,21 +161,19 @@ bool MenuManager::update(void)
 {
 	ASSERT(!mMatrix.empty());
 
-	static MenuSet::iterator it, eIt;
 	static sm::Point p;
 	static bool lastStepClicked = false;
 	static bool acatualStepClicked = false;
 
 	p.x = input::InputMouse::absX();
 	p.y = input::InputMouse::absY();
-	eIt = mLastInside.end();
 
 	// if the mouse move then we do all the logic
 	if(mLastPoint == p){
 		// the mouse doesn't move, then we only update all the actual menues
 		// for only check the mouse state
-		for(it = mLastInside.begin(); it != eIt; ++it){
-			(*it)->mouseMoving();
+		for(size_t i = 0; i < mLastInside.size(); ++i){
+			(mLastInside[i])->mouseMoving();
 		}
 
 		return !mLastInside.empty();
@@ -176,24 +189,24 @@ bool MenuManager::update(void)
 //	debug("MousePos:%f\t%f\n", p.x, p.y);
 
 	// check for menus that are older
-	for(it = mLastInside.begin(); it != eIt; ++it){
-		if(!(*it)->pointInside(p)){
+	for(size_t i = 0; i < mLastInside.size(); ++i){
+		if(!(mLastInside[i])->pointInside(p)){
 			// is and old one
-			m = *it;
-			mLastInside.erase(it);
+			m = mLastInside[i];
+			removeElement(mLastInside, i);
 			m->mouseOutside();
 		}
 	}
 
-	for(int i = cell.size()-1; i >= 0; --i){
+	for(size_t size = cell.size(), i = 0; i < size; ++i){
 		m = cell[i];
 		if(m->pointInside(p)){
 			// check if is already in the lastInside
-			it = mLastInside.find(m);
-			if(it == mLastInside.end()){
+		    const int index = getIndex(mLastInside, m);
+			if(index < 0){
 				// is not in the last inside, so is a new one
 				m->mouseInside();
-				mLastInside.insert(m);
+				mLastInside.push_back(m);
 			} else {
 				// is in the last inside, so we only have to update it
 				m->mouseMoving();

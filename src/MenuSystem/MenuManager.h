@@ -23,7 +23,7 @@ class MenuManager
 	typedef std::vector<IMenu *>	MenuCell;
 	typedef std::vector<MenuCell>	MenuVec;
 	typedef std::vector<MenuVec>	MenuMatrix;
-	typedef std::set<IMenu *>		MenuSet;	// TODO: improve this with hash?
+	typedef std::vector<IMenu *>    IMenuVec;
 
 
 public:
@@ -88,7 +88,7 @@ private:
 	int			mNumCellY;
 	sm::Point	mLastPoint;
 
-	MenuSet		mLastInside;
+	IMenuVec	mLastInside;
 };
 
 
