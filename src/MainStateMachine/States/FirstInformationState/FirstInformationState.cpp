@@ -88,6 +88,7 @@ void FirstInformationState::deallocateAll(void)
 	mOverlay = 0;
 //	if(mFader){
 //		GUIHelper::fullDestroyOverlay(mFader);
+	mFader->hide();
     mFader = 0;
 //	}
 	mTexture = 0;
