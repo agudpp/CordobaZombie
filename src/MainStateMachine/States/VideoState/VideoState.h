@@ -8,7 +8,6 @@
 #ifndef VIDEO_STATE_H_
 #define VIDEO_STATE_H_
 
-//#include <OgreOverlay.h>
 #include "IMainState.h"
 #include "FfmpegVideoPlayerAPI.h"
 
@@ -17,8 +16,7 @@ class VideoState : public IMainState
 {
 
 private:
-	static const int VIDEO_STATE_LIST_SIZE = 0;
-	static const char* VIDEO_STATE_LIST[VIDEO_STATE_LIST_SIZE] = {};
+
 	enum{
 		ERROR = -1,
 		OK,
@@ -47,6 +45,14 @@ public:
 	 */
 	void exit(void);
 
+
+	/**
+	 * Function used to get the resources files used by the state.
+	 * The list returned is the list of the resources used by and only by this
+	 * state.
+	 */
+	void getResources(ResourcesInfoVec &resourcesList);
+
 private:
 
 	/**
@@ -62,7 +68,7 @@ private:
 
 public:
 
-	VideoPlayerAPI	mVpapi;
+	VideoPlayerAPI	*mVpapi;
 	int				mVideoIndex;
 
 };

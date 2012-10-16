@@ -16,6 +16,12 @@
 namespace mm_states {
 
 
+const char *HistoryState::BUTTONS_NAMES[NUMBER_BUTTONS] =  {
+        "exitButton",
+        "prevButton",
+        "nextButton",
+};
+
 
 HistoryState::HistoryState():
 		IState("HistoryState"),
@@ -27,26 +33,209 @@ HistoryState::HistoryState():
 ////////////////////////////////////////////////////////////////////////////////
 
 HistoryState::~HistoryState() {
-	const int size = mButtons.size();
 
+	this->unload();
+
+	// remove buttons
+	const int size = mButtons.size();
 	for(int i = 0; i < size; ++i){
+		ASSERT(mButtons[i].getEffect());
 		delete mButtons[i].getEffect();
 		delete mButtons[i].getButton();
 	}
+	mButtons.clear();
 
+	// remove slide player
 	delete mSlidePlayer;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+/*
+ * En load entre otras cosas cargamos las slides. La secuencia de slides debe
+ * ser definida en un archivo '.materials' y debe estar cargado en Ogre.
+ * Los nombres de cada slide deben ser de la forma
+ * "HistorySlidePlayerMaterials/#" con # un entero que arranca en 1 para la
+ * primera slide y se va incrementando en uno para cada slide que sigue
+ * marcando el asi el numero de slide en la secuencia.
+ */
+
+void HistoryState::load(void){
+
+//	debugRAUL("LOADING !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n\n\n");
+
+	// we will load all the buttons
+	if(mBtnNames.empty()){
+
+		std::vector< Ogre::String > btnNames;
+		btnNames.reserve(NUMBER_BUTTONS);
+		for(int i = 0; i < NUMBER_BUTTONS; i++){
+			btnNames.push_back(Ogre::String(BUTTONS_NAMES[i]));
+		}
+		this->buildButtons(mButtons, btnNames);
+
+		ASSERT(mButtons.size() == btnNames.size());
+
+		debugRAUL("Builded %d buttons\n", (int)mButtons.size());
+
+	}
+
+	if(!mSlidePlayer){
+
+		mSlidePlayer = new SlidePlayer(
+							Ogre::String("HistorySlidePlayerOverlay"),
+							Ogre::String("MainStates/MainMenuState/"
+							"HistoryState/SlidePlayerOverlayEffects.xml"));
+
+		ASSERT(mSlidePlayer);
+
+		// Load the slides
+		Ogre::MaterialManager& materialman =
+				Ogre::MaterialManager::getSingleton();
+		const std::string MatName = "HistorySlidePlayerMaterials/";
+		int i = 1;
+		while(1){
+			std::stringstream strm;
+			strm << MatName << i;
+			if(!materialman.resourceExists(strm.str().c_str())){
+				break;
+			}
+			debugGREEN("loading slide %s\n",strm.str().c_str());
+			mSlidePlayer->queueSlide(Ogre::String(strm.str().c_str()));
+			i++;
+		}
+	}
+
+	// Enable buttons
+	for(size_t i = 0, size = mButtons.size(); i < size; ++i){
+		mButtons[i].getButton()->setEnable(true);
+	}
+
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+
+void HistoryState::beforeUpdate(void)
+{
+//	debugRAUL("BEFORE UPDATE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n\n\n");
+
+	// reproduce all the effects in all the buttons
+	for(size_t i = 0, size = mButtons.size(); i < size; ++i) {
+		debugRAUL("Before update, start button %d effect\n", (int)i);
+		ASSERT(mButtons[i].getEffect());
+		mButtons[i].getEffect()->start();
+		mButtons[i].getEffect()->getElement()->show();
+	}
+
+	ASSERT(mSlidePlayer);
+	mSlidePlayer->show();
+
+	mState = STATE_SHOWING;
+
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void HistoryState::update(void)
+{
+//	debugRAUL("UPDATE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n\n\n");
+
+	this->checkInput();
+	mSlidePlayer->update();
+	return;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+void HistoryState::unload(void)
+{
+//	debugRAUL("UNLOAD !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n\n\n");
+
+	//Hide SlidePlayer
+	mSlidePlayer->hide();
+
+	const int size = mButtons.size();
+	for(size_t i = 0, size = mButtons.size(); i < size; ++i){
+		// Restore effects
+		mButtons[i].getEffect()->complement();
+		mButtons[i].getButton()->resetAtlas();
+	}
+
+}
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+
+void HistoryState::operator()(CbMenuButton * b, CbMenuButton::ButtonID id)
+{
+	if(b == mButtons[mm_states::HistoryState::exitButton].getButton()
+			&& id == CbMenuButton::LEFT_BUTTON)
+	{
+		this->hideToExit();
+	}
+	else if(b == mButtons[mm_states::HistoryState::prevButton].getButton()
+			&& id == CbMenuButton::LEFT_BUTTON)
+	{
+		mSlidePlayer->prev();
+	}
+	else if(b == mButtons[mm_states::HistoryState::nextButton].getButton()
+			&& id == CbMenuButton::LEFT_BUTTON)
+	{
+		mSlidePlayer->next();
+	}
+	else
+	{
+		debugERROR("Invalid button has been pressed :S\n");
+		ASSERT(false);
+	}
+
+}
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+
+void HistoryState::operator()(OvEff::OverlayEffect::EventID id)
+{
+	// Buttons have finished hiding, send finish event to the MainMenuState
+	if(id == OvEff::OverlayEffect::ENDING && mState != STATE_EXITING){
+
+		for(size_t i = 0, size = mButtons.size(); i < size; ++i){
+			mButtons[i].getButton()->setEnable(false);
+		}
+
+		debugRAUL("Operator going out\n");
+
+		mState = STATE_EXITING;
+
+		stateFinish(mm_states::Event::Done);
+	}
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void HistoryState::hideToExit(void){
-	int size = mButtons.size();
+
+	const size_t size = mButtons.size();
+
 	if(size == 0){
+
 		mState = STATE_EXITING;
-		stateFinish(Event::Done);
+		stateFinish(mm_states::Event::Done);
+
 	}else{
-		for(int i = 0; i < size; i++){
+
+		// set callbacks
+		for(size_t i = 0; i < size; ++i){
+			mButtons[i].getEffect()->addCallback(
+			        boost::bind(&HistoryState::operator(), this, _1));
+		}
+		// complement effects and start playing them
+		for(size_t i = 0; i < size; i++){
+			ASSERT(mButtons[i].getEffect());
 			mButtons[i].getEffect()->complement();
 			mButtons[i].getEffect()->start();
 		}
@@ -64,140 +253,7 @@ void HistoryState::checkInput(void)
 }
 
 
-////////////////////////////////////////////////////////////////////////////////
 
-void HistoryState::operator()(CbMenuButton * b, CbMenuButton::ButtonID id)
-{
-	if(b == mButtons[Back].getButton() && id == CbMenuButton::LEFT_BUTTON)
-	{
-		this->hideToExit();
-	}
-	else if(b == mButtons[Prev].getButton() && id == CbMenuButton::LEFT_BUTTON)
-	{
-		mSlidePlayer->prev();
-	}
-	else if(b == mButtons[Next].getButton() && id == CbMenuButton::LEFT_BUTTON)
-	{
-		mSlidePlayer->next();
-	}
-	else
-	{
-		ASSERT(false);
-	}
-
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-/*
- * En load entre otras cosas cargamos las slides. La secuencia de slides debe
- * ser definida en un archivo '.materials' y debe estar cargado en Ogre.
- * Los nombres de cada slide deben ser de la forma
- * "HistorySlidePlayerMaterials/#" con # un entero que arranca en 1 para la
- * primera slide y se va incrementando en uno para cada slide que sigue
- * marcando el asi el numero de slide en la secuencia.
- */
-
-void HistoryState::load(void){
-
-	debugRAUL("LOADING !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n\n\n");
-
-	// we will load all the buttons
-	if(mBtnNames.size() == 0){
-
-		mBtnNames.push_back(Ogre::String("backButton"));
-		mBtnNames.push_back(Ogre::String("prevButton"));
-		mBtnNames.push_back(Ogre::String("nextButton"));
-
-		buildButtons(mButtons, mBtnNames);
-
-		ASSERT(mButtons.size() == mBtnNames.size());
-
-		int size = mButtons.size();
-		for(int i = 0; i < size; i++){
-			mButtons[i].getEffect()->addCallback(
-			        boost::bind(&HistoryState::operator(), this, _1));
-		}
-	}
-
-	if(!mSlidePlayer){
-
-		mSlidePlayer = new SlidePlayer(
-							Ogre::String("HistorySlidePlayerOverlay"),
-							Ogre::String("MainStates/MainMenuState/"
-							"HistoryState/SlidePlayerOverlayEffects.xml"));
-
-		ASSERT(mSlidePlayer);
-
-		// Load the slides
-		Ogre::MaterialManager& materialman = Ogre::MaterialManager::getSingleton();
-		const std::string MatName = "HistorySlidePlayerMaterials/";
-		int i = 1;
-		while(1){
-			std::stringstream strm;
-			strm << MatName << i;
-			if(!materialman.resourceExists(strm.str().c_str())){
-				break;
-			}
-			debugGREEN("loading slide %s\n",strm.str().c_str());
-			mSlidePlayer->queueSlide(Ogre::String(strm.str().c_str()));
-			i++;
-		}
-	}
-
-	mState = STATE_SHOWING;
-}
-
-
-
-////////////////////////////////////////////////////////////////////////////////
-
-void HistoryState::beforeUpdate(void)
-{
-
-	debugRAUL("BEFORE UPDATE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n\n\n");
-
-	// reproduce all the effects in all the buttons
-	const int size = mButtons.size();
-	for(int i = 0; i < size; ++i) {mButtons[i].getEffect()->start();}
-
-	ASSERT(mSlidePlayer);
-	mSlidePlayer->show();
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-void HistoryState::update(void)
-{
-	mSlidePlayer->update();
-	return;
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-void HistoryState::unload(void)
-{
-	debugRAUL("UNLOAD !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n\n\n");
-
-	//Hide SlidePlayer
-	mSlidePlayer->hide();
-
-	const int size = mButtons.size();
-	for(int i = 0; i < size; ++i){
-		// Restore effects
-		mButtons[i].getEffect()->complement();
-	}
-
-}
-
-void HistoryState::operator()(OvEff::OverlayEffect::EventID id)
-{
-	// Buttons have finished hiding, send finish event to the MainMenuState
-	if(id == OvEff::OverlayEffect::ENDING && mState != STATE_EXITING){
-		mState = STATE_EXITING;
-		stateFinish(mm_states::Done);
-	}
-}
 
 } //namespace mm_state
 

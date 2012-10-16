@@ -85,8 +85,9 @@ public:
 	 */
 	static bool readEnvVar(const std::string &var, std::string &result);
 
-
-	// Get the resource absolute path
+	/**
+	 * Get the resource absolute path
+	 */
 	static int getResourcePath( Ogre::String resourceGroup
 							  , Ogre::String resourceName
 							  , Ogre::String &resourcePath

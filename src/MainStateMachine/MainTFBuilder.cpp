@@ -18,6 +18,8 @@
 #include "LoadingState.h"
 #include "ExitState.h"
 
+#include "VideoState.h"
+
 
 MainTFBuilder::MainTFBuilder()
 {
@@ -42,6 +44,7 @@ MainTransitionFunction *MainTFBuilder::build(const TiXmlElement  *elem)
 	//states
 	FirstInformationState *firstInformation= new FirstInformationState;
 	SponsorsState *sponsors = new SponsorsState;
+	VideoState *video = new VideoState;
 	MainMenuState *mainMenu = new MainMenuState;
 	LoadingState *loadingState = new LoadingState;
 	ExitState *exitState = new ExitState;
@@ -54,7 +57,8 @@ MainTransitionFunction *MainTFBuilder::build(const TiXmlElement  *elem)
 	// build the transitions
 	tt->setStartState(firstInformation);
 
-	tt->addNewEntry(firstInformation, MainMachineEvent::MME_DONE, sponsors);
+	tt->addNewEntry(firstInformation, MainMachineEvent::MME_DONE, video);
+	tt->addNewEntry(video, MainMachineEvent::MME_DONE, sponsors);
 	tt->addNewEntry(sponsors, MainMachineEvent::MME_DONE, mainMenu);
 	tt->addNewEntry(mainMenu, MainMachineEvent::MME_DONE, mainMenu);
 	tt->addNewEntry(mainMenu, MainMachineEvent::MME_EXIT, exitState);

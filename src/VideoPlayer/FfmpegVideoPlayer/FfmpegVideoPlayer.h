@@ -240,6 +240,7 @@ inline int VideoPlayer::paint_white_screen(void){
 
 inline void VideoPlayer::set_visible(bool b){
 	mMiniScreen->setVisible(b);
+	miniScreenNode->setVisible(b);
 }
 
 inline bool VideoPlayer::is_visible(void){

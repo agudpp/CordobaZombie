@@ -26,7 +26,7 @@ set(SRCS
 	${DEV_ROOT_PATH}/MainStateMachine/States/MainMenuState/ConfigState.cpp
 	${DEV_ROOT_PATH}/MainStateMachine/States/MainMenuState/MainMenuState.cpp
 	${DEV_ROOT_PATH}/MainStateMachine/States/MainMenuState/HistoryState.cpp
-#	${DEV_ROOT_PATH}/MainStateMachine/States/VideoState/VideoState.cpp
+	${DEV_ROOT_PATH}/MainStateMachine/States/VideoState/VideoState.cpp
 	${DEV_ROOT_PATH}/MainStateMachine/MainStateMachine.cpp
 	${DEV_ROOT_PATH}/MainStateMachine/MainTransitionFunction.cpp
 	${DEV_ROOT_PATH}/MainStateMachine/MainTFBuilder.cpp
@@ -53,7 +53,7 @@ set(HDRS
 	${DEV_ROOT_PATH}/MainStateMachine/States/MainMenuState/MainState.h
 	${DEV_ROOT_PATH}/MainStateMachine/States/MainMenuState/StatesFactory.h
 	${DEV_ROOT_PATH}/MainStateMachine/States/MainMenuState/MainMenuState.h
-#	${DEV_ROOT_PATH}/MainStateMachine/States/VideoState/VideoState.h
+	${DEV_ROOT_PATH}/MainStateMachine/States/VideoState/VideoState.h
 	${DEV_ROOT_PATH}/MainStateMachine/MainTFBuilder.h
 	${DEV_ROOT_PATH}/MainStateMachine/MainStateMachineDefs.h
 	${DEV_ROOT_PATH}/MainStateMachine/IMainState.h

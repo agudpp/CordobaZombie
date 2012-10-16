@@ -25,17 +25,18 @@ namespace mm_states {
 class HistoryState : public IState {
 
 	enum ButtonIndex {
-		Back = 0,
-		Prev,
-		Next
+		exitButton = 0,
+		prevButton,
+		nextButton,
+		NUMBER_BUTTONS,  // only to know the number of buttons
 	};
+
+    static const char *BUTTONS_NAMES[NUMBER_BUTTONS];
 
 	// flags
 	enum Flags {
 		NONE = 0,
 		STATE_SHOWING,
-		STATE_LOOP ,
-		STATE_HIDING,
 		STATE_EXITING,
 	};
 
@@ -79,6 +80,7 @@ public:
 	void operator()(OvEff::OverlayEffect::EventID id);
 
 private:
+
 	/*
 	 * Hide buttons as first step to start exiting from this state. When the
 	 * buttons end hiding, a callback is captured to exit the state.

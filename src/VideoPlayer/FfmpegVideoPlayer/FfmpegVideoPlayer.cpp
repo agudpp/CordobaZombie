@@ -156,26 +156,31 @@ VideoPlayer::VideoPlayer(Ogre::Real left, Ogre::Real top,
     mMiniScreen->setBoundingBox(Ogre::AxisAlignedBox(
     		-100000.0f * Ogre::Vector3::UNIT_SCALE,
     		100000.0f * Ogre::Vector3::UNIT_SCALE));
-    miniScreenNode = GLOBAL_SCN_MNGR->getRootSceneNode()->createChildSceneNode(
-    		"MiniScreenNode");
+
+	miniScreenNode = GLOBAL_SCN_MNGR->getRootSceneNode()->createChildSceneNode();
+
     miniScreenNode->attachObject(mMiniScreen);
 
     // Material for the screen
-    renderMaterial =
+
+    static Ogre::MaterialPtr rendmat =
     		Ogre::MaterialManager::getSingleton().create("RttMat",
     		Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+    renderMaterial = rendmat;
     Ogre::Technique* matTechnique = renderMaterial->createTechnique();
     matTechnique->createPass();
     renderMaterial->getTechnique(0)->getPass(0)->setLightingEnabled(false);
 
     //A temporary texture for the screen before something is loaded
-	rtt_texture =
-			Ogre::TextureManager::getSingleton().createManual("RttTex",
+    static Ogre::TexturePtr rtttex =
+    		Ogre::TextureManager::getSingleton().createManual("RttTex",
 			Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
 			Ogre::TEX_TYPE_2D, defaultwidth,
 			defaultheight, 0,
 			Ogre::PF_X8R8G8B8, Ogre::TU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
-	//set material texture
+
+    rtt_texture = rtttex;
+    //set material texture
 	renderMaterial->getTechnique(0)->getPass(0)->removeAllTextureUnitStates();
     renderMaterial->getTechnique(0)->getPass(0)->createTextureUnitState(
     		"RttTex");
