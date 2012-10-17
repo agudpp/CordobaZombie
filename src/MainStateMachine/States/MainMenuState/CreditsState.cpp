@@ -125,6 +125,18 @@ void CreditsState::load(void)
 	endPos.y = -mBeginPos.y - mTextArea->getHeight();
 	mSlideEffect.setTranslationPositions(mBeginPos, endPos);
 
+	// set the time
+	float timeDuration;
+	if (credits->Attribute("timeDuration") == 0){
+	    debugWARNING("No time duration was set for the credits, we will set 25"
+	            " as default!!\n");
+	    timeDuration = 25.0f;
+	} else {
+	    timeDuration = Ogre::StringConverter::parseReal(
+	            credits->Attribute("timeDuration"));
+	}
+	mSlideEffect.setDuration(timeDuration);
+
 	// configure the velocity here, is linear
 	mSlideEffect.setFunction(OvEff::Slide::LINEAL_FUNCTION);
 }
@@ -141,6 +153,8 @@ void CreditsState::beforeUpdate(void)
     // TODO: show credits
     ASSERT(mOverlay);
     mOverlay->show();
+
+    mRestarter.link();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -154,6 +168,7 @@ void CreditsState::update(void)
 void CreditsState::unload(void)
 {
     mOverlay->hide();
+    mRestarter.unlink();
 }
 
 
