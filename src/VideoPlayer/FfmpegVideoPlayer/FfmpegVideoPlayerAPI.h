@@ -62,6 +62,12 @@ public:
 			 float from = NO_VALUE,
 			 float to = NO_VALUE);
 
+
+	/*
+	 * Unload
+	 */
+	int unload(void);
+
 	/*
 	 * Play previously loaded video.
 	 */
@@ -74,6 +80,10 @@ public:
 
 	/*
 	 * Need to call this method every frame to update the videos.
+	 * @ returns:
+	 * 		VIDEO_ENDED if no video is loaded, or if the loaded video has ended
+	 * 		and repeat is disabled.
+	 * 		VIDEO_OK on success, VIDEO_ERROR if something goes wrong.
 	 */
 	int update(double tslf);
 

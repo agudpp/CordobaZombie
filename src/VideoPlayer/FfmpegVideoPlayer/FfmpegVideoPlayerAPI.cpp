@@ -40,6 +40,26 @@ VideoPlayerAPI::~VideoPlayerAPI(){
 	}
 }
 
+
+////////////////////////////////////////////////////////////////////////////////
+
+int VideoPlayerAPI::unload(void){
+
+	mVideo.end = NO_VALUE;
+	mVideo.start = NO_VALUE;
+	mVideo.path = 0;
+
+	mIsplaying = false;
+
+	mVideoPlayer->unload();
+
+	return VIDEO_OK;
+
+}
+
+
+
+
 ////////////////////////////////////////////////////////////////////////////////
 
 int VideoPlayerAPI::load(const char* path, float from, float to){
