@@ -21,25 +21,40 @@ namespace OvEff {
 
 class EffectRestarter {
 public:
-    EffectRestarter(OverlayEffect *oe, bool stopRestarting = false) :
-        effect(oe),
-        stopRestart(stopRestarting)
+    EffectRestarter(OverlayEffect *oe) :
+        effect(oe)
     {
-
+    }
+    ~EffectRestarter()
+    {
+        unlink();
     }
 
-    // stop restart the effect
-    inline void setStopRestart(bool sr) {stopRestart = sr;}
+
+    // link to the effect
+    inline void link(void)
+    {
+        if (effect == 0) return;
+        connection = effect->addCallback(boost::bind(
+                &EffectRestarter::operator(),
+                this,
+                _1));
+    }
+    inline void unlink(void)
+    {
+        if (connection.connected()) connection.disconnect();
+    }
 
 
     void operator()(OverlayEffect::EventID id)
     {
-        if (effect == 0 || stopRestart) return;
+        if (effect == 0) return;
         if(id == OverlayEffect::ENDING) effect->start();
     }
 
     OverlayEffect *effect;
-    bool stopRestart;
+
+    boost::signals::connection connection;
 };
 
 }
