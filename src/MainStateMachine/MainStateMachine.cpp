@@ -101,7 +101,7 @@ MainStateMachine::loadResources(IMainState *state)
     // load all the resources files first
     for(size_t size = resources.size(), i = 0; i < size; ++i){
         if (!ogreLoadRsrcFile(path + resources[i].filePath, path)){
-            debugERROR("Error loading resource file [%d]: %s\n", i,
+            debugERROR("Error loading resource file [%lu]: %s\n", i,
                     resources[i].filePath.c_str());
         }
         debugGREEN("Loading Resource file for %s state: %s\n:",

@@ -71,7 +71,7 @@ ConfigState::ConfigState() :
 
 		// Register mapped actions
 		actions* acts = new actions;
-		for ( uint j=0 ; j < MAX_NFUN ; j++) {
+		for (uint j=0 ; j < MAX_NFUN ; j++) {
 			if (buttonsActionsList[i][j]) {
 				// If some function was mapped, connect it to the button.
 				acts->connect(boost::bind(buttonsActionsList[i][j], this));
