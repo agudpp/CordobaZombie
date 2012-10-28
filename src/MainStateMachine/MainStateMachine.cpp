@@ -64,7 +64,7 @@ bool ogreLoadRsrcFile(const Ogre::String &file, const Ogre::String &p)
 
 ////////////////////////////////////////////////////////////////////////////////
 void
-MainStateMachine::loadResources(IMainState *state)
+MainStateMachine::loadResources(IMainState *statezz)
 {
     if (state == 0){
         return;

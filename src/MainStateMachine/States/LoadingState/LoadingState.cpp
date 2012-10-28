@@ -17,6 +17,10 @@
 
 
 
+const std::string LoadingState::BACKGROUND_NAME = "LoadingBackground";
+const std::string LoadingState::LOADING_BAR = "LoadingBarOverlay";
+
+
 
 ////////////////////////////////////////////////////////////////////////////////
 void LoadingState::Updater::operator()(Loader *l)
@@ -61,7 +65,7 @@ void LoadingState::showBackground(const Ogre::String &overlayName)
 	ASSERT(!mBackground);
 	mBackground = om.getByName(overlayName);
 	if(!mBackground){
-		debugRED("Error loading the overlay %s\n", overlayName.c_str());
+		debugERROR("Error loading the overlay %s\n", overlayName.c_str());
 		return;
 	}
 
@@ -72,7 +76,9 @@ void LoadingState::showBackground(const Ogre::String &overlayName)
 void LoadingState::destroyBackground(void)
 {
 	if(!mBackground) return;
-	GUIHelper::fullDestroyOverlay(mBackground);
+	mBackground->hide();
+	Ogre::OverlayManager::getSingleton().destroy(mBackground);
+	mBackground = 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -127,7 +133,8 @@ LoadingState::LoadingState() :
 IMainState("LoadingState"),
 mLoaderManager(0),
 mBackground(0),
-mDoc(0)
+mDoc(0),
+mRsrcFile(-1)
 {
 
 }
@@ -150,6 +157,12 @@ void LoadingState::setLoaderManager(LoaderManager *lm)
 	mLoaderManager = lm;
 }
 
+void
+LoadingState::getResources(ResourcesInfoVec &resourcesList) const
+{
+    ASSERT(false); // TODO? probablemente no le digamos nada
+}
+
 /**
  * Entering the state with additional info
  */
@@ -157,6 +170,12 @@ void LoadingState::enter(const MainMachineInfo &info)
 {
 	debugRED("ENTERING STATE\n");
 
+	// get the level path name
+	std::string levelPath = info.params.at("LEVEL_PATH");
+	ASSERT(!levelPath.empty());
+
+	helper::MetaRscManager &mrm = helper::MetaRscManager::getInstance();
+	mrm.loadResourceFile(levelPath + "Loading/resources.cfg");
 
 	// show the background and loadingbar
 	std::string backOverlay = info.params.at("LOADING_BACKGROUND");

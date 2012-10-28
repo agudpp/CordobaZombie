@@ -167,6 +167,7 @@ static void configureGlobalObjects(SystemLoader &sl)
     	debugRED("Configuramos hardcoded el primer main info\n");
     	stateMachine.getInfo().params["LOADING_BACKGROUND"] = "LoadingBackground/Demo";
     	stateMachine.getInfo().params["LOADING_BAR"] = "LoadingBarOverlay/Demo";
+    	stateMachine.getInfo().params["LEVEL_PATH"] = "Levels/Demo/";
     	stateMachine.start();
 
 

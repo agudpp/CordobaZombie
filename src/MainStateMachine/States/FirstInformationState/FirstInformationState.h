@@ -44,7 +44,7 @@ public:
      * The list returned is the list of the resources used by and only by this
      * state.
      */
-    virtual void getResources(IMainState::ResourcesInfoVec &resourcesList);
+    virtual void getResources(IMainState::ResourcesInfoVec &resourcesList) const;
 
 	/**
 	 * Entering the state with additional info

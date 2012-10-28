@@ -17,12 +17,17 @@
 #include "LoaderManager.h"
 #include "LoadingBar.h"
 #include "IMainState.h"
+#include "MetaRscManager.h"
 
 class TiXmlDocument;
 
 
 class LoadingState : public IMainState
 {
+    static const std::string BACKGROUND_NAME;
+    static const std::string LOADING_BAR;
+
+
 	struct Updater : public LoaderManager::LoaderCallback {
 		void operator()(Loader *l);
 
@@ -43,6 +48,12 @@ public:
 	 */
 	void setLoaderManager(LoaderManager *lm);
 
+	/**
+     * Function used to get the resources files used by the state.
+     * The list returned is the list of the resources used by and only by this
+     * state.
+     */
+    virtual void getResources(ResourcesInfoVec &resourcesList) const;
 	/**
 	 * Entering the state with additional info
 	 * @note	We get the xml to parse throw the
@@ -68,7 +79,7 @@ protected:
 	/**
 	 * Show/Destroy background
 	 */
-	void showBackground(const Ogre::String &overlayName);
+	void showBackground(void);
 	void destroyBackground(void);
 
 	/**
@@ -88,6 +99,7 @@ protected:
 	Ogre::Overlay		*mBackground;
 	Updater				mUpdater;
 	TiXmlDocument		*mDoc;
+	helper::MetaRscManager::FileID mRsrcFile;
 
 
 };
