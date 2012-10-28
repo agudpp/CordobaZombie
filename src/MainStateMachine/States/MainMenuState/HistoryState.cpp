@@ -130,6 +130,12 @@ void HistoryState::beforeUpdate(void)
 
 	mState = STATE_SHOWING;
 
+    // show the overlay
+    Ogre::Overlay *overlay = Ogre::OverlayManager::getSingleton().getByName(
+            "MainMenu/HistoryState");
+    ASSERT(overlay);
+    overlay->show();
+
 	// reproduce all the effects in all the buttons
 	for(size_t i = 0, size = mButtons.size(); i < size; ++i) {
 		ASSERT(mButtons[i].getEffect());
