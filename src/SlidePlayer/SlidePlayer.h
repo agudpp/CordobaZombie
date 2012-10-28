@@ -42,7 +42,7 @@
 
 
 
-const float PI = 3.1415;
+const float PI = 3.1415f;
 
 class SlideVelFun: public OvEff::Slide::VelFunction
 {
@@ -57,9 +57,7 @@ public:
 
 
 
-
 class SlidePlayer{
-
 
 public:
 
@@ -181,9 +179,6 @@ private:
 	Ogre::Vector2						mHiddenPrevTL;
 	Ogre::Vector2						mNextTL;
 	Ogre::Vector2						mHiddenNextTL;
-	//TODO uso mi propio overlay manager???
-	OvEff::OverlayEffectManager			mOvEffMngr;
-
 
 private:
 
@@ -213,6 +208,11 @@ inline bool SlidePlayer::isMoving(void)
 inline int SlidePlayer::show(void)
 {
 	mOverlay->show();
+//	mCenter->show();
+//	mPrev->show();
+//	mNext->show();
+//	mHidden->show();
+
 	return SP_OK;
 }
 
@@ -220,7 +220,12 @@ inline int SlidePlayer::show(void)
 ////////////////////////////////////////////////////////////////////////////////
 inline int SlidePlayer::hide(void)
 {
+//	mCenter->hide();
+//	mPrev->hide();
+//	mNext->hide();
+//	mHidden->hide();
 	mOverlay->hide();
+
 	return SP_OK;
 }
 
