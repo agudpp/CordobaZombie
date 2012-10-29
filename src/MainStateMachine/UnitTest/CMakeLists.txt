@@ -147,6 +147,7 @@ include(${DEV_ROOT_PATH}/UpdatableObjects/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/Utils/GUI/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/Utils/GUI/Text2D/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/VideoPlayer/FfmpegVideoPlayer/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/Helpers/MetaRscManager/AutoGen.cmake)
 
 
 

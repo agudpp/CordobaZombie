@@ -13,6 +13,7 @@
 #include "DebugUtil.h"
 #include "LoadingState.h"
 #include "GUIHelper.h"
+#include "MouseCursor.h"
 
 
 
@@ -23,7 +24,8 @@ const std::string LoadingState::LOADING_BAR = "LoadingBarOverlay";
 
 
 ////////////////////////////////////////////////////////////////////////////////
-void LoadingState::Updater::operator()(Loader *l)
+void
+LoadingState::Updater::operator()(Loader *l)
 {
 	ASSERT(mBar);
 	ASSERT(l);
@@ -44,7 +46,8 @@ void LoadingState::Updater::operator()(Loader *l)
 	Common::GlobalObjects::lastTimeFrame = (mTimer.getMilliseconds() - mTimeStamp) * 0.001;
 }
 ////////////////////////////////////////////////////////////////////////////////
-void LoadingState::Updater::setLoadingBar(LoadingBar *b)
+void
+LoadingState::Updater::setLoadingBar(LoadingBar *b)
 {
 	ASSERT(b);
 	mBar = b;
@@ -58,14 +61,14 @@ void LoadingState::Updater::setLoadingBar(LoadingBar *b)
 ////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////
-void LoadingState::showBackground(const Ogre::String &overlayName)
+void
+LoadingState::showBackground()
 {
 	Ogre::OverlayManager &om = Ogre::OverlayManager::getSingleton();
 
-	ASSERT(!mBackground);
-	mBackground = om.getByName(overlayName);
+	mBackground = om.getByName(BACKGROUND_NAME);
 	if(!mBackground){
-		debugERROR("Error loading the overlay %s\n", overlayName.c_str());
+		debugERROR("Error loading the overlay %s\n", BACKGROUND_NAME.c_str());
 		return;
 	}
 
@@ -73,32 +76,34 @@ void LoadingState::showBackground(const Ogre::String &overlayName)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void LoadingState::destroyBackground(void)
+void
+LoadingState::destroyBackground(void)
 {
-	if(!mBackground) return;
+	if(mBackground == 0) return;
 	mBackground->hide();
 	Ogre::OverlayManager::getSingleton().destroy(mBackground);
 	mBackground = 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void LoadingState::configureLoaderManager(const MainMachineInfo &info)
+void
+LoadingState::configureLoaderManager(const std::string &levelPath)
 {
 	ASSERT(mLoaderManager);
 
 	// here we have to retrieve the LevelInfo.xml file
-	MainMachineParams::const_iterator it = info.params.find("LEVEL_INFO_FILE");
-	ASSERT(it != info.params.end());
-	Ogre::String fileName = it->second;
-	ASSERT(!fileName.empty());
+	Ogre::String fileName = helper::MetaRscManager::getResourcesPath() +
+	        levelPath + "LevelInfo.xml";
 
 	delete mDoc; mDoc = 0;
 	mDoc = new TiXmlDocument(fileName.c_str());
-	if(!mDoc){
-		debugRED("Error loading Document %s\n", fileName.c_str());
+	if(mDoc == 0){
+		debugERROR("Error loading Document %s\n", fileName.c_str());
 		ASSERT(false);
 		return;
 	}
+
+	mLoaderManager->removeAllElements();
 	mLoaderManager->addElement(mDoc->RootElement());
 
 	// get the max value
@@ -109,18 +114,20 @@ void LoadingState::configureLoaderManager(const MainMachineInfo &info)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void LoadingState::configureLoadingBar(const Ogre::String &overlayName)
+void
+LoadingState::configureLoadingBar(void)
 {
 	ASSERT(mLoaderManager);
-	debugGREEN("Loading OverlayBar: %s\n", overlayName.c_str());
+	debugGREEN("Loading OverlayBar: %s\n", LOADING_BAR.c_str());
 	mLoadingBar.clear();
-	mLoadingBar.setOverlayName(overlayName);
+	mLoadingBar.setOverlayName(LOADING_BAR);
 
 
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void LoadingState::unloadLoadingBar(void)
+void
+LoadingState::unloadLoadingBar(void)
 {
 	mLoadingBar.clear();
 }
@@ -151,7 +158,8 @@ LoadingState::~LoadingState()
 /**
  * Set the loader manager to use
  */
-void LoadingState::setLoaderManager(LoaderManager *lm)
+void
+LoadingState::setLoaderManager(LoaderManager *lm)
 {
 	ASSERT(lm);
 	mLoaderManager = lm;
@@ -166,7 +174,8 @@ LoadingState::getResources(ResourcesInfoVec &resourcesList) const
 /**
  * Entering the state with additional info
  */
-void LoadingState::enter(const MainMachineInfo &info)
+void
+LoadingState::enter(const MainMachineInfo &info)
 {
 	debugRED("ENTERING STATE\n");
 
@@ -177,15 +186,10 @@ void LoadingState::enter(const MainMachineInfo &info)
 	helper::MetaRscManager &mrm = helper::MetaRscManager::getInstance();
 	mrm.loadResourceFile(levelPath + "Loading/resources.cfg");
 
-	// show the background and loadingbar
-	std::string backOverlay = info.params.at("LOADING_BACKGROUND");
-	ASSERT(!backOverlay.empty());
-	std::string loadingBar = info.params.at("LOADING_BAR");
-	ASSERT(!loadingBar.empty());
-
-	configureLoaderManager(info);
-	showBackground(backOverlay);
-	configureLoadingBar(loadingBar);
+	configureLoaderManager(levelPath);
+	showBackground();
+	configureLoadingBar();
+	GLOBAL_CURSOR->setVisible(false);
 }
 
 /**
@@ -194,7 +198,8 @@ void LoadingState::enter(const MainMachineInfo &info)
  * 					to fill it with some information then we can do it.
  * @return	event	The event that was happend.
  */
-MainMachineEvent LoadingState::update(MainMachineInfo &info)
+MainMachineEvent
+LoadingState::update(MainMachineInfo &info)
 {
 	debugRED("Por ahora estamos haciendo esto solo para debug, aca tenemos "
 			"que salir solamente cuando se termina de cargar el nivel "
@@ -255,17 +260,22 @@ MainMachineEvent LoadingState::update(MainMachineInfo &info)
 /**
  * Function called when the state is not "the actual" anymore
  */
-void LoadingState::exit(void)
+void
+LoadingState::exit(void)
 {
 	debugRED("Exit STATE\n");
 	destroyBackground();
 	unloadLoadingBar();
 
 	// detroy the document
-	mLoaderManager->removeAll();
+	mLoaderManager->removeAllElements();
 	delete mDoc;
 	mDoc = 0;
 
+	// unload the resources
+	helper::MetaRscManager::getInstance().unloadResourceFile(mRsrcFile);
+	mRsrcFile = -1;
+	GLOBAL_CURSOR->setVisible(true);
 }
 
 

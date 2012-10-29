@@ -77,9 +77,21 @@ void LoaderManager::removeLoader(const std::string &name)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void LoaderManager::removeAll(void)
+void
+LoaderManager::removeAll(void)
 {
 	mLoaders.clear();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void
+LoaderManager::deleteAll(void)
+{
+    for(size_t size = mLoaders.size(), i = 0; i < size; ++i){
+        mLoaders[i]->unload();
+        delete mLoaders[i];
+    }
+    mLoaders.clear();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -126,6 +138,14 @@ void LoaderManager::removeElement(const TiXmlElement *e)
 
 	mXmlElements.erase(it);
 
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void
+LoaderManager::removeAllElements()
+{
+    mXmlElements.clear();
+    mStrElements.clear();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

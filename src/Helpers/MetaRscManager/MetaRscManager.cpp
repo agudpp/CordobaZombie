@@ -8,7 +8,8 @@
 
 #include "MetaRscManager.h"
 
-
+#include <OgreString.h>
+#include <OgreConfigFile.h>
 #include <OgreResourceGroupManager.h>
 
 #include "DebugUtil.h"
@@ -99,6 +100,13 @@ ogreLoadRsrcFile(const Ogre::String &file,
 
 namespace helper {
 
+std::string
+MetaRscManager::getResourcesPath(void)
+{
+    std::string result;
+    getRscPath(result);
+    return result;
+}
 
 MetaRscManager::~MetaRscManager()
 {
@@ -142,7 +150,7 @@ MetaRscManager::unloadResourceFile(MetaRscManager::FileID f)
 
     Ogre::ResourceGroupManager &rscMng =
             Ogre::ResourceGroupManager::getSingleton();
-    std::vector<RscInfo> &vec = mFiles[f].groupNames;
+    std::vector<std::string> &vec = mFiles[f].groupNames;
     for (size_t size = vec.size(), i = 0; i < size; ++i) {
             rscMng.unloadResourceGroup(vec[i]);
             rscMng.unloadUnreferencedResourcesInGroup(vec[i], false);
@@ -153,9 +161,7 @@ MetaRscManager::unloadResourceFile(MetaRscManager::FileID f)
     getRscPath(path);
 
     // unload all the resources locations
-    for(size_t size = resources.size(), i = 0; i < size; ++i){
-        rscMng.removeResourceLocation(path + mFiles[f].filename);
-    }
+    rscMng.removeResourceLocation(path + mFiles[f].filename);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

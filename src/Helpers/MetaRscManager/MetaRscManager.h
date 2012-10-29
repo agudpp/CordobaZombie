@@ -60,9 +60,14 @@ public:
      */
     void unloadAll(void);
 
+    /**
+     * Returns the absolute resources path info (last character is '/')
+     */
+    static std::string getResourcesPath(void);
+
 
 private:
-    MetaRscManager();
+    MetaRscManager(){};
     MetaRscManager(const MetaRscManager &);
     MetaRscManager &operator=(const MetaRscManager&);
 
@@ -84,16 +89,16 @@ private:
 
 
 inline MetaRscManager::FileID
-MetaRscManager::getFreeId(const RscInfo &i)
+MetaRscManager::getFreeId(const RscInfo &info)
 {
     const size_t size = mFiles.size();
     for(size_t i = 0; i < size; ++i){
         if (mFiles[i].filename.empty()) {
-            mFiles[i] = i;
+            mFiles[i] = info;
             return i;
         }
     }
-    mFiles.push_back(i);
+    mFiles.push_back(info);
     return size;
 }
 

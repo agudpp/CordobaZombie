@@ -64,7 +64,7 @@ bool ogreLoadRsrcFile(const Ogre::String &file, const Ogre::String &p)
 
 ////////////////////////////////////////////////////////////////////////////////
 void
-MainStateMachine::loadResources(IMainState *statezz)
+MainStateMachine::loadResources(IMainState *state)
 {
     if (state == 0){
         return;
@@ -101,7 +101,7 @@ MainStateMachine::loadResources(IMainState *statezz)
     // load all the resources files first
     for(size_t size = resources.size(), i = 0; i < size; ++i){
         if (!ogreLoadRsrcFile(path + resources[i].filePath, path)){
-            debugERROR("Error loading resource file [%d]: %s\n", i,
+            debugERROR("Error loading resource file [%d]: %s\n", (int) i,
                     resources[i].filePath.c_str());
         }
         debugGREEN("Loading Resource file for %s state: %s\n:",

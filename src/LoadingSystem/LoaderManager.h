@@ -44,6 +44,7 @@ public:
 	void removeLoader(Loader *l);
 	void removeLoader(const std::string &name);
 	void removeAll(void);
+	void deleteAll(void);
 
 	// Set the Callback to receive information about the loader that was already
 	// "finished" of loading
@@ -62,6 +63,7 @@ public:
 	// Removes elements
 	void removeElement(const TiXmlElement *);
 	void removeElement(const Ogre::String &resource);
+	void removeAllElements(void);
 
 	// TODO: falta hacer el cargado de datos desde un string.
 	// solo vamos a implementar

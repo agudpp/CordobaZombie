@@ -85,12 +85,12 @@ protected:
 	/**
 	 * Load the xml of the level and set it to the LoaderManager
 	 */
-	void configureLoaderManager(const MainMachineInfo &info);
+	void configureLoaderManager(const std::string &levelPath);
 
 	/**
 	 * Load the Loading bar after the LoaderManager was configured
 	 */
-	void configureLoadingBar(const Ogre::String &overlayName);
+	void configureLoadingBar(void);
 	void unloadLoadingBar(void);
 
 protected:
