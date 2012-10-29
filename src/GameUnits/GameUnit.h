@@ -408,8 +408,8 @@ protected:
 	float						mTimer;
 
 public:
-	/* FIXME  Es al pedo hacer una intefaz para manipular los sonidos.     *
-	 *        No añade nada, e interpone otra capa de llamada a funciones. */
+	/* XXX	Es al pedo hacer una intefaz para manipular los sonidos.     *
+	 *		No añade nada, e interpone otra capa de llamada a funciones. */
 	SoundAPI					mSAPI;
 	SoundFamilyTable			mSounds;
 };

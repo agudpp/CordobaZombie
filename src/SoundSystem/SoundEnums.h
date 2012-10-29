@@ -44,7 +44,8 @@ typedef enum {
 typedef enum {
 	SS_BUF_LOADED,  	// Buffer loaded entirely into memory.
 	SS_BUF_STREAM_WAV,	// Buffer for streaming WAV files.
-	SS_BUF_STREAM_OGG	// Buffer for streaming OGG files.
+	SS_BUF_STREAM_OGG,	// Buffer for streaming OGG files.
+	SS_BUF_NONE			// Error
 } SSbuftype;
 
 

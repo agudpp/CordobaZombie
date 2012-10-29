@@ -118,7 +118,6 @@ ConfigState::operator()(CbMenuButton *b, CbMenuButton::ButtonID id)
 void
 ConfigState::load()
 {
-	Ogre::Real (*parseReal)(const Ogre::String&, Ogre::Real);
 	Ogre::OverlayManager& om(Ogre::OverlayManager::getSingleton());
 	Ogre::Overlay* overlay(0);
 	Ogre::String effectName("Alpha");

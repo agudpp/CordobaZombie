@@ -19,6 +19,8 @@
 #include "IMenu.h"
 #include "Util.h"
 #include "MouseCursor.h"
+#include "SoundManager.h"
+#include "BufferBuilder.h"
 
 const char *MainMenuState::CONFIG_FILENAME = "MainMenuConfiguration.xml";
 
@@ -175,7 +177,38 @@ void MainMenuState::configureOvEffectManager(void)
 ////////////////////////////////////////////////////////////////////////////////
 void MainMenuState::configureSoundManager(void)
 {
-	debugERROR("Carlox: mete tu codigo aca :)\n");
+	std::vector<const TiXmlElement *> states;
+	Ogre::String soundName(""), soundPath("");
+	SSerror err(SSerror::SS_NO_ERROR);
+	SSbuftype buffType(SSbuftype::SS_BUF_NONE);
+	SoundManager& sMgr = SoundManager::getInstance();
+
+	// Load sounds for the menu states
+	mXmlHelper.getFirstElements(states);
+	for (uint i=0 ; i < states.size() ; ++i) {
+
+		// For each main tag, search for "Sounds" entry
+		const TiXmlElement* sounds = states[i]->FirstChildElement("Sounds");
+		if(!sounds) {
+			continue;
+		} else {
+			sounds = sounds->FirstChildElement("Sound");
+		}
+
+		while(sounds) {
+			// Load currently pointed sound file
+			soundName = sounds->Attribute("soundName");
+			ASSERT(soundName.size());
+			buffType = BufferBuilder::bestBufferType(soundName);
+			Common::Util::getResourcePath(SOUNDS_RESOURCE_GROUP_NAME,
+										  soundName,
+										  soundPath);
+			err = sMgr.loadSound(soundPath, SSformat::SS_NOTHING, buffType);
+			ASSERT(err == SSerror::SS_NO_ERROR);
+			// Get next sound file name
+			sounds = sounds->NextSiblingElement("Sound");
+		}
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -185,9 +218,9 @@ void MainMenuState::configureVideoAPI(void)
 	if(mVideoPlayerAPI == 0){
 		mVideoPlayerAPI = new VideoPlayerAPI;
 	}
-	// Load menu video
 	ASSERT(mVideoPlayerAPI);
-	// TODO read video path from configuration .xml files
+
+	// Load menu video
 	Ogre::String videoPath;
 	Common::Util::getResourcePath( Ogre::String(VIDEOS_RESOURCE_GROUP),
 	Ogre::String(mXmlHelper.findElement("MenuVideo")->Attribute("videoName")),

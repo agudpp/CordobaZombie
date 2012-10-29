@@ -19,7 +19,6 @@
 
 #include "OverlayEffectManager.h"
 #include "MenuManager.h"
-#include "SoundManager.h"
 #include "GeneralTypedefs.h"
 #include "DebugUtil.h"
 #include "VideoRange.h"
@@ -169,7 +168,6 @@ private:
 	VideoPlayerAPI					*mVideoPlayerAPI;
 	CallbackReceiber                mCbReceiver;
 	XMLHelper                       mXmlHelper;
-
 };
 
 

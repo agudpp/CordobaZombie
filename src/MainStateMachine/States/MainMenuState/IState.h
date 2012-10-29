@@ -18,6 +18,8 @@
 #include "CbMenuButton.h"
 #include "InputKeyboard.h"
 #include "GeneralTypedefs.h"
+#include "SoundFamilyTable.h"
+#include "SoundEnums.h"
 
 class TiXmlElement;
 
@@ -74,6 +76,18 @@ public:
 	inline float getActualVideoStateDuration(void);
 
 	/**
+	 * @brief
+	 * Starts playback of any pre-set background music for this state.
+	 */
+	inline SSerror startBackgroundMusic();
+
+	/**
+	 * @brief
+	 * Finishes playback of any playing background music of this state.
+	 */
+	inline void endBackgroundMusic();
+
+	/**
 	 * Set the XML to extract the information (if is needed)
 	 */
 	inline void setXmlElement(const TiXmlElement *elem);
@@ -120,12 +134,6 @@ protected:
 	 * StateMachine that this state has finish and pass the corresponding event
 	 */
 	void stateFinish(Event e);
-
-	/**
-	 * TODO: Aca deberiamos definir la interfaz usada para reproducir sonidos
-	 * y cargarlos al SoundManager (static *). Ya que la gran mayoria de los
-	 * estados tienen sonidos + musica.
-	 */
 
 	/**
 	 * Get all the VideoRanges associated to this state name.
@@ -177,12 +185,20 @@ private:
 			OvEff::MenuButtonEffect &button);
 
 private:
-	float			mActualTimeDuration;
-	Ogre::String	mName;
-	const TiXmlElement *mRootElement;
+	float					mActualTimeDuration;
+	Ogre::String			mName;
+	const TiXmlElement*		mRootElement;
+	static EventCallback*	sEventCb;
 
-	static EventCallback *sEventCb;
+public:
 
+	// Sound codes of each menu state
+	enum {
+		SS_MOUSE_CLICK,		// Mouse click on menu button
+		SS_BACKGROUND_MUSIC	// Background music for this state
+	};
+
+	SoundFamilyTable		mSounds;
 };
 
 
@@ -194,6 +210,22 @@ inline float IState::getActualVideoStateDuration(void)
 {
 	return mActualTimeDuration;
 }
+
+
+inline SSerror IState::startBackgroundMusic()
+{
+	// TODO
+	debugWARNING("TODO");
+	return SSerror::SS_NO_ERROR;
+}
+
+
+inline void IState::endBackgroundMusic()
+{
+	// TODO
+	debugWARNING("TODO");
+}
+
 
 inline void IState::setXmlElement(const TiXmlElement *elem)
 {
