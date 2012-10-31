@@ -183,7 +183,7 @@ void MainMenuState::configureSoundManager(void)
 	SSbuftype buffType(SSbuftype::SS_BUF_NONE);
 	SoundManager& sMgr = SoundManager::getInstance();
 
-	// Load sounds for the menu states
+	// Load sounds for the menu states into the SoundManager
 	mXmlHelper.getFirstElements(states);
 	for (uint i=0 ; i < states.size() ; ++i) {
 

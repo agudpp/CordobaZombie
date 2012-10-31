@@ -190,7 +190,7 @@ private:
 	const TiXmlElement*		mRootElement;
 	static EventCallback*	sEventCb;
 
-public:
+protected:
 
 	// Sound codes of each menu state
 	enum {
@@ -214,7 +214,8 @@ inline float IState::getActualVideoStateDuration(void)
 
 inline SSerror IState::startBackgroundMusic()
 {
-	// TODO
+	// TODO: CONSIDER ERASING THIS FUNCTION, IN FAVOR OF THE SOUND_TABLE
+	//		 DIRECT ACCESS FROM THE PARTICULAR STATE.
 	debugWARNING("TODO");
 	return SSerror::SS_NO_ERROR;
 }
@@ -222,7 +223,8 @@ inline SSerror IState::startBackgroundMusic()
 
 inline void IState::endBackgroundMusic()
 {
-	// TODO
+	// TODO: CONSIDER ERASING THIS FUNCTION, IN FAVOR OF THE SOUND_TABLE
+	//		 DIRECT ACCESS FROM THE PARTICULAR STATE.
 	debugWARNING("TODO");
 }
 

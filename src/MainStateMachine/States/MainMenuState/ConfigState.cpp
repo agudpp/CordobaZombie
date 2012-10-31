@@ -175,6 +175,26 @@ ConfigState::load()
 
 		// Finally map the KeyConfig panel to the effect.
 		mPanelEff->setElement(mPanel);
+
+		/* TODO: Sounds mappings
+		 *
+		 *	Read again the XML config file looking for sounds mappings.
+		 *	There should be two: one name for the background music, and another
+		 *	for the mouse click sound.
+		 *
+		 *	Register this names in our SoundsFamilyTable, using the codes
+		 *	SS_BACKGROUND_MUSIC and SS_MOUSE_CLICK respectively (see the enum
+		 *	for the sound codes at the end of the IState.h class)
+		 *
+		 *  Trigger the mouse click sound inside our operator() method,
+		 *  accessing directly the SoundFamilyTable.
+		 *  Do the same for the background music: it should be started on the
+		 *  beforeUpdate() method, and stopped in the unload() method.
+		 *
+		 *  Erase the start/stopBackgroundMusic() methods from IState.h
+		 */
+
+		// TODO: REPEAT THE ABOVE SCHEME FOR ALL THE MAIN MENU STATES
 	}
 
 	return;
