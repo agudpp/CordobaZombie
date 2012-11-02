@@ -17,6 +17,9 @@
 #include "OverlayEffect.h"
 #include "OverlayEffectBuilder.h"
 #include "DebugUtil.h"
+#include "SoundEnums.h"
+#include "SoundManager.h"
+#include "SoundFamilyTable.h"
 
 
 /**
@@ -108,6 +111,9 @@ ConfigState::operator()(CbMenuButton *b, CbMenuButton::ButtonID id)
 {
 	for (uint i=0 ; i < mButtonsEff.size() ; i++) {
 		if (b == mButtonsEff[i].getButton()) {
+			SSerror err = SoundManager::getInstance().playEnvSound(
+					*mSounds.getSound(SS_MOUSE_CLICK));
+			ASSERT(err == SSerror::SS_NO_ERROR);
 			mButtonsActions[i]->operator()();
 		}
 	}
@@ -133,6 +139,9 @@ ConfigState::load()
 
 	// Construct the members once, and keep them cached until destruction.
 	if (!mButtonsEff.size()) {
+
+		// First load the sounds for this state from the config.xml file
+		getSoundsFromXML();
 
 		// Create the buttons, and make them invisible.
 		buildButtons(mButtonsEff, sButtonsNames);
@@ -178,14 +187,6 @@ ConfigState::load()
 
 		/* TODO: Sounds mappings
 		 *
-		 *	Read again the XML config file looking for sounds mappings.
-		 *	There should be two: one name for the background music, and another
-		 *	for the mouse click sound.
-		 *
-		 *	Register this names in our SoundsFamilyTable, using the codes
-		 *	SS_BACKGROUND_MUSIC and SS_MOUSE_CLICK respectively (see the enum
-		 *	for the sound codes at the end of the IState.h class)
-		 *
 		 *  Trigger the mouse click sound inside our operator() method,
 		 *  accessing directly the SoundFamilyTable.
 		 *  Do the same for the background music: it should be started on the
@@ -215,6 +216,13 @@ ConfigState::beforeUpdate()
 		mButtonsEff[i].getButton()->getContainer()->show();
 		mButtonsEff[i].getEffect()->start();
 	}
+
+	// Start the background music in looping mode
+	SSerror err = SoundManager::getInstance().playEnvSound(
+			*mSounds.getSound(SS_BACKGROUND_MUSIC),	// Music filename
+			BACKGROUND_MUSIC_VOLUME,				// Playback volume
+			true);									// Looping activated
+	ASSERT(err == SSerror::SS_NO_ERROR);
 }
 
 
@@ -287,9 +295,15 @@ ConfigState::unload()
 		mButtonsEff[i].getButton()->resetAtlas();
 		ASSERT(success);
 	}
+
 	// Set KeyConfig panel to reappear next time we're called
 	success = mPanelEff->complement();
 	ASSERT(success);
+
+	// Stop the background music
+	SSerror err = SoundManager::getInstance().stopEnvSound(
+			*mSounds.getSound(SS_BACKGROUND_MUSIC));
+	ASSERT(err == SSerror::SS_NO_ERROR);
 }
 
 

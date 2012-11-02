@@ -9,6 +9,7 @@
 #ifndef MAINMENUSTATE_H_
 #define MAINMENUSTATE_H_
 
+#include <set>
 #include <vector>
 #include <string>
 
@@ -168,6 +169,7 @@ private:
 	VideoPlayerAPI					*mVideoPlayerAPI;
 	CallbackReceiber                mCbReceiver;
 	XMLHelper                       mXmlHelper;
+	std::set<Ogre::String>			mSoundsFilenames;
 };
 
 

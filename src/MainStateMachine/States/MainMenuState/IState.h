@@ -40,6 +40,24 @@ enum Event {
 
 };
 
+// Volume of the background music for all MainMenu states
+#define  BACKGROUND_MUSIC_VOLUME  DEFAULT_ENV_GAIN
+
+/********************************************************************
+ *
+ * Mapping between sound codes and config.xml attributes names
+ * (see "Sound codes enum" at the end of IState class definition)
+ *
+ * @=============================================@
+ * |     Sound code       |   XML attribute name |
+ * +======================+======================+
+ * | SS_MOUSE_CLICK       | "mouse_click"        |
+ * | SS_BACKGROUND_MUSIC  | "background"         |
+ * @=============================================@
+ *
+ ********************************************************************/
+
+
 class IState;
 
 typedef GenericFunctor2<void, IState *, Event> EventCallback;
@@ -74,18 +92,6 @@ public:
 	 */
 	inline void setActualVideoStateDuration(float t);
 	inline float getActualVideoStateDuration(void);
-
-	/**
-	 * @brief
-	 * Starts playback of any pre-set background music for this state.
-	 */
-	inline SSerror startBackgroundMusic();
-
-	/**
-	 * @brief
-	 * Finishes playback of any playing background music of this state.
-	 */
-	inline void endBackgroundMusic();
 
 	/**
 	 * Set the XML to extract the information (if is needed)
@@ -137,9 +143,18 @@ protected:
 
 	/**
 	 * Get all the VideoRanges associated to this state name.
-	 * @param	vr		The vector where it will be put the video ranges
+	 * @param	vr		Vector where the video ranges will be registered
 	 */
 	void getVideoRangesFromXML(std::vector<VideoRange> &vr) const;
+
+	/**
+	 * @brief
+	 * Retrieve and register sounds filenames for this state.
+	 *
+	 * @remarks
+	 * Fills up mSounds table, registering filenames for each sound code.
+	 */
+	void getSoundsFromXML();
 
 	/**
 	 * Build a list of CbMenuButtons from a list of names (IDs in the xml).
@@ -191,7 +206,6 @@ private:
 	static EventCallback*	sEventCb;
 
 protected:
-
 	// Sound codes of each menu state
 	enum {
 		SS_MOUSE_CLICK,		// Mouse click on menu button
@@ -202,30 +216,16 @@ protected:
 };
 
 
+
 inline void IState::setActualVideoStateDuration(float t)
 {
 	mActualTimeDuration = t;
 }
+
+
 inline float IState::getActualVideoStateDuration(void)
 {
 	return mActualTimeDuration;
-}
-
-
-inline SSerror IState::startBackgroundMusic()
-{
-	// TODO: CONSIDER ERASING THIS FUNCTION, IN FAVOR OF THE SOUND_TABLE
-	//		 DIRECT ACCESS FROM THE PARTICULAR STATE.
-	debugWARNING("TODO");
-	return SSerror::SS_NO_ERROR;
-}
-
-
-inline void IState::endBackgroundMusic()
-{
-	// TODO: CONSIDER ERASING THIS FUNCTION, IN FAVOR OF THE SOUND_TABLE
-	//		 DIRECT ACCESS FROM THE PARTICULAR STATE.
-	debugWARNING("TODO");
 }
 
 
@@ -234,10 +234,12 @@ inline void IState::setXmlElement(const TiXmlElement *elem)
 	mRootElement = elem;
 }
 
+
 inline const Ogre::String &IState::name(void)
 {
 	return mName;
 }
+
 
 inline bool IState::isKeyPressed(input::KeyCode key)
 {

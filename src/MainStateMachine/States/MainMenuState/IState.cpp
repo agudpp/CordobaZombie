@@ -116,6 +116,46 @@ void IState::getVideoRangesFromXML(std::vector<VideoRange> &vr) const
 	vr.push_back(auxVr);
 }
 
+
+
+////////////////////////////////////////////////////////////////////////////////
+void IState::getSoundsFromXML()
+{
+	const TiXmlElement *elem(getXmlElement());
+	ASSERT(elem);
+	elem = elem->FirstChildElement("Sounds");
+
+	if(!elem) {
+		debugWARNING("No sounds specified for the MainMenu state \"%s\"\n",
+					mName.c_str());
+		return;
+	}
+
+	// For each specified sound ...
+	elem = elem->FirstChildElement("Sound");
+	ASSERT(elem);
+	while (elem) {
+		// ... identify sound type ...
+		Ogre::String name(elem->Attribute("name"));
+
+		// ... and map it into the SoundFamilyTable.
+		if (name.c_str() == "mouse_click") {
+			name = elem->Attribute("filename");
+			mSounds.addSounds(SS_MOUSE_CLICK, &name, 1);
+
+		} else if (name.c_str() == "background") {
+			name = elem->Attribute("filename");
+			mSounds.addSounds(SS_BACKGROUND_MUSIC, &name, 1);
+		}
+
+		elem = elem->NextSiblingElement("Sound");
+	}
+
+	return;
+}
+
+
+
 ////////////////////////////////////////////////////////////////////////////////
 void IState::buildButtons(std::vector<OvEff::MenuButtonEffect> &buttons,
 		const std::vector<Ogre::String> &names)

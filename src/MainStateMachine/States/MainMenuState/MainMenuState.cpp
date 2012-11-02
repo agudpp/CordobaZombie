@@ -178,9 +178,6 @@ void MainMenuState::configureOvEffectManager(void)
 void MainMenuState::configureSoundManager(void)
 {
 	std::vector<const TiXmlElement *> states;
-	Ogre::String soundName(""), soundPath("");
-	SSerror err(SSerror::SS_NO_ERROR);
-	SSbuftype buffType(SSbuftype::SS_BUF_NONE);
 	SoundManager& sMgr = SoundManager::getInstance();
 
 	// Load sounds for the menu states into the SoundManager
@@ -190,24 +187,30 @@ void MainMenuState::configureSoundManager(void)
 		// For each main tag, search for "Sounds" entry
 		const TiXmlElement* sounds = states[i]->FirstChildElement("Sounds");
 		if(!sounds) {
+			debugWARNING("No sounds specified in file \"%s\" for the "
+					"MainMenu state # %u\n", mXmlHelper.getFilename().c_str(), i);
 			continue;
 		} else {
 			sounds = sounds->FirstChildElement("Sound");
 		}
 
 		while(sounds) {
-			// Load currently pointed sound file
-			soundName = sounds->Attribute("soundName");
-			ASSERT(soundName.size());
-			buffType = BufferBuilder::bestBufferType(soundName);
-			Common::Util::getResourcePath(SOUNDS_RESOURCE_GROUP_NAME,
-										  soundName,
-										  soundPath);
-			err = sMgr.loadSound(soundPath, SSformat::SS_NOTHING, buffType);
-			ASSERT(err == SSerror::SS_NO_ERROR);
-			// Get next sound file name
+			// Register currently pointed sound filename
+			Ogre::String sound = sounds->Attribute("filename");
+			ASSERT(sound.size());
+			mSoundsFilenames.insert(sound);
+			// Get next sound filename
 			sounds = sounds->NextSiblingElement("Sound");
 		}
+	}
+
+	// Finally, load all needed sound files
+	for (std::set<Ogre::String>::const_iterator sound = mSoundsFilenames.begin() ;
+			sound != mSoundsFilenames.end() ;
+			sound++) {
+		SSbuftype buffType = BufferBuilder::bestBufferType(*sound);
+		SSerror err = sMgr.loadSound(*sound, SSformat::SS_NOTHING, buffType);
+		ASSERT(err == SSerror::SS_NO_ERROR);
 	}
 }
 
@@ -305,7 +308,8 @@ MainMenuState::MainMenuState() :
 	mLastEvent(mm_states::Done),
 	mBeforeUpdateCalled(false),
 	mVideoPlayerAPI(0),
-	mCbReceiver(*this)
+	mCbReceiver(*this),
+	mSoundsFilenames()
 {
     // configure the callback for the IStates
     mm_states::IState::setStateMachineCb(&mCbReceiver);
@@ -314,12 +318,22 @@ MainMenuState::MainMenuState() :
 ////////////////////////////////////////////////////////////////////////////////
 MainMenuState::~MainMenuState()
 {
+	SoundManager& sMgr(SoundManager::getInstance());
+
 	// TODO: Remove all the memory and resources used by this state
 	// calling exit()
 
 	if(mVideoPlayerAPI){
 		delete mVideoPlayerAPI;
 	}
+
+	// Unload the sounds loaded into the SoundManager for the MainMenu states.
+	for (std::set<Ogre::String>::const_iterator it = mSoundsFilenames.begin();
+			it != mSoundsFilenames.end() ;
+			it++) {
+		sMgr.unloadSound(*it);  // FIXME Are all sounds stopped?
+	}
+	mSoundsFilenames.clear();
 
     exit();
 }
