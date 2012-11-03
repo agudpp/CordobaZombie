@@ -142,10 +142,14 @@ void IState::getSoundsFromXML()
 		if (name.c_str() == "mouse_click") {
 			name = elem->Attribute("filename");
 			mSounds.addSounds(SS_MOUSE_CLICK, &name, 1);
+			debugBLUE("Added mouse click (\"%s\") with SOUND_CODE #%d\n",
+					name.c_str(), SS_MOUSE_CLICK);
 
 		} else if (name.c_str() == "background") {
 			name = elem->Attribute("filename");
 			mSounds.addSounds(SS_BACKGROUND_MUSIC, &name, 1);
+			debugBLUE("Added background music (\"%s\") with SOUND_CODE #%d\n",
+					name.c_str(), SS_BACKGROUND_MUSIC);
 		}
 
 		elem = elem->NextSiblingElement("Sound");

@@ -48,12 +48,12 @@ enum Event {
  * Mapping between sound codes and config.xml attributes names
  * (see "Sound codes enum" at the end of IState class definition)
  *
- * @=============================================@
- * |     Sound code       |   XML attribute name |
- * +======================+======================+
- * | SS_MOUSE_CLICK       | "mouse_click"        |
- * | SS_BACKGROUND_MUSIC  | "background"         |
- * @=============================================@
+ * @======================#====================@
+ * |     Sound code       | XML attribute name |
+ * #======================#====================#
+ * | SS_MOUSE_CLICK       | "mouse_click"      |
+ * | SS_BACKGROUND_MUSIC  | "background"       |
+ * @======================#====================@
  *
  ********************************************************************/
 

@@ -157,8 +157,11 @@ inline uint SoundFamilyTable::getNumSounds() const { return mList.size(); }
 inline const Ogre::String*
 SoundFamilyTable::getSound(SSsoundCode sc) const
 {
-	if (mList.size() <= sc || !mList[sc].first || !mList[sc].second) {
-		debugWARNING("Sound code #d empty or inexistent.\n", sc);
+	if (mList.size() <= sc) {
+		debugWARNING("Sound code #%d does not exist, SUCKER.\n", sc);
+		return NULL;
+	} else if (!mList[sc].first || !mList[sc].second) {
+		debugWARNING("Sound code #%d is empty, you IDIOT.\n", sc);
 		return NULL;
 	} else {
 		return &mList[sc].first[0];

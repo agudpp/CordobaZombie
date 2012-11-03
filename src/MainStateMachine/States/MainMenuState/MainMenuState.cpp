@@ -187,8 +187,8 @@ void MainMenuState::configureSoundManager(void)
 		// For each main tag, search for "Sounds" entry
 		const TiXmlElement* sounds = states[i]->FirstChildElement("Sounds");
 		if(!sounds) {
-			debugWARNING("No sounds specified in file \"%s\" for the "
-					"MainMenu state # %u\n", mXmlHelper.getFilename().c_str(), i);
+			debugWARNING("No sounds specified in the file \"%s\" for XML tag # %u\n",
+					mXmlHelper.getFilename().c_str(), i);
 			continue;
 		} else {
 			sounds = sounds->FirstChildElement("Sound");
@@ -208,7 +208,17 @@ void MainMenuState::configureSoundManager(void)
 	for (std::set<Ogre::String>::const_iterator sound = mSoundsFilenames.begin() ;
 			sound != mSoundsFilenames.end() ;
 			sound++) {
-		SSbuftype buffType = BufferBuilder::bestBufferType(*sound);
+
+		Ogre::String soundFilePath("");
+		Common::Util::getResourcePath(Ogre::String(SOUNDS_RESOURCE_GROUP_NAME),
+				*sound, soundFilePath);
+		if (!soundFilePath.size()) {
+			debugWARNING("No resource found to map sound \"%s\"\n",	sound->c_str());
+			continue;
+		}
+
+		debugBLUE("Loading buffer for sound \"%s\"\n", sound->c_str());
+		SSbuftype buffType = BufferBuilder::bestBufferType(soundFilePath);
 		SSerror err = sMgr.loadSound(*sound, SSformat::SS_NOTHING, buffType);
 		ASSERT(err == SSerror::SS_NO_ERROR);
 	}
