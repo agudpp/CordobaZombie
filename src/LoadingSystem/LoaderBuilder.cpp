@@ -15,7 +15,7 @@
 /**
  * Build all the loaders
  */
-static void
+void
 LoaderBuilder::getLoaders(std::vector<Loader *> &result)
 {
     result.clear();

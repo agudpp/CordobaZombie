@@ -15,6 +15,7 @@
 #include "MainTFBuilder.h"
 #include "Util.h"
 #include "LoaderManager.h"
+#include "LoaderBuilder.h"
 #include "GlobalObjects.h"
 #include "MouseCursor.h"
 
@@ -156,6 +157,16 @@ static void configureGlobalObjects(SystemLoader &sl)
     	debugRED("TODO: todavia falta setear el LevelManager que es global..\n");
     	configureGlobalObjects(sysLoader);
 
+    	// load the Loaders to be used
+    	{
+    	    std::vector<Loader*> loaders;
+    	    LoaderBuilder::getLoaders(loaders);
+    	    for(size_t size = loaders.size(), i = 0; i < size; ++i){
+    	        loaderManager.addLoader(loaders[i]);
+    	    }
+    	}
+
+
     	// Configure the main state machine
     	smBuilder.setLoaderManager(&loaderManager);
     	if(!configureMainStateMachine(stateMachine, MAINSTATEMACHINE_FNAME,
@@ -170,6 +181,8 @@ static void configureGlobalObjects(SystemLoader &sl)
     	stateMachine.getInfo().params["LEVEL_PATH"] = "Levels/Demo/";
     	stateMachine.start();
 
+
+    	loaderManager.deleteAll();
 
         return 0;
     }

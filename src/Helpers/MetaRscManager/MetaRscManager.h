@@ -51,6 +51,16 @@ public:
     FileID loadResourceFile(const std::string &filename);
 
     /**
+     * Add resource location
+     * @param path  Location
+     * @param group GroupName
+     * @param type  FileSyste | ...
+     */
+    FileID loadResourceLocation(const std::string &path,
+                                const std::string &group,
+                                const std::string &type = "FileSystem");
+
+    /**
      * Unload a resource file
      */
     void unloadResourceFile(FileID f);

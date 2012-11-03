@@ -82,7 +82,9 @@ ogreLoadRsrcFile(const Ogre::String &file,
     Ogre::String secName, typeName, archName;
     while (seci.hasMoreElements()) {
         secName = seci.peekNextKey();
-        groups.push_back(secName);
+
+        if (!secName.empty()) groups.push_back(secName);
+
         Ogre::ConfigFile::SettingsMultiMap *settings = seci.getNext();
         Ogre::ConfigFile::SettingsMultiMap::iterator i;
         for (i = settings->begin(); i != settings->end(); ++i) {
@@ -92,6 +94,7 @@ ogreLoadRsrcFile(const Ogre::String &file,
                     archName, typeName, secName);
         }
     }
+
     return true;
 }
 
@@ -132,9 +135,31 @@ MetaRscManager::loadResourceFile(const std::string &filename)
     // now we will load all the group targets
     Ogre::ResourceGroupManager &rscMng = Ogre::ResourceGroupManager::getSingleton();
     for(size_t size = info.groupNames.size(), i = 0; i < size; ++i){
+        debugGREEN("Initializing group: %s\n", info.groupNames[i].c_str());
         rscMng.initialiseResourceGroup(info.groupNames[i]);
         rscMng.loadResourceGroup(info.groupNames[i]);
     }
+
+    return getFreeId(info);
+}
+
+
+MetaRscManager::FileID
+MetaRscManager::loadResourceLocation(const std::string &filename,
+                            const std::string &group,
+                            const std::string &type)
+{
+    Ogre::ResourceGroupManager &rscMng =
+                Ogre::ResourceGroupManager::getSingleton();
+
+    std::string path;
+    getRscPath(path);
+    RscInfo info;
+    info.filename = path + filename;
+    info.groupNames.push_back(group);
+    rscMng.addResourceLocation(info.filename, type, group);
+    rscMng.initialiseResourceGroup(group);
+    rscMng.loadResourceGroup(group);
 
     return getFreeId(info);
 }

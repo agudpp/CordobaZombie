@@ -94,12 +94,14 @@ protected:
 	void unloadLoadingBar(void);
 
 protected:
+	typedef std::vector<helper::MetaRscManager::FileID> RscFileIDVec;
+
 	LoaderManager		*mLoaderManager;
 	LoadingBar			mLoadingBar;
 	Ogre::Overlay		*mBackground;
 	Updater				mUpdater;
 	TiXmlDocument		*mDoc;
-	helper::MetaRscManager::FileID mRsrcFile;
+	RscFileIDVec mRsrcFiles;
 
 
 };

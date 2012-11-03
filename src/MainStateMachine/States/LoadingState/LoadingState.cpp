@@ -14,12 +14,13 @@
 #include "LoadingState.h"
 #include "GUIHelper.h"
 #include "MouseCursor.h"
+#include "Util.h"
 
 
 
 
-const std::string LoadingState::BACKGROUND_NAME = "LoadingBackground";
-const std::string LoadingState::LOADING_BAR = "LoadingBarOverlay";
+const std::string LoadingState::BACKGROUND_NAME = "LoadingStBack";
+const std::string LoadingState::LOADING_BAR = "LoadingStBar";
 
 
 
@@ -97,8 +98,9 @@ LoadingState::configureLoaderManager(const std::string &levelPath)
 
 	delete mDoc; mDoc = 0;
 	mDoc = new TiXmlDocument(fileName.c_str());
-	if(mDoc == 0){
-		debugERROR("Error loading Document %s\n", fileName.c_str());
+	if(!mDoc->LoadFile() || mDoc->Error()){
+		debugERROR("Error loading Document %s, error: %s\n",
+		        fileName.c_str(), mDoc->ErrorDesc());
 		ASSERT(false);
 		return;
 	}
@@ -140,8 +142,7 @@ LoadingState::LoadingState() :
 IMainState("LoadingState"),
 mLoaderManager(0),
 mBackground(0),
-mDoc(0),
-mRsrcFile(-1)
+mDoc(0)
 {
 
 }
@@ -168,7 +169,7 @@ LoadingState::setLoaderManager(LoaderManager *lm)
 void
 LoadingState::getResources(ResourcesInfoVec &resourcesList) const
 {
-    ASSERT(false); // TODO? probablemente no le digamos nada
+    // TODO? probablemente no le digamos nada
 }
 
 /**
@@ -184,7 +185,12 @@ LoadingState::enter(const MainMachineInfo &info)
 	ASSERT(!levelPath.empty());
 
 	helper::MetaRscManager &mrm = helper::MetaRscManager::getInstance();
-	mrm.loadResourceFile(levelPath + "Loading/resources.cfg");
+	mRsrcFiles.reserve(2);
+	helper::MetaRscManager::FileID fid =
+	        mrm.loadResourceFile(levelPath + "Loading/resources.cfg");
+	mRsrcFiles.push_back(fid);
+	fid = mrm.loadResourceLocation(levelPath, "LevelInfo");
+	mRsrcFiles.push_back(fid);
 
 	configureLoaderManager(levelPath);
 	showBackground();
@@ -273,8 +279,10 @@ LoadingState::exit(void)
 	mDoc = 0;
 
 	// unload the resources
-	helper::MetaRscManager::getInstance().unloadResourceFile(mRsrcFile);
-	mRsrcFile = -1;
+	for(size_t size = mRsrcFiles.size(), i = 0; i < size; ++i){
+	    helper::MetaRscManager::getInstance().unloadResourceFile(mRsrcFiles[i]);
+	}
+	mRsrcFiles.clear();
 	GLOBAL_CURSOR->setVisible(true);
 }
 

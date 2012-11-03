@@ -13,6 +13,7 @@ set(SRCS
 	${DEV_ROOT_PATH}/LoadingSystem/Loaders/ZombieLoader/ZombieLoader.cpp
 	${DEV_ROOT_PATH}/LoadingSystem/LoaderManager.cpp
 	${DEV_ROOT_PATH}/LoadingSystem/Loader.cpp
+	${DEV_ROOT_PATH}/LoadingSystem/LoaderBuilder.cpp
 )
 
 set(HDRS
@@ -24,6 +25,7 @@ set(HDRS
 	${DEV_ROOT_PATH}/LoadingSystem/LoaderData.h
 	${DEV_ROOT_PATH}/LoadingSystem/LoaderManager.h
 	${DEV_ROOT_PATH}/LoadingSystem/Loader.h
+	${DEV_ROOT_PATH}/LoadingSystem/LoaderBuilder.h
 )
 
 set(ACTUAL_DIRS
