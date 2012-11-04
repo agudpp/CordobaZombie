@@ -128,6 +128,8 @@ MainMenuState::VideoState MainMenuState::getVideoState(void)
 ////////////////////////////////////////////////////////////////////////////////
 void MainMenuState::updateStateMachine(void)
 {
+	static SoundManager& sMgr(SoundManager::getInstance());
+
 	// check that we have state to update
 	if(!mActualState) return;
 
@@ -135,11 +137,11 @@ void MainMenuState::updateStateMachine(void)
 	VideoState actualVS = getVideoState();
 
 	if (actualVS == Entering) {
-		// we don't have to do nothing, only update videoplayer
+		// All we had to do was to update the video player.
 		return;
 	}
 
-	// we are in the updating stage
+	// We are in the refresh stage
 	if (mBeforeUpdateCalled == false) {
 		mBeforeUpdateCalled = true;
 		mActualState->beforeUpdate();
@@ -154,9 +156,10 @@ void MainMenuState::updateStateMachine(void)
 		return;
 	}
 
-	// now update the state
+	// Finally update the state ...
 	mActualState->update();
-
+	// ... and the SoundManager.
+	sMgr.update();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -180,11 +183,11 @@ void MainMenuState::configureSoundManager(void)
 	std::vector<const TiXmlElement *> states;
 	SoundManager& sMgr = SoundManager::getInstance();
 
-	// Load sounds for the menu states into the SoundManager
+	// Gather the sound names for the menu states from the config.xml file.
 	mXmlHelper.getFirstElements(states);
 	for (uint i=0 ; i < states.size() ; ++i) {
 
-		// For each main tag, search for "Sounds" entry
+		// For each main tag, search for "Sounds" entry.
 		const TiXmlElement* sounds = states[i]->FirstChildElement("Sounds");
 		if(!sounds) {
 			debugWARNING("No sounds specified in the file \"%s\" for XML tag # %u\n",
@@ -195,16 +198,16 @@ void MainMenuState::configureSoundManager(void)
 		}
 
 		while(sounds) {
-			// Register currently pointed sound filename
+			// Register currently pointed sound filename.
 			Ogre::String sound = sounds->Attribute("filename");
 			ASSERT(sound.size());
 			mSoundsFilenames.insert(sound);
-			// Get next sound filename
+			// Get next sound filename.
 			sounds = sounds->NextSiblingElement("Sound");
 		}
 	}
 
-	// Finally, load all needed sound files
+	// Load all found sound files.
 	for (std::set<Ogre::String>::const_iterator sound = mSoundsFilenames.begin() ;
 			sound != mSoundsFilenames.end() ;
 			sound++) {
@@ -217,11 +220,14 @@ void MainMenuState::configureSoundManager(void)
 			continue;
 		}
 
-		debugBLUE("Loading buffer for sound \"%s\"\n", sound->c_str());
 		SSbuftype buffType = BufferBuilder::bestBufferType(soundFilePath);
 		SSerror err = sMgr.loadSound(*sound, SSformat::SS_NOTHING, buffType);
 		ASSERT(err == SSerror::SS_NO_ERROR);
 	}
+
+	// Load some sources into the SoundManager to play these sounds.
+	sMgr.addSSoundSources(4);
+	sMgr.addLSoundSources(4);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -341,7 +347,7 @@ MainMenuState::~MainMenuState()
 	for (std::set<Ogre::String>::const_iterator it = mSoundsFilenames.begin();
 			it != mSoundsFilenames.end() ;
 			it++) {
-		sMgr.unloadSound(*it);  // FIXME Are all sounds stopped?
+		sMgr.unloadSound(*it);  // TODO Have all sounds been stopped?
 	}
 	mSoundsFilenames.clear();
 

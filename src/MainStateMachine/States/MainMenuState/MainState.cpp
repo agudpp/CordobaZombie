@@ -80,33 +80,36 @@ MainState::operator()(CbMenuButton *button, CbMenuButton::ButtonID id)
 
     if (button == mMenuButtonsEff[NewGameButtonIndex].getButton()){
         mReturnEvent = Event::PlayGame;
-        err = sMgr.playEnvSound(*mSounds.getSound(SS_MOUSE_CLICK));
-        ASSERT(err == SSerror::SS_NO_ERROR);
-        exitState();
+        sMgr.stopEnvSound(*mSounds.getSound(SS_MOUSE_CLICK));
+    	err = sMgr.playEnvSound(*mSounds.getSound(SS_MOUSE_CLICK));
+
     } else if (button == mMenuButtonsEff[HistoryButtonIndex].getButton()) {
         mReturnEvent = Event::History;
+        sMgr.stopEnvSound(*mSounds.getSound(SS_MOUSE_CLICK));
         err = sMgr.playEnvSound(*mSounds.getSound(SS_MOUSE_CLICK));
-        ASSERT(err == SSerror::SS_NO_ERROR);
-        exitState();
+
     } else if (button == mMenuButtonsEff[CreditsButtonIndex].getButton()) {
         mReturnEvent = Event::Credits;
+        sMgr.stopEnvSound(*mSounds.getSound(SS_MOUSE_CLICK));
         err = sMgr.playEnvSound(*mSounds.getSound(SS_MOUSE_CLICK));
-        ASSERT(err == SSerror::SS_NO_ERROR);
-        exitState();
+
     } else if (button == mMenuButtonsEff[ConfigButtonIndex].getButton()) {
         mReturnEvent = Event::Config;
+        sMgr.stopEnvSound(*mSounds.getSound(SS_MOUSE_CLICK));
         err = sMgr.playEnvSound(*mSounds.getSound(SS_MOUSE_CLICK));
-        ASSERT(err == SSerror::SS_NO_ERROR);
-        exitState();
+
     } else if (button == mMenuButtonsEff[ExitButtonIndex].getButton()) {
         mReturnEvent = Event::Exit;
+        sMgr.stopEnvSound(*mSounds.getSound(SS_MOUSE_CLICK));
         err = sMgr.playEnvSound(*mSounds.getSound(SS_MOUSE_CLICK));
-        ASSERT(err == SSerror::SS_NO_ERROR);
-        exitState();
+
     } else {
         debugERROR("Receiving events from an invalid button!!!\n");
         ASSERT(false);
     }
+
+    ASSERT(err == SSerror::SS_NO_ERROR);
+    exitState();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

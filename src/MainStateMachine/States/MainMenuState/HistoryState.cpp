@@ -6,11 +6,14 @@
  *
  */
 
+#include <sstream>
 #include <boost/bind.hpp>
 
 #include "HistoryState.h"
 #include "DebugUtil.h"
-#include <sstream>
+#include "SoundEnums.h"
+#include "SoundManager.h"
+#include "SoundFamilyTable.h"
 
 
 namespace mm_states {
@@ -32,10 +35,8 @@ HistoryState::HistoryState():
 
 ////////////////////////////////////////////////////////////////////////////////
 
-HistoryState::~HistoryState() {
-
-	debugRAUL("=#=#=#=#=#=#=#=#=#=#=#= Destroying History State\n")
-
+HistoryState::~HistoryState()
+{
 	this->unload();
 
 	// remove buttons
@@ -62,10 +63,8 @@ HistoryState::~HistoryState() {
  * marcando asi el numero de slide en la secuencia.
  */
 
-void HistoryState::load(void){
-
-	debugRAUL("=#=#=#=#=#=#=#=#=#=#=#= LOADING History State\n");
-
+void HistoryState::load(void)
+{
 	// we will load all the buttons
 	if(mButtons.empty()){
 
@@ -78,14 +77,14 @@ void HistoryState::load(void){
 
 		ASSERT(mButtons.size() == btnNames.size());
 
-		debugRAUL("=#=#=#=#=#=#=#=#=#=#=#= Built %d buttons\n", (int)mButtons.size());
-
 		// set callbacks
 		for(size_t i = 0; i < NUMBER_BUTTONS; ++i){
 			mButtons[i].getEffect()->addCallback(
 			        boost::bind(&HistoryState::operator(), this, _1));
 		}
 
+		// Finally load the sounds for this state from the config.xml file.
+		getSoundsFromXML();
 	}
 
 	if(!mSlidePlayer){
@@ -126,8 +125,6 @@ void HistoryState::load(void){
 
 void HistoryState::beforeUpdate(void)
 {
-	debugRAUL("=#=#=#=#=#=#=#=#=#=#=#= BEFORE UPDATE History State\n");
-
 	mState = STATE_SHOWING;
 
     // show the overlay
@@ -147,6 +144,12 @@ void HistoryState::beforeUpdate(void)
 	ASSERT(mSlidePlayer);
 	mSlidePlayer->show();
 
+	// Start the background music in looping mode.
+	SSerror err = SoundManager::getInstance().playEnvSound(
+			*mSounds.getSound(SS_BACKGROUND_MUSIC),	// Music filename
+			BACKGROUND_MUSIC_VOLUME,				// Playback volume
+			true);									// Looping activated
+	ASSERT(err == SSerror::SS_NO_ERROR);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -168,7 +171,6 @@ void HistoryState::update(void)
 			}
 		}
 		mSlidePlayer->hide();
-		debugRAUL("=#=#=#=#=#=#=#=#=#=#=#= Going OUT\n");
 		stateFinish(mm_states::Event::Done);
 	}
 
@@ -179,8 +181,6 @@ void HistoryState::update(void)
 ////////////////////////////////////////////////////////////////////////////////
 void HistoryState::unload(void)
 {
-	debugRAUL("=#=#=#=#=#=#=#=#=#=#=#= UNLOAD History State\n");
-
 	//Hide SlidePlayer
 	mSlidePlayer->hide();
 
@@ -191,6 +191,10 @@ void HistoryState::unload(void)
 		mButtons[i].getButton()->resetAtlas();
 	}
 
+    // Stop the background music.
+	SSerror err = SoundManager::getInstance().stopEnvSound(
+			*mSounds.getSound(SS_BACKGROUND_MUSIC));
+	ASSERT(err == SSerror::SS_NO_ERROR);
 }
 
 
@@ -199,21 +203,32 @@ void HistoryState::unload(void)
 
 void HistoryState::operator()(CbMenuButton * b, CbMenuButton::ButtonID id)
 {
+	SSerror err(SSerror::SS_NO_ERROR);
+	SoundManager& sMgr(SoundManager::getInstance());
+
 	if(b == mButtons[mm_states::HistoryState::exitButton].getButton()
 			&& id == CbMenuButton::LEFT_BUTTON)
 	{
-		debugRAUL("=#=#=#=#=#=#=#=#=#=#=#= Pressed escape button\n");
+		sMgr.stopEnvSound(*mSounds.getSound(SS_MOUSE_CLICK));
+		err = sMgr.playEnvSound(*mSounds.getSound(SS_MOUSE_CLICK));
+		ASSERT(err == SSerror::SS_NO_ERROR);
 		mState = STATE_HIDDING;
 		this->hideToExit();
 	}
 	else if(b == mButtons[mm_states::HistoryState::prevButton].getButton()
 			&& id == CbMenuButton::LEFT_BUTTON)
 	{
+		sMgr.stopEnvSound(*mSounds.getSound(SS_MOUSE_CLICK));
+		err = sMgr.playEnvSound(*mSounds.getSound(SS_MOUSE_CLICK));
+		ASSERT(err == SSerror::SS_NO_ERROR);
 		mSlidePlayer->prev();
 	}
 	else if(b == mButtons[mm_states::HistoryState::nextButton].getButton()
 			&& id == CbMenuButton::LEFT_BUTTON)
 	{
+		sMgr.stopEnvSound(*mSounds.getSound(SS_MOUSE_CLICK));
+		err = sMgr.playEnvSound(*mSounds.getSound(SS_MOUSE_CLICK));
+		ASSERT(err == SSerror::SS_NO_ERROR);
 		mSlidePlayer->next();
 	}
 	else
@@ -221,7 +236,6 @@ void HistoryState::operator()(CbMenuButton * b, CbMenuButton::ButtonID id)
 		debugERROR("Invalid button has been pressed :S\n");
 		ASSERT(false);
 	}
-
 }
 
 
@@ -232,22 +246,15 @@ void HistoryState::operator()(OvEff::OverlayEffect::EventID id)
 {
 	// Buttons have finished hiding, send finish event to the MainMenuState
 	if(id == OvEff::OverlayEffect::ENDING && mState == STATE_HIDDING){
-
 		mState = STATE_EXITING;
-
-		debugRAUL("=#=#=#=#=#=#=#=#=#=#=#= Got call back from button,"
-				" Changed state to exiting\n");
-
 	}
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void HistoryState::hideToExit(void){
-
-	debugRAUL("=#=#=#=#=#=#=#=#=#=#=#= Hiding to exit\n");
-
+void HistoryState::hideToExit(void)
+{
 	const size_t size = mButtons.size();
 
 	// complement effects and start playing them
@@ -266,7 +273,6 @@ void HistoryState::checkInput(void)
 {
     if(input::InputKeyboard::isKeyDown(input::KC_ESCAPE)){
     	if(mState == STATE_SHOWING){
-    		debugRAUL("=#=#=#=#=#=#=#=#=#=#=#= Read KC_ESCAPE from Keyboard\n");
     		mState = STATE_HIDDING;
     		this->hideToExit();
     	}

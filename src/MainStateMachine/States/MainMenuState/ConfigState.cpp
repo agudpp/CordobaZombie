@@ -109,10 +109,13 @@ ConfigState::~ConfigState()
 void
 ConfigState::operator()(CbMenuButton *b, CbMenuButton::ButtonID id)
 {
+	SSerror err(SSerror::SS_NO_ERROR);
+	SoundManager& sMgr(SoundManager::getInstance());
+
 	for (uint i=0 ; i < mButtonsEff.size() ; i++) {
 		if (b == mButtonsEff[i].getButton()) {
-			SSerror err = SoundManager::getInstance().playEnvSound(
-					*mSounds.getSound(SS_MOUSE_CLICK));
+			sMgr.stopEnvSound(*mSounds.getSound(SS_MOUSE_CLICK));
+			err = sMgr.playEnvSound(*mSounds.getSound(SS_MOUSE_CLICK));
 			ASSERT(err == SSerror::SS_NO_ERROR);
 			mButtonsActions[i]->operator()();
 		}
@@ -184,18 +187,6 @@ ConfigState::load()
 
 		// Finally map the KeyConfig panel to the effect.
 		mPanelEff->setElement(mPanel);
-
-		/* TODO: Sounds mappings
-		 *
-		 *  Trigger the mouse click sound inside our operator() method,
-		 *  accessing directly the SoundFamilyTable.
-		 *  Do the same for the background music: it should be started on the
-		 *  beforeUpdate() method, and stopped in the unload() method.
-		 *
-		 *  Erase the start/stopBackgroundMusic() methods from IState.h
-		 */
-
-		// TODO: REPEAT THE ABOVE SCHEME FOR ALL THE MAIN MENU STATES
 	}
 
 	return;
@@ -217,7 +208,7 @@ ConfigState::beforeUpdate()
 		mButtonsEff[i].getEffect()->start();
 	}
 
-	// Start the background music in looping mode
+	// Start the background music in looping mode.
 	SSerror err = SoundManager::getInstance().playEnvSound(
 			*mSounds.getSound(SS_BACKGROUND_MUSIC),	// Music filename
 			BACKGROUND_MUSIC_VOLUME,				// Playback volume
@@ -236,13 +227,13 @@ ConfigState::update()
 	} else if (mState == STATE_EXITING) {
 		for (uint i=0 ; i < mButtonsEff.size() ; i++) {
 			if (mButtonsEff[i].getEffect()->isActive()) {
-				return;  // Can't quit yet
+				return;  // Can't quit yet.
 			} else {
 				mButtonsEff[i].getButton()->setEnable(false);
 			}
 		}
 		if (mPanelEff->isActive()) {
-			return;  // Can't quit yet
+			return;  // Can't quit yet.
 		} else {
 			mPanel->hide();
 		}
@@ -263,13 +254,13 @@ ConfigState::exitConfigState()
 	mState = STATE_EXITING;
 
 	for (uint i=0 ; i < mButtonsEff.size() ; i++) {
-		// Hide buttons
+		// Hide buttons.
 		success = mButtonsEff[i].getEffect()->complement();
 		ASSERT(success);
 		mButtonsEff[i].getEffect()->start();
 	}
 
-	// Hide KeyConfig panel
+	// Hide KeyConfig panel.
 	success = mPanelEff->complement();
 	ASSERT(success);
 	mPanelEff->start();
@@ -286,21 +277,21 @@ ConfigState::unload()
 	ASSERT(sButtonsNames.size() == mButtonsEff.size());
 	ASSERT(sButtonsNames.size() == mButtonsActions.size());
 
-	// Members memory release was relocated inside the class' destructor
-	// Members are kept cached until destruction
+	// Members memory release was relocated inside the class' destructor.
+	// Members are kept cached until destruction.
 
 	for (uint i=0 ; i < mButtonsEff.size() ; i++) {
-		// Set buttons to reappear fresh next time we're called
+		// Set buttons to reappear fresh next time we're called.
 		success = mButtonsEff[i].getEffect()->complement();
 		mButtonsEff[i].getButton()->resetAtlas();
 		ASSERT(success);
 	}
 
-	// Set KeyConfig panel to reappear next time we're called
+	// Set KeyConfig panel to reappear next time we're called.
 	success = mPanelEff->complement();
 	ASSERT(success);
 
-	// Stop the background music
+	// Stop the background music.
 	SSerror err = SoundManager::getInstance().stopEnvSound(
 			*mSounds.getSound(SS_BACKGROUND_MUSIC));
 	ASSERT(err == SSerror::SS_NO_ERROR);

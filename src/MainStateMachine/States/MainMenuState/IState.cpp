@@ -8,6 +8,7 @@
 
 #include "IState.h"
 
+#include <cstring>
 #include <OgreOverlayManager.h>
 #include <OgreOverlayContainer.h>
 
@@ -139,17 +140,17 @@ void IState::getSoundsFromXML()
 		Ogre::String name(elem->Attribute("name"));
 
 		// ... and map it into the SoundFamilyTable.
-		if (name.c_str() == "mouse_click") {
+		if (!strncmp(name.c_str(), "mouse_click", strlen("mouse_click"))) {
 			name = elem->Attribute("filename");
 			mSounds.addSounds(SS_MOUSE_CLICK, &name, 1);
-			debugBLUE("Added mouse click (\"%s\") with SOUND_CODE #%d\n",
-					name.c_str(), SS_MOUSE_CLICK);
+			debugBLUE("Added mouse click (\"%s\") for %s\n",
+					name.c_str(), mName.c_str());
 
-		} else if (name.c_str() == "background") {
+		} else if (!strncmp(name.c_str(), "background", strlen("background"))) {
 			name = elem->Attribute("filename");
 			mSounds.addSounds(SS_BACKGROUND_MUSIC, &name, 1);
-			debugBLUE("Added background music (\"%s\") with SOUND_CODE #%d\n",
-					name.c_str(), SS_BACKGROUND_MUSIC);
+			debugBLUE("Added background music (\"%s\") for %s\n",
+					name.c_str(), mName.c_str());
 		}
 
 		elem = elem->NextSiblingElement("Sound");
