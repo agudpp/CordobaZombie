@@ -77,6 +77,10 @@ MainState::operator()(CbMenuButton *button, CbMenuButton::ButtonID id)
 	SoundManager& sMgr(SoundManager::getInstance());
 
     ASSERT(mMenuButtonsEff.size() == NUMBER_BUTTONS);
+    if (mState == Exiting) {
+    	// Someone already pressed an escape button, ignore following commands.
+    	return;
+    }
 
     if (button == mMenuButtonsEff[NewGameButtonIndex].getButton()){
         mReturnEvent = Event::PlayGame;

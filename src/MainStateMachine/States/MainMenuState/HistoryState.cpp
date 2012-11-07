@@ -206,13 +206,18 @@ void HistoryState::operator()(CbMenuButton * b, CbMenuButton::ButtonID id)
 	SSerror err(SSerror::SS_NO_ERROR);
 	SoundManager& sMgr(SoundManager::getInstance());
 
+    if (mState == STATE_HIDING || mState == STATE_EXITING) {
+    	// Someone already pressed an escape button, ignore following commands.
+    	return;
+    }
+
 	if(b == mButtons[mm_states::HistoryState::exitButton].getButton()
 			&& id == CbMenuButton::LEFT_BUTTON)
 	{
 		sMgr.stopEnvSound(*mSounds.getSound(SS_MOUSE_CLICK));
 		err = sMgr.playEnvSound(*mSounds.getSound(SS_MOUSE_CLICK));
 		ASSERT(err == SSerror::SS_NO_ERROR);
-		mState = STATE_HIDDING;
+		mState = STATE_HIDING;
 		this->hideToExit();
 	}
 	else if(b == mButtons[mm_states::HistoryState::prevButton].getButton()
@@ -245,7 +250,7 @@ void HistoryState::operator()(CbMenuButton * b, CbMenuButton::ButtonID id)
 void HistoryState::operator()(OvEff::OverlayEffect::EventID id)
 {
 	// Buttons have finished hiding, send finish event to the MainMenuState
-	if(id == OvEff::OverlayEffect::ENDING && mState == STATE_HIDDING){
+	if(id == OvEff::OverlayEffect::ENDING && mState == STATE_HIDING){
 		mState = STATE_EXITING;
 	}
 }
@@ -273,7 +278,7 @@ void HistoryState::checkInput(void)
 {
     if(input::InputKeyboard::isKeyDown(input::KC_ESCAPE)){
     	if(mState == STATE_SHOWING){
-    		mState = STATE_HIDDING;
+    		mState = STATE_HIDING;
     		this->hideToExit();
     	}
     }

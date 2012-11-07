@@ -112,6 +112,11 @@ ConfigState::operator()(CbMenuButton *b, CbMenuButton::ButtonID id)
 	SSerror err(SSerror::SS_NO_ERROR);
 	SoundManager& sMgr(SoundManager::getInstance());
 
+    if (mState == STATE_EXITING) {
+    	// Someone already pressed an escape button, ignore following commands.
+    	return;
+    }
+
 	for (uint i=0 ; i < mButtonsEff.size() ; i++) {
 		if (b == mButtonsEff[i].getButton()) {
 			sMgr.stopEnvSound(*mSounds.getSound(SS_MOUSE_CLICK));
