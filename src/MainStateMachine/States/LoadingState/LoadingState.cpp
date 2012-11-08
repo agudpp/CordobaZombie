@@ -217,7 +217,7 @@ LoadingState::update(MainMachineInfo &info)
 	MainMachineEvent result = MME_DONE;
 
 	float count = 0;
-	float press = false;
+	bool press = false;
 
 	// here we load the level... note that the RenderOneFrame operation is in
 	// the "Updater" class... Here we only call the LoadingManager and
