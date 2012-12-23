@@ -15,6 +15,7 @@
 #include <OgreFont.h>
 #include <OgreFontManager.h>
 #include <OgreOverlayManager.h>
+#include <OgreMath.h>
 
 #include "DebugUtil.h"
 
@@ -89,17 +90,28 @@ private:
 			unsigned int from,	// string index (begin position)
 			unsigned int to,	// string index (end position)
 			const Ogre::Font *font) const;
-	inline Ogre::Real getCharWidth(uint32_t c,
-									const Ogre::Font *font,
-									const Ogre::Real aspectRatio) const;
+
+	inline Ogre::Real getCharWidth(uint32_t c, const Ogre::Font *font,
+				                   const Ogre::Real aspectRatio) const;
 
 	/**
 	 * Truncate horizontally the text (the text result will fits in the container
 	 * horizontally after the call of this function).
 	 */
-	void truncateHorizontally(Ogre::String &text,
-								Ogre::Real width,
-								Ogre::Real height);
+	void truncateHorizontally(Ogre::String &text, Ogre::Real width, Ogre::Real height);
+
+	/**
+	 * Given a container's width and height, truncate the text to fit the new width
+         * and scales the font to fit the new height.
+	 */
+	void adjustTextToContainer(Ogre::String &text, Ogre::Real width, Ogre::Real height);
+
+	/**
+	 * Given the text, mold the Container to the resulting dimensions of the text.
+         * The dimensions are calculated from line breaks (increasing height) and length of 
+         * the longest line's subtext.
+	 */
+	void adjustContainerToText(Ogre::String &text, Ogre::Real width, Ogre::Real height);
 
 
 private:
