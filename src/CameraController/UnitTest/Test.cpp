@@ -43,7 +43,7 @@ void Test::handleInput(void)
 	// CAMERA
 //	float lCoeff = 200.0f * Common::GlobalObjects::lastTimeFrame;
 	Ogre::Vector3 mTranslationVec = Ogre::Vector3::ZERO;
-	Ogre::Real zoom = 0.0f;
+	Ogre::Real zoom = mCamController.zoom();
 
 	// HERE WE DEFINE THE KEYS USED TO MOVE THE CAMERA, WE WILL USE THE
 	// ARROWS TO MOVE THE CAMERA
@@ -68,11 +68,11 @@ void Test::handleInput(void)
 	}
 	if(mKeyboard->isKeyDown(OIS::KC_Q))
 	{
-		zoom += 1;
+		zoom += 0.05f;
 	}
 	if(mKeyboard->isKeyDown(OIS::KC_E))
 	{
-		zoom -= 1;
+		zoom -= 0.05f;
 	}
 	if(mKeyboard->isKeyDown(OIS::KC_UP) || mKeyboard->isKeyDown(OIS::KC_W) ||
 			lMouseState.Y.abs <= 0)
@@ -89,45 +89,38 @@ void Test::handleInput(void)
 	{
 		mCamController.moveCamera(mTranslationVec);
 	}
-	if(zoom != 0.0f){
+	if(zoom != mCamController.zoom()){
 		mCamController.zoomCamera(zoom);
 	}
 
 	if(mKeyboard->isKeyDown(OIS::KC_R))
 	{
-		mCamController.rotateCameraY(Ogre::Radian(-1));
+//		mCamController.rotateCameraY(Ogre::Radian(-1));
 	}
 	if(mKeyboard->isKeyDown(OIS::KC_T))
 	{
-		mCamController.rotateCameraY(Ogre::Radian(1));
+//		mCamController.rotateCameraY(Ogre::Radian(1));
 	}
 
 	if(mKeyboard->isKeyDown(OIS::KC_Z))
 	{
-		mCamController.rotateCameraX(Ogre::Radian(-1));
+//		mCamController.rotateCameraX(Ogre::Radian(-1));
 	}
 	if(mKeyboard->isKeyDown(OIS::KC_X))
 	{
-		mCamController.rotateCameraX(Ogre::Radian(1));
+//		mCamController.rotateCameraX(Ogre::Radian(1));
 	}
 
 
 
 	// check tracking camera
 	static int lastX = 0, lastY = 0;
+    const float lMouseX = float(lMouseState.X.rel);
+    const float lMouseY = float(lMouseState.Y.rel);
 	if(lMouseState.buttonDown(OIS::MB_Right)){
-		if(lastX > lMouseState.X.abs) {
-			mCamController.rotateCameraY(Ogre::Radian(10));
-		} else if(lastX < lMouseState.X.abs){
-			mCamController.rotateCameraY(Ogre::Radian(-10));
-		}
-		lastX = lMouseState.X.abs;
-		if(lastY > lMouseState.Y.abs) {
-			mCamController.rotateCameraX(Ogre::Radian(10));
-		} else if(lastY < lMouseState.Y.abs){
-			mCamController.rotateCameraX(Ogre::Radian(-10));
-		}
-		lastY = lMouseState.Y.abs;
+	    const float factor = -0.01 * mCamController.getRotationVelocity();
+	    mCamController.rotateCamera(Ogre::Radian(lMouseX * factor),
+		                            Ogre::Radian(lMouseY * factor));
 	}
 
 

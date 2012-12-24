@@ -67,7 +67,7 @@ inline MenuButtonEffect &
 MenuButtonEffect::operator=(const MenuButtonEffect &other)
 {
     mMenuButton = other.mMenuButton;
-    if (mConnection.connected()) mConnection.disconnect();
+    mConnection.disconnect();
     mEffect = other.mEffect;
     if (mEffect != 0) {
         mConnection = mEffect->addCallback(boost::bind(
@@ -79,7 +79,7 @@ inline void MenuButtonEffect::setEffect(OverlayEffect *e)
 {
 	ASSERT(e);
 	// if we had an old effect, first remove the callback
-	if (mConnection.connected()) mConnection.disconnect();
+	mConnection.disconnect();
 
 	mEffect = e;
 	mConnection = mEffect->addCallback(boost::bind(
