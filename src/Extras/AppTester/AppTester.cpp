@@ -175,19 +175,20 @@ bool AppTester::loadInitialConfig(void)
 	mWindow->getCustomAttribute("WINDOW", &windowHnd);
 	windowHndStr << windowHnd;
 	pl.insert(std::make_pair(std::string("WINDOW"), windowHndStr.str()));
-	#if defined OIS_WIN32_PLATFORM
-	pl.insert(std::make_pair(std::string("w32_mouse"), std::string("DISCL_FOREGROUND" )));
-	pl.insert(std::make_pair(std::string("w32_mouse"), std::string("DISCL_NONEXCLUSIVE")));
-	pl.insert(std::make_pair(std::string("w32_keyboard"), std::string("DISCL_FOREGROUND")));
-	pl.insert(std::make_pair(std::string("w32_keyboard"), std::string("DISCL_NONEXCLUSIVE")));
-	#elif defined OIS_LINUX_PLATFORM
-	pl.insert(std::make_pair(std::string("x11_mouse_grab"), std::string("false")));
-	pl.insert(std::make_pair(std::string("x11_mouse_hide"), std::string("false")));
-	pl.insert(std::make_pair(std::string("x11_keyboard_grab"), std::string("false")));
-	pl.insert(std::make_pair(std::string("XAutoRepeatOn"), std::string("true")));
-	#endif
-	// end override OIS construction to avoid grabbing mouse
-
+	if (mDisableInputGrabbing){
+        #if defined OIS_WIN32_PLATFORM
+        pl.insert(std::make_pair(std::string("w32_mouse"), std::string("DISCL_FOREGROUND" )));
+        pl.insert(std::make_pair(std::string("w32_mouse"), std::string("DISCL_NONEXCLUSIVE")));
+        pl.insert(std::make_pair(std::string("w32_keyboard"), std::string("DISCL_FOREGROUND")));
+        pl.insert(std::make_pair(std::string("w32_keyboard"), std::string("DISCL_NONEXCLUSIVE")));
+        #elif defined OIS_LINUX_PLATFORM
+        pl.insert(std::make_pair(std::string("x11_mouse_grab"), std::string("false")));
+        pl.insert(std::make_pair(std::string("x11_mouse_hide"), std::string("false")));
+        pl.insert(std::make_pair(std::string("x11_keyboard_grab"), std::string("false")));
+        pl.insert(std::make_pair(std::string("XAutoRepeatOn"), std::string("true")));
+        #endif
+        // end override OIS construction to avoid grabbing mouse
+        }
 	mWindow->getCustomAttribute("WINDOW", &hWnd);
 	//mInputManager = OIS::InputManager::createInputSystem(hWnd);
 	mInputManager = OIS::InputManager::createInputSystem(pl);
@@ -354,11 +355,12 @@ void AppTester::loadAditionalResourcesFromFile(const Ogre::String &file,
 }
 
 /******************************************************************************/
-AppTester::AppTester() :
+AppTester::AppTester(bool disableInputGrabbing) :
 		mCamera(0), mCameraScnNode(0), mInputManager(0),
 		mKeyboard(0), mMouse(0), mRoot(0), mSceneMgr(0),
 		mWindow(0), mAnimCamera(false),mDefaultInput(true),
-		mReadyToRun(false),	 mStopRunning(false)
+		mReadyToRun(false),	 mStopRunning(false),
+		mDisableInputGrabbing(disableInputGrabbing)
 {
 	// TODO Auto-generated constructor stub
 	loadInitialConfig();

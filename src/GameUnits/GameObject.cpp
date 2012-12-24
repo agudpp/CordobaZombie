@@ -30,7 +30,7 @@ void GameObject::configCollObj(float w, float h, float mF, float mG)
 	mSqrRadius = max*max;
 
 	ASSERT(mEntity);
-	mEntity->setQueryFlags(mF);
+	configureEntity(mEntity, mF);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

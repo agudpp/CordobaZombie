@@ -42,7 +42,7 @@ private:
 
 private:
 	std::vector<Ogre::StaticGeometry *> 			mStaticGeometry;
-	std::vector<Ogre::SceneNode *>					mEntities;
+	std::vector<Ogre::SceneNode *>					mSceneNodes;
 };
 
 #endif /* LEVELGEOMETRYLOADER_H_ */

@@ -105,12 +105,21 @@ LoadingState::configureLoaderManager(const std::string &levelPath)
 		return;
 	}
 
+	// first unload all the loaded data
+	const int errCode = mLoaderManager->unload();
+	if (errCode < 0) {
+	    debugERROR("Error unloading data from the loader manager\n");
+	    // TODO: What we can do in this case? will be a memory leak!
+	    ASSERT(false);
+	}
+
 	mLoaderManager->removeAllElements();
 	mLoaderManager->addElement(mDoc->RootElement());
 
 	// get the max value
-	float max = mLoaderManager->getSumOfWeights();
+	const float max = mLoaderManager->getSumOfWeights();
 	mLoadingBar.setMaximumValue(max + 0.1f);
+    debugYELLOW("mBar->setMaximumValue(): %f\n", max + 0.1f);
 	mUpdater.setLoadingBar(&mLoadingBar);
 	mLoaderManager->setCallback(&mUpdater);
 }
@@ -192,9 +201,9 @@ LoadingState::enter(const MainMachineInfo &info)
 	fid = mrm.loadResourceLocation(levelPath, "LevelInfo");
 	mRsrcFiles.push_back(fid);
 
-	configureLoaderManager(levelPath);
 	showBackground();
 	configureLoadingBar();
+	configureLoaderManager(levelPath);
 	GLOBAL_CURSOR->setVisible(false);
 }
 
@@ -207,57 +216,16 @@ LoadingState::enter(const MainMachineInfo &info)
 MainMachineEvent
 LoadingState::update(MainMachineInfo &info)
 {
-	debugRED("Por ahora estamos haciendo esto solo para debug, aca tenemos "
-			"que salir solamente cuando se termina de cargar el nivel "
-			"completamente sin posibilidad de salir antes (cancelar el cargado)"
-			"\n");
-
-	Ogre::Timer timer;
-	float timeStamp = 0;
 	MainMachineEvent result = MME_DONE;
 
-	float count = 0;
-	float press = false;
-
-	// here we load the level... note that the RenderOneFrame operation is in
-	// the "Updater" class... Here we only call the LoadingManager and
-	// wait their callbacks call to update the windows
-	debugERROR("Tenemos que verificar esto si esta funcionando bien\n");
-	int err = mLoaderManager->load();
-
-
-	// here is the main loop
-	// TODO: fix the FrameElapsedTime and check how to get the ogres one.
-//	while(true) {
-//		timeStamp = timer.getMilliseconds();
-//
-//		// TODO: solo chequeamos escape aca pero no va...
-//		GLOBAL_KEYBOARD->capture();
-//		if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_SPACE)){
-//			if(!press){
-//				press = true;
-//			}
-//		} else {press = false;}
-//
-//
-//		if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_ESCAPE)){
-//			break;
-//		}
-//		mLoadingBar.setState(count);
-//		count += 0.1f;
-//		if(count >= 100.0f){count = 0;}
-//
-//		// render the frame
-//		if(!GLOBAL_ROOT->renderOneFrame()){
-//			result = -1; //TODO: poner un erro real aca
-//			break;
-//		}
-//
-//		// This must be called when we use the renderOneFrame approach
-//		Ogre::WindowEventUtilities::messagePump();
-//
-//		Common::GlobalObjects::lastTimeFrame = (timer.getMilliseconds() - timeStamp) * 0.001;
-//	}
+	// The idea of creating a new thread here to load the entities and resources
+	// it is not possible because Ogre crash when I try to create an entity
+	// from other thread
+	const int err = mLoaderManager->load();
+	if (err < 0) {
+	    debugERROR("LoadingManager fails when loading %d\n", err);
+	    result = MME_ERROR;
+	}
 
 	return result;
 }

@@ -8,6 +8,12 @@
 #include <iostream>
 #include <string>
 #include <auto_ptr.h>
+// For stack trace print and signal handling
+#include <ucontext.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/wait.h>
+#include <unistd.h>
 
 #include "DebugUtil.h"
 #include "SystemLoader.h"
@@ -40,6 +46,50 @@ extern "C" {
 
 
 /**
+ * Function used to handle the sigsevs and all that signals and print the
+ * stack trace automatically
+ */
+void
+bt_sighandler(int sig, siginfo_t *info, void *secret)
+{
+
+    char pid_buf[30];
+    sprintf(pid_buf, "%d", getpid());
+    char name_buf[512];
+    name_buf[readlink("/proc/self/exe", name_buf, 511)]=0;
+    int child_pid = fork();
+    if (!child_pid) {
+        dup2(2,1); // redirect output to stderr
+        fprintf(stdout,"stack trace for %s pid=%s\n",name_buf,pid_buf);
+        execlp("gdb", "gdb", "--batch", "-n", "-ex", "thread", "-ex", "bt", name_buf, pid_buf, NULL);
+        abort(); /* If gdb failed to start */
+    } else {
+        waitpid(child_pid,NULL,0);
+    }
+    exit(0);
+}
+/**
+ * Configure signals
+ */
+static void
+configureSignals(void)
+{
+    /* Install our signal handler */
+    struct sigaction sa;
+
+    sa.sa_sigaction = bt_sighandler;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = SA_RESTART | SA_SIGINFO;
+    sigaction(SIGSEGV, &sa, NULL);
+    sigaction(SIGUSR1, &sa, NULL);
+    sigaction(SIGABRT, &sa, NULL);
+    sigaction(SIGKILL, &sa, NULL);
+    sigaction(SIGTERM, &sa, NULL);
+
+    /* ... add any other signal here */
+}
+
+/**
  * Print a message for windows an linux
  */
 static void showErrorMessage(const std::string &msg)
@@ -49,8 +99,6 @@ static void showErrorMessage(const std::string &msg)
 #else
 	debugRED("%s\n", msg.c_str());
 #endif
-
-
 }
 
 /**
@@ -145,7 +193,8 @@ static void configureGlobalObjects(SystemLoader &sl)
     	MainTFBuilder		smBuilder;
     	LoaderManager		loaderManager;
 
-
+    	// configure the signals for stack trace
+    	configureSignals();
 
     	debugBLUE("TODO: podemos recibir el nombre de archivos de configuracion "
     			"por los argumentos del main, ahora ta hardcodeado\n");

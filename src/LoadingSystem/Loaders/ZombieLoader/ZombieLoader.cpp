@@ -10,6 +10,7 @@
 #include "DebugUtil.h"
 #include "ZombieLoader.h"
 #include "ZombieFactoryManager.h"
+#include "GameUnitHelper.h"
 
 
 bool ZombieLoader::parseFactories(TiXmlElement *elem, ZombieFactoryManager &zfm)
@@ -158,7 +159,8 @@ int ZombieLoader::load(TiXmlElement *elem, LoaderData *data)
 }
 
 // Unload the information?
-int ZombieLoader::unload()
+int
+ZombieLoader::unload()
 {
 	ASSERT(mZombieFactoryMngr);
 	ASSERT(mZombies);
@@ -167,10 +169,14 @@ int ZombieLoader::unload()
 
 	ASSERT(mZombies->size() == mQueue.getQueue().size());
 	mZombieFactoryMngr->freeAndRemoveAll();
-	mQueue.freeAll();
+	mQueue.clear();
+	for(size_t i = 0, size = mZombies->size(); i < size; ++i) {
+	    helper::GameUnitHelper::destroyUnit((*mZombies)[i]);
+	}
 	mZombies->clear();
 
 	ASSERT(false);
+	return 0;
 }
 
 

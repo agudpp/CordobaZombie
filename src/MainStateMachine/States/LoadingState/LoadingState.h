@@ -39,6 +39,7 @@ class LoadingState : public IMainState
 		float 		mTimeStamp;
 	};
 
+
 public:
 	LoadingState();
 	virtual ~LoadingState();
@@ -102,8 +103,7 @@ protected:
 	Updater				mUpdater;
 	TiXmlDocument		*mDoc;
 	RscFileIDVec mRsrcFiles;
-
-
+	bool mRunning;
 };
 
 #endif /* LOADINGSTATE_H_ */

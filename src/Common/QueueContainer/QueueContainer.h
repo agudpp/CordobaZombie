@@ -48,6 +48,14 @@ public:
 	}
 
 	/**
+	 * Clear all the elements without freeing it
+	 */
+	inline void clear(void)
+	{
+	    mQueue.clear();
+	}
+
+	/**
 	 * Remove and free the memory of all elements
 	 */
 	inline void freeAll(void)
