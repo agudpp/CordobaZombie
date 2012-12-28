@@ -30,6 +30,9 @@ private:
 	Ogre::Real mXRelPos;
 	Ogre::Real mYRelPos;
 
+	int mSavedXPos;
+	int mSavedYPos;
+
 	Ogre::Real	mAtlasSize;
 	int			mTextureSize;
 
@@ -53,13 +56,20 @@ public:
     inline void setWindowDimensions(unsigned int width, unsigned int height);
 
     inline void setVisible(bool visible);
+    inline bool isVisible(void) const;
 
     inline void updatePosition(int x, int y);
 
     inline Ogre::Real getXRelativePos(void) const {return mXRelPos;}
-
     inline Ogre::Real getYRelativePos(void) const {return mYRelPos;}
 
+    // Save the actual position of the mouse to be restored later
+    // This function overwrites the last stored position
+    //
+    inline void savePosition(void);
+    inline void restorePosition(void);
+
+private:
     inline Ogre::Real clamp(Ogre::Real a, Ogre::Real min, Ogre::Real max);
 
 private:
@@ -184,6 +194,11 @@ MouseCursor::setVisible(bool visible)
         mCursorContainer->hide();
     }
 }
+inline bool
+MouseCursor::isVisible(void) const
+{
+    return mCursorContainer->isVisible();
+}
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -194,6 +209,19 @@ MouseCursor::updatePosition(int x, int y)
     mYRelPos = y * mWindowHeight;
     mCursorContainer->setPosition(clamp(mXRelPos, 0.0f, 1.0f),
     		clamp(mYRelPos, 0.0f, 1.0f));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+inline void
+MouseCursor::savePosition(void)
+{
+    mSavedXPos = mXRelPos / mWindowWidth;
+    mSavedYPos = mYRelPos / mWindowHeight;
+}
+inline void
+MouseCursor::restorePosition(void)
+{
+    updatePosition(mSavedXPos, mSavedYPos);
 }
 
 
@@ -231,6 +259,8 @@ MouseCursor::setImage(const Ogre::String& filename, const Ogre::String& group)
 	   mMaterial->getTechnique(0)->getPass(0)->setSceneBlending(
 			Ogre::SBT_TRANSPARENT_ALPHA);
 }
+
+
 
 
 #endif  // __MOUSECURSOR_H__

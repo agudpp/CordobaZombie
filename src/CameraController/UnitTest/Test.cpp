@@ -54,7 +54,7 @@ void Test::handleInput(void)
 
 	// MOUSE
 	const OIS::MouseState& lMouseState = GLOBAL_MOUSE->getMouseState();
-	mMouseCursor.updatePosition(lMouseState.X.abs, lMouseState.Y.abs);
+	GLOBAL_CURSOR->updatePosition(lMouseState.X.abs, lMouseState.Y.abs);
 
 	if(mKeyboard->isKeyDown(OIS::KC_LEFT) || mKeyboard->isKeyDown(OIS::KC_A) ||
 			lMouseState.X.abs <= 0)
@@ -111,7 +111,16 @@ void Test::handleInput(void)
 //		mCamController.rotateCameraX(Ogre::Radian(1));
 	}
 
-
+	const float lMouseZ = float(lMouseState.Z.rel);
+	float scrollZoom = mCamController.zoom();
+	if (lMouseZ > 0.0f) {
+	    scrollZoom += 1.f;
+	} else if (lMouseZ < 0.0f) {
+	    scrollZoom -= 1.f;
+	}
+	if(scrollZoom != mCamController.zoom()){
+        mCamController.zoomCamera(scrollZoom);
+    }
 
 	// check tracking camera
 	static int lastX = 0, lastY = 0;
@@ -131,18 +140,8 @@ Test::Test() :
         AppTester(false)
 {
 	setUseDefaultInput(false);
-	mMouseCursor.setVisible(true);
-	mMouseCursor.setWindowDimensions(GLOBAL_WINDOW->getWidth(), GLOBAL_WINDOW->getHeight());
 
-
-	//We put the cursor in the middle of the screen
-	OIS::MouseState &mMouseState = const_cast<OIS::MouseState &>(mMouse->getMouseState());
-	mMouseState.X.abs = mCamera->getViewport()->getActualWidth() / 2;
-	mMouseState.Y.abs = mCamera->getViewport()->getActualHeight() / 2;
-
-	mMouseCursor.updatePosition(mMouseState.X.abs,mMouseState.Y.abs);
-
-
+	mInputManager.setCameraController(&mCamController);
 }
 
 Test::~Test()
@@ -257,7 +256,15 @@ void Test::update()
 		kPressed4 = false;
 	}
 
-	handleInput();
+//	handleInput();
+
+	const OIS::MouseState& lMouseState = GLOBAL_MOUSE->getMouseState();
+    GLOBAL_CURSOR->updatePosition(lMouseState.X.abs, lMouseState.Y.abs);
+    if(mKeyboard->isKeyDown(OIS::KC_ESCAPE)) {
+        // we have to exit
+        mStopRunning = true;
+    }
+	mInputManager.update();
 
 	mUpdaterManager.updateAllObjects();
 }

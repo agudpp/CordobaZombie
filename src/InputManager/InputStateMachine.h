@@ -12,6 +12,7 @@
 #include "DebugUtil.h"
 #include "InputTransitionTable.h"
 #include "InputActionObject.h"
+#include "IInputState.h"
 
 class InputStateMachine {
 public:
