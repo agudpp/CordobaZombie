@@ -26,6 +26,8 @@ public:
 	LevelGeometryLoader();
 	virtual ~LevelGeometryLoader();
 
+	// Set the percentage of the total weight added by each loaded item.
+	virtual void setChunkWeight(TiXmlElement* elem);
 
 	// Functoin used to load something
 	virtual int load(TiXmlElement*, LoaderData *data);
@@ -34,7 +36,7 @@ public:
 	virtual int unload();
 
 private:
-	bool processEntityStaticGeoemtry(TiXmlElement *XMLNode, Ogre::StaticGeometry *sgeo);
+	bool processEntityStaticGeometry(TiXmlElement *XMLNode, Ogre::StaticGeometry *sgeo);
 	bool processStaticGeometries(TiXmlElement *XMLRoot);
 	Ogre::Entity *processEntity(TiXmlElement *XMLRoot);
 	bool processNode(TiXmlElement *XMLRoot, Ogre::SceneNode *&node);

@@ -72,15 +72,15 @@
 					fprintf(stderr, format "\33[0m", ## __VA_ARGS__);}
 
 	#define debugGREEN(format, ...) {fprintf(stderr, DEBUG_GREEN "DEBUG[%s, %s, %d]: ", \
-					 __FILE__, __FUNCTION__, __LINE__); \
+					 __FILENAME__, __FUNCTION__, __LINE__); \
 					fprintf(stderr, format "\33[0m", ## __VA_ARGS__);}
 
 	#define debugColor(color, format, ...) {fprintf(stderr, color "DEBUG[%s, %s, %d]: ", \
-					 __FILE__, __FUNCTION__, __LINE__); \
+					 __FILENAME__, __FUNCTION__, __LINE__); \
 					fprintf(stderr, format "\33[0m", ## __VA_ARGS__);}
 
 	#define debugOPTIMIZATION(format, ...) {fprintf(stderr, DEBUG_ULINE DEBUG_INVERT "DEBUG[%s, %s, %d]: ", \
-					 __FILE__, __FUNCTION__, __LINE__); \
+					 __FILENAME__, __FUNCTION__, __LINE__); \
 					fprintf(stderr, format "\33[0m", ## __VA_ARGS__);}
 
 	#define debugRAUL(format, ...) {fprintf(stderr,DEBUG_BOLD DEBUG_YELLOW "DEBUG[%s, %s, %d]: ", \

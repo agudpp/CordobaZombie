@@ -14,6 +14,7 @@
 
 #include <string>
 
+#include "Loader.h"
 #include "LoaderManager.h"
 #include "LoadingBar.h"
 #include "IMainState.h"
@@ -29,7 +30,7 @@ class LoadingState : public IMainState
 
 
 	struct Updater : public LoaderManager::LoaderCallback {
-		void operator()(Loader *l);
+		void operator()(float, const std::string&);
 
 		void setLoadingBar(LoadingBar *b);
 	private:

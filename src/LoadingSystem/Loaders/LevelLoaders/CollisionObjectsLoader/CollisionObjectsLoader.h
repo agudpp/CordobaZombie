@@ -24,7 +24,7 @@ public:
     virtual ~CollisionObjectsLoader();
 
     // Functoin used to load something
-    virtual int load(TiXmlElement*, LoaderData *data);
+    virtual int load(TiXmlElement*, LoaderData *data, LoaderManager::LoaderCallback *callback);
 
     // Unload the information?
     virtual int unload();

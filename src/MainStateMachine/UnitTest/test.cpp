@@ -116,7 +116,7 @@ static bool loadSystem(SystemLoader &loader,
 		loader.loadInputSystem();
 //		loader.loadSoundSystem();
 	} catch (SystemLoader::ErrorException &e){
-		showErrorMessage("Error catched!!! " + e.info);
+		showErrorMessage("Error caught!!! " + e.info);
 		return false;
 	}
 
@@ -131,15 +131,19 @@ static bool loadSystem(SystemLoader &loader,
 static bool configureMainStateMachine(MainStateMachine &msm,
 		const std::string &fname, MainTFBuilder &builder)
 {
-	std::auto_ptr<TiXmlDocument> doc(Common::Util::loadXmlDocument(fname.c_str()));
+//	std::auto_ptr<TiXmlDocument> doc(Common::Util::loadXmlDocument(fname.c_str()));
+//
+//	if(!doc.get()){
+//		showErrorMessage("Error trying to parse the xml file " + fname + " "
+//				"to use with the MainStateMAchine");
+//		return true;
+//	}
+//
+//	MainTransitionFunction *mtf = builder.build(doc->RootElement());
 
-	if(!doc.get()){
-		showErrorMessage("Error trying to parse the xml file " + fname + " "
-				"to use with the MainStateMAchine");
-		return true;
-	}
+	debugERROR("We've to load the MainTF configuration from XML file\n");
 
-	MainTransitionFunction *mtf = builder.build(doc->RootElement());
+	MainTransitionFunction *mtf = builder.build(0);
 	ASSERT(mtf);
 	msm.setTransitionFunction(mtf);
 
@@ -216,14 +220,14 @@ static void configureGlobalObjects(SystemLoader &sl)
     	}
 
 
-    	// Configure the main state machine
+    	// Configure the main state machine.
     	smBuilder.setLoaderManager(&loaderManager);
     	if(!configureMainStateMachine(stateMachine, MAINSTATEMACHINE_FNAME,
     			smBuilder)){
     		return -2;
     	}
 
-    	// Now we start the machine state.
+    	// Finally start the machine.
     	debugRED("Configuramos hardcoded el primer main info\n");
     	stateMachine.getInfo().params["LOADING_BACKGROUND"] = "LoadingBackground/Demo";
     	stateMachine.getInfo().params["LOADING_BAR"] = "LoadingBarOverlay/Demo";

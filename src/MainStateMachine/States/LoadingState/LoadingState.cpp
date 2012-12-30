@@ -26,12 +26,15 @@ const std::string LoadingState::LOADING_BAR = "LoadingStBar";
 
 ////////////////////////////////////////////////////////////////////////////////
 void
-LoadingState::Updater::operator()(Loader *l)
+LoadingState::Updater::operator()(float w, const std::string& msg)
 {
 	ASSERT(mBar);
-	ASSERT(l);
-	mAccum += l->getWeight();
+	ASSERT(w > 0.0f);
+	mAccum += w;
 	mBar->setActualValue(mAccum);
+
+	// TODO: print message parameter below the loading bar
+	debugRED("TODO: print message parameter below the loading bar.\n")
 
 	// update the ogre render queue
 	mTimeStamp = mTimer.getMilliseconds();
@@ -218,9 +221,9 @@ LoadingState::update(MainMachineInfo &info)
 {
 	MainMachineEvent result = MME_DONE;
 
-	// The idea of creating a new thread here to load the entities and resources
-	// it is not possible because Ogre crash when I try to create an entity
-	// from other thread
+	// It's impossible to create a new thread here to load the entities and
+	// resources, because Ogre crashes whenever I try to create an entity
+	// from another thread.
 	const int err = mLoaderManager->load();
 	if (err < 0) {
 	    debugERROR("LoadingManager fails when loading %d\n", err);

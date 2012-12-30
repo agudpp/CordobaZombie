@@ -11,16 +11,40 @@
 #include <algorithm>
 #include <cmath>
 
+#include "LevelGeometryLoader.h"
 #include "DotSceneLoader.h"
+#include "LoaderManager.h"
 #include "DebugUtil.h"
 #include "GlobalObjects.h"
 
-#include "LevelGeometryLoader.h"
 
+////////////////////////////////////////////////////////////////////////////////
+void LevelGeometryLoader::setChunkWeight(TiXmlElement* elem)
+{
+	TiXmlElement* item(0);
+	uint itemsToProcess(0u);
+
+	for (item = elem->FirstChildElement("staticGeometries")->
+				FirstChildElement("staticGeometry");
+		 item != 0;
+		 item = item->NextSiblingElement("staticGeometry")) {
+		itemsToProcess++;
+	}
+
+	for (TiXmlElement* item = elem->FirstChildElement("nodes")->
+				FirstChildElement("node");
+		 item != 0;
+		 item = item->NextSiblingElement("node")) {
+		itemsToProcess++;
+	}
+
+	// mChunkWeight is a percentage.
+	mChunkWeight = 100.0f / itemsToProcess;
+}
 
 
 ////////////////////////////////////////////////////////////////////////////////
-bool LevelGeometryLoader::processEntityStaticGeoemtry(TiXmlElement *XMLNode,
+bool LevelGeometryLoader::processEntityStaticGeometry(TiXmlElement *XMLNode,
 		Ogre::StaticGeometry *sgeo)
 {
 	ASSERT(XMLNode);
@@ -121,6 +145,7 @@ bool LevelGeometryLoader::processStaticGeometries(TiXmlElement *XMLRoot)
 	Ogre::Vector3			dimension;
 	bool					visible;
 	Ogre::String			name;
+	std::string				msg;
 	bool					castShadow;
 
 	// parse the staticGeometries
@@ -165,13 +190,12 @@ bool LevelGeometryLoader::processStaticGeometries(TiXmlElement *XMLRoot)
 			ASSERT(false);
 			mStaticGeometry.erase(mStaticGeometry.end()-1);
 			Common::GlobalObjects::sceneManager->destroyStaticGeometry(sgeo);
-			pElement = pElement->NextSiblingElement("staticGeometry");
-			continue;
+			goto nextElement;
 		}
 		auxPElem = auxPElem->FirstChildElement("entity");
 		while(auxPElem){
 			// get the entities associated
-			if(!processEntityStaticGeoemtry(auxPElem, sgeo)){
+			if(!processEntityStaticGeometry(auxPElem, sgeo)){
 				debug("Error: Invalid entity of StaticGeometry\n" );
 				return false;
 			}
@@ -182,7 +206,13 @@ bool LevelGeometryLoader::processStaticGeometries(TiXmlElement *XMLRoot)
 		// build the staticGeometry
 		sgeo->build();
 
-		pElement = pElement->NextSiblingElement("staticGeometry");
+		nextElement:
+			// Update the loading bar.
+			msg = "Static geometry \"" + name + "\" loaded.\n";
+			if (mCallback)
+				(*(LoaderManager::LoaderCallback*)mCallback)(mChunkWeight, msg);
+
+			pElement = pElement->NextSiblingElement("staticGeometry");
 	}
 
 
@@ -392,7 +422,9 @@ bool LevelGeometryLoader::processNodes(TiXmlElement *XMLNode)
 {
 	ASSERT(XMLNode);
 
+	Ogre::SceneNode* node(0);
     TiXmlElement *pElement;
+    std::string msg(0);
 
     XMLNode = XMLNode->FirstChildElement("nodes");
     if(!XMLNode){
@@ -404,16 +436,23 @@ bool LevelGeometryLoader::processNodes(TiXmlElement *XMLNode)
     pElement = XMLNode->FirstChildElement("node");
     while(pElement)
     {
-    	Ogre::SceneNode *node = 0;
         if(!processNode(pElement, node)){
         	debugERROR("Error processing node\n");
         	ASSERT(false);
         	return false;
+        } else {
+            ASSERT(node);
+            ASSERT(node->getAttachedObject(0)); // we have something attached
+            mSceneNodes.push_back(node);
         }
+
+        // Update the loading bar.
+        msg = pElement->Attribute("name");
+        msg = "Node \"" + msg + "\" loaded.\n";
+		if (mCallback)
+			(*(LoaderManager::LoaderCallback*)mCallback)(mChunkWeight, msg);
+
         pElement = pElement->NextSiblingElement("node");
-        ASSERT(node);
-        ASSERT(node->getAttachedObject(0)); // we have something attached
-        mSceneNodes.push_back(node);
     }
 
     return true;
@@ -441,6 +480,8 @@ LevelGeometryLoader::~LevelGeometryLoader()
 // Functoin used to load something
 int LevelGeometryLoader::load(TiXmlElement *elem, LoaderData *data)
 {
+	uint itemsToProcess(0u);
+
 	ASSERT(elem);
 
 	// clear all the elements load before
@@ -455,22 +496,27 @@ int LevelGeometryLoader::load(TiXmlElement *elem, LoaderData *data)
 		return -1;
 	}
 
+	// Check the number of items to process, in order to customize
+	// the loading bar *increase effect*
+	setChunkWeight(elem);
+
+	// Load Static Geometries.
 	debugGREEN("Parsing StaticGeometries\n");
-	// first parse the static geometries
 	if(!processStaticGeometries(elem)){
-		debugERROR("Error Processing static Geometries\n");
+		debugERROR("Error parsing static Geometries\n");
 		ASSERT(false);
 		return -1;
 	}
 
-	debugGREEN("Parsing the entities now\n");
+	// Load Nodes and Entities.
+	debugGREEN("Parsing the entities\n");
 	if(!processNodes(elem)){
 		debugERROR("Error parsing entities\n");
 		ASSERT(false);
 		return -1;
 	}
 
-	debugGREEN("All geometry level loaded\n");
+	debugGREEN("Level geometry loaded.\n");
 	return 0;
 }
 

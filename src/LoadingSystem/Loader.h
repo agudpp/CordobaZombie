@@ -13,31 +13,49 @@
 #include "LoaderData.h"
 #include "CommonMath.h"
 #include "tinyxml.h"
+#include "DebugUtil.h"
 
 class TiXmlElement;
 
-class Loader {
+
+class Loader
+{
+public:
+	class LoaderCallback {
+	public:
+		virtual void operator()(float, const std::string&) = 0;
+	};
+
 public:
 	Loader(const std::string &name = "") :
 		mName(name),
-		mWeight(0)
+		mTotalWeight(0),
+		mChunkWeight(0.0f)
 	{
 
 	}
 	virtual ~Loader() {};
 
-	// Set/Get the weight
+	// Set/Get the Loader's name.
+	inline const std::string &getName(void) const;
+	inline void setName(const std::string &n);
+
+	// Set/Get the Loader's total weight.
 	inline int getWeight(void) const;
 	inline void setWeight(int w);
 
-	void setName(const std::string &n) {mName = n;}
-	const std::string &getName(void) const {return mName;}
+	// Set/Get the percentage of the total weight added by each loaded item.
+	inline float getChunkWeight(void) const;
+	virtual void setChunkWeight(TiXmlElement* elem) = 0;
 
-	// Functoin used to load something
-	virtual int load(TiXmlElement*, LoaderData *data) = 0;
+	// Load our items.
+	virtual int load(TiXmlElement* elem, LoaderData* data) = 0;
 
-	// Unload the information?
+	// Unload our items.
 	virtual int unload() = 0;
+
+	// Set the callback to return information about the loading status.
+	inline void setCallback(LoaderCallback *callback);
 
 protected:
 	/**
@@ -45,23 +63,37 @@ protected:
 	 */
 	void parseAABB(TiXmlElement *elem, sm::AABB &aabb);
 	void parseVector(TiXmlElement *elem, sm::Vector2 &vec);
-
-
+	float			mChunkWeight;
+	void**			mCallback;	// This should be a LoaderManager::LoaderCallback,
+								// but C++ can't forward declare nested classes.
 private:
-	std::string 		mName;
-	int					mWeight;
-
+	std::string 	mName;
+	int				mTotalWeight;
 };
 
 
-inline int Loader::getWeight(void) const
+////////////////////////////////////////////////////////////////////////////////
+inline const std::string& Loader::getName(void) const { return mName; }
+
+////////////////////////////////////////////////////////////////////////////////
+inline void Loader::setName(const std::string &n) { mName = n; }
+
+////////////////////////////////////////////////////////////////////////////////
+inline int Loader::getWeight(void) const { return mTotalWeight; }
+
+////////////////////////////////////////////////////////////////////////////////
+inline void Loader::setWeight(int w) { mTotalWeight = w; }
+
+////////////////////////////////////////////////////////////////////////////////
+inline float Loader::getChunkWeight(void) const { return mChunkWeight; }
+
+////////////////////////////////////////////////////////////////////////////////
+inline void Loader::setCallback(LoaderCallback *callback)
 {
-	return mWeight;
+	ASSERT(callback);
+	mCallback = (void**) callback;
 }
-inline void Loader::setWeight(int w)
-{
-	mWeight = w;
-}
+
 
 
 #endif /* LOADER_H_ */

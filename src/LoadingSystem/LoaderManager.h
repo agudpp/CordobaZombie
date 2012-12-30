@@ -19,9 +19,9 @@
 #include <algorithm>
 
 #include "DebugUtil.h"
-#include "Loader.h"
 #include "tinyxml.h"
 #include "LoaderData.h"
+#include "Loader.h"
 
 class TiXmlDocument;
 
@@ -30,12 +30,22 @@ class LoaderManager
 public:
 	class LoaderCallback {
 	public:
-		virtual void operator()(Loader *loader) = 0;
+		virtual void operator()(float, const std::string&) = 0;
 	};
+
+private:
+	struct Updater : public Loader::LoaderCallback {
+		void operator()(float, const std::string&);
+		void setCallback(LoaderCallback* lcb);
+		float	mCurrentLoaderWeight;
+	private:
+		LoaderCallback*	mCallback;
+	};
+
 public:
 	LoaderManager();
 
-	// This class do NOT remove the memory of anything
+	// This class does NOT free any memory.
 	~LoaderManager();
 
 	// add new loader
@@ -48,7 +58,7 @@ public:
 
 	// Set the Callback to receive information about the loader that was already
 	// "finished" of loading
-	void setCallback(LoaderCallback *callback);
+	inline void setCallback(LoaderCallback *callback);
 
 	// Get the sum of weights of all the Loaders that this Manager has
 	int getSumOfWeights(void) const;
@@ -89,10 +99,26 @@ private:
 	std::vector<Ogre::String>			mStrElements;
 	LoaderCallback						*mCallback;
 	LoaderData							mLoaderData;
+	Updater								mUpdater;
 
 };
 
 
+////////////////////////////////////////////////////////////////////////////////
+inline void LoaderManager::Updater::setCallback(LoaderCallback* lcb)
+{
+	ASSERT(lcb);
+	mCallback = lcb;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+inline void LoaderManager::setCallback(LoaderCallback *callback)
+{
+	ASSERT(callback);
+	mCallback = callback;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 inline LoaderData &LoaderManager::getLoaderData(void)
 {
 	return mLoaderData;
