@@ -35,11 +35,12 @@ public:
 
 private:
 	struct Updater : public Loader::LoaderCallback {
+		Updater();
 		void operator()(float, const std::string&);
-		void setCallback(LoaderCallback* lcb);
+		void setCallback(LoaderManager::LoaderCallback* lcb);
 		float	mCurrentLoaderWeight;
 	private:
-		LoaderCallback*	mCallback;
+		LoaderManager::LoaderCallback*	mCallback;
 	};
 
 public:
@@ -97,7 +98,6 @@ private:
 	std::vector<Loader *>				mLoaders;
 	std::vector<const TiXmlElement *>	mXmlElements;
 	std::vector<Ogre::String>			mStrElements;
-	LoaderCallback						*mCallback;
 	LoaderData							mLoaderData;
 	Updater								mUpdater;
 
@@ -105,7 +105,10 @@ private:
 
 
 ////////////////////////////////////////////////////////////////////////////////
-inline void LoaderManager::Updater::setCallback(LoaderCallback* lcb)
+inline LoaderManager::Updater::Updater() : mCallback(0) {};
+
+////////////////////////////////////////////////////////////////////////////////
+inline void LoaderManager::Updater::setCallback(LoaderManager::LoaderCallback* lcb)
 {
 	ASSERT(lcb);
 	mCallback = lcb;
@@ -115,7 +118,7 @@ inline void LoaderManager::Updater::setCallback(LoaderCallback* lcb)
 inline void LoaderManager::setCallback(LoaderCallback *callback)
 {
 	ASSERT(callback);
-	mCallback = callback;
+	mUpdater.setCallback(callback);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

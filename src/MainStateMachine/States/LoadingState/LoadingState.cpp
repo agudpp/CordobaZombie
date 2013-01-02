@@ -28,6 +28,9 @@ const std::string LoadingState::LOADING_BAR = "LoadingStBar";
 void
 LoadingState::Updater::operator()(float w, const std::string& msg)
 {
+	debugBLUE("LoaderManager callback called with weight %.2f "
+			"and message: %s\n", w, msg.c_str());
+
 	ASSERT(mBar);
 	ASSERT(w > 0.0f);
 	mAccum += w;
@@ -122,7 +125,7 @@ LoadingState::configureLoaderManager(const std::string &levelPath)
 	// get the max value
 	const float max = mLoaderManager->getSumOfWeights();
 	mLoadingBar.setMaximumValue(max + 0.1f);
-    debugYELLOW("mBar->setMaximumValue(): %f\n", max + 0.1f);
+	debug("mBar->setMaximumValue(): %f\n", max + 0.1f);
 	mUpdater.setLoadingBar(&mLoadingBar);
 	mLoaderManager->setCallback(&mUpdater);
 }
@@ -151,10 +154,10 @@ LoadingState::unloadLoadingBar(void)
 
 
 LoadingState::LoadingState() :
-IMainState("LoadingState"),
-mLoaderManager(0),
-mBackground(0),
-mDoc(0)
+	IMainState("LoadingState"),
+	mLoaderManager(0),
+	mBackground(0),
+	mDoc(0)
 {
 
 }
@@ -181,7 +184,13 @@ LoadingState::setLoaderManager(LoaderManager *lm)
 void
 LoadingState::getResources(ResourcesInfoVec &resourcesList) const
 {
-    // TODO? probablemente no le digamos nada
+    resourcesList.clear();
+
+    IMainState::ResourcesInfo rinfo;
+    rinfo.filePath = "/MainStates/LoadingState/resources.cfg";
+    rinfo.groupNames.push_back("LoadingState");
+
+    resourcesList.push_back(rinfo);
 }
 
 /**
@@ -201,7 +210,9 @@ LoadingState::enter(const MainMachineInfo &info)
 	helper::MetaRscManager::FileID fid =
 	        mrm.loadResourceFile(levelPath + "Loading/resources.cfg");
 	mRsrcFiles.push_back(fid);
-	fid = mrm.loadResourceLocation(levelPath, "LevelInfo");
+	fid = mrm.loadResourceLocation(levelPath + "Meshes", "Loading");
+	mRsrcFiles.push_back(fid);
+	fid = mrm.loadResourceLocation(levelPath + "Textures", "Loading");
 	mRsrcFiles.push_back(fid);
 
 	showBackground();

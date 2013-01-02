@@ -16,6 +16,9 @@ void LoaderManager::Updater::operator()(float w, const std::string& msg)
 {
 	/* The weight parameter 'w' is a percentage,
 	 * representing the chunk of data the current Loader has just loaded. */
+	debugBLUE("Loader callback called with %.1f%% of its total weight, "
+			"and message: %s\n", w*100.0f, msg.c_str());
+	ASSERT(mCallback);
 	(*mCallback)(mCurrentLoaderWeight*w, msg);
 }
 
@@ -40,8 +43,7 @@ bool LoaderManager::getLoader(const std::string &name, Loader *&loader)
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-LoaderManager::LoaderManager() :
-		mCallback()
+LoaderManager::LoaderManager()
 {
 
 }

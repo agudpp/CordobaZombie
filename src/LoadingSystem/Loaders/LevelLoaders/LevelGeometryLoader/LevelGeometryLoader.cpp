@@ -39,7 +39,7 @@ void LevelGeometryLoader::setChunkWeight(TiXmlElement* elem)
 	}
 
 	// mChunkWeight is a percentage.
-	mChunkWeight = 100.0f / itemsToProcess;
+	mChunkWeight = 1.0f / itemsToProcess;
 }
 
 
@@ -159,7 +159,6 @@ bool LevelGeometryLoader::processStaticGeometries(TiXmlElement *XMLRoot)
 
 		try {
 			sgeo = Common::GlobalObjects::sceneManager->createStaticGeometry(name);
-			debug("StaticGeometry %s created\n", name.c_str());
 		} catch(...) {
 			debug("Error: Invalid name to StaticGeometry\n" );
 			return false;
@@ -424,7 +423,7 @@ bool LevelGeometryLoader::processNodes(TiXmlElement *XMLNode)
 
 	Ogre::SceneNode* node(0);
     TiXmlElement *pElement;
-    std::string msg(0);
+    std::string msg;
 
     XMLNode = XMLNode->FirstChildElement("nodes");
     if(!XMLNode){
@@ -453,6 +452,7 @@ bool LevelGeometryLoader::processNodes(TiXmlElement *XMLNode)
 			(*(LoaderManager::LoaderCallback*)mCallback)(mChunkWeight, msg);
 
         pElement = pElement->NextSiblingElement("node");
+        node = 0;
     }
 
     return true;
@@ -477,7 +477,8 @@ LevelGeometryLoader::~LevelGeometryLoader()
 }
 
 
-// Functoin used to load something
+////////////////////////////////////////////////////////////////////////////////
+// Resources loading
 int LevelGeometryLoader::load(TiXmlElement *elem, LoaderData *data)
 {
 	uint itemsToProcess(0u);
@@ -523,7 +524,6 @@ int LevelGeometryLoader::load(TiXmlElement *elem, LoaderData *data)
 // Unload the information?
 int LevelGeometryLoader::unload()
 {
-	debugRED("TODO: ?\n");
 	// first of all we will destroy all the static geometries
 	for(int i = 0; i < mStaticGeometry.size(); ++i){
 		GLOBAL_SCN_MNGR->destroyStaticGeometry(mStaticGeometry[i]);
@@ -531,11 +531,11 @@ int LevelGeometryLoader::unload()
 	mStaticGeometry.clear();
 
 	// destroy all the entities
-	debugWARNING("Solo estamos borrando los scene nodes y entities del scene "
-			"manager pero probablemente no los meshes... Habria que hacer un "
-			"destructor general\n");
-	debugWARNING("Memory test sobre esto, para ver si estamos liberando todo o no."
-	        " Para la demo no nos hace falta...");
+	debugColor(DEBUG_BROWN, "Solo estamos borrando los scene nodes y entities "
+			"del scene manager, pero probablemente no los meshes.\nHabria que "
+			"hacer un destructor general. TODO: hacer un memory test sobre "
+			"esto, para ver si realmente estamos liberando todo o no. "
+	        "Para la demo NO hace falta.\n");
 	for(int i = 0; i < mSceneNodes.size(); ++i){
 		Ogre::MovableObject *ent = mSceneNodes[i]->getAttachedObject(0);
 		// TODO: deberiamos obtener todos los "attachedobjects" usando el iterator

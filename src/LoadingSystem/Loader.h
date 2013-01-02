@@ -30,7 +30,8 @@ public:
 	Loader(const std::string &name = "") :
 		mName(name),
 		mTotalWeight(0),
-		mChunkWeight(0.0f)
+		mChunkWeight(0.0f),
+		mCallback(0)
 	{
 
 	}
@@ -64,7 +65,7 @@ protected:
 	void parseAABB(TiXmlElement *elem, sm::AABB &aabb);
 	void parseVector(TiXmlElement *elem, sm::Vector2 &vec);
 	float			mChunkWeight;
-	void**			mCallback;	// This should be a LoaderManager::LoaderCallback,
+	void**			mCallback;	// This is a LoaderManager::LoaderCallback,
 								// but C++ can't forward declare nested classes.
 private:
 	std::string 	mName;
