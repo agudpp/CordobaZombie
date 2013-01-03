@@ -159,6 +159,9 @@ mInternalState(State::Normal)
 	mStartDistance = distVec.length();
 	mCamState.setNodes(mRootNode, mRotationNode, mCameraNode);
 	mUpdater.setSceneNode(mCameraNode);
+
+	// configure the zoom
+	zoomCamera(mZoom);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

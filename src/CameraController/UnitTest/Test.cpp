@@ -258,8 +258,7 @@ void Test::update()
 
 //	handleInput();
 
-	const OIS::MouseState& lMouseState = GLOBAL_MOUSE->getMouseState();
-    GLOBAL_CURSOR->updatePosition(lMouseState.X.abs, lMouseState.Y.abs);
+
     if(mKeyboard->isKeyDown(OIS::KC_ESCAPE)) {
         // we have to exit
         mStopRunning = true;

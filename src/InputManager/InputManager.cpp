@@ -72,6 +72,74 @@ InputManager::shouldPerformRaycast(void) const
 
 ////////////////////////////////////////////////////////////////////////////////
 void
+InputManager::newStateEvent(Event e)
+{
+    switch(e){
+    ////////////////////////////////////////////////////////////
+    case E_DONE:
+    {
+        switch(mActualState){
+        ////////////////////////////////////////////////
+        case S_ROTATING_CAMERA:
+        {
+            // we need to restore the cursor visibility and position
+            GLOBAL_CURSOR->setVisible(true);
+            GLOBAL_CURSOR->restorePosition();
+            initState(S_NORMAL);
+        }
+        break;
+        ////////////////////////////////////////////////
+        default:
+            debugERROR("State not contemplated %d\n", static_cast<int>(mActualState));
+            ASSERT(false);
+        }
+    }
+    break;
+
+    ////////////////////////////////////////////////////////////
+    case E_ROTATE_CAMERA:
+    {
+        ASSERT(mActualState == S_NORMAL);
+        initState(S_ROTATING_CAMERA);
+    }
+    break;
+    ////////////////////////////////////////////////////////////
+    default:
+        // ?
+        debugERROR("Event not contemplated %d\n", static_cast<int>(e));
+        ASSERT(false);
+
+    }
+    mLastEvent = e;
+}
+
+void
+InputManager::initState(State s)
+{
+    switch(s) {
+    case S_NORMAL:
+
+        break;
+
+    case S_ROTATING_CAMERA:
+    {
+        // save the position of the mouse and hide it
+        GLOBAL_CURSOR->setVisible(false);
+        GLOBAL_CURSOR->savePosition();
+    }
+    break;
+
+    default:
+        // ?
+        debugERROR("State not contemplated %d\n", static_cast<int>(s));
+        ASSERT(false);
+    }
+
+    mActualState = s;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void
 InputManager::handleCameraMovement(void)
 {
     ASSERT(isSet(Flag::CameraMovementEnabled));
@@ -158,7 +226,10 @@ InputManager::InputManager() :
 		mCameraController(0),
 		mMenuManager(0),
 		mActualActionObj(0),
-		mFlags(~0)
+		mFlags(~0),
+		mActualState(S_NORMAL),
+		mLastState(S_NORMAL),
+		mLastEvent(E_NONE)
 {
 	configureDefaultKeys();
 }
@@ -244,43 +315,52 @@ void InputManager::unselectAll(void)
 ////////////////////////////////////////////////////////////////////////////////
 void InputManager::update(void)
 {
-    // check the flags
-    if (isSet(Flag::CameraMovementEnabled)) {
-        handleCameraMovement();
-    }
-    if(isSet(Flag::CameraRotationEnabled)) {
-        if ((!input::InputKeyboard::isKeyDown(static_cast<input::KeyCode>(
-                mKeys[inputID::KEY_MOVE_CAM_FREE])))) {
-            // show again the cursor and continue
-            GLOBAL_CURSOR->setVisible(true);
+    // update the GLOBAL_CURSOR (TODO: probably we don't want to do this always)
+    GLOBAL_CURSOR->updatePosition(input::InputMouse::absX(),
+                                  input::InputMouse::absY());
 
-            // enable again the camera movement
-            setFlag(Flag::CameraMovementEnabled);
+    // process the actual state
+    switch(mActualState) {
+    case S_NORMAL:
+    {
+        // if it is enable the camera movement then we handle it
+        if (isSet(Flag::CameraMovementEnabled)) {
+            handleCameraMovement();
+        }
 
-            // restore the position of the mouse
-            GLOBAL_CURSOR->restorePosition();
-            return;
-        } else {
-            // we have to hide the mouse Cursor
-            if (GLOBAL_CURSOR->isVisible()) {
-                // disable camera movement
-                clear(Flag::CameraMovementEnabled);
-                GLOBAL_CURSOR->setVisible(false);
-
-                // save the position of the mouse
-                GLOBAL_CURSOR->savePosition();
-            }
-            handleCameraRotation();
+        // check if we have to rotate the camera
+        if(isSet(Flag::CameraRotationEnabled) &&
+                (input::InputKeyboard::isKeyDown(static_cast<input::KeyCode>(
+                       mKeys[inputID::KEY_MOVE_CAM_FREE])))) {
+            // new event
+            newStateEvent(E_ROTATE_CAMERA);
             return;
         }
+
+        if (isSet(Flag::CameraZoomEnabled)){
+            handleCameraZoom();
+        }
+        // TODO: continue doing all the others things
     }
-    if (isSet(Flag::CameraZoomEnabled)) {
-        // TODO: we have to see if we want to show another cursor...
-        handleCameraZoom();
+    break;
+
+    case S_ROTATING_CAMERA:
+    {
+        // check if we finish rotating the camera
+        if(!input::InputKeyboard::isKeyDown(static_cast<input::KeyCode>(
+                               mKeys[inputID::KEY_MOVE_CAM_FREE]))) {
+            // stop rotating camera
+            newStateEvent(E_DONE);
+            return;
+        }
+
+        // handle rotation
+        handleCameraRotation();
     }
+    break;
 
-    // TODO: aca deberiamos seguir haciendo el manejo de todo lo de mas (raycast
-    // etc etc.)
-
-
+    default:
+        // ?
+        ASSERT(false);
+    }
 }

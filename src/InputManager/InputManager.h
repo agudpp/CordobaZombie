@@ -47,6 +47,19 @@ class InputManager
 
 	};
 
+	// Events and state
+	enum Event {
+	    E_NONE = 0,
+	    E_DONE,
+	    E_ROTATE_CAMERA,
+	};
+
+	enum State {
+	    S_NORMAL = 0,
+	    S_ROTATING_CAMERA,
+
+	};
+
 public:
 	// Here we let public the possibility to configure the keys used in the game
 	enum inputID {
@@ -164,6 +177,12 @@ private:
 	bool shouldPerformRaycast(void) const;
 
 	/**
+	 * State machine associated functions
+	 */
+	void newStateEvent(Event e);
+	void initState(State s);
+
+	/**
 	 * Handle camera movement (camera movement using the keyboard and the mouse
 	 * position).
 	 * Also handle camera rotation
@@ -191,6 +210,9 @@ private:
 	InputActionObject		*mActualActionObj;
 	UnitSelVec				mUnitsSelected;
 	int                     mFlags;
+	State                   mActualState;
+	State                   mLastState;
+	Event                   mLastEvent;
 
 };
 
