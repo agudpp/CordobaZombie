@@ -23,7 +23,7 @@ CollisionObjectsLoader::~CollisionObjectsLoader()
 
 // Functoin used to load something
 int
-CollisionObjectsLoader::load(TiXmlElement *elem, LoaderData *data)
+CollisionObjectsLoader::load(TiXmlElement *elem, LoaderData *data, LoaderManager::LoaderCallback *callback)
 {
     ASSERT(elem);
     ASSERT(data);

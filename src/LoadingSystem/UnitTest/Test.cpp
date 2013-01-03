@@ -73,10 +73,8 @@ void Test::createLevelManager(void)
 
 Test::Test()
 {
-	mMouseCursor.setImage("cursor.png");
 	mMouseCursor.setVisible(true);
 	mMouseCursor.setWindowDimensions(GLOBAL_WINDOW->getWidth(), GLOBAL_WINDOW->getHeight());
-
 }
 
 Test::~Test()

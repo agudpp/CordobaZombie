@@ -21,8 +21,9 @@ LoaderBuilder::getLoaders(std::vector<Loader *> &result)
     result.clear();
 
     result.push_back(new LevelGeometryLoader);
-    result.push_back(new LevelPathfindLoader);
-    result.push_back(new ZombieLoader);
+//	TODO: enable the following two loaders
+//    result.push_back(new LevelPathfindLoader);
+//    result.push_back(new ZombieLoader);
     // TODO: add the other ones
 }
 

@@ -26,12 +26,18 @@ const std::string LoadingState::LOADING_BAR = "LoadingStBar";
 
 ////////////////////////////////////////////////////////////////////////////////
 void
-LoadingState::Updater::operator()(Loader *l)
+LoadingState::Updater::operator()(float w, const std::string& msg)
 {
+	debugBLUE("LoaderManager callback called with weight %.2f "
+			"and message: %s\n", w, msg.c_str());
+
 	ASSERT(mBar);
-	ASSERT(l);
-	mAccum += l->getWeight();
+	ASSERT(w > 0.0f);
+	mAccum += w;
 	mBar->setActualValue(mAccum);
+
+	// TODO: print message parameter below the loading bar
+	debugRED("TODO: print message parameter below the loading bar.\n")
 
 	// update the ogre render queue
 	mTimeStamp = mTimer.getMilliseconds();
@@ -119,7 +125,7 @@ LoadingState::configureLoaderManager(const std::string &levelPath)
 	// get the max value
 	const float max = mLoaderManager->getSumOfWeights();
 	mLoadingBar.setMaximumValue(max + 0.1f);
-    debugYELLOW("mBar->setMaximumValue(): %f\n", max + 0.1f);
+	debug("mBar->setMaximumValue(): %f\n", max + 0.1f);
 	mUpdater.setLoadingBar(&mLoadingBar);
 	mLoaderManager->setCallback(&mUpdater);
 }
@@ -148,10 +154,10 @@ LoadingState::unloadLoadingBar(void)
 
 
 LoadingState::LoadingState() :
-IMainState("LoadingState"),
-mLoaderManager(0),
-mBackground(0),
-mDoc(0)
+	IMainState("LoadingState"),
+	mLoaderManager(0),
+	mBackground(0),
+	mDoc(0)
 {
 
 }
@@ -178,7 +184,13 @@ LoadingState::setLoaderManager(LoaderManager *lm)
 void
 LoadingState::getResources(ResourcesInfoVec &resourcesList) const
 {
-    // TODO? probablemente no le digamos nada
+    resourcesList.clear();
+
+    IMainState::ResourcesInfo rinfo;
+    rinfo.filePath = "/MainStates/LoadingState/resources.cfg";
+    rinfo.groupNames.push_back("LoadingState");
+
+    resourcesList.push_back(rinfo);
 }
 
 /**
@@ -198,7 +210,9 @@ LoadingState::enter(const MainMachineInfo &info)
 	helper::MetaRscManager::FileID fid =
 	        mrm.loadResourceFile(levelPath + "Loading/resources.cfg");
 	mRsrcFiles.push_back(fid);
-	fid = mrm.loadResourceLocation(levelPath, "LevelInfo");
+	fid = mrm.loadResourceLocation(levelPath + "Meshes", "Loading");
+	mRsrcFiles.push_back(fid);
+	fid = mrm.loadResourceLocation(levelPath + "Textures", "Loading");
 	mRsrcFiles.push_back(fid);
 
 	showBackground();
@@ -218,9 +232,9 @@ LoadingState::update(MainMachineInfo &info)
 {
 	MainMachineEvent result = MME_DONE;
 
-	// The idea of creating a new thread here to load the entities and resources
-	// it is not possible because Ogre crash when I try to create an entity
-	// from other thread
+	// It's impossible to create a new thread here to load the entities and
+	// resources, because Ogre crashes whenever I try to create an entity
+	// from another thread.
 	const int err = mLoaderManager->load();
 	if (err < 0) {
 	    debugERROR("LoadingManager fails when loading %d\n", err);
