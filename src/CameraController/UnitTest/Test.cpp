@@ -134,10 +134,10 @@ void Test::handleInput(void)
 
 }
 
-Test::Test()
+Test::Test() :
+        AppTester(false)
 {
 	setUseDefaultInput(false);
-	mMouseCursor.setImage("cursor.png");
 	mMouseCursor.setVisible(true);
 	mMouseCursor.setWindowDimensions(GLOBAL_WINDOW->getWidth(), GLOBAL_WINDOW->getHeight());
 

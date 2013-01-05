@@ -99,7 +99,7 @@ void MenuManager::addMenu(IMenu *menu)
 	std::vector<MenuCell *> cells;
 	getCellsFromAABB(menu->getAABB(), cells);
 
-	for(int i = cells.size()-1; i >= 0; --i){
+	for(size_t i = 0; i < cells.size(); ++i){
 		// check that the menu doesnt exists
 #ifdef DEBUG
 		std::vector<IMenu *>::iterator it = std::find(cells[i]->begin(), cells[i]->end(), menu);
@@ -112,21 +112,25 @@ void MenuManager::addMenu(IMenu *menu)
 ////////////////////////////////////////////////////////////////////////////////
 void MenuManager::removeMenu(IMenu *menu)
 {
+	size_t j(0);
 	ASSERT(menu);
 
 	// get all the cells that we have to put the menu
 	std::vector<MenuCell *> cells;
 	getCellsFromAABB(menu->getAABB(), cells);
 
-	for(int i = cells.size()-1; i >= 0; --i){
+	for (size_t i = 0 ; i < cells.size() ; ++i){
 		// find the menu and remove it
 		MenuCell *v = cells[i];
-		for(int j = v->size()-1; j >= 0; --j ){
+		for (j = 0 ; j < v->size() ; ++j){
 			if((*v)[j] == menu){
 				// remove and continue to the next cell
 				swapValue(*v, j);
 				break;
 			}
+		}
+		if (j >= v->size()) {
+			debugRED("IMenu not found!!!\n");
 		}
 	}
 

@@ -220,13 +220,13 @@ void CameraController::rotateCameraY(const Ogre::Radian &r)
 ////////////////////////////////////////////////////////////////////////////////
 void CameraController::rotateCameraX(const Ogre::Radian &r)
 {
-	const Ogre::Radian pitch = mRotationNode->getOrientation().getPitch();
+	const Ogre::Radian pitch = mRootNode->getOrientation().getPitch();
 	Ogre::Radian newR = (r * GLOBAL_TIME_FRAME *
 			COEFF_FACTOR * mRotVelocity) + pitch;
 
 	if(newR <= mMaxXRotation && newR >= mMinXRotation){
 		newR -= pitch;
-		mRotationNode->rotate(Ogre::Vector3::UNIT_X, newR, Ogre::Node::TS_LOCAL);
+		mRootNode->rotate(Ogre::Vector3::UNIT_X, newR, Ogre::Node::TS_LOCAL);
 	} else {
 		// do nothing
 		return;
@@ -238,7 +238,7 @@ void CameraController::rotateCameraX(const Ogre::Radian &r)
 void CameraController::setRotationX(const Ogre::Radian &r)
 {
 	if(r <= mMaxXRotation && r >= mMinXRotation){
-		mRotationNode->setOrientation(Ogre::Quaternion(r, Ogre::Vector3::UNIT_X));
+		mRootNode->setOrientation(Ogre::Quaternion(r, Ogre::Vector3::UNIT_X));
 	}
 }
 ////////////////////////////////////////////////////////////////////////////////

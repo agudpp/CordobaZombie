@@ -66,8 +66,8 @@
 //int video = 0;
 
 
-#define myvideo2 "/home/raul/Dropbox/CordobaZombie/menu/Menu_animacion/menu_ar3:2.ogg"
-#define myvideo "/home/raul/Dropbox/201Z-proyecto/Videos/caligaris.flv"
+#define myvideo2 "/home/carlos/Dropbox/CordobaZombie/menu/Menu_animacion/menu_ar3:2.ogg"
+#define myvideo "/home/carlos/Dropbox/201Z-proyecto/Videos/caligaris.flv"
 
 
 static double gettimestamp(void)

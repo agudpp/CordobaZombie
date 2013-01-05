@@ -26,12 +26,18 @@ const std::string LoadingState::LOADING_BAR = "LoadingStBar";
 
 ////////////////////////////////////////////////////////////////////////////////
 void
-LoadingState::Updater::operator()(Loader *l)
+LoadingState::Updater::operator()(float w, const std::string& msg)
 {
+	debugBLUE("LoaderManager callback called with weight %.2f "
+			"and message: %s\n", w, msg.c_str());
+
 	ASSERT(mBar);
-	ASSERT(l);
-	mAccum += l->getWeight();
+	ASSERT(w > 0.0f);
+	mAccum += w;
 	mBar->setActualValue(mAccum);
+
+	// TODO: print message parameter below the loading bar
+	debugRED("TODO: print message parameter below the loading bar.\n")
 
 	// update the ogre render queue
 	mTimeStamp = mTimer.getMilliseconds();
@@ -105,12 +111,21 @@ LoadingState::configureLoaderManager(const std::string &levelPath)
 		return;
 	}
 
+	// first unload all the loaded data
+	const int errCode = mLoaderManager->unload();
+	if (errCode < 0) {
+	    debugERROR("Error unloading data from the loader manager\n");
+	    // TODO: What we can do in this case? will be a memory leak!
+	    ASSERT(false);
+	}
+
 	mLoaderManager->removeAllElements();
 	mLoaderManager->addElement(mDoc->RootElement());
 
 	// get the max value
-	float max = mLoaderManager->getSumOfWeights();
+	const float max = mLoaderManager->getSumOfWeights();
 	mLoadingBar.setMaximumValue(max + 0.1f);
+	debug("mBar->setMaximumValue(): %f\n", max + 0.1f);
 	mUpdater.setLoadingBar(&mLoadingBar);
 	mLoaderManager->setCallback(&mUpdater);
 }
@@ -139,10 +154,10 @@ LoadingState::unloadLoadingBar(void)
 
 
 LoadingState::LoadingState() :
-IMainState("LoadingState"),
-mLoaderManager(0),
-mBackground(0),
-mDoc(0)
+	IMainState("LoadingState"),
+	mLoaderManager(0),
+	mBackground(0),
+	mDoc(0)
 {
 
 }
@@ -169,7 +184,13 @@ LoadingState::setLoaderManager(LoaderManager *lm)
 void
 LoadingState::getResources(ResourcesInfoVec &resourcesList) const
 {
-    // TODO? probablemente no le digamos nada
+    resourcesList.clear();
+
+    IMainState::ResourcesInfo rinfo;
+    rinfo.filePath = "/MainStates/LoadingState/resources.cfg";
+    rinfo.groupNames.push_back("LoadingState");
+
+    resourcesList.push_back(rinfo);
 }
 
 /**
@@ -189,12 +210,14 @@ LoadingState::enter(const MainMachineInfo &info)
 	helper::MetaRscManager::FileID fid =
 	        mrm.loadResourceFile(levelPath + "Loading/resources.cfg");
 	mRsrcFiles.push_back(fid);
-	fid = mrm.loadResourceLocation(levelPath, "LevelInfo");
+	fid = mrm.loadResourceLocation(levelPath + "Meshes", "Loading");
+	mRsrcFiles.push_back(fid);
+	fid = mrm.loadResourceLocation(levelPath + "Textures", "Loading");
 	mRsrcFiles.push_back(fid);
 
-	configureLoaderManager(levelPath);
 	showBackground();
 	configureLoadingBar();
+	configureLoaderManager(levelPath);
 	GLOBAL_CURSOR->setVisible(false);
 }
 
@@ -207,23 +230,16 @@ LoadingState::enter(const MainMachineInfo &info)
 MainMachineEvent
 LoadingState::update(MainMachineInfo &info)
 {
-	debugRED("Por ahora estamos haciendo esto solo para debug, aca tenemos "
-			"que salir solamente cuando se termina de cargar el nivel "
-			"completamente sin posibilidad de salir antes (cancelar el cargado)"
-			"\n");
-
-	Ogre::Timer timer;
-	float timeStamp = 0;
 	MainMachineEvent result = MME_DONE;
 
-	float count = 0;
-	bool press = false;
-
-	// here we load the level... note that the RenderOneFrame operation is in
-	// the "Updater" class... Here we only call the LoadingManager and
-	// wait their callbacks call to update the windows
-	debugERROR("Tenemos que verificar esto si esta funcionando bien\n");
-	int err = mLoaderManager->load();
+//	float count = 0;
+//	bool press = false;
+//
+//	// here we load the level... note that the RenderOneFrame operation is in
+//	// the "Updater" class... Here we only call the LoadingManager and
+//	// wait their callbacks call to update the windows
+//	debugERROR("Tenemos que verificar esto si esta funcionando bien\n");
+//	int err = mLoaderManager->load();
 
 
 	// here is the main loop
@@ -258,6 +274,15 @@ LoadingState::update(MainMachineInfo &info)
 //
 //		Common::GlobalObjects::lastTimeFrame = (timer.getMilliseconds() - timeStamp) * 0.001;
 //	}
+
+	// It's impossible to create a new thread here to load the entities and
+	// resources, because Ogre crashes whenever I try to create an entity
+	// from another thread.
+	const int err = mLoaderManager->load();
+	if (err < 0) {
+	    debugERROR("LoadingManager fails when loading %d\n", err);
+	    result = MME_ERROR;
+	}
 
 	return result;
 }

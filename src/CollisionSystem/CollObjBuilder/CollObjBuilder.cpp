@@ -192,7 +192,8 @@ CollisionObject *CollObjBuilder::createPolyShape(PolyStructsContainer<sm::Vertex
 	CollisionObject *result = new CollisionObject;
 	
 	//We set the real shape
-	result->realShape = polyShape;
+	result->b2dData = new CollisionObject::Box2DData;
+	result->b2dData->realShape = polyShape;
 
 	// get the bounding box
 	getBoundingBox(vSet, result->bb);
@@ -222,7 +223,8 @@ CollisionObject *CollObjBuilder::createCircleShape(PolyStructsContainer<sm::Vert
 	circleShape->m_radius = radius;
 
 	//We set the b2CircleShape to the collisionObject
-	result->realShape = circleShape;
+	result->b2dData = new CollisionObject::Box2DData;
+	result->b2dData->realShape = circleShape;
 	//ASSERT(false);
 
 	result->bb.setSize(radius *2, radius *2);
@@ -257,7 +259,8 @@ CollisionObject *CollObjBuilder::createEdgeShape(PolyStructsContainer<sm::Vertex
 	edgeShape->Set(vertice1, vertice2);
 
 	//We set the edgeShape to the CollisionObject
-	result->realShape = edgeShape;
+	result->b2dData = new CollisionObject::Box2DData;
+	result->b2dData->realShape = edgeShape;
 
 	getBoundingBox(vert, result->bb);
 
@@ -322,7 +325,8 @@ CollisionObject *CollObjBuilder::createBoxShape(PolyStructsContainer<sm::Vertex 
 	//ASSERT(false);
 
 	//We set the boxShape to the CollisionObject
-	result->realShape = boxShape;
+	result->b2dData = new CollisionObject::Box2DData;
+	result->b2dData->realShape = boxShape;
 	
 	getBoundingBox(vertexs,result->bb);
 

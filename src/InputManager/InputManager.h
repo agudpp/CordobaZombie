@@ -14,6 +14,7 @@
 #include "CommonMath.h"
 #include "InputStateMachine.h"
 #include "DebugUtil.h"
+#include "MouseSelectionHandler.h"
 
 class CameraController;
 class LevelManager;
@@ -157,6 +158,12 @@ private:
 	void handleMouse(void);
 	void handleRaycast(void);
 
+	/**
+	 * Check if we have to handle the Mouse Raycast (using the
+	 * MouseSelectionHandler).
+	 */
+	bool shouldPerformRaycast(void) const;
+
 
 private:
 	LevelManager			*mLevelManager;
@@ -168,6 +175,7 @@ private:
 	InputStateMachine		mStateMachine;
 	InputActionObject		*mActualActionObj;
 	UnitSelVec				mUnitsSelected;
+	MouseSelectionHandler   mMouseSelHandler;
 
 };
 

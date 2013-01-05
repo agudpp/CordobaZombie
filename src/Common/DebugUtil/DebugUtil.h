@@ -14,7 +14,7 @@
 #  include <libgen.h>
 #elif defined(linux) || defined(_linux) || defined(__linux) || defined(__linux__)
 #  ifndef _GNU_SOURCE
-#  define _GNU_SOURCE
+#    define _GNU_SOURCE
 #  endif
 #  include <cstring>
 #else
@@ -55,7 +55,7 @@
 	#define ASSERT(x)	assert(x);
 	//#define OGRELOG(x)	Ogre::LogManager().getSingleton().logMessage(x)
 	#define OGRELOG(x)	std::cerr << "OGRELOG: " << (x) << std::endl;
-	#define debug(format, ...) {fprintf(stderr, "\33[0m DEBUG[%s, %s, %d]: ", \
+	#define debug(format, ...) {fprintf(stderr, "\33[0mDEBUG[%s, %s, %d]: ", \
 					 __FILE__, __FUNCTION__, __LINE__); \
 					fprintf(stderr, format , ## __VA_ARGS__);}
 
@@ -72,15 +72,15 @@
 					fprintf(stderr, format "\33[0m", ## __VA_ARGS__);}
 
 	#define debugGREEN(format, ...) {fprintf(stderr, DEBUG_GREEN "DEBUG[%s, %s, %d]: ", \
-					 __FILE__, __FUNCTION__, __LINE__); \
+					 __FILENAME__, __FUNCTION__, __LINE__); \
 					fprintf(stderr, format "\33[0m", ## __VA_ARGS__);}
 
 	#define debugColor(color, format, ...) {fprintf(stderr, color "DEBUG[%s, %s, %d]: ", \
-					 __FILE__, __FUNCTION__, __LINE__); \
+					 __FILENAME__, __FUNCTION__, __LINE__); \
 					fprintf(stderr, format "\33[0m", ## __VA_ARGS__);}
 
 	#define debugOPTIMIZATION(format, ...) {fprintf(stderr, DEBUG_ULINE DEBUG_INVERT "DEBUG[%s, %s, %d]: ", \
-					 __FILE__, __FUNCTION__, __LINE__); \
+					 __FILENAME__, __FUNCTION__, __LINE__); \
 					fprintf(stderr, format "\33[0m", ## __VA_ARGS__);}
 
 	#define debugRAUL(format, ...) {fprintf(stderr,DEBUG_BOLD DEBUG_YELLOW "DEBUG[%s, %s, %d]: ", \

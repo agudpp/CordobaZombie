@@ -145,8 +145,6 @@ void HistoryState::beforeUpdate(void)
 
 void HistoryState::update(void)
 {
-//	debugRAUL("UPDATE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n\n\n");
-
 	this->checkInput();
 	mSlidePlayer->update();
 	return;

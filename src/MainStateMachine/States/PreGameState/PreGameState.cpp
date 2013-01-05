@@ -86,11 +86,43 @@ void PreGameState::createButtons(const TiXmlElement *root){
 
 }
 
+////////////////////////////////////////////////////////////////////////////////
+void PreGameState::operator()(CbMenuButton * b, CbMenuButton::ButtonID id)
+{
+	if(b == mCbButtons[PreGameState::exitButton].getButton()
+			&& id == CbMenuButton::LEFT_BUTTON)
+	{
+		debugGREEN("EXIT\n");
+		//TODO exit here ...
+		//mState = STATE_HIDDING;
+		//this->hideToExit();
+	}
+	else if(b == mCbButtons[PreGameState::prevButton].getButton()
+			&& id == CbMenuButton::LEFT_BUTTON)
+	{
+		mSlidePlayer->prev();
+	}
+	else if(b == mCbButtons[PreGameState::nextButton].getButton()
+			&& id == CbMenuButton::LEFT_BUTTON)
+	{
+		mSlidePlayer->next();
+	}
+	else
+	{
+		debugERROR("Invalid button has been pressed :S\n");
+		ASSERT(false);
+	}
+
+}
+
+
+
+
 
 ////////////////////////////////////////////////////////////////////////////////
 void PreGameState::createSlidePlayer( const char *overlays
 									, const char *effects
-									, const char* slidenames)
+									, const char *slidenames)
 {
 
 	mSlidePlayer = SlidePlayer(overlays, effects);
@@ -116,6 +148,10 @@ void PreGameState::createSlidePlayer( const char *overlays
 }
 
 
+
+
+
+
 ////////////////////////////////////////////////////////////////////////////////
 /**
  * Entering the state with additional info
@@ -128,26 +164,25 @@ void PreGameState::enter(const MainMachineInfo &info)
 	mPreGamePath = levelPath + PREGAMEDIRNAME;
 
 	// Load resources
-	xmlhelper.setFilename(mPreGamePath);
+	XMLHelper xmlhelper;
+	xmlhelper.setFilename(mPreGamePath + "config.xml");
 	const TiXmlElement *config = xmlhelper.getRootElement();
 	// Background
-	std::string backOverlay = config->Attribute("Background");
+	const TiXmlElement *bkgrdNode = config->FirstChildElement("Background");
+	ASSERT(bkgrdNode);
+	std::string backOverlay = bkgrdNode->Attribute("path");
 	ASSERT(!backOverlay.empty());
 	this->showBackground(backOverlay);
 
+	const TiXmlElement *slidesNode = config->FirstChildElement("SlidePlayer");
+	ASSERT(slidesNode);
 	// Slides
-	createSlidePlayer(config->Attribute("SlideOverlays"),
-			   	      config->Attribute("SlideOverlayEffects"),
-			   	      config->Attribute("SlideNames"));
+	createSlidePlayer(slidesNode->Attribute("Overlays"),
+					  slidesNode->Attribute("Effects"),
+					  slidesNode->Attribute("Names"));
 
 	//Buttons
 	createButtons(config);
-
-	/* TODO aca quede. Revisar que no me falte mostrar nada mas y en especial
-	 * lo del overlaymanager que me habia cagado la ultima vez con el history
-	 * state.
-	 */
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -158,7 +193,6 @@ void PreGameState::enter(const MainMachineInfo &info)
  */
 MainMachineEvent PreGameState::update(MainMachineInfo &info)
 {
-
 	Ogre::Timer timer;
 	float timeStamp = 0;
 	MainMachineEvent result = MME_DONE;
@@ -166,45 +200,35 @@ MainMachineEvent PreGameState::update(MainMachineInfo &info)
 	float count = 0;
 	bool press = false;
 
-
-
-	// here we load the level... note that the RenderOneFrame operation is in
-	// the "Updater" class... Here we only call the LoadingManager and
-	// wait their callbacks call to update the windows
-
-
 	// here is the main loop
 	// TODO: fix the FrameElapsedTime and check how to get the ogres one.
-//	while(true) {
-//		timeStamp = timer.getMilliseconds();
-//
-//		// TODO: solo chequeamos escape aca pero no va...
-//		GLOBAL_KEYBOARD->capture();
-//		if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_SPACE)){
-//			if(!press){
-//				press = true;
-//			}
-//		} else {press = false;}
-//
-//
-//		if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_ESCAPE)){
-//			break;
-//		}
-//		mLoadingBar.setState(count);
-//		count += 0.1f;
-//		if(count >= 100.0f){count = 0;}
-//
-//		// render the frame
-//		if(!GLOBAL_ROOT->renderOneFrame()){
-//			result = -1; //TODO: poner un erro real aca
-//			break;
-//		}
-//
-//		// This must be called when we use the renderOneFrame approach
-//		Ogre::WindowEventUtilities::messagePump();
-//
-//		Common::GlobalObjects::lastTimeFrame = (timer.getMilliseconds() - timeStamp) * 0.001;
-//	}
+	while(true) {
+		timeStamp = timer.getMilliseconds();
+
+		GLOBAL_KEYBOARD->capture();
+		if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_SPACE)){
+			if(!press){
+				press = true;
+				debugGREEN("EXIT\n");
+				// break
+			}
+		} else {press = false;}
+
+		// render the frame
+		if(!GLOBAL_ROOT->renderOneFrame()){
+			result = -1; //TODO: poner un error real aca
+			break;
+		}
+
+		// This must be called when we use the renderOneFrame approach
+		Ogre::WindowEventUtilities::messagePump();
+
+		Common::GlobalObjects::lastTimeFrame =
+				(timer.getMilliseconds() - timeStamp) * 0.001;
+
+		// Update the slide player
+		mSlidePlayer->update();
+	}
 
 	return result;
 }
@@ -225,5 +249,3 @@ void LoadingState::exit(void)
 	mDoc = 0;
 
 }
-
-

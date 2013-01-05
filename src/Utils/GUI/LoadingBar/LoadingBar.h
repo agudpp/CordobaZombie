@@ -55,6 +55,7 @@ public:
 	 * value to calculate automatically the %
 	 */
 	inline void setActualValue(float v);
+	inline float actualValue(void) const;
 
 	/**
 	 * Set % of the bar [0.0, 100.0] %
@@ -109,6 +110,10 @@ inline void LoadingBar::setActualValue(float v)
 	ASSERT(v >= 0);
 	if(v > mMaxValue) v = mMaxValue;
 	setState(v/mMaxValue);
+}
+inline float LoadingBar::actualValue(void) const
+{
+    return mActualProgress;
 }
 
 inline void LoadingBar::show(void)
