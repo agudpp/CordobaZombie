@@ -517,7 +517,7 @@ int LevelGeometryLoader::load(TiXmlElement *elem, LoaderData *data)
 		return -1;
 	}
 
-	debugGREEN("Level geometry loaded.\n");
+	debugGREEN("LevelGeometry loaded.\n");
 	return 0;
 }
 

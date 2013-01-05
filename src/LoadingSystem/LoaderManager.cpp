@@ -14,10 +14,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 void LoaderManager::Updater::operator()(float w, const std::string& msg)
 {
-	/* The weight parameter 'w' is a percentage,
+	/* The weight parameter 'w' is a value in [0,1],
 	 * representing the chunk of data the current Loader has just loaded. */
-	debugBLUE("Loader callback called with %.1f%% of its total weight, "
-			"and message: %s\n", w*100.0f, msg.c_str());
 	ASSERT(mCallback);
 	(*mCallback)(mCurrentLoaderWeight*w, msg);
 }
@@ -42,17 +40,10 @@ bool LoaderManager::getLoader(const std::string &name, Loader *&loader)
 
 
 ////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-LoaderManager::LoaderManager()
-{
-
-}
+LoaderManager::LoaderManager() { /* Auto-generated constructor stub */ }
 
 ////////////////////////////////////////////////////////////////////////////////
-LoaderManager::~LoaderManager()
-{
-	// TODO Auto-generated destructor stub
-}
+LoaderManager::~LoaderManager() { /* Auto-generated destructor stub */ }
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -89,11 +80,7 @@ void LoaderManager::removeLoader(const std::string &name)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void
-LoaderManager::removeAll(void)
-{
-	mLoaders.clear();
-}
+void LoaderManager::removeAll(void) { mLoaders.clear(); }
 
 ////////////////////////////////////////////////////////////////////////////////
 void
@@ -142,7 +129,6 @@ void LoaderManager::removeElement(const TiXmlElement *e)
 	ASSERT(it != mXmlElements.end());
 
 	mXmlElements.erase(it);
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////
