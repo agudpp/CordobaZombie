@@ -79,6 +79,10 @@ public:
 	// Returns the camera
 	Ogre::Camera *getCamera(void) const {return mCamera;}
 
+	// Returns the camera scene node
+	//
+	Ogre::SceneNode *getCameraSceneNode(void) const {return mCameraNode;}
+
 	//				CONFIGURE THE CAMERA				//
 
 	// Set the bounding box where the camera can move
@@ -126,7 +130,22 @@ public:
 	 * Reproduce one of the camera animations
 	 */
 	void reproduceAnimation(int anim);
+
+	/**
+	 * Reproduce an external animation, The camera controller is not the owner
+	 * of the animation so it should be removed after the camera stop using it
+	 */
+	void reproduceAnimation(Ogre::AnimationState *anim);
+
+	/**
+	 * Stop the actual animation...
+	 */
 	void stopAnimation(void);
+
+	/**
+	 * Check if we are currently running any animation
+	 */
+	inline const bool isAnimationRunning(void) const;
 
 	/**
 	 * Set the position to be vertically to the floor. This will put the
@@ -144,13 +163,16 @@ public:
 private:
 	// Set the camera to show down
 	void rotateCameraDown(Ogre::Camera *cam);
-	void rotateMaxXCamera(void);
-	void rotateMinXCamera(void);
 
 	/**
 	 * Load the animations
 	 */
 	bool loadAnimations(void);
+
+	/**
+	 * Callback received for when the CameraAnimUpdater finish its animation
+	 */
+	void animFinishedCb(void);
 
 
 
@@ -162,8 +184,11 @@ private:
 	Ogre::SceneNode			*mCameraNode;
 
 	Ogre::AnimationState	*mAnimations[3];
+	Ogre::AnimationState	*mExternalAnimation;
 
 	CameraAnimUpdater		mUpdater;
+	CameraAnimUpdater::Connection mCbConn;
+	bool mIsAnimRunning;
 
 	// Camera movement config
 	Ogre::AxisAlignedBox	mMoveBox;
@@ -214,6 +239,12 @@ CameraController::getRotations(Ogre::Radian &yaw, Ogre::Radian &pitch)
 {
     yaw = mRootNode->getOrientation().getYaw();
     pitch = mRotationNode->getOrientation().getPitch();
+}
+
+inline const bool
+CameraController::isAnimationRunning(void) const
+{
+    return mIsAnimRunning;
 }
 
 #endif /* CAMERACONTROLLER_H_ */

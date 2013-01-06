@@ -85,7 +85,15 @@ public:
 	typedef std::vector<GameUnit *>		UnitSelVec;
 
 public:
-	InputManager();
+	/**
+	 * Singleton
+	 */
+	static InputManager &getInstance(void)
+	{
+	    static InputManager instance;
+	    return instance;
+	}
+
 	~InputManager();
 
 	/**
@@ -157,6 +165,10 @@ public:
 	void update(void);
 
 private:
+	InputManager();
+	InputManager(const InputManager &);
+	InputManager &operator=(const InputManager);
+
 
 	/**
 	 * Configure default keys

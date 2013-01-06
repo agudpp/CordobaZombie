@@ -48,7 +48,7 @@ private:
 	MouseCursor				mMouseCursor;
 
 	UpdObjsManager			mUpdaterManager;
-	InputManager mInputManager;
+	InputManager &mInputManager;
 
 };
 

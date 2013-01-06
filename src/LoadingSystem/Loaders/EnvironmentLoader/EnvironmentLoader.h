@@ -43,6 +43,7 @@ private:
 
     void processLightRange(TiXmlElement *XMLNode, Ogre::Light *pLight);
     void processLightAttenuation(TiXmlElement *XMLNode, Ogre::Light *pLight);
+    void processLight(TiXmlElement *XMLNode);
     void processLights(TiXmlElement *XMLNode);
 
 

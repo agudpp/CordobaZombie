@@ -5,6 +5,7 @@
  *      Author: agustin
  */
 #include <auto_ptr.h>
+#include <boost/bind.hpp>
 
 #include "CameraController.h"
 #include "Util.h"
@@ -64,21 +65,6 @@ void CameraController::rotateCameraDown(Ogre::Camera *cam)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void CameraController::rotateMaxXCamera(void)
-{
-	const Ogre::Radian rot = mMaxPitchRot - mCameraNode->getOrientation().getPitch();
-//	rotateCameraX(rot);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-void CameraController::rotateMinXCamera(void)
-{
-//	const Ogre::Radian rot = mCameraNode->getOrientation().getPitch();
-//	rotateCameraX(mMinPitchRot);
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
 bool CameraController::loadAnimations(void)
 {
 	std::auto_ptr<TiXmlDocument> doc(Common::Util::loadXmlDocument(CAMERA_ANIMATIONS_FILE));
@@ -119,7 +105,12 @@ bool CameraController::loadAnimations(void)
 	return true;
 }
 
-
+////////////////////////////////////////////////////////////////////////////////
+void
+CameraController::animFinishedCb(void)
+{
+    mIsAnimRunning = false;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -135,7 +126,9 @@ mRotVelocity(0.5f),
 mMinPitchRot(-0.67305f),
 mMaxPitchRot(0.5),
 mZoom(75.0f),                    // start with the 75 % of the zoom,
-mInternalState(State::Normal)
+mInternalState(State::Normal),
+mExternalAnimation(0),
+mIsAnimRunning(false)
 {
 	// create the scene node
 	mRootNode = GLOBAL_SCN_MNGR->getRootSceneNode()->createChildSceneNode("CameraControllerNode");
@@ -162,6 +155,10 @@ mInternalState(State::Normal)
 
 	// configure the zoom
 	zoomCamera(mZoom);
+
+	// Connect the callback
+	mCbConn = mUpdater.addCallback(boost::bind(&CameraController::animFinishedCb,
+	        this));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -181,7 +178,6 @@ void CameraController::setCamera(Ogre::Camera *c)
 	ASSERT(!c->getParentSceneNode());
 
 	mCamera = c;
-	rotateMaxXCamera();
 	if(mCamera->getParentSceneNode()){
 		mCamera->getParentSceneNode()->detachObject(mCamera);
 	}
@@ -258,7 +254,8 @@ void CameraController::setCamPos(const Ogre::Vector3 &pos)
 
 
 ////////////////////////////////////////////////////////////////////////////////
-void CameraController::setCameraOrientation(const Ogre::Quaternion &o)
+void
+CameraController::setCameraOrientation(const Ogre::Quaternion &o)
 {
 	const Ogre::Radian rot = o.getPitch();
 //	rotateCameraX(rot);
@@ -267,19 +264,37 @@ void CameraController::setCameraOrientation(const Ogre::Quaternion &o)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void CameraController::reproduceAnimation(int anim)
+void
+CameraController::reproduceAnimation(int anim)
 {
 	ASSERT(anim >= 0 && anim < 3);
-	mUpdater.startAnimation(mAnimations[anim]);
+	mIsAnimRunning = mUpdater.startAnimation(mAnimations[anim]);
+}
+
+void
+CameraController::reproduceAnimation(Ogre::AnimationState *anim)
+{
+    if (mExternalAnimation != 0) {
+        debugERROR("Trying to reproduce another animation when we are currently "
+                "reproducing one %s\n",
+                mExternalAnimation->getAnimationName().c_str());
+        return;
+    }
+
+    // reproduce the anim
+    mExternalAnimation = anim;
+    mIsAnimRunning = mUpdater.startAnimation(mExternalAnimation);
 }
 ////////////////////////////////////////////////////////////////////////////////
-void CameraController::stopAnimation(void)
+void
+CameraController::stopAnimation(void)
 {
 	mUpdater.stopUpdate();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void CameraController::setSatellitePosition(void)
+void
+CameraController::setSatellitePosition(void)
 {
 	debugWARNING("Aca estamos poniendo la mitad de la altura del bounding "
 			"box por el cual nos podemos mover, capaz que convenga algo mas"

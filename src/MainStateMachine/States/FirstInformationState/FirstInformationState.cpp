@@ -126,7 +126,8 @@ void FirstInformationState::configure(Ogre::Real ft, Ogre::Real st)
 }
 
 void
-FirstInformationState::getResources(IMainState::ResourcesInfoVec &resourcesList) const
+FirstInformationState::getResources(IMainState::ResourcesInfoVec &resourcesList,
+                                    const MainMachineInfo &info) const
 {
     resourcesList.clear();
 

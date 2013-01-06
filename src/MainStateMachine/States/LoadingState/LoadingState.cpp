@@ -182,7 +182,8 @@ LoadingState::setLoaderManager(LoaderManager *lm)
 }
 
 void
-LoadingState::getResources(ResourcesInfoVec &resourcesList) const
+LoadingState::getResources(ResourcesInfoVec &resourcesList,
+                           const MainMachineInfo &info) const
 {
     resourcesList.clear();
 
@@ -190,6 +191,8 @@ LoadingState::getResources(ResourcesInfoVec &resourcesList) const
     rinfo.filePath = "/MainStates/LoadingState/resources.cfg";
     rinfo.groupNames.push_back("LoadingState");
 
+    debugERROR("We must set the location of the level resources here using "
+            "the MainStateMachineInfo structure\n");
     resourcesList.push_back(rinfo);
 }
 

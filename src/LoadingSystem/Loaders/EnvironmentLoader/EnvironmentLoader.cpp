@@ -24,23 +24,23 @@ void
 EnvironmentLoader::processFog(TiXmlElement *XMLNode)
 {
     // Process attributes
-    Real expDensity = Ogre::DotSceneLoader::getAttribReal(
+    Ogre::Real expDensity = Ogre::DotSceneLoader::getAttribReal(
             XMLNode, "expDensity", 0.001);
-    Real linearStart = Ogre::DotSceneLoader::getAttribReal(
+    Ogre::Real linearStart = Ogre::DotSceneLoader::getAttribReal(
             XMLNode, "linearStart", 0.0);
-    Real linearEnd = Ogre::DotSceneLoader::getAttribReal
+    Ogre::Real linearEnd = Ogre::DotSceneLoader::getAttribReal
             (XMLNode, "linearEnd", 1.0);
 
-    Ogre::FogMode mode = Ogre::FOG_NONE;
+    Ogre::FogMode mode = Ogre::FogMode::FOG_NONE;
     Ogre::String sMode = Ogre::DotSceneLoader::getAttrib(XMLNode, "mode");
     if(sMode == "none")
-        mode = FOG_NONE;
+        mode = Ogre::FogMode::FOG_NONE;
     else if(sMode == "exp")
-        mode = FOG_EXP;
+        mode = Ogre::FogMode::FOG_EXP;
     else if(sMode == "exp2")
-        mode = FOG_EXP2;
+        mode = Ogre::FogMode::FOG_EXP2;
     else if(sMode == "linear")
-        mode = FOG_LINEAR;
+        mode = Ogre::FogMode::FOG_LINEAR;
 
     TiXmlElement *pElement;
 
@@ -136,33 +136,39 @@ EnvironmentLoader::processEnvironment(TiXmlElement *XMLNode)
 
     // Process fog (?)
     pElement = XMLNode->FirstChildElement("fog");
-    if(pElement)
+    if(pElement != 0){
         processFog(pElement);
+    }
 
     // Process skyBox (?)
     pElement = XMLNode->FirstChildElement("skyBox");
-    if(pElement)
+    if(pElement != 0){
         processSkyBox(pElement);
+    }
 
     // Process skyDome (?)
     pElement = XMLNode->FirstChildElement("skyDome");
-    if(pElement)
+    if(pElement != 0){
         processSkyDome(pElement);
+    }
 
     // Process skyPlane (?)
     pElement = XMLNode->FirstChildElement("skyPlane");
-    if(pElement)
+    if(pElement != 0){
         processSkyPlane(pElement);
+    }
 
     // Process clipping (?)
     pElement = XMLNode->FirstChildElement("clipping");
-    if(pElement)
+    if(pElement != 0){
         processClipping(pElement);
+    }
 
     // Process colourAmbient (?)
     pElement = XMLNode->FirstChildElement("colourAmbient");
-    if(pElement)
-        mSceneMgr->setAmbientLight(parseColour(pElement));
+    if(pElement != 0){
+        GLOBAL_SCN_MNGR->setAmbientLight(Ogre::DotSceneLoader::parseColour(pElement));
+    }
 
 }
 
@@ -192,16 +198,22 @@ EnvironmentLoader::processLightAttenuation(TiXmlElement *XMLNode, Ogre::Light *p
 }
 
 void
-EnvironmentLoader::processLights(TiXmlElement *XMLNode)
+EnvironmentLoader::processLight(TiXmlElement *XMLNode)
 {
     // Process attributes
-    Ogre::String name = Ogre::DotSceneLoader::getAttrib(XMLNode, "name");
-    Ogre::String id = Ogre::DotSceneLoader::getAttrib(XMLNode, "id");
+    TiXmlElement *lightNode = XMLNode->FirstChildElement("light");
+    if (lightNode == 0) {
+        debugERROR("No light node for %s\n", XMLNode->Value());
+        return;
+    }
+
+    Ogre::String name = Ogre::DotSceneLoader::getAttrib(lightNode, "name");
 
     // Create the light
     Ogre::Light *pLight = GLOBAL_SCN_MNGR->createLight(name);
+    mLights.push_back(pLight);
 
-    Ogre::String sValue = Ogre::DotSceneLoader::getAttrib(XMLNode, "type");
+    Ogre::String sValue = Ogre::DotSceneLoader::getAttrib(lightNode, "type");
     if(sValue == "point")
         pLight->setType(Ogre::Light::LT_POINT);
     else if(sValue == "directional")
@@ -211,42 +223,73 @@ EnvironmentLoader::processLights(TiXmlElement *XMLNode)
     else if(sValue == "radPoint")
         pLight->setType(Ogre::Light::LT_POINT);
 
-    pLight->setVisible(Ogre::DotSceneLoader::getAttribBool(XMLNode, "visible", true));
-    pLight->setCastShadows(Ogre::DotSceneLoader::getAttribBool(XMLNode, "castShadows", true));
+    pLight->setVisible(Ogre::DotSceneLoader::getAttribBool(lightNode, "visible", true));
+    pLight->setCastShadows(Ogre::DotSceneLoader::getAttribBool(lightNode, "castShadows", true));
+    pLight->setPowerScale(Ogre::DotSceneLoader::getAttribReal(lightNode, "power", 1.0f));
 
     TiXmlElement *pElement;
 
+    debugWARNING("We are using the position of the node... it seems that the "
+            "position of the light is not used anymore?\n");
     // Process position (?)
     pElement = XMLNode->FirstChildElement("position");
-    if(pElement)
+    if(pElement) {
         pLight->setPosition(Ogre::DotSceneLoader::parseVector3(pElement));
+    }
 
+    debugWARNING("There are no normal!!! to parse... the direction of the light"
+            " must be calculated manually? using the target node?\n");
     // Process normal (?)
     pElement = XMLNode->FirstChildElement("normal");
-    if(pElement)
-        pLight->setDirection(parseVector3(pElement));
+    if(pElement) {
+        pLight->setDirection(Ogre::DotSceneLoader::parseVector3(pElement));
+    }
 
     // Process colourDiffuse (?)
-    pElement = XMLNode->FirstChildElement("colourDiffuse");
-    if(pElement)
+    pElement = lightNode->FirstChildElement("colourDiffuse");
+    if(pElement) {
         pLight->setDiffuseColour(Ogre::DotSceneLoader::parseColour(pElement));
+    }
 
     // Process colourSpecular (?)
-    pElement = XMLNode->FirstChildElement("colourSpecular");
-    if(pElement)
+    pElement = lightNode->FirstChildElement("colourSpecular");
+    if(pElement) {
         pLight->setSpecularColour(Ogre::DotSceneLoader::parseColour(pElement));
+    }
 
     // Process lightRange (?)
-    pElement = XMLNode->FirstChildElement("lightRange");
-    if(pElement)
+    pElement = lightNode->FirstChildElement("lightRange");
+    if(pElement) {
         processLightRange(pElement, pLight);
+    }
 
     // Process lightAttenuation (?)
-    pElement = XMLNode->FirstChildElement("lightAttenuation");
-    if(pElement)
+    pElement = lightNode->FirstChildElement("lightAttenuation");
+    if(pElement) {
         processLightAttenuation(pElement, pLight);
+    }
+}
+
+void
+EnvironmentLoader::processLights(TiXmlElement *XMLNode)
+{
+    // process lights
+    TiXmlElement *pElement = XMLNode->FirstChildElement("node");
+    if (pElement == 0) {
+        debugWARNING("There are no lights? or the xml is invalid? %s\n",
+                XMLNode->Value());
+        return;
+    }
+
+    // iterate over all the nodes
+    while (pElement != 0) {
+        ASSERT(false); // tenemos que ver como se guardan las lights en un .scene
+        processLight(pElement);
+        pElement = pElement->NextSiblingElement("node");
+    }
 
 }
+
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 EnvironmentLoader::EnvironmentLoader() :
@@ -265,11 +308,12 @@ EnvironmentLoader::load(TiXmlElement* elem, LoaderData *data)
 {
     ASSERT(elem != 0);
     ASSERT(data != 0);
+    ASSERT(mLights.empty());
 
     // verify if the we have a correct xml
     debugGREEN("Environment loader is loading\n");
-    if( Ogre::String( elem->Value()) != "scene"  ) {
-        debugERROR("Error: Invalid .scene File. Missing <scene>" );
+    if( Ogre::String( elem->Value()) != "EnvironmentInfo"  ) {
+        debugERROR("Error: Invalid EnvironmentInfo File. Missing <EnvironmentInfo>" );
         ASSERT(false);
         return -1;
     }
@@ -283,11 +327,9 @@ EnvironmentLoader::load(TiXmlElement* elem, LoaderData *data)
     // TODO: integrate with carlox changes here
 
     // process the lights if we have..
-    pElement = elem->FirstChildElement("light");
-    while(pElement != 0){
-        ASSERT(false); // tenemos que ver como se guardan las lights en un .scene
-        processEnvironment(pElement);
-        pElement = pElement->NextSiblingElement("light");
+    pElement = elem->FirstChildElement("lights");
+    if (pElement != 0) {
+        processLights(pElement);
     }
 
     debugGREEN("All environment stuff were loaded\n");

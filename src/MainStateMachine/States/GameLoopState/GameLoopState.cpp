@@ -5,24 +5,46 @@
  *      Author: agustin
  */
 
+#include "GameLoopState.h"
+
 #include <OgreTimer.h>
 #include <OgreWindowEventUtilities.h>
 
 #include "MicroAppRunner.h"
 #include "UpdObjsManager.h"
 #include "LoaderManager.h"
+#include "LoaderData.h"
 #include "MenuManager.h"
 #include "LevelManager.h"
 #include "GameUnit.h"
-#include "GameLoopState.h"
 #include "GlobalObjects.h"
+#include "MainStateMachineDefs.h"
+#include "CameraController.h"
+#include "Util.h"
 
 
-/**
- * This function is called to update all the main logic of the game and
- * measure the time to get the "LastTimeFrame".
- */
-void GameLoopState::mainLoop(void)
+
+////////////////////////////////////////////////////////////////////////////////
+Ogre::AnimationState *
+GameLoopState::getLevelAnimation(void) const
+{
+    return Common::Util::getAnimationFromFile(GLOBAL_SCN_MNGR,
+                                              mCameraController->getCameraSceneNode(),
+                                              "CAMERA_INTRO_FILENAME");
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void
+GameLoopState::setupScene(void)
+{
+    // check if we have any animation to reproduce?
+    Ogre::AnimationState *introAnim = getLevelAnimation();
+    if (introAnim !=)
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void
+GameLoopState::mainLoop(void)
 {
 	updateInput();
 	updateGUISystem();
@@ -80,7 +102,8 @@ GameLoopState::GameLoopState() :
 mLoaderManager(0),
 mLevelManager(0),
 mMenuManager(0),
-mUpdatableObjsManager(0)
+mUpdatableObjsManager(0),
+mCameraController(0)
 {
 	// TODO Auto-generated constructor stub
 
@@ -97,10 +120,33 @@ GameLoopState::~GameLoopState()
  */
 void GameLoopState::setData(GameLoopData *lm)
 {
+    ASSERT(lm);
 
-}
-GameLoopState::GameLoopData *GameLoopState::getData(void)
-{
+    mLevelManager = lm->levelManager;
+    ASSERT(mLevelManager);
+
+    mLoaderManager = lm->loaderManager;
+    ASSERT(mLoaderManager);
+
+    mMenuManager = lm->menuManager;
+    ASSERT(mMenuManager);
+
+    mUpdatableObjsManager = lm->updatableObjsManager;
+    ASSERT(mUpdatableObjsManager);
+
+    // get the units
+    LoaderData &loadedData = mLoaderManager->getLoaderData();
+    ASSERT(loadedData.playerUnits);
+    ASSERT(loadedData.gameUnits);
+    mGameUnits.insert(mGameUnits.end(), loadedData.playerUnits->begin(),
+            loadedData.playerUnits->end());
+    mGameUnits.insert(mGameUnits.end(), loadedData.gameUnits->begin(),
+            loadedData.gameUnits->end());
+
+    mCameraController = lm->cameraController;
+    ASSERT(mCameraController);
+
+    // TODO: continue setting the other things here.
 
 }
 
@@ -111,21 +157,43 @@ GameLoopState::GameLoopData *GameLoopState::getData(void)
 /////					IMainState Functions							////
 ////////////////////////////////////////////////////////////////////////////
 
-/**
- * Entering the state with additional info
- */
-void GameLoopState::enter(const MainMachineInfo &info)
+////////////////////////////////////////////////////////////////////////////////
+void
+GameLoopState::getResources(ResourcesInfoVec &resourcesList,
+                            const MainMachineInfo &info) const
 {
-	mInfo = info;
+    resourcesList.clear();
+
+    // we must have the LEVEL_PATH here
+    const MainMachineParams &params = info.params;
+    ASSERT(params.find("LEVEL_PATH") != params.end());
+
+    std::string levelPath = params["LEVEL_PATH"];
+    if (levelPath[levelPath.size()-1] != '/') {
+        levelPath += '/';
+    }
+    levelPath += "GameLoopState/resources.cfg";
+    ResourcesInfoVec rinfo;
+    rinfo.filePath = levelPath;
+    rinfo.groupNames.push_back("GameLoopState");
+    resourcesList.push_back(rinfo);
+
+    debugERROR("Complete here the correct path\n");
 }
 
-/**
- * Update the state... This function will be called once.
- * @param	info	The structure used to pass throw the states. If we want
- * 					to fill it with some information then we can do it.
- * @return	event	The event that was happend.
- */
-MainMachineEvent GameLoopState::update(MainMachineInfo &info)
+////////////////////////////////////////////////////////////////////////////////
+void
+GameLoopState::enter(const MainMachineInfo &info)
+{
+	mInfo = info;
+
+	// setup the scene
+	setupScene();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+MainMachineEvent
+GameLoopState::update(MainMachineInfo &info)
 {
 	Ogre::Timer timer;
 	float timeStamp = 0;

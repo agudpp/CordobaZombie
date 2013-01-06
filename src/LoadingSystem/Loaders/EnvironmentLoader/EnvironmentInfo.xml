@@ -1,3 +1,71 @@
 <EnvironmentInfo>
-    
+    <environment>
+        <colourAmbient r="0.333333" g="0.333333" b="0.333333" />
+        <colourBackground r="0" g="0" b="0" />
+        <clipping near="0" far="2540" />
+        <fog mode="linear" linearStart="0" linearEnd="1">
+            <colourDiffuse r="0" g="0" b="0" />
+        </fog>
+    </environment>
+    <lights>
+        <node name="Spot01">
+            <position x="-1.74333" y="1.30397" z="-1.9176" />
+            <scale x="1" y="1" z="1" />
+            <rotation qx="0.432462" qy="-0.195659" qz="0.874837" qw="0.0967211" />
+            <light name="Spot01" visible="true" type="spot" castShadows="false" power="1">
+                <colourDiffuse r="1" g="1" b="1" />
+                <colourSpecular r="1" g="1" b="1" />
+                <lightAttenuation range="5.08" constant="1" linear="0" quadric="0" />
+                <lightRange inner="0.750492" outer="0.785398" />
+            </light>
+            <trackTarget nodeName="Spot01.Target">
+                <localDirection x="-0" y="-0" z="1" />
+            </trackTarget>
+        </node>
+        <node name="Spot01.Target">
+            <position x="0.456973" y="-1.03125e-008" z="-0.235922" />
+            <scale x="1" y="1" z="1" />
+            <rotation qx="0" qy="0" qz="0" qw="1" />
+        </node>
+        <node name="Spot02">
+            <position x="2.48403" y="1.30397" z="-1.9176" />
+            <scale x="1" y="1" z="1" />
+            <rotation qx="-0.413969" qy="-0.20622" qz="0.881317" qw="-0.096865" />
+            <light name="Spot02" visible="true" type="spot" castShadows="false" power="1">
+                <colourDiffuse r="1" g="1" b="1" />
+                <colourSpecular r="1" g="1" b="1" />
+                <lightAttenuation range="5.08" constant="1" linear="0" quadric="0" />
+                <lightRange inner="0.750492" outer="0.785398" />
+            </light>
+            <trackTarget nodeName="Spot02.Target">
+                <localDirection x="-0" y="-0" z="1" />
+            </trackTarget>
+        </node>
+        <node name="Spot02.Target">
+            <position x="0.456973" y="-1.03125e-008" z="-0.235922" />
+            <scale x="1" y="1" z="1" />
+            <rotation qx="0" qy="0" qz="0" qw="1" />
+        </node>
+        <node name="Omni01">
+            <position x="-1.40311" y="1.13517" z="1.43432" />
+            <scale x="1" y="1" z="1" />
+            <rotation qx="-0.707107" qy="-0" qz="-0" qw="-0.707107" />
+            <light name="Omni01" visible="true" type="point" castShadows="false" power="1">
+                <colourDiffuse r="1" g="1" b="1" />
+                <colourSpecular r="1" g="1" b="1" />
+                <lightAttenuation range="5.08" constant="1" linear="0" quadric="0" />
+            </light>
+        </node>
+        <node name="Omni02">
+            <position x="1.59744" y="1.13517" z="1.43432" />
+            <scale x="1" y="1" z="1" />
+            <rotation qx="-0.707107" qy="-0" qz="-0" qw="-0.707107" />
+            <light name="Omni02" visible="true" type="point" castShadows="false" power="1">
+                <colourDiffuse r="1" g="1" b="1" />
+                <colourSpecular r="1" g="1" b="1" />
+                <lightAttenuation range="5.08" constant="1" linear="0" quadric="0" />
+            </light>
+        </node>
+    </lights>
+</scene>
 </EnvironmentInfo>

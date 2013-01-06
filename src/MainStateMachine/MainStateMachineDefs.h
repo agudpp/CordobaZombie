@@ -11,6 +11,17 @@
 #include <string>
 #include <map>
 
+/**
+ * Here we will define some of the params we will use in the different states
+ * inside the MainMachineParams structure:
+ * LEVEL_PATH = will be the current level Path where all the resources for that
+ *              level should be (loading info, geometry info, story info, etc).
+ *              Inside this path we should separate into folders for this different
+ *              assets. We should reproduce the folder hierarchy for different
+ *              levels.
+ */
+
+
 typedef std::map<std::string, std::string>		MainMachineParams;
 
 

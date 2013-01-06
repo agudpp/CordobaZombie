@@ -137,7 +137,8 @@ void Test::handleInput(void)
 }
 
 Test::Test() :
-        AppTester(false)
+        AppTester(false),
+        mInputManager(InputManager::getInstance())
 {
 	setUseDefaultInput(false);
 
