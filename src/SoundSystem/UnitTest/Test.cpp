@@ -611,7 +611,7 @@ Test::createCollectable(void)
 /*************************    MAIN FUNCTIONS     ******************************/
 
 
-Test::Test()
+Test::Test() : mSoundHandler(SoundHandler::getInstance())
 {
 	std::vector<const char*> sounds;
 	// Setup sound system, by creating the sound manager.

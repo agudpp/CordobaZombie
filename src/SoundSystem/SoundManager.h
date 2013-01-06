@@ -3,14 +3,15 @@
  *
  *	This class handles the whole sound system playback
  *	by periodically updating all playing sources.
- *	That includes the GameUnits' SoundAPIs (v.gr. zombies grunts, weapon shots)
- *	and the environmental sounds (v.gr. background music)
+ *	That includes the GameUnits' SoundAPIs (e.g. zombies grunts, weapon shots)
+ *	and the environmental sounds (e.g. background music, random sounds)
  *
- *  Available audio file names (aka "sounds") must be loaded by means of
- *  loadSound() interface. Environmental sounds are completely controlled
- *  here, from creation to destruction.
+ *	Available audio file names (aka "sounds") must be loaded by means of
+ *	loadSound() interface. Environmental sounds are completely controlled
+ *	here, from creation to destruction.
  *
  *	The SoundManager is a SINGLETON CLASS.
+ *	The SoundManager is handled by the SoundHandler.
  *
  *  Created on: May 3, 2012
  *     Company: CordobaZombie

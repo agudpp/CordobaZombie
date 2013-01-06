@@ -11,6 +11,7 @@
  *  here, from creation to destruction.
  *
  *	The SoundManager is a SINGLETON CLASS.
+ *	The SoundManager is handled by the SoundHandler.
  *
  *  Created on: May 9, 2012
  *     Company: CordobaZombie
