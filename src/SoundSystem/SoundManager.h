@@ -261,6 +261,13 @@ public:
 
 	/**
 	 ** @brief
+	 ** Tells whether sName is a loaded buffer in the system.
+	 **/
+	inline bool
+	isSoundLoaded(const Ogre::String& sName);
+
+	/**
+	 ** @brief
 	 ** Unloads the audio buffer named "sName" from memory.
 	 ** If no such buffer exists, nothing is done.
 	 **/
@@ -761,6 +768,14 @@ SoundManager::getOrientation()
 	alGetListenerfv(AL_ORIENTATION, ori);
 	return std::make_pair(Ogre::Vector3(ori[0],ori[1],ori[2]),
 						  Ogre::Vector3(ori[3],ori[4],ori[5]));
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+inline bool
+SoundManager::isSoundLoaded(const Ogre::String& sName)
+{
+	return (mLoadedBuffers.find(sName) != mLoadedBuffers.end());
 }
 
 
