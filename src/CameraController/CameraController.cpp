@@ -110,6 +110,8 @@ void
 CameraController::animFinishedCb(void)
 {
     mIsAnimRunning = false;
+    // assuming we are in normal state....
+    mInternalState = State::Normal;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -209,6 +211,9 @@ void CameraController::setCameraMoveZone(const Ogre::AxisAlignedBox &zone)
 ////////////////////////////////////////////////////////////////////////////////
 void CameraController::moveCamera(const Ogre::Vector3 &dir)
 {
+    if (mInternalState != State::Normal) {
+        return;
+    }
 	mNextPosition = mRootNode->getPosition() +
 			mRootNode->getOrientation() * (dir *(mCamVelocityFactor *
 					GLOBAL_TIME_FRAME * COEFF_FACTOR));
@@ -225,6 +230,10 @@ void CameraController::moveCamera(const Ogre::Vector3 &dir)
 ////////////////////////////////////////////////////////////////////////////////
 void CameraController::zoomCamera(const Ogre::Real zoom)
 {
+    if (mInternalState != State::Normal) {
+        return;
+    }
+
     if (zoom > MAX_ZOOM || zoom < MIN_ZOOM || mInternalState != State::Normal) {
         return;
     }
@@ -284,6 +293,7 @@ CameraController::reproduceAnimation(Ogre::AnimationState *anim)
     // reproduce the anim
     mExternalAnimation = anim;
     mIsAnimRunning = mUpdater.startAnimation(mExternalAnimation);
+    mInternalState = State::ExternalAnimation;
 }
 ////////////////////////////////////////////////////////////////////////////////
 void
@@ -296,6 +306,10 @@ CameraController::stopAnimation(void)
 void
 CameraController::setSatellitePosition(void)
 {
+    if (mInternalState != State::Normal) {
+        return;
+    }
+
 	debugWARNING("Aca estamos poniendo la mitad de la altura del bounding "
 			"box por el cual nos podemos mover, capaz que convenga algo mas"
 			" alto?\n");

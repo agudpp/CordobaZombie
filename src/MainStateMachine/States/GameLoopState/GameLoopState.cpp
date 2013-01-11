@@ -30,7 +30,7 @@ GameLoopState::getLevelAnimation(void) const
 {
     return Common::Util::getAnimationFromFile(GLOBAL_SCN_MNGR,
                                               mCameraController->getCameraSceneNode(),
-                                              "CAMERA_INTRO_FILENAME");
+                                              CAMERA_INTRO_FILENAME);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

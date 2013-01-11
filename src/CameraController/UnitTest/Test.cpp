@@ -207,6 +207,7 @@ void Test::update()
 	static bool kPressed2 = false;
 	static bool kPressed3 = false;
 	static bool kPressed4 = false;
+	static bool kPressed5 = false;
 
 	if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_1)){
 		if(!kPressed){
@@ -255,6 +256,21 @@ void Test::update()
 		}
 	} else {
 		kPressed4 = false;
+	}
+	if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_SPACE)){
+		if(!kPressed5){
+			kPressed5 = true;
+			static Ogre::AnimationState *anim = 0;
+			if (anim != 0) {
+			    GLOBAL_SCN_MNGR->destroyAnimationState(anim->getAnimationName());
+			}
+			anim = Common::Util::getAnimationFromFile(GLOBAL_SCN_MNGR,
+			                                              mCamController.getCameraSceneNode(),
+			                                              "anim.xml");
+			mCamController.reproduceAnimation(anim);
+		}
+	} else {
+		kPressed5 = false;
 	}
 
 //	handleInput();

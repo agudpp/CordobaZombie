@@ -29,6 +29,7 @@ class CameraController
 	enum State {
 	    Normal = 0,
 	    SatelliteMode,
+	    ExternalAnimation,
 	};
 
 

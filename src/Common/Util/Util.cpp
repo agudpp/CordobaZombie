@@ -214,14 +214,14 @@ bool Util::getAnimation(Ogre::SceneManager *scnManager,
 	ASSERT(elem);
 
 	if(Ogre::String(elem->Value()) != "animations") {
-		debug("Invalid animation xml: %s \n", elem->Value());
+		debugERROR("Invalid animation xml: %s \n", elem->Value());
 		return false;
 	}
 	animList.clear();
 
 	TiXmlElement *pElement = elem->FirstChildElement("animation");
 	if(!pElement){
-		debug("No animations found\n");
+		debugERROR("No animations found\n");
 		return false;
 	}
 	while(pElement){
@@ -298,7 +298,7 @@ Util::getAnimationFromFile(Ogre::SceneManager *scnManager,
         return 0;
     }
     TiXmlElement *anim = doc->RootElement();
-    if (anim == 0 || !(anim = anim->FirstChildElement("animation"))){
+    if (anim == 0 || !(anim = anim->FirstChildElement("animations"))){
         debugERROR("Error: No animation found in the xml %s\n", xmlFilename);
         return 0;
     }
