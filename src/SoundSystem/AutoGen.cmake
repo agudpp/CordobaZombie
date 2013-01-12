@@ -15,6 +15,7 @@ set(SRCS
 	${DEV_ROOT_PATH}/SoundSystem/BufferBuilder.cpp
 	${DEV_ROOT_PATH}/SoundSystem/SoundBuffer.cpp
 	${DEV_ROOT_PATH}/SoundSystem/SoundManager.cpp
+	${DEV_ROOT_PATH}/SoundSystem/SoundHandler.cpp
 )
 
 set(HDRS
@@ -25,9 +26,10 @@ set(HDRS
 	${DEV_ROOT_PATH}/SoundSystem/SoundEnums.h
 	${DEV_ROOT_PATH}/SoundSystem/SoundBuffer.h
 	${DEV_ROOT_PATH}/SoundSystem/SoundAPI.h
-	${DEV_ROOT_PATH}/SoundSystem/SoundManager.h
 	${DEV_ROOT_PATH}/SoundSystem/BufferBuilder.h
 	${DEV_ROOT_PATH}/SoundSystem/SoundSource.h
+	${DEV_ROOT_PATH}/SoundSystem/SoundManager.h
+	${DEV_ROOT_PATH}/SoundSystem/SoundHandler.h
 )
 
 set(ACTUAL_DIRS

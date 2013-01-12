@@ -201,7 +201,7 @@ public:
 	 ** @return
 	 ** SS_NO_ERROR			Sources successfully added.
 	 ** SS_NO_MEMORY		Insufficient memory for operation, nothing was done.
-	 ** SS_INTERNAL_ERROR	Unespecified.
+	 ** SS_INTERNAL_ERROR	Unspecified.
 	 **/
 	SSerror
 	addLSoundSources(unsigned int numSources);
@@ -217,7 +217,7 @@ public:
 	 ** @return
 	 ** SS_NO_ERROR			Sources successfully added.
 	 ** SS_NO_MEMORY		Insufficient memory for operation, nothing was done.
-	 ** SS_INTERNAL_ERROR	Unespecified.
+	 ** SS_INTERNAL_ERROR	Unspecified.
 	 **/
 	SSerror
 	addSSoundSources(unsigned int numSources);
@@ -263,7 +263,7 @@ public:
 	 ** @brief
 	 ** Tells whether sName is a loaded buffer in the system.
 	 **/
-	inline bool
+	bool
 	isSoundLoaded(const Ogre::String& sName);
 
 	/**

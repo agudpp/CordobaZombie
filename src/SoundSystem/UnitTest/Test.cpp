@@ -102,6 +102,9 @@ const char *audioFile0 = "roar.wav";
 const char *audioFile1 = "fxA20.ogg";
 const char *audioFile2 = "Siren.ogg";
 
+/* Playlist */
+const Ogre::String playlist1("lista1");
+
 /* Tiempo para fadings (in & out) de sonidos. */
 #define  FADE_TIME  2.5f
 
@@ -348,9 +351,21 @@ Test::performMouseRay(Ogre::Vector3 &v)
  * Various initializations for the ingame SoundSystem control interface
  */
 static void
-soundInitMisc()
+soundInitMisc(SoundHandler& SH)
 {
 	SSerror err(SSerror::SS_INTERNAL_ERROR);
+
+	// Change the loaded playlist playback options
+	ASSERT(SH.existsPlaylist(playlist1));
+	testBEGIN("Probando funcionalidades de los Playlists.\n");
+	SH.setPlaylistRandomOrder(playlist1, true);
+	ASSERT(SH.getPlaylistRandomOrder(playlist1));
+	SH.setPlaylistRandomSilence(playlist1, true);
+	ASSERT(SH.getPlaylistRandomSilence(playlist1));
+	SH.setPlaylistRepeat(playlist1, false);
+	SH.setPlaylistRepeat(playlist1, true);
+	ASSERT(SH.getPlaylistRepeat(playlist1));
+	testSUCCESS("Todo en orden.\n");
 
 	// Put on some environmental music.
 	testBEGIN("Iniciando reproducción del sonido ambiente \"%s\".\n", audioFile1);
@@ -613,11 +628,13 @@ Test::createCollectable(void)
 
 Test::Test() : mSoundHandler(SoundHandler::getInstance())
 {
-	std::vector<const char*> sounds;
+	Ogre::String fails("");
+	std::vector<Ogre::String> sounds;
+
 	// Setup sound system, by creating the sound manager.
-	testBEGIN("%s","Creando el SoundManager\n");
-	SoundManager& sMgr = SoundManager::getInstance();
-	testSUCCESS("%s","SoundManager creado\n");
+	testBEGIN("Revisando la creación del SoundHandler.\n");
+	ASSERT(&mSoundHandler == &SoundHandler::getInstance());
+	testSUCCESS("SoundManager creado correctamente.\n");
 
 	// Print some info about the available audio devices.
 	printDevices();
@@ -628,55 +645,56 @@ Test::Test() : mSoundHandler(SoundHandler::getInstance())
 									 GLOBAL_WINDOW->getHeight());
 
 	// Load sounds into the system.
-	sounds.push_back(audioFile0);
-	sounds.push_back((const char*)"fxZ1.ogg");
-	sounds.push_back((const char*)"fxZ2.ogg");
-	sounds.push_back((const char*)"fxZ3.ogg");
-	sounds.push_back((const char*)"fxZ4.ogg");
-	sounds.push_back((const char*)"fxZ5.ogg");
-	sounds.push_back((const char*)"fxZ6.ogg");
-	sounds.push_back((const char*)"fxZ7.ogg");
-	sounds.push_back((const char*)"fxZ8.ogg");
-	sounds.push_back((const char*)"fxZ9.ogg");
-	sounds.push_back((const char*)"fxZ10.ogg");
 	// Loaded buffers.
-	for (int i=0 ; i<11 ; i++) {
-		testBEGIN("Cargando el sonido #%d: \"%s\"\n", i+1, sounds[i]);
-		if (sMgr.loadSound(sounds[i]) == SSerror::SS_NO_ERROR) {
-			testSUCCESS("Sonido #%d\" cargado.\n", i+1);
-		} else {
-			testFAIL("%s","Falló.\n");
-			ASSERT(false);
-		}
+	sounds.push_back(audioFile0);
+	sounds.push_back("fxZ1.ogg");
+	sounds.push_back("fxZ2.ogg");
+	sounds.push_back("fxZ3.ogg");
+	sounds.push_back("fxZ4.ogg");
+	sounds.push_back("fxZ5.ogg");
+	sounds.push_back("fxZ6.ogg");
+	sounds.push_back("fxZ7.ogg");
+	sounds.push_back("fxZ8.ogg");
+	sounds.push_back("fxZ9.ogg");
+	sounds.push_back("fxZ10.ogg");
+	testBEGIN("Cargando sonidos directos (LOADED)\n");
+	fails = mSoundHandler.loadDirectSounds(sounds);
+	if (fails.empty()) {
+		testSUCCESS("%lu sonidos directos cargados.\n", sounds.size());
+	} else {
+		testFAIL("Falló la carga de algunos de los archivos:\n%s", fails.c_str());
+		ASSERT(false);
 	}
 	// Streaming buffers.
-	testBEGIN("Cargando el sonido \"%s\"\n", audioFile1);  // o sino audioFile2
-	if (sMgr.loadSound(audioFile1, SSformat::SS_OGG, SSbuftype::SS_BUF_STREAM_OGG)
-			== SSerror::SS_NO_ERROR) {
-		testSUCCESS("Buffer de streaming cargado.%s", "\n");
+	sounds.clear();
+	sounds.push_back(audioFile1);
+	sounds.push_back(audioFile2);
+	testBEGIN("Cargando sonidos streaming.\n");
+	fails = mSoundHandler.loadStreamSounds(sounds);
+	if (fails.empty()) {
+		testSUCCESS("%lu sonidos streaming cargados.\n", sounds.size());
 	} else {
-		testFAIL("%s","Falló.\n");
+		testFAIL("Falló la carga de algunos de los archivos:\n%s", fails.c_str());
 		ASSERT(false);
 	}
-	ASSERT(SSerror::SS_NO_ERROR == sMgr.loadSound(
-			audioFile2, SSformat::SS_OGG, SSbuftype::SS_BUF_STREAM_OGG));
 
 	// Create some sources to play the sounds.
-	testBEGIN("%s","Creando LSources\n");
-	if (sMgr.addLSoundSources(NUM_LSOURCES) == SSerror::SS_NO_ERROR) {
-		testSUCCESS("%s","LSources creadas\n");
+	testBEGIN("%s","Creando sources para streaming sounds.\n");
+	if (mSoundHandler.addStreamSources(NUM_SSOURCES) == SSerror::SS_NO_ERROR) {
+		testSUCCESS("%d Streaming Sources creadas.\n", NUM_SSOURCES);
 	} else {
 		testFAIL("%s","Falló.\n");
 		ASSERT(false);
 	}
-	testBEGIN("%s","Creando SSources\n");
-	if (sMgr.addSSoundSources(NUM_SSOURCES) == SSerror::SS_NO_ERROR) {
-		testSUCCESS("%s","SSources creadas\n");
+	testBEGIN("%s","Creando sources para direct (loaded) sounds.\n");
+	if (mSoundHandler.addDirectSources(NUM_LSOURCES) == SSerror::SS_NO_ERROR) {
+		testSUCCESS("%d Loaded Sources creadas.\n", NUM_LSOURCES);
 	} else {
 		testFAIL("%s","Falló.\n");
 		ASSERT(false);
 	}
 
+	sounds.clear();
 	return;
 }
 
@@ -718,6 +736,60 @@ void Test::loadAditionalData(void)
 		ASSERT(false);
 	}
 
+	// Create an empty playlist
+	Ogre::String name("Vacía");
+	std::vector<Ogre::String> soundsList;
+	testBEGIN("Creando Playlist \"%s\".\n", name.c_str());
+	mSoundHandler.newPlaylist(name, soundsList);
+	if (mSoundHandler.existsPlaylist(name)) {
+		testSUCCESS("Playlist \"%s\" creada.\n", name.c_str());
+	} else {
+		testFAIL("Falló.\n");
+		ASSERT(false);
+	}
+
+	// Recreate the same playlist
+	testBEGIN("Tratando de reinsertar otra Playlist con el mismo nombre.\n");
+	Ogre::String fails = mSoundHandler.newPlaylist(name, soundsList);
+	if (!fails.empty()) {
+		testSUCCESS("Éxito. Mensaje de error: %s", fails.c_str());
+	} else {
+		testFAIL("Falló.\n");
+		ASSERT(false);
+	}
+
+	// Delete playlist
+	testBEGIN("Borrando playlist \"%s\".\n", name.c_str());
+	ASSERT(mSoundHandler.existsPlaylist(name));
+	mSoundHandler.deletePlaylist(name);
+	if (mSoundHandler.existsPlaylist(name)) {
+		testFAIL("Falló.\n");
+		ASSERT(false);
+	} else {
+		testSUCCESS("Playlist eliminada correctamente.\n");
+	}
+
+	// Create a non-empty playlist
+	testBEGIN("Creando Playlist \"%s\".\n", playlist1.c_str());
+	soundsList.push_back("fxZ4.ogg");
+	soundsList.push_back("fxZ10.ogg");
+	soundsList.push_back("no_existe.mp5");
+	soundsList.push_back("roar.wav");
+	soundsList.push_back("tampoco_existe.ogg");
+	fails = mSoundHandler.newPlaylist(playlist1, soundsList);
+	if (!fails.empty() && mSoundHandler.existsPlaylist(playlist1)) {
+		testSUCCESS("Playlist \"%s\" creada. No se pudieron cargar (como "
+				"correspondía) los sonidos:\n%s", playlist1.c_str(), fails.c_str());
+		debugGREEN("Sí se pudieron cargar los sonidos:\n");
+		soundsList = mSoundHandler.getPlaylistSounds(playlist1);
+		for (uint i=0 ; i < soundsList.size() ; i++) {
+			debugGREEN(	"%s\n", soundsList[i].c_str());
+		}
+	} else {
+		testFAIL("Falló.\n");
+		ASSERT(false);
+	}
+
 	// Initialize RNG
 	std::srand(time(NULL));
 }
@@ -734,7 +806,7 @@ void Test::update()
 
 	if (counter == 0.0f) {
 		// Start environmental and player sounds, and print control options.
-		soundInitMisc();
+		soundInitMisc(mSoundHandler);
 		counter += (1E-20);
 	}
 

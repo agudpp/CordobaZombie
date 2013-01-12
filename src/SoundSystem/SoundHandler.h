@@ -28,21 +28,24 @@ class SoundHandler
 {
 	struct Playlist
 	{
-		Playlist(const Ogre::String& name="");
+		Playlist(const Ogre::String& name="");  // repeat = true
 		Playlist(const Ogre::String& name,
 				 const std::vector<Ogre::String>& list,
 				 bool  repeat=true,
-				 bool  random=false,
+				 bool  randomOrder=false,
+				 bool  randomSilence=false,
 				 float silence=0.0f);
+		Playlist(const Playlist& pl);
+		Playlist& operator=(const Playlist& pl);
 		~Playlist(void);
 	public:
 		Ogre::String 				mName;
 		std::vector<Ogre::String>	mList;		// Sounds names list
 		std::vector<uint>			mPlayOrder; // Sounds playing order
 		unsigned int				mCurrent;	// Current position in mPlayOrder
-		bool						mRepeat;	// Repeat playback on end
-		bool						mRandom;	// Shuffle the vector mPlayOrder
+		unsigned int 				mState;		// Repeat/Shuffle/Randomwait
 		float						mSilence;	// Time to wait between sounds
+		Ogre::Timer					mTimer;
 	};
 
 public:
@@ -128,6 +131,30 @@ public:
 
 	/**
 	 ** @brief
+	 ** Adds "N" new sound sources that can play loaded Stream Sounds.
+	 **
+	 ** @return
+	 ** SS_NO_ERROR			Sources successfully added.
+	 ** SS_NO_MEMORY		Insufficient memory for operation, nothing was done.
+	 ** SS_INTERNAL_ERROR	Unspecified.
+	 **/
+	SSerror
+	addStreamSources(unsigned int N);
+
+	/**
+	 ** @brief
+	 ** Adds "N" new sound sources that can play loaded Direct Sounds.
+	 **
+	 ** @return
+	 ** SS_NO_ERROR			Sources successfully added.
+	 ** SS_NO_MEMORY		Insufficient memory for operation, nothing was done.
+	 ** SS_INTERNAL_ERROR	Unspecified.
+	 **/
+	SSerror
+	addDirectSources(unsigned int N);
+
+	/**
+	 ** @brief
 	 ** Stop all playbacks, release all resources, and get the hell out.
 	 **/
 	void
@@ -138,6 +165,17 @@ public:
 	/****************    GLOBAL PLAYBACK CONTROLS    *********************/
 public:
 	/* XXX - Stubs to the SoundManager methods. */
+
+	/**
+	 ** @brief
+	 ** Updates all sounds currently active in the system.
+	 **
+	 ** @remarks
+	 ** Updates must be done periodically, to allow streaming sources (such as
+	 ** MP3 or large OGGs) to refresh their internal buffering mechanisms.
+	 **/
+	void
+	update();
 
 	/**
 	 ** @brief
@@ -228,8 +266,12 @@ public:
 	 **     repeat: whether to repeat on end
 	 **     random: whether to play in random order
 	 **    silence: amount of time to wait between sounds playback
+	 **             If negative value given, silence time is randomized.
 	 **
 	 ** @return
+	 ** Message "Playlist <name> exists!\n" if a playlist by the name "name"
+	 ** had already been created into the system.
+	 ** Otherwise:
 	 ** List of sounds which could not be included inside the playlist,
 	 ** toghether with the corresponding error messages.
 	 ** File names are separated with UNIX newline characters (i.e., '\n')
@@ -240,6 +282,13 @@ public:
 				bool  repeat=true,
 				bool  random=false,
 				float silence=0.0f);
+
+	/**
+	 ** @brief
+	 ** Whether a playlist named "name" has already been loaded into the system.
+	 **/
+	bool
+	existsPlaylist(const Ogre::String name);
 
 	/**
 	 ** @brief
@@ -360,6 +409,67 @@ public:
 	fadeInPlaylist(const Ogre::String& name,
 				   const Ogre::Real& time) const;
 
+	/**
+	 ** @brief
+	 ** Changes the name of the playlist "oldName" to "newName"
+	 **
+	 ** @return
+	 ** true	Playlist successfully renamed.
+	 ** false	Playlist "oldName" not found.
+	 **/
+	bool renamePlaylist(const Ogre::String& oldName, const Ogre::String& newName);
+
+	/**
+	 ** @brief
+	 ** Retrieve the sounds registered inside the playlist "name"
+	 **
+	 ** @return
+	 ** Empty vector	Playlist "name" not found
+	 ** Sounds vector	Otherwise
+	 **/
+	const std::vector<Ogre::String>
+	getPlaylistSounds(const Ogre::String& name) const;
+
+	/**
+	 ** @brief
+	 ** Get the playlist playing state.
+	 **
+	 ** @return
+	 ** SS_PLAYING		Playing (or fading in/out)
+	 ** SS_PAUSED		Paused
+	 ** SS_FINISHED		Stopped
+	 ** SS_NONE			Playlist not found
+	 **/
+	SSplayback
+	getPlaylistPlayState(const Ogre::String& name);
+
+	/**
+	 ** @brief
+	 ** Set/Get the {repeat-on-end ; random-order ; random-silence} conditions
+	 ** for the playlist named "name".
+	 **
+	 ** @return
+	 ** Setters: true	Success.
+	 **          false	Playlist "name" not found.
+	 ** Getters: condition value
+	 **
+	 ** @remarks
+	 ** For getters, optional boolean "found" parameter will be filled with
+	 ** true	if operation successfull
+	 ** false	if playlist "name" was not found
+	 **/
+	bool setPlaylistRepeat(const Ogre::String& name, bool  repeat);
+	bool getPlaylistRepeat(const Ogre::String& name, bool* found=0) const;
+	bool setPlaylistRandomOrder(const Ogre::String& name, bool  random);
+	bool getPlaylistRandomOrder(const Ogre::String& name, bool* found=0) const;
+	bool setPlaylistRandomSilence(const Ogre::String& name, bool  random);
+	bool getPlaylistRandomSilence(const Ogre::String& name, bool* found=0) const;
+
+private:
+	/***********************    AUXILIARY FUNCTIONS    ************************/
+	Ogre::String
+	loadSounds(const std::vector<Ogre::String>&, SSbuftype);
+
 private:
 	static SoundManager&	sSoundManager;
 	std::vector<Playlist>	mPlaylists;
@@ -384,49 +494,38 @@ inline SoundHandler::SoundHandler() { /* Nothig to do. */ }
 
 
 ////////////////////////////////////////////////////////////////////////////////
-inline SoundHandler::~SoundHandler() { /* TODO: invoke shutDown(); */ }
+inline SoundHandler::~SoundHandler() { shutDown(); }
 
 
 ////////////////////////////////////////////////////////////////////////////////
-inline
-SoundHandler::Playlist::Playlist(const Ogre::String& name) :
-	mName(name),
-	mCurrent(0),
-	mRepeat(true),
-	mRandom(false),
-	mSilence(0.0f)
-{}
-
-
-////////////////////////////////////////////////////////////////////////////////
-inline
-SoundHandler::Playlist::Playlist(const Ogre::String& name,
-								 const std::vector<Ogre::String>& list,
-								 bool  repeat,
-								 bool  random,
-								 float silence) :
-	mName(name),
-	mList(list),
-	mCurrent(0),
-	mRepeat(repeat),
-	mRandom(random),
-	mSilence(silence)
+inline Ogre::String
+SoundHandler::loadStreamSounds(const std::vector<Ogre::String>& list)
 {
-	// Initialize play order
-	mPlayOrder.resize(list.size());
-	for (uint i=0 ; i < list.size() ; i++) { mPlayOrder.push_back(i); }
-	// If random was chosen, shuffle the play order
-	if (random) { std::random_shuffle(mPlayOrder.begin(),mPlayOrder.end()); }
+	return loadSounds(list, SSbuftype::SS_BUF_STREAM_OGG);
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////
-inline
-SoundHandler::Playlist::~Playlist(void)
+inline Ogre::String
+SoundHandler::loadDirectSounds(const std::vector<Ogre::String>& list)
 {
-	// Stop anything we were playing.
-	// TODO
-	debugWARNING("TODO\n");
+	return loadSounds(list, SSbuftype::SS_BUF_LOADED);
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+inline SSerror
+SoundHandler::addStreamSources(unsigned int N)
+{
+	return sSoundManager.addSSoundSources(N);
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+inline SSerror
+SoundHandler::addDirectSources(unsigned int N)
+{
+	return sSoundManager.addLSoundSources(N);
 }
 
 
@@ -442,6 +541,7 @@ inline void SoundHandler::globalStop() const { sSoundManager.globalStop(); }
 ////////////////////////////////////////////////////////////////////////////////
 inline void SoundHandler::globalRestart() const { sSoundManager.globalRestart(); }
 
+
 ////////////////////////////////////////////////////////////////////////////////
 inline void
 SoundHandler::globalFadeOut(const Ogre::Real& time, const bool pause) const
@@ -449,11 +549,52 @@ SoundHandler::globalFadeOut(const Ogre::Real& time, const bool pause) const
 	sSoundManager.globalFadeOut(time, pause);
 }
 
+
 ////////////////////////////////////////////////////////////////////////////////
 inline void
 SoundHandler::globalFadeIn(const Ogre::Real& time) const
 {
 	sSoundManager.globalFadeIn(time);
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+inline bool
+SoundHandler::existsPlaylist(const Ogre::String name)
+{
+	for (uint i=0 ; i < mPlaylists.size() ; i++) {
+		if (mPlaylists[i].mName == name) {
+			return true;
+		}
+	}
+	return false;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+inline bool
+SoundHandler::renamePlaylist(const Ogre::String& oldName, const Ogre::String& newName)
+{
+	for (uint i=0 ; i < mPlaylists.size() ; i++) {
+		if (mPlaylists[i].mName == oldName) {
+			mPlaylists[i].mName = newName;
+			return true;
+		}
+	}
+	return false;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+inline const std::vector<Ogre::String>
+SoundHandler::getPlaylistSounds(const Ogre::String& name) const
+{
+	const std::vector<Ogre::String> notFound;
+	for (uint i=0 ; i < mPlaylists.size() ; i++) {
+		if (mPlaylists[i].mName == name) {
+			return mPlaylists[i].mList;
+		}
+	}
+	return notFound;
 }
 
 
