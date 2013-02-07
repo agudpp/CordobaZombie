@@ -16,12 +16,19 @@
 #include "LoaderData.h"
 #include "MenuManager.h"
 #include "LevelManager.h"
+#include "PlayerUnit.h"
 #include "GameUnit.h"
 #include "GlobalObjects.h"
 #include "MainStateMachineDefs.h"
 #include "CameraController.h"
 #include "Util.h"
+#include "MouseCursor.h"
 
+
+
+
+
+const char *GameLoopState::CAMERA_INTRO_FILENAME = "CameraIntro.xml";
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -39,7 +46,17 @@ GameLoopState::setupScene(void)
 {
     // check if we have any animation to reproduce?
     Ogre::AnimationState *introAnim = getLevelAnimation();
-    if (introAnim !=)
+    if (introAnim != 0){
+        // reproduce the animation
+        mCameraController->reproduceAnimation(introAnim);
+        mState = State::IntroVideo;
+
+        // hide the mouse cursor
+        GLOBAL_CURSOR->setVisible(false);
+    }
+
+    // TODO: load all the mission specific logic here (if there aren't a loader
+    // that loads that already).
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -55,21 +72,27 @@ GameLoopState::mainLoop(void)
 /**
  * Main loop auxiliar functions
  */
-void GameLoopState::updateInput(void)
+void
+GameLoopState::updateInput(void)
 {
 	// TODO: aca tenemos que verificar si seguimos ejecutando o no el mainloop
 	// y por ende modificar la variable mRunning
 }
-void GameLoopState::updateGUISystem(void)
+void
+GameLoopState::updateGUISystem(void)
 {
 	ASSERT(mMenuManager);
 	mMenuManager->update();
 }
-void GameLoopState::updateIA(void)
+void
+GameLoopState::updateIA(void)
 {
-	for(int i = mGameUnits.size(); i >= 0; --i) mGameUnits[i]->update();
+	for(size_t i = 0, size = mGameUnits.size(); i < size; ++i) {
+	    mGameUnits[i]->update();
+	}
 }
-void GameLoopState::updateExtras(void)
+void
+GameLoopState::updateExtras(void)
 {
 	ASSERT(mUpdatableObjsManager);
 	mUpdatableObjsManager->updateAllObjects();
@@ -81,7 +104,8 @@ void GameLoopState::updateExtras(void)
  * all the "MicroApps" (or whatever) that we don't want to measure the time
  * (affect the time frame).
  */
-void GameLoopState::serveExtraApps(void)
+void
+GameLoopState::serveExtraApps(void)
 {
 	if(!MicroAppRunner::hasMicroAppToRun()) return;
 
@@ -118,7 +142,8 @@ GameLoopState::~GameLoopState()
 /**
  * Set/Get the loading system used for this level
  */
-void GameLoopState::setData(GameLoopData *lm)
+void
+GameLoopState::setData(GameLoopData *lm)
 {
     ASSERT(lm);
 
@@ -138,10 +163,14 @@ void GameLoopState::setData(GameLoopData *lm)
     LoaderData &loadedData = mLoaderManager->getLoaderData();
     ASSERT(loadedData.playerUnits);
     ASSERT(loadedData.gameUnits);
-    mGameUnits.insert(mGameUnits.end(), loadedData.playerUnits->begin(),
-            loadedData.playerUnits->end());
-    mGameUnits.insert(mGameUnits.end(), loadedData.gameUnits->begin(),
-            loadedData.gameUnits->end());
+    mGameUnits.reserve(loadedData.playerUnits->size());
+    for(size_t i = 0, size = loadedData.playerUnits->size(); i < size; ++i) {
+        mGameUnits.push_back((*loadedData.playerUnits)[i]);
+    }
+    mGameUnits.reserve(mGameUnits.capacity() + loadedData.gameUnits->size());
+    for(size_t i = 0, size = loadedData.gameUnits->size(); i < size; ++i) {
+        mGameUnits.push_back((*loadedData.gameUnits)[i]);
+    }
 
     mCameraController = lm->cameraController;
     ASSERT(mCameraController);
@@ -168,12 +197,12 @@ GameLoopState::getResources(ResourcesInfoVec &resourcesList,
     const MainMachineParams &params = info.params;
     ASSERT(params.find("LEVEL_PATH") != params.end());
 
-    std::string levelPath = params["LEVEL_PATH"];
+    std::string levelPath = params.find("LEVEL_PATH")->second;
     if (levelPath[levelPath.size()-1] != '/') {
         levelPath += '/';
     }
     levelPath += "GameLoopState/resources.cfg";
-    ResourcesInfoVec rinfo;
+    ResourcesInfo rinfo;
     rinfo.filePath = levelPath;
     rinfo.groupNames.push_back("GameLoopState");
     resourcesList.push_back(rinfo);
@@ -186,6 +215,7 @@ void
 GameLoopState::enter(const MainMachineInfo &info)
 {
 	mInfo = info;
+	mState = State::None;
 
 	// setup the scene
 	setupScene();
@@ -228,7 +258,8 @@ GameLoopState::update(MainMachineInfo &info)
 /**
  * Function called when the state is not "the actual" anymore
  */
-void GameLoopState::exit(void)
+void
+GameLoopState::exit(void)
 {
 
 }

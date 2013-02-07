@@ -15,7 +15,7 @@ set(SRCS
 	${DEV_ROOT_PATH}/MainStateMachine/SystemLoader/SystemLoader.cpp
 	${DEV_ROOT_PATH}/MainStateMachine/SystemLoader/ConfigFileParser.cpp
 	${DEV_ROOT_PATH}/MainStateMachine/States/SponsorsState/SponsorsState.cpp
-#	${DEV_ROOT_PATH}/MainStateMachine/States/GameLoopState/GameLoopState.cpp
+	${DEV_ROOT_PATH}/MainStateMachine/States/GameLoopState/GameLoopState.cpp
 	${DEV_ROOT_PATH}/MainStateMachine/States/FirstInformationState/FirstInformationState.cpp
 	${DEV_ROOT_PATH}/MainStateMachine/States/LoadingState/LoadingState.cpp
 	${DEV_ROOT_PATH}/MainStateMachine/States/ExitState/ExitState.cpp
@@ -41,7 +41,7 @@ set(HDRS
 	${DEV_ROOT_PATH}/MainStateMachine/SystemLoader/SystemLoader.h
 	${DEV_ROOT_PATH}/MainStateMachine/SystemLoader/ConfigFileParser.h
 	${DEV_ROOT_PATH}/MainStateMachine/States/SponsorsState/SponsorsState.h
-#	${DEV_ROOT_PATH}/MainStateMachine/States/GameLoopState/GameLoopState.h
+	${DEV_ROOT_PATH}/MainStateMachine/States/GameLoopState/GameLoopState.h
 	${DEV_ROOT_PATH}/MainStateMachine/States/FirstInformationState/FirstInformationState.h
 	${DEV_ROOT_PATH}/MainStateMachine/States/LoadingState/LoadingState.h
 	${DEV_ROOT_PATH}/MainStateMachine/States/ExitState/ExitState.h
@@ -69,7 +69,7 @@ set(ACTUAL_DIRS
 	${DEV_ROOT_PATH}/MainStateMachine/States/ExitState
 	${DEV_ROOT_PATH}/MainStateMachine/States/LoadingState
 	${DEV_ROOT_PATH}/MainStateMachine/States/FirstInformationState
-#	${DEV_ROOT_PATH}/MainStateMachine/States/GameLoopState
+	${DEV_ROOT_PATH}/MainStateMachine/States/GameLoopState
 	${DEV_ROOT_PATH}/MainStateMachine/States/SponsorsState
 	${DEV_ROOT_PATH}/MainStateMachine/SystemLoader
 	${DEV_ROOT_PATH}/MainStateMachine/SystemLoader/MD5SecurityChecker

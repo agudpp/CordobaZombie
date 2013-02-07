@@ -28,9 +28,17 @@ class CameraController;
 
 class GameLoopState : public IMainState
 {
-    static const char * CAMERA_INTRO_FILENAME = "CameraIntro.xml";
+    static const char *CAMERA_INTRO_FILENAME;
 
 	typedef std::vector<GameUnit*>			GameUnitVec;
+
+	enum State {
+	    None = 0,
+	    IntroVideo,     // when running a intro video
+	    MainLoop,       // when running the main loop
+	    ExtraApp,       // running extra apps (pause, cellphone, etc)
+	};
+
 public:
 	struct GameLoopData {
 		LoaderManager			*loaderManager;
@@ -125,14 +133,15 @@ protected:
 	virtual void unloadResources(void);
 
 protected:
-	LoaderManager			*mLoaderManager;
-	UpdObjsManager			*mUpdatableObjsManager;
-	MenuManager				*mMenuManager;
-	LevelManager			*mLevelManager;
-	MainMachineInfo			mInfo;
-	GameUnitVec				mGameUnits;
+	LoaderManager           *mLoaderManager;
+	UpdObjsManager          *mUpdatableObjsManager;
+	MenuManager             *mMenuManager;
+	LevelManager            *mLevelManager;
+	MainMachineInfo         mInfo;
+	GameUnitVec             mGameUnits;
 	CameraController        *mCameraController;
-	bool					mRunning;
+	bool                    mRunning;
+	State                   mState;
 };
 
 #endif /* GAMELOOPSTATE_H_ */

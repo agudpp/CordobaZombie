@@ -150,6 +150,7 @@ include(${DEV_ROOT_PATH}/VideoPlayer/FfmpegVideoPlayer/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/Helpers/MetaRscManager/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/Helpers/GameUnitHelper/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/SelectionSystem/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/MicroAppRunner/AutoGen.cmake)
 
 
 
