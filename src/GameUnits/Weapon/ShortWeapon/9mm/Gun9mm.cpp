@@ -11,6 +11,12 @@
 #include "Gun9mm.h"
 #include "GameUnit.h"
 
+
+
+const float Gun9mm::SHOOT_VELOCITY = 10.0f;
+
+
+
 Gun9mm::Gun9mm()
 {
 	// TODO: cambiar esto

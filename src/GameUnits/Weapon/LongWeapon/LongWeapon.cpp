@@ -11,6 +11,9 @@
 #include "GameUnit.h"
 
 
+const float LongWeapon::SHOOT_VELOCITY = 10.0f;
+
+
 ////////////////////////////////////////////////////////////////////////////////
 void LongWeapon::configAmmunition(int magazineSize)
 {

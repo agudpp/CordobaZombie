@@ -28,7 +28,7 @@ public:
 		PLAYLIST_EMPTY,
 	};
 
-	static const float NO_VALUE = -1.0f;
+	static const float NO_VALUE;
 	static const int VIDEO_ERROR = VideoPlayer::VIDEO_ERROR;
 	static const int VIDEO_ENDED = VideoPlayer::VIDEO_ENDED;
 	static const int VIDEO_OK = VideoPlayer::VIDEO_OK;

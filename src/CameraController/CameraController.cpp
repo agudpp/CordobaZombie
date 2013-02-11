@@ -13,6 +13,15 @@
 #include "DebugUtil.h"
 
 
+const Ogre::Real CameraController::COEFF_FACTOR    = 200.0f;
+// the distance from the rotation axis
+const Ogre::Real CameraController::NODE_DISTANCE_Z = 130.0f;
+const Ogre::Real CameraController::NODE_DISTANCE_Y = 130.0f;
+const Ogre::Real CameraController::MIN_ZOOM = 20.0f;
+const Ogre::Real CameraController::MAX_ZOOM = 100.0f;
+
+
+
 ////////////////////////////////////////////////////////////////////////////////
 
 void

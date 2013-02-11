@@ -24,7 +24,7 @@ class CivilUnit : public GameUnit
 public:
 
 	// How much closer to the player we can be to be considered "safe"
-	static const float	SAFE_SQR_DIST		=	15.0f*15.0f;
+	static const float	SAFE_SQR_DIST;
 
 	// How many triangles we can ran away (for escaping)
 	static const int	MIN_NUM_NODES		=	3;

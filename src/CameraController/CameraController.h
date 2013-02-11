@@ -18,12 +18,12 @@
 
 class CameraController
 {
-	static const Ogre::Real COEFF_FACTOR	= 200.0f;
+	static const Ogre::Real COEFF_FACTOR;
 	// the distance from the rotation axis
-	static const Ogre::Real NODE_DISTANCE_Z	= 130.0f;
-	static const Ogre::Real NODE_DISTANCE_Y	= 130.0f;
-	static const Ogre::Real MIN_ZOOM = 20.0f;
-	static const Ogre::Real MAX_ZOOM = 100.0f;
+	static const Ogre::Real NODE_DISTANCE_Z;
+	static const Ogre::Real NODE_DISTANCE_Y;
+	static const Ogre::Real MIN_ZOOM;
+	static const Ogre::Real MAX_ZOOM;
 
 	// The internal state of the CameraController
 	enum State {

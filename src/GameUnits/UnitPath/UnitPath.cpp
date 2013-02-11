@@ -11,6 +11,9 @@
 #include "PrimitiveDrawer.h"
 #endif
 
+
+const float  UnitPath::T_FACTOR = (1.0f/MAX_INTERMEDIATE_POINTS);
+
 /**
  * Perform all the operations used to calculate the spline of the actual
  * "pathPoint".

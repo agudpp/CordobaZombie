@@ -16,6 +16,7 @@
 #include "MouseCursor.h"
 
 ////////////////////////////////////////////////////////////////////////////////
+const float  InputManager::CAMERA_MOVE_BOUNDS_LIMITS   =   0.01f;
 const float  InputManager::CAMERA_MOVE_BOUNDS_L_LIMIT  =   CAMERA_MOVE_BOUNDS_LIMITS;
 const float  InputManager::CAMERA_MOVE_BOUNDS_R_LIMIT  =   1.0f-CAMERA_MOVE_BOUNDS_LIMITS;
 const float  InputManager::CAMERA_MOVE_BOUNDS_T_LIMIT  =   CAMERA_MOVE_BOUNDS_LIMITS;
