@@ -18,13 +18,16 @@ class SelectableObject;
 
 
 struct SelectionData {
-    SelectionData(const std::vector<SelectableObject *> &objs) :
-        selectedObjects(objs)
+    SelectionData(const std::vector<SelectableObject *> &objs, bool areSelected) :
+        objects(objs)
+    ,   selected(areSelected)
     {
     }
 
 
-    const std::vector<SelectableObject *> &selectedObjects;
+    const bool selected;    // true mean the objects are selected, false
+                            // mean that the objects are being unselected
+    const std::vector<SelectableObject *> &objects;
 };
 
 

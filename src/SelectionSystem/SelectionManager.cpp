@@ -10,7 +10,7 @@
 #include <algorithm>
 
 #include "GlobalObjects.h"
-#include "DebugUtil.h"
+
 
 namespace {
 // Auxiliar function used to swap the last element
@@ -55,85 +55,99 @@ SelectionManager::~SelectionManager()
 
 ////////////////////////////////////////////////////////////////////////////////
 void
-SelectionManager::addObject(SelectableObject *obj)
+SelectionManager::select(SelectableObject *obj)
 {
-    if (exists(obj)) return;
+    ASSERT(obj);
+    if (isSelected(obj)){
+        return;
+    }
     mSelectedObjects.push_back(obj);
     obj->objectSelected();
-    mSignal(SelectionData(mSelectedObjects));
+    mAuxVec.clear();
+    mAuxVec.push_back(obj);
+    mSignal(SelectionData(mAuxVec, true));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void
-SelectionManager::addObjects(const std::vector<SelectableObject *> &objects)
+SelectionManager::select(const std::vector<SelectableObject *> &objects)
 {
+    mAuxVec.clear();
     for(size_t i = 0, numObjs = objects.size(); i < numObjs; ++i){
-        ASSERT(!exists(objects[i]));
+        SelectableObject *obj = objects[i];
+        ASSERT(obj);
+        if (isSelected(obj)){
+            continue;
+        }
         mSelectedObjects.push_back(objects[i]);
         objects[i]->objectSelected();
+        mAuxVec.push_back(obj);
     }
 
-    mSignal(SelectionData(mSelectedObjects));
+    mSignal(SelectionData(mAuxVec, true));
 }
 
 void
-SelectionManager::removeObject(SelectableObject *obj)
+SelectionManager::unselect(SelectableObject *obj)
 {
-    ASSERT(exists(obj));
-    removeElement(mSelectedObjects, obj);
+    ASSERT(obj);
+    if (!isSelected(obj)){
+        return;
+    }
+    swapAndRemove(mSelectedObjects, obj->mIndex);
     obj->objectUnselected();
-    mSignal(SelectionData(mSelectedObjects));
+    mAuxVec.clear();
+    mAuxVec.push_back(obj);
+    mSignal(SelectionData(mAuxVec, false));
 
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void
-SelectionManager::removeObjects(const std::vector<SelectableObject *> &objects)
+SelectionManager::unselect(const std::vector<SelectableObject *> &objects)
 {
+    mAuxVec.clear();
     // this is slow, could be improved
     for(size_t i = 0, numObjs = objects.size(); i < numObjs; ++i){
-        removeElement(mSelectedObjects, objects[i]);
-        objects[i]->objectUnselected();
-    }
-    mSignal(SelectionData(mSelectedObjects));
-}
-
-////////////////////////////////////////////////////////////////////////////////
-bool
-SelectionManager::exists(SelectableObject *obj)
-{
-    for(size_t i = 0, size = mSelectedObjects.size(); i < size; ++i){
-        if (mSelectedObjects[i] == obj) {
-            return true;
+        SelectableObject *obj = objects[i];
+        ASSERT(obj);
+        if (!isSelected(obj)) {
+            continue;
         }
+        swapAndRemove(mSelectedObjects, obj->mIndex);
+        obj->objectUnselected();
+        mAuxVec.push_back(obj);
     }
-    return false;
+    mSignal(SelectionData(mAuxVec, false));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void
-SelectionManager::removeAll(Type t)
+SelectionManager::unselectAll(Type t)
 {
+    mAuxVec.clear();
     for(size_t i = 0, size = mSelectedObjects.size(); i < size; ++i){
         if (mSelectedObjects[i]->type() == t) {
+            mAuxVec.push_back(mSelectedObjects[i]);
             swapAndRemove(mSelectedObjects, i);
             mSelectedObjects[i]->objectUnselected();
             --i;
             --size;
+
         }
     }
-    mSignal(SelectionData(mSelectedObjects));
+    mSignal(SelectionData(mAuxVec, false));
 }
 
 
 void
-SelectionManager::removeAll(void)
+SelectionManager::unselectAll(void)
 {
     Remover remover;
     std::for_each(mSelectedObjects.begin(), mSelectedObjects.end(), remover);
 
+    mSignal(SelectionData(mSelectedObjects, false));
     mSelectedObjects.clear();
-    mSignal(SelectionData(mSelectedObjects));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

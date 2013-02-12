@@ -14,8 +14,13 @@
 
 namespace selection {
 
+
+// forward declaration
+class SelectionManager;
+
 class SelectableObject {
 public:
+    SelectableObject() : mIndex(-1) {};
     virtual ~SelectableObject(){};
 
     /**
@@ -63,6 +68,12 @@ protected:
 
 protected:
     Type mType;
+
+private:
+    // Let Selection manager to be friend of this class to improve the
+    // search using the index right here
+    friend class SelectionManager;
+    int mIndex;
 };
 
 
