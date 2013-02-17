@@ -60,9 +60,11 @@ void LevelManager::load(const Ogre::Entity *levelMesh,
 	ASSERT(mPathfindingMngr);
 
 	mCollMngr->build(ssX, ssY, cnX, cnY);
-	bool b = Common::Util::getTrianglesFromMesh(mVertexs, mTriangles,levelMesh->getMesh());
+	const bool b = Common::Util::getTrianglesFromMesh(mVertexs,
+	                                                  mTriangles,
+	                                                  levelMesh->getMesh());
 	ASSERT(b);
-	int r = mPathfindingMngr->loadLevel(mTriangles.getObjs(), mVertexs.getObjs());
+	const int r = mPathfindingMngr->loadLevel(mTriangles.getObjs(), mVertexs.getObjs());
 	ASSERT(r == 0);
 
 	// raycastmanager
@@ -96,6 +98,11 @@ void LevelManager::showTriangles(void)
 {
 	for(int i = mTriangles.getObjs().size()-1; i>=0; --i){
 		drawTriangle(mTriangles.getObjs()[i]);
+	}
+	// check if the pathfinding manager has the triangles
+	const std::vector<Triangle *> triangles = mPathfindingMngr->triangles();
+	for(size_t i = 0, size = triangles.size(); i < size; ++i){
+	    drawTriangle(triangles[i]);
 	}
 }
 #endif

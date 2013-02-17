@@ -24,6 +24,7 @@
 #include "tinyxml.h"
 
 class TiXmlElement;
+class TiXmlDocument;
 
 namespace Common
 {

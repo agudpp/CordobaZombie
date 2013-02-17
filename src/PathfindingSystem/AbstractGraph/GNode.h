@@ -159,6 +159,13 @@ public:
 		ASSERT(false);
 	}
 
+	// Compare operator
+	bool operator==(const GNode &other) const
+    {
+	    return (mTriangle == 0 && other.mTriangle == 0) ||
+	            (*mTriangle == *other.mTriangle);
+    }
+
 private:
 	const Triangle 	*mTriangle;
 	const GEdge 	*mEdge1;

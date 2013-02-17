@@ -19,26 +19,13 @@
 
 
 
-TriNavMeshBuilder::TriNavMeshBuilder()
-{
-	// TODO Auto-generated constructor stub
-
-}
-
-TriNavMeshBuilder::~TriNavMeshBuilder()
-{
-	// TODO Auto-generated destructor stub
-}
-
-
-
-
 /* Export a graph (triangle navmesh graph) to a file
  * Requires:
  * 	@nodes		The list of all the nodes
  * 	@fname		the filename to export the graph
  */
-bool TriNavMeshBuilder::exportGraph(const std::vector<GNode *> &nodes,
+bool
+TriNavMeshBuilder::exportGraph(const std::vector<GNode *> &nodes,
 		const std::vector<GEdge *> &edges,
 		const Ogre::String &fname)
 {
@@ -46,7 +33,7 @@ bool TriNavMeshBuilder::exportGraph(const std::vector<GNode *> &nodes,
 
 	out.open(fname.c_str());
 	if(!out.is_open()){
-		debug("Error trying to open the file %s\n", fname.c_str());
+		debugERROR("Error trying to open the file %s\n", fname.c_str());
 		return false;
 	}
 
@@ -107,6 +94,13 @@ bool TriNavMeshBuilder::exportGraph(const std::vector<GNode *> &nodes,
 	return true;
 }
 
+bool
+TriNavMeshBuilder::exportGraph(const Graph &graph, const Ogre::String &fname)
+{
+    return exportGraph(graph.getNodes(), graph.getEdges(), fname);
+}
+
+
 /* Import a graph from a file.
  * Requires:
  * 	@nodes		The list to be filled with the nodes
@@ -117,7 +111,8 @@ bool TriNavMeshBuilder::exportGraph(const std::vector<GNode *> &nodes,
  * 	true		on success
  * 	false		otherwise
  */
-bool TriNavMeshBuilder::importGraph(std::vector<GNode *> &nodes,
+bool
+TriNavMeshBuilder::importGraph(std::vector<GNode *> &nodes,
 		PolyStructsContainer<sm::Vertex *> &container,
 		PolyStructsContainer<Triangle *> &triangles,
 		std::vector<GEdge *> &edges,
@@ -195,9 +190,20 @@ bool TriNavMeshBuilder::importGraph(std::vector<GNode *> &nodes,
 
 		GEdge *e = new GEdge(n1,n2);
 		ok = n1->setNewEdge(e);
-		ASSERT(ok);
+#ifdef DEBUG
+		if (!ok){
+		    debugERROR("i1: %d, i2: %d, i: %d\n", i1, i2, i);
+		    ASSERT(ok);
+		}
+#endif
+
 		ok = n2->setNewEdge(e);
-		ASSERT(ok);
+#ifdef DEBUG
+        if (!ok){
+            debugERROR("i1: %d, i2: %d, i: %d\n", i1, i2, i);
+            ASSERT(ok);
+        }
+#endif
 		edges.push_back(e);
 		e->setWeight(weight);
 
@@ -228,7 +234,8 @@ bool TriNavMeshBuilder::importGraph(std::vector<GNode *> &nodes,
  * @return	True		on success
  * 			false		otherwise
  */
-bool TriNavMeshBuilder::importGraph(std::vector<sm::Vertex *> &vertexs,
+bool
+TriNavMeshBuilder::importGraph(std::vector<sm::Vertex *> &vertexs,
 		std::vector<Triangle *> &triangVec,
 		const Ogre::String &fname)
 {
@@ -288,7 +295,5 @@ bool TriNavMeshBuilder::importGraph(std::vector<sm::Vertex *> &vertexs,
 
 	return true;
 }
-
-
 
 

@@ -112,6 +112,17 @@ public:
 	 */
 	int updatePath(Path &path, int ap, const sm::Point &np, float radius = 0.0f);
 
+	/**
+	 * @brief Accessory function to get the triangle list of the NavMesh
+	 * @returns the triangle vector used by the NavMesh
+	 */
+	inline const std::vector<Triangle *> &triangles(void) const;
+
+	/**
+	 * @brief Accessory function to get the vertices used by the NavMesh
+	 * @returns the vertices vector used by the NavMesh
+	 */
+	inline const std::vector<sm::Vertex *> &vertices(void) const;
 
 private:
 	PathfindingManager();
@@ -142,10 +153,23 @@ private:
  * Returns the associated GNode to a certain point or 0 if there are not.
  * @param	p	The point where we will get the GNode
  */
-inline const GNode *PathfindingManager::getNodeFromPoint(const sm::Point &p) const
+inline const GNode *
+PathfindingManager::getNodeFromPoint(const sm::Point &p) const
 {
 	ASSERT(mNavMesh);
 	return mNavMesh->getNodeFromPoint(p);
+}
+
+inline const std::vector<Triangle *> &
+PathfindingManager::triangles(void) const
+{
+    return mTriangles.getObjs();
+}
+
+inline const std::vector<sm::Vertex *> &
+PathfindingManager::vertices(void) const
+{
+    return mVertices.getObjs();
 }
 
 #endif /* PATHFINDINGMANAGER_H_ */

@@ -24,7 +24,8 @@
 
 
 ////////////////////////////////////////////////////////////////////////////////
-void TriangleNavMesh::createMatrix(int rows, int columns)
+void
+TriangleNavMesh::createMatrix(int rows, int columns)
 {
 	// check if the matrix is already created
 	destroyMatrix();
@@ -41,7 +42,8 @@ void TriangleNavMesh::createMatrix(int rows, int columns)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void TriangleNavMesh::destroyMatrix(void)
+void
+TriangleNavMesh::destroyMatrix(void)
 {
 	// remove all the nodes and edges
 	mGraph.removeAndDestroyEdeges();
@@ -62,7 +64,8 @@ void TriangleNavMesh::destroyMatrix(void)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void TriangleNavMesh::setFactorsPosition(float levelSizeX, float levelSizeY)
+void
+TriangleNavMesh::setFactorsPosition(float levelSizeX, float levelSizeY)
 {
 	mXFactorPosition = 1.0f / ((levelSizeX) / static_cast<float>(mColumnCount));
 	mYFactorPosition = 1.0f / ((levelSizeY) / static_cast<float>(mRowCount));
@@ -70,7 +73,8 @@ void TriangleNavMesh::setFactorsPosition(float levelSizeX, float levelSizeY)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void TriangleNavMesh::getTrianglesBoundingBox(const TriangleVec &triangles,
+void
+TriangleNavMesh::getTrianglesBoundingBox(const TriangleVec &triangles,
 		sm::Point &tl, sm::Point &br)
 {
 	ASSERT(!triangles.empty());
@@ -95,7 +99,8 @@ void TriangleNavMesh::getTrianglesBoundingBox(const TriangleVec &triangles,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void TriangleNavMesh::getCellsIntersection(const Triangle &region,
+void
+TriangleNavMesh::getCellsIntersection(const Triangle &region,
 			std::vector<NodeVec*> &cells)
 {
 	ASSERT(region.v1);
@@ -141,7 +146,8 @@ void TriangleNavMesh::getCellsIntersection(const Triangle &region,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void TriangleNavMesh::fillMatrix(const NodeVec &nodes)
+void
+TriangleNavMesh::fillMatrix(const NodeVec &nodes)
 {
 	std::vector<NodeVec*> cells;
 	for(int i = nodes.size() - 1; i >= 0; --i){
@@ -166,7 +172,8 @@ void TriangleNavMesh::fillMatrix(const NodeVec &nodes)
 
 
 ////////////////////////////////////////////////////////////////////////////////
-GEdge *TriangleNavMesh::linkNodes(GNode *n1, GNode *n2)
+GEdge *
+TriangleNavMesh::linkNodes(GNode *n1, GNode *n2)
 {
 	ASSERT(n1);
 	ASSERT(n2);
@@ -209,7 +216,8 @@ GEdge *TriangleNavMesh::linkNodes(GNode *n1, GNode *n2)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-int TriangleNavMesh::buildGraph(const TriangleVec &triangles)
+int
+TriangleNavMesh::buildGraph(const TriangleVec &triangles)
 {
 	typedef std::map<const sm::Vertex*, std::list<GNode *> > HashVertex;
 	HashVertex hash;
@@ -223,7 +231,7 @@ int TriangleNavMesh::buildGraph(const TriangleVec &triangles)
 	NodeVec nodes;
 	EdgeVec edges;
 
-	// para cada triangulo creamos un
+	// for each triangle create the associated nodes and edges
 	for(int i = triangles.size() - 1; i >= 0; --i){
 		v1 = triangles[i]->v1;
 		v2 = triangles[i]->v2;
@@ -318,7 +326,8 @@ TriangleNavMesh::~TriangleNavMesh()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void TriangleNavMesh::setNumColumnsAndRows(int numColumns, int numRows)
+void
+TriangleNavMesh::setNumColumnsAndRows(int numColumns, int numRows)
 {
 	// check if is a matrix already created, if it is, we cant change the values
 	if(mMatrix){
@@ -331,7 +340,8 @@ void TriangleNavMesh::setNumColumnsAndRows(int numColumns, int numRows)
 
 
 ////////////////////////////////////////////////////////////////////////////////
-const GNode *TriangleNavMesh::getNodeFromPoint(const sm::Point &p) const
+const GNode *
+TriangleNavMesh::getNodeFromPoint(const sm::Point &p) const
 {
 	ASSERT(mMatrix);
 	int r = MATRIX_GET_ROW(p.y);
@@ -374,14 +384,26 @@ const GNode *TriangleNavMesh::getNodeFromPoint(const sm::Point &p) const
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void TriangleNavMesh::addTriangle(const Triangle *t)
+void
+TriangleNavMesh::addTriangle(const Triangle *t)
 {
 	ASSERT(t);
 	mTriangles.push_back(t);
 }
 
+void
+TriangleNavMesh::addTriangles(const std::vector<Triangle *> &triangles)
+{
+#ifdef DEBUG
+    for(size_t i = 0, size = triangles.size(); i < size; ++i){
+        ASSERT(triangles[i]);
+    }
+#endif
+    mTriangles.insert(mTriangles.end(), triangles.begin(), triangles.end());
+}
 ////////////////////////////////////////////////////////////////////////////////
-int TriangleNavMesh::build(void)
+int
+TriangleNavMesh::build(void)
 {
 	// get the size of the level
 	sm::Point tl, br;
@@ -414,7 +436,16 @@ int TriangleNavMesh::build(void)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-int TriangleNavMesh::buildFromGraph(const Graph &g)
+void
+TriangleNavMesh::destroy(void)
+{
+    mTriangles.clear();
+    destroyMatrix();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+int
+TriangleNavMesh::buildFromGraph(const Graph &g)
 {
 	// get all the triangles
 	const std::vector<GNode *> &nodes = g.getNodes();
