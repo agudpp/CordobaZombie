@@ -45,6 +45,17 @@ public:
 	 */
 	void getRandomPoint(sm::Point &r) const;
 
+	bool operator==(const Triangle &other) const
+    {
+	    // compare vertex
+	    return ((((v1 != 0 && other.v1 != 0) && *v1 == *other.v1) ||
+	            ((v1 == other.v1) && v1 == 0)) &&
+	            (((v2 != 0 && other.v2 != 0) && *v2 == *other.v2) ||
+                ((v2 == other.v2) && v2 == 0)) &&
+                (((v3 != 0 && other.v3 != 0) && *v3 == *other.v3) ||
+                ((v3 == other.v3) && v3 == 0)));
+    }
+
 private:
 	// TODO: implementar esto mejor mas rapido
 	float Sign(const sm::Point &p1, const sm::Point &p2, const sm::Point &p3) const

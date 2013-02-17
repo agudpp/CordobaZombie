@@ -73,11 +73,14 @@ int PathfindingManager::loadLevel(const std::vector<Triangle *> &triangles,
 
 	createAll(-1,-1, -1);
 
-	for(int i = vertices.size()-1; i >= 0; --i){
+
+	mVertices.getObjs().reserve(vertices.size());
+	for(size_t i = 0, size = vertices.size(); i < size; ++i){
 		mVertices.addObj(vertices[i]);
 	}
 
-	for(int i = triangles.size()-1; i >= 0; --i){
+    mTriangles.getObjs().reserve(vertices.size());
+	for(size_t i = 0, size = triangles.size(); i < size; ++i){
 		mTriangles.addObj(triangles[i]);
 		mNavMesh->addTriangle(triangles[i]);
 	}
@@ -98,11 +101,13 @@ int PathfindingManager::loadLevel(const Graph &g,
 
 	createAll(-1,-1, -1);
 
-	for(int i = vertices.size()-1; i >= 0; --i){
+	mVertices.getObjs().reserve(vertices.size());
+	for(size_t i = 0, size = vertices.size(); i < size; ++i){
 		mVertices.addObj(vertices[i]);
 	}
 
-	for(int i = triangles.size()-1; i >= 0; --i){
+	mTriangles.getObjs().reserve(vertices.size());
+	for(size_t i = 0, size = triangles.size(); i < size; ++i){
 		mTriangles.addObj(triangles[i]);
 	}
 

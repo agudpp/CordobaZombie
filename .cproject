@@ -48,6 +48,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/IA/FSM}&quot;"/>
 									<listOptionValue builtIn="false" value="/usr/include/OGRE"/>
 									<listOptionValue builtIn="false" value="/usr/include/c++/4.4"/>
+									<listOptionValue builtIn="false" value="/usr/include/UnitTest++/"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.preprocessor.def.1570417059" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="DEBUG"/>
@@ -77,6 +78,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/IA/FSM}&quot;"/>
 									<listOptionValue builtIn="false" value="/usr/include/OGRE"/>
 									<listOptionValue builtIn="false" value="/usr/include/c++/4.4"/>
+									<listOptionValue builtIn="false" value="/usr/include/UnitTest++/"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.618162601" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
@@ -108,6 +110,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/IA/FSM}&quot;"/>
 									<listOptionValue builtIn="false" value="/usr/include/OGRE"/>
 									<listOptionValue builtIn="false" value="/usr/include/c++/4.4"/>
+									<listOptionValue builtIn="false" value="/usr/include/UnitTest++/"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.1317598714" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 							</tool>
@@ -582,6 +585,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/IA/FSM}&quot;"/>
 									<listOptionValue builtIn="false" value="/usr/include/OGRE"/>
 									<listOptionValue builtIn="false" value="/usr/include/c++/4.4"/>
+									<listOptionValue builtIn="false" value="/usr/include/UnitTest++/"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.445865644" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
@@ -608,6 +612,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/IA/FSM}&quot;"/>
 									<listOptionValue builtIn="false" value="/usr/include/OGRE"/>
 									<listOptionValue builtIn="false" value="/usr/include/c++/4.4"/>
+									<listOptionValue builtIn="false" value="/usr/include/UnitTest++/"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.2131463687" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
@@ -639,6 +644,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/IA/FSM}&quot;"/>
 									<listOptionValue builtIn="false" value="/usr/include/OGRE"/>
 									<listOptionValue builtIn="false" value="/usr/include/c++/4.4"/>
+									<listOptionValue builtIn="false" value="/usr/include/UnitTest++/"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.243602743" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 							</tool>

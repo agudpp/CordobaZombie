@@ -34,6 +34,15 @@ public:
 			const std::vector<GEdge *> &edges,
 			const Ogre::String &fname);
 
+	/**
+	 * Export a graph to a filename.
+	 * @param Graph     The graph to be exported
+	 * @param fname     The filename where the file will be saved.
+	 * @returns true on success
+	 *          false on error
+	 */
+	static bool exportGraph(const Graph &graph, const Ogre::String &fname);
+
 	/* Import a graph from a file.
 	 * Requires:
 	 * 	@nodes		The list to be filled with the nodes
