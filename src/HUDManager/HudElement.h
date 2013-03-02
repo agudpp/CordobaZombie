@@ -26,6 +26,13 @@ public:
 	virtual void show(void) = 0;
 	virtual void hide(void) = 0;
 
+	/**
+	 * @brief Hihglight the element
+	 * @param highlight If true then the element should highlight, if false
+	 *                  it turn off the highlight effect
+	 */
+	virtual void highlight(bool highlight) = 0;
+
 };
 
 #endif /* HUDELEMENT_H_ */

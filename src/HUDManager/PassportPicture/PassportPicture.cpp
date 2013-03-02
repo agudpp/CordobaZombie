@@ -32,7 +32,8 @@ PassportPicture::~PassportPicture()
 /**
  * Load/Unload all the resources of the HudElement
  */
-void PassportPicture::load(void)
+void
+PassportPicture::load(void)
 {
 	ASSERT(!mPanel);
 	Ogre::OverlayManager &om = Ogre::OverlayManager::getSingleton();
@@ -43,9 +44,11 @@ void PassportPicture::load(void)
 	mPanel = static_cast<Ogre::PanelOverlayElement *> (
 			om.getOverlayElement(PASSPORT_PICTURE_CONT));
 	ASSERT(mPanel);
+	mAtlas.setPanel(mPanel);
 	mPanel->show();
 }
-void PassportPicture::unload(void)
+void
+PassportPicture::unload(void)
 {
 	if(!mPanel) return;
 	GUIHelper::fullDestroyOverlayElement(mPanel);
@@ -55,27 +58,35 @@ void PassportPicture::unload(void)
 /**
  * Hide/Show the element
  */
-void PassportPicture::show(void)
+void
+PassportPicture::show(void)
 {
 	if(mPanel) mPanel->show();
 }
-void PassportPicture::hide(void)
+void
+PassportPicture::hide(void)
 {
 	if(mPanel) mPanel->hide();
 }
 
-/**
- * Change the passport picture (set the texture name)
- */
-void PassportPicture::changePicture(const Ogre::String &textureName)
+
+void
+PassportPicture::changeAtlasPicture(const Ogre::String &textName,
+                                    size_t numColumn,
+                                    size_t numRows)
 {
-	ASSERT(mPanel);
-	// Get texture
-	Ogre::MaterialPtr matptr = mPanel->getMaterial();
-	ASSERT(!matptr.isNull());
-	ASSERT(matptr->getTechnique(0));
-	ASSERT(matptr->getTechnique(0)->getPass(0));
-	ASSERT(matptr->getTechnique(0)->getPass(0)->getTextureUnitState(0));
-	matptr->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureName(
-			textureName);
+    // first change the material
+    ASSERT(mPanel);
+    // Get texture
+    Ogre::MaterialPtr matptr = mPanel->getMaterial();
+    ASSERT(!matptr.isNull());
+    ASSERT(matptr->getTechnique(0));
+    ASSERT(matptr->getTechnique(0)->getPass(0));
+    ASSERT(matptr->getTechnique(0)->getPass(0)->getTextureUnitState(0));
+    matptr->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureName(
+        textName);
+
+    // configure the atlas
+    mAtlas.setNumberImages(numColumn, numRows);
 }
+
