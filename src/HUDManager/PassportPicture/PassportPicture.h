@@ -12,7 +12,7 @@
 #include <OgrePanelOverlayElement.h>
 #include <OgreString.h>
 
-#include <GUI/AtlasOverlay/MultiAtlasOverlay.h>
+#include <Utils/GUI/AtlasOverlay/MultiAtlasOverlay.h>
 
 #include "HudElement.h"
 
@@ -68,6 +68,15 @@ public:
 	 */
 	inline void selectPicture(size_t numColumn, size_t numRow);
 
+	/**
+	 * @brief Select a new image from a index where the indices are given this way
+	 *        0   1   2   3   4
+	 *        5   6   7   8   9
+	 *        10  11  12  13  14..
+	 * @param index     The index of the image we want to use
+	 */
+	inline void selectPicture(size_t index);
+
 private:
 
 	Ogre::PanelOverlayElement	*mPanel;
@@ -80,6 +89,11 @@ inline void
 PassportPicture::selectPicture(size_t numColumn, size_t numRow)
 {
     mAtlas.changeAtlas(numRow, numColumn);
+}
+inline void
+PassportPicture::selectPicture(size_t index)
+{
+    mAtlas.changeAtlas(index);
 }
 
 #endif /* PASSPORTPICTURE_H_ */

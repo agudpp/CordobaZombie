@@ -69,6 +69,17 @@ PassportPicture::hide(void)
 	if(mPanel) mPanel->hide();
 }
 
+/**
+  * @brief Hihglight the element
+  * @param highlight If true then the element should highlight, if false
+  *                  it turn off the highlight effect
+  */
+ void
+ PassportPicture::highlight(bool highlight)
+ {
+     ASSERT(false && "TODO!");
+ }
+
 
 void
 PassportPicture::changeAtlasPicture(const Ogre::String &textName,
@@ -87,6 +98,6 @@ PassportPicture::changeAtlasPicture(const Ogre::String &textName,
         textName);
 
     // configure the atlas
-    mAtlas.setNumberImages(numColumn, numRows);
+    mAtlas.setNumberImages(numRows, numColumn);
 }
 

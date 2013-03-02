@@ -13,9 +13,10 @@
 #include <OgreAnimationTrack.h>
 #include <OgreAnimationState.h>
 
+#include <HUDManager/PassportPicture/PassportPicture.h>
+
 #include "AppTester.h"
 #include "DebugUtil.h"
-#include "CameraController.h"
 
 #include "MouseCursor.h"
 #include "UpdObjsManager.h"
@@ -44,11 +45,13 @@ private:
 	void handleInput(void);
 
 private:
-	CameraController		mCamController;
 	MouseCursor				mMouseCursor;
 
 	UpdObjsManager			mUpdaterManager;
 	InputManager &mInputManager;
+	PassportPicture mPassport;
+	size_t mActualCol;
+	size_t mActualRow;
 
 };
 

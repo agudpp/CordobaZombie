@@ -124,6 +124,7 @@ include_directories( ${OIS_INCLUDE_DIRS}
 	${DEV_ROOT_PATH}/Common/tinyxml
 	${DEV_ROOT_PATH}/Common/GlobalObjects
 	${DEV_ROOT_PATH}/Utils/MouseCursor
+	${DEV_ROOT_PATH}/
 	
 	${DEV_ROOT_PATH}/Extras/AppTester
 )
@@ -150,6 +151,9 @@ include(${DEV_ROOT_PATH}/SoundSystem/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/UpdatableObjects/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/SelectionSystem/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/Helpers/GameUnitHelper/AutoGen.cmake)
+#include(${DEV_ROOT_PATH}/HUDManager/PassportPicture/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/HUDManager/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/Utils/GUI/AutoGen.cmake)
 
 
 
