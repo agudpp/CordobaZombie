@@ -65,13 +65,6 @@ InputManager::handleRaycast(void)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-bool
-InputManager::shouldPerformRaycast(void) const
-{
-    ASSERT(false);
-}
-
-////////////////////////////////////////////////////////////////////////////////
 void
 InputManager::newStateEvent(Event e)
 {
@@ -312,7 +305,6 @@ void InputManager::unselectAll(void)
 /**
  * TODO: set menu system? aca podemos meter el menu system asociado
  */
-
 ////////////////////////////////////////////////////////////////////////////////
 void InputManager::update(void)
 {
@@ -363,5 +355,10 @@ void InputManager::update(void)
     default:
         // ?
         ASSERT(false);
+    }
+
+    // We have to perform raycast?
+    if (shouldPerformRaycast()){
+
     }
 }
