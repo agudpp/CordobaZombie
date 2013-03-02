@@ -38,6 +38,14 @@ public:
     inline Type type(void) const;
 
     /**
+     * @brief Returns the aditional info of this object
+     * @returns The additional info associated to this object
+     */
+    inline const Info &additionalInfo(void) const;
+    inline Info &additionalInfo(void);
+    inline void setAdditionalInfo(Info &af);
+
+    /**
      * This function have to be implemented that reproduce the effects when
      * the object is selected
      */
@@ -74,18 +82,37 @@ private:
     // search using the index right here
     friend class SelectionManager;
     int mIndex;
+    Info mAdditionalInfo;
 };
 
 
 
-inline void SelectableObject::setType(Type t)
+inline void
+SelectableObject::setType(Type t)
 {
     mType = t;
 }
-inline Type SelectableObject::type(void) const
+inline Type
+SelectableObject::type(void) const
 {
     return mType;
 }
+inline const Info &
+SelectableObject::additionalInfo(void) const
+{
+    return mAdditionalInfo;
+}
+inline Info &
+SelectableObject::additionalInfo(void)
+{
+    return mAdditionalInfo;
+}
+inline void
+SelectableObject::setAdditionalInfo(Info &af)
+{
+    mAdditionalInfo = af;
+}
+
 
 }
 

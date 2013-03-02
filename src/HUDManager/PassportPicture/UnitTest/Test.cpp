@@ -38,7 +38,6 @@ void Test::handleInput(void)
 	        if (counter >= NUM_ROW * NUM_COL) counter = 0;
 	        mActualCol = counter % NUM_COL;
 	        mActualRow = (counter / NUM_COL) % NUM_ROW;
-	        debugYELLOW("col: %ul, row: %ul\n", mActualCol, mActualRow);
 
 //	        mPassport.selectPicture(mActualCol, mActualRow);
 	        mPassport.selectPicture(counter);

@@ -9,6 +9,7 @@
 #define SELECTIONDATA_H_
 
 #include <vector>
+#include <limits>
 
 namespace selection {
 
@@ -30,6 +31,19 @@ struct SelectionData {
     const std::vector<SelectableObject *> &objects;
 };
 
+
+// Aditional info used by the SelectableObjects
+//
+struct Info {
+    // The picture index used by the HUD to show the PassportPicture
+    // If we have not a index this value will be -1
+    unsigned short passportPicture;
+
+
+    Info() :
+        passportPicture(std::numeric_limits<unsgined short>::max())
+    {}
+};
 
 }
 

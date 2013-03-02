@@ -186,7 +186,7 @@ private:
 	 * Check if we have to handle the Mouse Raycast (using the
 	 * MouseSelectionHandler).
 	 */
-	bool shouldPerformRaycast(void) const;
+	inline bool shouldPerformRaycast(void) const;
 
 	/**
 	 * State machine associated functions
@@ -291,5 +291,21 @@ inline void InputManager::setAll(void)
     mFlags = ~0;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+inline bool
+InputManager::shouldPerformRaycast(void) const
+{
+    const sm::Vector2 mousePosition(GLOBAL_CURSOR->getXRelativePos(),
+                                    GLOBAL_CURSOR->getYRelativePos());
+    // TODO: probably here we have to improve this using the MainMenuManager
+    // or sorting by X and Y
+    for(size_t i = 0, size = mLevelZones.size(); i < size; ++i){
+        if (mLevelZones[i].checkPointInside(mousePosition)){
+            // We should perform the raycast
+            return true;
+        }
+    }
+    return false;
+}
 
 #endif /* INPUTMANAGER_H_ */
