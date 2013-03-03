@@ -8,9 +8,9 @@
 #ifndef COLLOBJEXPORTER_H_
 #define COLLOBJEXPORTER_H_
 
-#include <Ogre\OgreEntity.h>
-#include <Ogre\OgreMesh.h>
-#include <Ogre\OgreSubEntity.h>
+#include <OgreEntity.h>
+#include <OgreMesh.h>
+#include <OgreSubEntity.h>
 
 #include "CollisionObject.h"
 #include "Util.h"

@@ -8,13 +8,11 @@
 #ifndef BLOODFAKE_H_
 #define BLOODFAKE_H_
 
-#include "Effects.h"
+#include <EffectSystem/Effect.h>
 #include <string>
 #include <cstdlib>
 
-#include <EffectQueues.h>
-
-class BloodFake: public Effects {
+class BloodFake: public Effect {
 private:
 	static int numberOfInstance;
 

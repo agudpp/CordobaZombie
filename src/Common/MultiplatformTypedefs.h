@@ -52,6 +52,7 @@ struct _HashTable
 
 #  ifdef __GXX_EXPERIMENTAL_CXX0X__
 #    include <unordered_map>
+#    include <functional>
 template<typename _Key, typename _Value,
         class _Hash  = std::hash<_Key>,      // hash function
         class _Pred  = std::equal_to<_Key>,  // key compare function

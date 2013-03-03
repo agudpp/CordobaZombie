@@ -44,8 +44,8 @@ class SoundHandler
 		std::vector<uint>			mPlayOrder; // Sounds playing order
 		unsigned int				mCurrent;	// Current position in mPlayOrder
 		unsigned int 				mState;		// Repeat/Shuffle/Randomwait
-		float						mSilence;	// Time to wait between sounds
-		Ogre::Timer					mTimer;
+		float						mSilence;	// Time to wait between sounds (in sec)
+		float						mTimeSinceFinish;
 	};
 
 public:
@@ -123,10 +123,15 @@ public:
 	 ** Sounds which had not been previously loaded are simply ignored.
 	 **
 	 ** @remarks
-	 ** If some sound was the content of the buffer of a currently playing
-	 ** SoundSource, calling this function will result in undefined behavior.
+	 ** This method is expensive, as it must check for EVERY sound
+	 ** if it's currently under system usage.
+	 **
+	 ** @return
+	 ** List of files which failed to unload because they were being used
+	 ** by the system, either as Environmental or SoundAPI sounds.
+	 ** File names are separated with UNIX newline characters (i.e., '\n')
 	 **/
-	void
+	Ogre::String
 	unloadSounds(const std::vector<Ogre::String>& list);
 
 	/**
@@ -252,7 +257,6 @@ public:
 	globalFadeIn(const Ogre::Real& time) const;
 
 
-
 	/*********************************************************************/
 	/*************************    PLAYLISTS    ***************************/
 public:
@@ -265,8 +269,9 @@ public:
 	 ** soundsList: names of the sounds the playlist will contain
 	 **     repeat: whether to repeat on end
 	 **     random: whether to play in random order
-	 **    silence: amount of time to wait between sounds playback
-	 **             If negative value given, silence time is randomized.
+	 **    silence: time to wait (in seconds) between sounds playback.
+	 **             If negative value given, silence time is randomized
+	 **             after each play, within the range [MIN_SILENCE,MAX_SILENCE]
 	 **
 	 ** @return
 	 ** Message "Playlist <name> exists!\n" if a playlist by the name "name"
@@ -288,7 +293,7 @@ public:
 	 ** Whether a playlist named "name" has already been loaded into the system.
 	 **/
 	bool
-	existsPlaylist(const Ogre::String name);
+	existsPlaylist(const Ogre::String& name) const;
 
 	/**
 	 ** @brief
@@ -310,13 +315,17 @@ public:
 	 ** If the playlist had been stopped, it restarts from the begginning.
 	 ** If the playlist is currently playing, nothing is done.
 	 **
+	 ** @param
+	 ** name: name of the playlist, mandatory if @arg "pl" is NULL
+	 **   pl: optional, provide the Playlist pointer to save on search time.
+	 **
 	 ** @return
 	 ** SS_NO_ERROR			Playback successfully started.
 	 ** SS_FILE_NOT_FOUND	No playlist "name" found.
 	 ** SS_INTERNAL_ERROR	Unspecified error.
 	 **/
 	SSerror
-	startPlaylist(const Ogre::String& name) const;
+	startPlaylist(const Ogre::String& name, Playlist *pl = 0);
 
 	/**
 	 ** @brief
@@ -330,7 +339,7 @@ public:
 	 ** If no playlist "name" exists, nothing is done.
 	 **/
 	void
-	pausePlaylist(const Ogre::String& name) const;
+	pausePlaylist(const Ogre::String& name);
 
 	/**
 	 ** @brief
@@ -345,7 +354,7 @@ public:
 	 ** If no playlist "name" exists, nothing is done.
 	 **/
 	void
-	stopPlaylist(const Ogre::String& name) const;
+	stopPlaylist(const Ogre::String& name);
 
 	/**
 	 ** @brief
@@ -361,7 +370,7 @@ public:
 	 ** SS_INTERNAL_ERROR	Unspecified error.
 	 **/
 	SSerror
-	restartPlaylist(const Ogre::String& name) const;
+	restartPlaylist(const Ogre::String& name);
 
 	/**
 	 ** @brief
@@ -373,6 +382,9 @@ public:
 	 ** pause: whether to pause the sounds once muted. Default: true.
 	 **
 	 ** @remarks
+	 ** This funtion only affects playlists in a "plain" playing state.
+	 ** So if the playlist has been paused, or is under the effect of
+	 ** another fade, nothing is done.
 	 ** If pause==true, fadeInPlaylist() will restart playback when called.
 	 **
 	 ** @return
@@ -383,7 +395,7 @@ public:
 	SSerror
 	fadeOutPlaylist(const Ogre::String& name,
 					const Ogre::Real& time,
-					const bool pause=true) const;
+					const bool pause=true);
 
 	/**
 	 ** @brief
@@ -407,7 +419,7 @@ public:
 	 **/
 	SSerror
 	fadeInPlaylist(const Ogre::String& name,
-				   const Ogre::Real& time) const;
+				   const Ogre::Real& time);
 
 	/**
 	 ** @brief
@@ -441,7 +453,7 @@ public:
 	 ** SS_NONE			Playlist not found
 	 **/
 	SSplayback
-	getPlaylistPlayState(const Ogre::String& name);
+	getPlaylistPlayState(const Ogre::String& name) const;
 
 	/**
 	 ** @brief
@@ -449,14 +461,14 @@ public:
 	 ** for the playlist named "name".
 	 **
 	 ** @return
-	 ** Setters: true	Success.
-	 **          false	Playlist "name" not found.
+	 ** Setters: true	if success.
+	 **          false	if playlist "name" not found.
 	 ** Getters: condition value
 	 **
 	 ** @remarks
 	 ** For getters, optional boolean "found" parameter will be filled with
 	 ** true	if operation successfull
-	 ** false	if playlist "name" was not found
+	 ** false	if playlist "name" not found
 	 **/
 	bool setPlaylistRepeat(const Ogre::String& name, bool  repeat);
 	bool getPlaylistRepeat(const Ogre::String& name, bool* found=0) const;
@@ -465,14 +477,33 @@ public:
 	bool setPlaylistRandomSilence(const Ogre::String& name, bool  random);
 	bool getPlaylistRandomSilence(const Ogre::String& name, bool* found=0) const;
 
+
+	/*********************************************************************/
+	/********************    AUXILIARY FUNCTIONS    **********************/
 private:
-	/***********************    AUXILIARY FUNCTIONS    ************************/
 	Ogre::String
 	loadSounds(const std::vector<Ogre::String>&, SSbuftype);
 
+	const Playlist*
+	getPlaylist(const Ogre::String& name) const;
+
+	Playlist*
+	getPlaylist(const Ogre::String& name);
+
+	// Playlists state modifiers
+	void setPlaylistState(Playlist *pl, long flags);
+	void unsetPlaylistState(Playlist *pl, long flags);
+
+
+	/*********************************************************************/
+	/***********************    CLASS MEMBERS    *************************/
 private:
+
+	typedef void* EnvSoundId;
+
 	static SoundManager&	sSoundManager;
 	std::vector<Playlist>	mPlaylists;
+	std::vector<EnvSoundId>	mFinishedPlaylists;
 };
 
 
@@ -560,7 +591,7 @@ SoundHandler::globalFadeIn(const Ogre::Real& time) const
 
 ////////////////////////////////////////////////////////////////////////////////
 inline bool
-SoundHandler::existsPlaylist(const Ogre::String name)
+SoundHandler::existsPlaylist(const Ogre::String& name) const
 {
 	for (uint i=0 ; i < mPlaylists.size() ; i++) {
 		if (mPlaylists[i].mName == name) {
@@ -584,6 +615,7 @@ SoundHandler::renamePlaylist(const Ogre::String& oldName, const Ogre::String& ne
 	return false;
 }
 
+
 ////////////////////////////////////////////////////////////////////////////////
 inline const std::vector<Ogre::String>
 SoundHandler::getPlaylistSounds(const Ogre::String& name) const
@@ -596,6 +628,47 @@ SoundHandler::getPlaylistSounds(const Ogre::String& name) const
 	}
 	return notFound;
 }
+
+
+////////////////////////////////////////////////////////////////////////////////
+inline const SoundHandler::Playlist*
+SoundHandler::getPlaylist(const Ogre::String& name) const
+{
+	for (uint i=0 ; i < mPlaylists.size() ; i++) {
+		if (mPlaylists[i].mName == name) {
+			return reinterpret_cast<const Playlist*>(&mPlaylists[i]);
+		}
+	}
+	return 0;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+inline SoundHandler::Playlist*
+SoundHandler::getPlaylist(const Ogre::String& name)
+{
+	for (uint i=0 ; i < mPlaylists.size() ; i++) {
+		if (mPlaylists[i].mName == name) {
+			return &mPlaylists[i];
+		}
+	}
+	return 0;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+inline void
+SoundHandler::setPlaylistState(SoundHandler::Playlist *pl, long flags) {
+	pl->mState |= flags;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+inline void
+SoundHandler::unsetPlaylistState(SoundHandler::Playlist *pl, long flags) {
+	pl->mState &= ~flags;
+}
+
 
 
 #endif /* SOUNDHANDLER_H_ */

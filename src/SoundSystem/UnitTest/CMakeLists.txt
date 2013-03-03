@@ -113,7 +113,7 @@ include_directories( ${OIS_INCLUDE_DIRS}
 	${DEV_ROOT_PATH}/Common/GlobalObjects
 	${DEV_ROOT_PATH}/Common/QueueContainer
 	${DEV_ROOT_PATH}/Utils/MouseCursor
-	
+	${DEV_ROOT_PATH}
 	${DEV_ROOT_PATH}/Extras/AppTester
 )
 

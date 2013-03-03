@@ -8,13 +8,12 @@
 #ifndef EXPLOSIONFAKE_H_
 #define EXPLOSIONFAKE_H_
 
-#include "Effects.h"
+#include <EffectSystem/Effect.h>
 #include <string>
 #include <cstdlib>
 
-#include <EffectQueues.h>
 
-class ExplosionFake: public Effects {
+class ExplosionFake: public Effect {
 private:
 	static int numberOfInstance;
 

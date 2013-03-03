@@ -23,6 +23,7 @@
 
 #include <cstdint>  // uint64_t
 #include <vector>
+#include <tuple>
 #include <deque>
 #include <Ogre.h>
 #include "MultiplatformTypedefs.h"
@@ -270,6 +271,10 @@ public:
 	 ** @brief
 	 ** Unloads the audio buffer named "sName" from memory.
 	 ** If no such buffer exists, nothing is done.
+	 **
+	 ** @remarks
+	 ** Doesn't check if the sound is being used by some source.
+	 ** May cause inconsistencies if user doesn't do that check beforehand.
 	 **/
 	void
 	unloadSound(const Ogre::String& sName);
@@ -279,16 +284,25 @@ public:
 	/*********************************************************************/
 	/****************    GLOBAL PLAYBACK CONTROLS    *********************/
 public:
+	/** XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX **
+	 * XXX - All these global methods should be accessed through XXX *
+	 * XXX - the stubs implemented in the SoundHandler.          XXX */
+
+	typedef void* EnvSoundId;
+
 	/**
 	 ** @brief
 	 ** Updates all sounds currently active in the system.
+	 **
+	 ** @param
+	 ** finished: if not NULL, will hold the IDs of the terminated EnvSounds
 	 **
 	 ** @remarks
 	 ** Updates must be done periodically, to allow streaming sources (such as
 	 ** MP3 or large OGGs) to refresh their internal buffering mechanisms.
 	 **/
 	void
-	update();
+	update(std::vector<EnvSoundId> *finished=0);
 
 	/**
 	 ** @brief
@@ -413,8 +427,9 @@ public:
 	 **
 	 ** @param
 	 **  sName: name of the audio file to play
-	 **   gain: volume of the sound, in [ 0.0 , 1.0 ] scale (default: 0.05)
+	 **   gain: volume of the sound, in [ 0.0 , 1.0 ] scale (default: 0.07)
 	 ** repeat: whether to repeat on end (default: false)
+	 **     id: if not NULL, give an ID to this sound for tracking
 	 **
 	 ** @return
 	 ** SS_NO_ERROR			Playback started
@@ -425,7 +440,8 @@ public:
 	SSerror
 	playEnvSound(const Ogre::String& sName,
 				 const Ogre::Real& gain = DEFAULT_ENV_GAIN,
-				 bool repeat = false);
+				 bool repeat = false,
+				 EnvSoundId id = 0);
 
 	/**
 	 ** @brief
@@ -530,6 +546,15 @@ public:
 
 	/*********************************************************************/
 	/*******************    UNITS' APIS SOUNDS    ************************/
+public:
+	/**
+	 ** @brief
+	 ** Tells whether audio file "sName" is an active sound in some SoundAPI.
+	 ** (i.e. playing or paused)
+	 **/
+	bool
+	isActiveAPISound(const Ogre::String& sName) const;
+
 private:
 	/**
 	 ** @brief
@@ -682,8 +707,10 @@ private:
 private:
 
 	typedef _HashTable<Ogre::String, SoundBuffer*>::HashTable HashStrBuff;
-	typedef std::pair<Ogre::String, ActiveSound*> EnvSound;   // Environmental
-	typedef std::pair<SoundAPI*,    ActiveSound*> UnitSound;  // Units'
+	// Environmental Sounds
+	typedef std::tuple<Ogre::String, ActiveSound*, EnvSoundId> EnvSound;
+	// Units' Sounds
+	typedef std::pair<SoundAPI*, ActiveSound*> UnitSound;
 
 	/* Camera from which position and orientation
 	 * are obtained for update() method. */
@@ -784,11 +811,11 @@ inline void
 SoundManager::pauseEnvSound(const Ogre::String& sName)
 {
 	for (int i=0 ; i < mEnvSounds.size() ; i++) {
-		if (mEnvSounds[i].first == sName &&
-				mEnvSounds[i].second->mGlobalState != SSplayback::SS_PAUSED) {
-			mEnvSounds[i].second->mSource->pause();
-			mEnvSounds[i].second->mPlayState = SSplayback::SS_PAUSED;
-			mEnvSounds[i].second->mGlobalState = SSplayback::SS_NONE;
+		if (std::get<0>(mEnvSounds[i]) == sName &&
+			std::get<1>(mEnvSounds[i])->mGlobalState != SSplayback::SS_PAUSED) {
+			std::get<1>(mEnvSounds[i])->mSource->pause();
+			std::get<1>(mEnvSounds[i])->mPlayState = SSplayback::SS_PAUSED;
+			std::get<1>(mEnvSounds[i])->mGlobalState = SSplayback::SS_NONE;
 		}
 	}
 }
