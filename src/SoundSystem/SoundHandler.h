@@ -169,8 +169,6 @@ public:
 	/*********************************************************************/
 	/****************    GLOBAL PLAYBACK CONTROLS    *********************/
 public:
-	/* XXX - Stubs to the SoundManager methods. */
-
 	/**
 	 ** @brief
 	 ** Updates all sounds currently active in the system.
@@ -186,8 +184,8 @@ public:
 	 ** @brief
 	 ** Pauses ("globally") all currently playing sounds.
 	 **/
-	inline void
-	globalPause() const;
+	void
+	globalPause();
 
 	/**
 	 ** @brief
@@ -198,8 +196,8 @@ public:
 	 ** which were paused manually (i.e. before calling globalPause()),
 	 ** will NOT start playing again with this function.
 	 **/
-	inline void
-	globalPlay() const;
+	void
+	globalPlay();
 
 	/**
 	 ** @brief
@@ -210,8 +208,8 @@ public:
 	 ** That means that all active sources and buffers get released.
 	 ** Playbacks however are not erased, but they are reset.
 	 **/
-	inline void
-	globalStop() const;
+	void
+	globalStop();
 
 	/**
 	 ** @brief
@@ -220,8 +218,8 @@ public:
 	 ** @remarks
 	 ** This affects both playing and paused sounds.
 	 **/
-	inline void
-	globalRestart() const;
+	void
+	globalRestart();
 
 	/**
 	 ** @brief
@@ -235,8 +233,8 @@ public:
 	 ** If pause==true, globalFadeIn() will restart playbacks when called.
 	 ** Individual fadings (in or out) are overriden by this function.
 	 **/
-	inline void
-	globalFadeOut(const Ogre::Real& time, const bool pause=true) const;
+	void
+	globalFadeOut(const Ogre::Real& time, const bool pause=true);
 
 	/**
 	 ** @brief
@@ -253,8 +251,8 @@ public:
 	 ** @remarks
 	 ** Playback is restarted if the sounds had been faded-out and paused.
 	 **/
-	inline void
-	globalFadeIn(const Ogre::Real& time) const;
+	void
+	globalFadeIn(const Ogre::Real& time);
 
 
 	/*********************************************************************/
@@ -361,8 +359,7 @@ public:
 	 ** Restarts playlist.
 	 **
 	 ** @remarks
-	 ** Same effect than stopPlaylist + startPlaylist, but more efficient
-	 ** (here no resources are released and re-created)
+	 ** Same effect than stopPlaylist + startPlaylist.
 	 **
 	 ** @return
 	 ** SS_NO_ERROR			Playback successfully restarted.
@@ -466,7 +463,7 @@ public:
 	 ** Getters: condition value
 	 **
 	 ** @remarks
-	 ** For getters, optional boolean "found" parameter will be filled with
+	 ** For getters, optional boolean "found" parameter will be filled with:
 	 ** true	if operation successfull
 	 ** false	if playlist "name" not found
 	 **/
@@ -502,8 +499,9 @@ private:
 	typedef void* EnvSoundId;
 
 	static SoundManager&	sSoundManager;
-	std::vector<Playlist>	mPlaylists;
+	std::vector<Playlist*>	mPlaylists;
 	std::vector<EnvSoundId>	mFinishedPlaylists;
+	std::vector<EnvSoundId>	mPausedPlaylists;
 };
 
 
@@ -561,40 +559,11 @@ SoundHandler::addDirectSources(unsigned int N)
 
 
 ////////////////////////////////////////////////////////////////////////////////
-inline void SoundHandler::globalPause() const { sSoundManager.globalPause(); }
-
-////////////////////////////////////////////////////////////////////////////////
-inline void SoundHandler::globalPlay() const { sSoundManager.globalPlay(); }
-
-////////////////////////////////////////////////////////////////////////////////
-inline void SoundHandler::globalStop() const { sSoundManager.globalStop(); }
-
-////////////////////////////////////////////////////////////////////////////////
-inline void SoundHandler::globalRestart() const { sSoundManager.globalRestart(); }
-
-
-////////////////////////////////////////////////////////////////////////////////
-inline void
-SoundHandler::globalFadeOut(const Ogre::Real& time, const bool pause) const
-{
-	sSoundManager.globalFadeOut(time, pause);
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-inline void
-SoundHandler::globalFadeIn(const Ogre::Real& time) const
-{
-	sSoundManager.globalFadeIn(time);
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
 inline bool
 SoundHandler::existsPlaylist(const Ogre::String& name) const
 {
 	for (uint i=0 ; i < mPlaylists.size() ; i++) {
-		if (mPlaylists[i].mName == name) {
+		if (mPlaylists[i]->mName == name) {
 			return true;
 		}
 	}
@@ -607,8 +576,8 @@ inline bool
 SoundHandler::renamePlaylist(const Ogre::String& oldName, const Ogre::String& newName)
 {
 	for (uint i=0 ; i < mPlaylists.size() ; i++) {
-		if (mPlaylists[i].mName == oldName) {
-			mPlaylists[i].mName = newName;
+		if (mPlaylists[i]->mName == oldName) {
+			mPlaylists[i]->mName = newName;
 			return true;
 		}
 	}
@@ -622,8 +591,8 @@ SoundHandler::getPlaylistSounds(const Ogre::String& name) const
 {
 	const std::vector<Ogre::String> notFound;
 	for (uint i=0 ; i < mPlaylists.size() ; i++) {
-		if (mPlaylists[i].mName == name) {
-			return mPlaylists[i].mList;
+		if (mPlaylists[i]->mName == name) {
+			return mPlaylists[i]->mList;
 		}
 	}
 	return notFound;
@@ -635,8 +604,8 @@ inline const SoundHandler::Playlist*
 SoundHandler::getPlaylist(const Ogre::String& name) const
 {
 	for (uint i=0 ; i < mPlaylists.size() ; i++) {
-		if (mPlaylists[i].mName == name) {
-			return reinterpret_cast<const Playlist*>(&mPlaylists[i]);
+		if (mPlaylists[i]->mName == name) {
+			return reinterpret_cast<const Playlist*>(mPlaylists[i]);
 		}
 	}
 	return 0;
@@ -648,8 +617,8 @@ inline SoundHandler::Playlist*
 SoundHandler::getPlaylist(const Ogre::String& name)
 {
 	for (uint i=0 ; i < mPlaylists.size() ; i++) {
-		if (mPlaylists[i].mName == name) {
-			return &mPlaylists[i];
+		if (mPlaylists[i]->mName == name) {
+			return mPlaylists[i];
 		}
 	}
 	return 0;

@@ -27,6 +27,7 @@
 								<option id="gnu.cpp.compiler.exe.debug.option.debugging.level.1651474463" name="Debug Level" superClass="gnu.cpp.compiler.exe.debug.option.debugging.level" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.include.paths.1171061249" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="/usr/include/OIS"/>
+									<listOptionValue builtIn="false" value="/usr/local/include"/>
 									<listOptionValue builtIn="false" value="/usr/include/c++/4.4/x86_64-linux-gnu"/>
 									<listOptionValue builtIn="false" value="&quot;${ESTRATEGIA2012_DEV_PATH}/Common/DebugUtil&quot;"/>
 									<listOptionValue builtIn="false" value="/usr/local/include/OGRE"/>
@@ -58,6 +59,7 @@
 								</option>
 								<option id="gnu.cpp.compiler.option.preprocessor.def.1570417059" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="DEBUG"/>
+									<listOptionValue builtIn="false" value="__x86_64__"/>
 									<listOptionValue builtIn="false" value="__linux__"/>
 									<listOptionValue builtIn="false" value="__GXX_EXPERIMENTAL_CXX0X__"/>
 								</option>

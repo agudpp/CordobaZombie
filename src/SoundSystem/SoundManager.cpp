@@ -369,7 +369,14 @@ SoundManager::loadSound(const Ogre::String& sName, SSformat format, SSbuftype ty
 	SSerror err = SSerror::SS_NO_ERROR;
 	SoundBuffer* buffer(0);
 
-	/* First find audio file absolute path */
+	// Check if buffer had already been loaded.
+	if (isSoundLoaded(sName)) {
+		debugWARNING("Sound \"%s\" had already been loaded in the system.",
+						sName.c_str());
+		return SSerror::SS_NO_BUFFER;
+	}
+
+	// First find audio file absolute path.
 	Ogre::ResourceGroupManager& resGM = Ogre::ResourceGroupManager::getSingleton();
 	Ogre::FileInfoListPtr files = resGM.findResourceFileInfo(
 			SOUNDS_RESOURCE_GROUP_NAME, sName);
@@ -381,7 +388,7 @@ SoundManager::loadSound(const Ogre::String& sName, SSformat format, SSbuftype ty
 	} else {
 		Ogre::FileInfoList::iterator it;
 		for (it = files->begin() ; it < files->end() ; it++) {
-			/* Compose audio file absolute path */
+			// Compose audio file absolute path.
 			sNameFullPath.append(it->archive->getName()+"/"+sName);
 			if (fileExists(sNameFullPath)) {
 				debug("\n Loading audio file %s\n", sNameFullPath.c_str());
@@ -390,17 +397,17 @@ SoundManager::loadSound(const Ogre::String& sName, SSformat format, SSbuftype ty
 				sNameFullPath.clear();
 			}
 		}
-		/* Found? */
+		// Found?
 		if (it == files->end() || sNameFullPath.size() <= 0) {
 			debug("%s","Recurso no encontrado.\n");
 			return SSerror::SS_FILE_NOT_FOUND;
 		}
 	}
 
-	/* Try to load audio file into buffer */
+	// Try to load audio file into buffer
 	err = BufferBuilder::bufferFromFile(sNameFullPath, &buffer, format, type);
 
-	/* Register new available sound */
+	// Register new available sound
 	if (err == SSerror::SS_NO_ERROR) {
 		ASSERT(buffer);
 		mLoadedBuffers.insert(std::make_pair(sName,buffer));
@@ -432,7 +439,8 @@ SoundManager::unloadSound(const Ogre::String& sName)
 
 ////////////////////////////////////////////////////////////////////////////////
 void
-SoundManager::update(std::vector<EnvSoundId> *finished)
+SoundManager::update(std::vector<EnvSoundId> *finished,
+					 std::vector<EnvSoundId> *paused)
 {
 	ActiveSound* as;
 	SSplayback st = SSplayback::SS_FINISHED;
@@ -472,13 +480,18 @@ SoundManager::update(std::vector<EnvSoundId> *finished)
 			// Buffer was automatically detached from source.
 			// Erase EnvSound and recycle SoundSource.
 			stopEnvSound(std::get<0>(mEnvSounds[i]));
-			if (mEnvSounds.size() > 0) { i--; }  // Woooaaaahhh!!!
+			if (mEnvSounds.size() > 0) i--;  // =D
 
 		} else if ((as->mPlayState | as->mGlobalState)
 				  	  & ( SSplayback::SS_FADING_IN
 				  		| SSplayback::SS_FADING_OUT
 				  		| SSplayback::SS_FADING_OUT_AND_PAUSE)) {
+			// Update current gain accoring to fading state.
 			fadeUpdate(*as);
+			if (0 != paused && !as->mSource->isPlaying()) {
+				// Paused during fade-out, register ID in "paused" vector
+				paused->push_back((void*)std::get<2>(mEnvSounds[i]));
+			}
 		}
 	}
 

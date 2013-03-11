@@ -245,12 +245,16 @@ public:
 	 ** @remarks
 	 ** Searches for the audio file "sName" in filesystem, and tries to
 	 ** load it as a new available sound buffer.
+	 ** If file was already loaded as a buffer then nothing is done.
+	 **
+	 ** @remarks
 	 ** If the compression format is not specified, file's name's extension
 	 ** is used to determine it.
 	 ** Default buffer type is SS_BUF_LOADED (i.e. load all audio data in mem)
 	 **
 	 ** @return
 	 ** SS_NO_ERROR			Audio file "sName" successfully loaded as buffer.
+	 ** SS_NO_BUFFER		Audio file "sName" had already been loaded.
 	 ** SS_NO_MEMORY		Not enough memory to work with. Go buy some.
 	 ** SS_INVALID_FILE		Unsupported/erroneous file audio format
 	 ** SS_FILE_NOT_FOUND	Inexistent audio file.
@@ -302,7 +306,8 @@ public:
 	 ** MP3 or large OGGs) to refresh their internal buffering mechanisms.
 	 **/
 	void
-	update(std::vector<EnvSoundId> *finished=0);
+	update(std::vector<EnvSoundId> *finished=0,
+			std::vector<EnvSoundId> *paused=0);
 
 	/**
 	 ** @brief

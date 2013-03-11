@@ -97,15 +97,24 @@ SoundAPI* cardenalSoundAPI = 0;
 #define  NUM_SBUFFERS  5
 #define  NUM_SSOURCES  NUM_SBUFFERS
 
-/* Archivos de audio */
-const char *audioFile0 = "roar.wav";
-const char *audioFile1 = "fxA20.ogg";
-const char *audioFile2 = "Siren.ogg";
+// Archivos de audio
+#define  NUM_SFILES      6
+#define  START_PLSOUNDS  2
+const char *audioFile[NUM_SFILES] = {
+		"fxA20.ogg",
+		"Siren.ogg",
+		"roar.wav",		// playlists sound #1
+		"fxZ7.ogg",		// playlists sound #2
+		"fxZ9.ogg",		// playlists sound #3
+		"fxM2.ogg"		// playlists sound #4
+};
 
-/* Playlist */
+// Playlists
 const Ogre::String playlist1("lista1");
+const Ogre::String playlist2("lista2");
 
-/* Tiempo para fadings (in & out) de sonidos. */
+
+// Tiempo para fadings (in & out) de sonidos.
 #define  FADE_TIME  2.5f
 
 /******************************************************************************/
@@ -145,7 +154,7 @@ void Test::handleInput()
 	static SoundManager& sMgr(SoundManager::getInstance());
 	static bool mousePressed(false);
 	static bool keyPressed(false);
-	static std::vector<SSplayback> state(5, SSplayback::SS_PLAYING);
+	static std::vector<SSplayback> state(4, SSplayback::SS_PLAYING);
 
 
 	// MOUSE
@@ -223,11 +232,11 @@ void Test::handleInput()
 		if (!keyPressed) {
 			keyPressed = true;
 			if (state[0] == SSplayback::SS_PLAYING) {
-				sMgr.globalPause();
+				mSoundHandler.globalPause();
 				state[0] = SSplayback::SS_PAUSED;
 				debugBLUE("Global sounds PAUSED.%s", "\n");
 			} else {
-				sMgr.globalPlay();
+				mSoundHandler.globalPlay();
 				state[0] = SSplayback::SS_PLAYING;
 				debugBLUE("Global sounds PLAY.%s", "\n");
 			}
@@ -267,7 +276,7 @@ void Test::handleInput()
 	} else if (GLOBAL_KEYBOARD->isKeyDown(OIS::KC_SPACE)) {
 		if (!keyPressed) {
 			keyPressed = true;
-			sMgr.globalRestart();
+			mSoundHandler.globalRestart();
 			debugBLUE("Global sounds RESTARTED.%s", "\n");
 		}
 
@@ -275,37 +284,22 @@ void Test::handleInput()
 	} else if (GLOBAL_KEYBOARD->isKeyDown(OIS::KC_NUMPADENTER)) {
 		if (!keyPressed) {
 			keyPressed = true;
-			sMgr.globalStop();
+			mSoundHandler.globalStop();
 			debugBLUE("Global sounds STOPPED.%s", "\n");
 		}
 
 	// Toogle fade in/out of all sounds.
-	} else if (GLOBAL_KEYBOARD->isKeyDown(OIS::KC_NUMPAD4)) {
+	} else if (GLOBAL_KEYBOARD->isKeyDown(OIS::KC_NUMPAD3)) {
 		if (!keyPressed) {
 			keyPressed = true;
 			if (state[3] != SSplayback::SS_FADING_OUT_AND_PAUSE) {
-				sMgr.globalFadeOut(FADE_TIME);
+				mSoundHandler.globalFadeOut(FADE_TIME);
 				state[3] = SSplayback::SS_FADING_OUT_AND_PAUSE;
 				debugBLUE("Global sounds FADING OUT (%.2f seconds)\n", FADE_TIME);
 			} else {
-				sMgr.globalFadeIn(FADE_TIME);
+				mSoundHandler.globalFadeIn(FADE_TIME);
 				state[3] = SSplayback::SS_FADING_IN;
 				debugBLUE("Global sounds FADING IN (%.2f seconds)\n", FADE_TIME);
-			}
-		}
-
-	// Toogle fade in/out of environmental music.
-	} else if (GLOBAL_KEYBOARD->isKeyDown(OIS::KC_NUMPAD5)) {
-		if (!keyPressed) {
-			keyPressed = true;
-			if (state[4] != SSplayback::SS_FADING_OUT_AND_PAUSE) {
-				sMgr.fadeOutEnvSound(audioFile1, FADE_TIME);
-				state[4] = SSplayback::SS_FADING_OUT_AND_PAUSE;
-				debugBLUE("Environmental music FADING OUT (%.2f seconds)\n", FADE_TIME);
-			} else {
-				sMgr.fadeInEnvSound(audioFile1, FADE_TIME);
-				state[4] = SSplayback::SS_FADING_IN;
-				debugBLUE("Environmental music FADING IN (%.2f seconds)\n", FADE_TIME);
 			}
 		}
 
@@ -354,37 +348,87 @@ static void
 soundInitMisc(SoundHandler& SH)
 {
 	SSerror err(SSerror::SS_INTERNAL_ERROR);
-
-	// Change the loaded playlist playback options
-	ASSERT(SH.existsPlaylist(playlist1));
-	testBEGIN("Probando funcionalidades de los Playlists.\n");
-	SH.setPlaylistRandomOrder(playlist1, true);
-	ASSERT(SH.getPlaylistRandomOrder(playlist1));
-	SH.setPlaylistRandomSilence(playlist1, true);
-	ASSERT(SH.getPlaylistRandomSilence(playlist1));
-	SH.setPlaylistRepeat(playlist1, false);
-	SH.setPlaylistRepeat(playlist1, true);
-	ASSERT(SH.getPlaylistRepeat(playlist1));
-	testSUCCESS("Todo en orden.\n");
+	SSplayback pstate(SSplayback::SS_NONE);
+	std::vector<Ogre::String> soundsList;
 
 	// Put on some environmental music.
-	testBEGIN("Iniciando reproducción del sonido ambiente \"%s\".\n", audioFile1);
-	err = SoundManager::getInstance().playEnvSound(audioFile1, DEFAULT_ENV_GAIN, true);
+	testBEGIN("Iniciando reproducción del sonido ambiente \"%s\".\n", audioFile[0]);
+	err = SoundManager::getInstance().playEnvSound(audioFile[0], DEFAULT_ENV_GAIN, true);
 	if (err == SSerror::SS_NO_ERROR) {
+		ASSERT(SoundManager::getInstance().isPlayingEnvSound(audioFile[0]));
 		testSUCCESS("Reproducción iniciada.%s", "\n");
 	} else {
 		testFAIL("Falló.%s","\n");
-		ASSERT(false);
+		exit(EXIT_FAILURE);
 	}
 
 	// Start player sound, using his detached SoundAPI.
 	testBEGIN("Iniciando reproducción de los sonidos del player.\n");
-	err = coralSoundAPI->play(audioFile2, true, DEFAULT_UNIT_GAIN);
+	err = coralSoundAPI->play(audioFile[1], true, DEFAULT_UNIT_GAIN);
 	if (err == SSerror::SS_NO_ERROR) {
 		testSUCCESS("Reproducción iniciada.%s", "\n");
 	} else {
-		testFAIL("Falló.%s","\n");
-		ASSERT(false);
+		testFAIL("Falló.\n");
+		exit(EXIT_FAILURE);
+	}
+
+	// Start playlist playback
+	testBEGIN("Iniciando reproducción de playlist \"%s\".\n", playlist1.c_str());
+	ASSERT(SH.existsPlaylist(playlist1));
+	err = SH.startPlaylist(playlist1);
+	if (err != SSerror::SS_NO_ERROR) {
+		testFAIL("Falló, con error %d\n", err);
+		exit(EXIT_FAILURE);
+	}
+	pstate = SH.getPlaylistPlayState(playlist1);
+	if (pstate != SSplayback::SS_PLAYING) {
+		testFAIL("Falló, playback state obtenido: %d\n", pstate);
+		exit(EXIT_FAILURE);
+	} else {
+		bool playing_something(false);
+		SoundManager& sMgr(SoundManager::getInstance());
+		for (uint i = START_PLSOUNDS ; i < NUM_SFILES ; i++) {
+			playing_something |= sMgr.isPlayingEnvSound(audioFile[i]);
+		}
+		ASSERT(playing_something);
+		testSUCCESS("Reproducción iniciada.\n");
+	}
+
+	// Add garbage
+	soundsList.clear();
+	SH.newPlaylist("lista_inutilizada", soundsList);
+
+	// Start a parallel playlist with different options
+	soundsList.push_back(audioFile[4]);
+	soundsList.push_back(audioFile[5]);
+	Ogre::String fails = SH.newPlaylist(playlist2,
+										soundsList,
+										true,	// Repeat on end
+										false,	// No random order
+										2.0f);	// 2 seconds silence
+	testBEGIN("Iniciando reproducción de playlist \"%s\".\n", playlist2.c_str());
+	if (!fails.empty() || !SH.existsPlaylist(playlist2)) {
+		testFAIL("Falló.\n");
+		exit(EXIT_FAILURE);
+	}
+	err = SH.startPlaylist(playlist2);
+	if (err != SSerror::SS_NO_ERROR) {
+		testFAIL("Falló, con error %d\n", err);
+		exit(EXIT_FAILURE);
+	}
+	pstate = SH.getPlaylistPlayState(playlist2);
+	if (pstate != SSplayback::SS_PLAYING) {
+		testFAIL("Falló, playback state obtenido: %d\n", pstate);
+		exit(EXIT_FAILURE);
+	}
+	testSUCCESS("Reproducción iniciada.\n");
+
+	{// Check former playlists is in good shape
+		pstate = SH.getPlaylistPlayState(playlist1);
+		ASSERT(pstate == SSplayback::SS_PLAYING);
+		SoundManager& sMgr(SoundManager::getInstance());
+		ASSERT(sMgr.isPlayingEnvSound(audioFile[2])
+				|| sMgr.isPlayingEnvSound(audioFile[3]));
 	}
 
 	printf("\n\n\33[01;34mSound playback control options:\n\33[22;32m"
@@ -392,8 +436,7 @@ soundInitMisc(SoundHandler& SH)
 			" ¤ \33[01;34mNUMPAD 0\33[22;32m: toogle play/pause  of all sounds.\n"
 			" ¤ \33[01;34mNUMPAD 1\33[22;32m: toogle play/pause  of units' sounds.\n"
 			" ¤ \33[01;34mNUMPAD 2\33[22;32m: toogle play/pause  of environmental music.\n"
-			" ¤ \33[01;34mNUMPAD 4\33[22;32m: toogle fade in/out of all sounds.\n"
-			" ¤ \33[01;34mNUMPAD 5\33[22;32m: toogle fade in/out of environmental music.\n"
+			" ¤ \33[01;34mNUMPAD 3\33[22;32m: toogle fade in/out of all sounds.\n"
 			" ¤ \33[01;34mNUMPAD ENTER\33[22;32m: stop all playing sounds.\n"
 			"\33[0m\n");
 
@@ -631,7 +674,7 @@ Test::Test() : mSoundHandler(SoundHandler::getInstance())
 	Ogre::String fails("");
 	std::vector<Ogre::String> sounds;
 
-	// Setup sound system, by creating the sound manager.
+	// Setup sound system, by creating the sound handler.
 	testBEGIN("Revisando la creación del SoundHandler.\n");
 	ASSERT(&mSoundHandler == &SoundHandler::getInstance());
 	testSUCCESS("SoundManager creado correctamente.\n");
@@ -645,17 +688,30 @@ Test::Test() : mSoundHandler(SoundHandler::getInstance())
 									 GLOBAL_WINDOW->getHeight());
 
 	// Load sounds into the system.
+	// Streaming buffers.
+	sounds.push_back(audioFile[0]);
+	sounds.push_back(audioFile[1]);
+	testBEGIN("Cargando sonidos streaming.\n");
+	fails = mSoundHandler.loadStreamSounds(sounds);
+	if (fails.empty()) {
+		testSUCCESS("%lu sonidos streaming cargados.\n", sounds.size());
+	} else {
+		testFAIL("Falló la carga de algunos de los archivos:\n%s", fails.c_str());
+		exit(EXIT_FAILURE);
+	}
 	// Loaded buffers.
-	sounds.push_back(audioFile0);
+	sounds.clear();
+	sounds.push_back("roar.wav");	// audioFile[2]
+	sounds.push_back("fxM2.ogg");	// audioFile[5]
 	sounds.push_back("fxZ1.ogg");
 	sounds.push_back("fxZ2.ogg");
 	sounds.push_back("fxZ3.ogg");
 	sounds.push_back("fxZ4.ogg");
 	sounds.push_back("fxZ5.ogg");
 	sounds.push_back("fxZ6.ogg");
-	sounds.push_back("fxZ7.ogg");
+	sounds.push_back("fxZ7.ogg");	// audioFile[3]
 	sounds.push_back("fxZ8.ogg");
-	sounds.push_back("fxZ9.ogg");
+	sounds.push_back("fxZ9.ogg");	// audioFile[4]
 	sounds.push_back("fxZ10.ogg");
 	testBEGIN("Cargando sonidos directos (LOADED)\n");
 	fails = mSoundHandler.loadDirectSounds(sounds);
@@ -663,19 +719,7 @@ Test::Test() : mSoundHandler(SoundHandler::getInstance())
 		testSUCCESS("%lu sonidos directos cargados.\n", sounds.size());
 	} else {
 		testFAIL("Falló la carga de algunos de los archivos:\n%s", fails.c_str());
-		ASSERT(false);
-	}
-	// Streaming buffers.
-	sounds.clear();
-	sounds.push_back(audioFile1);
-	sounds.push_back(audioFile2);
-	testBEGIN("Cargando sonidos streaming.\n");
-	fails = mSoundHandler.loadStreamSounds(sounds);
-	if (fails.empty()) {
-		testSUCCESS("%lu sonidos streaming cargados.\n", sounds.size());
-	} else {
-		testFAIL("Falló la carga de algunos de los archivos:\n%s", fails.c_str());
-		ASSERT(false);
+		exit(EXIT_FAILURE);
 	}
 
 	// Create some sources to play the sounds.
@@ -684,14 +728,14 @@ Test::Test() : mSoundHandler(SoundHandler::getInstance())
 		testSUCCESS("%d Streaming Sources creadas.\n", NUM_SSOURCES);
 	} else {
 		testFAIL("%s","Falló.\n");
-		ASSERT(false);
+		exit(EXIT_FAILURE);
 	}
 	testBEGIN("%s","Creando sources para direct (loaded) sounds.\n");
 	if (mSoundHandler.addDirectSources(NUM_LSOURCES) == SSerror::SS_NO_ERROR) {
 		testSUCCESS("%d Loaded Sources creadas.\n", NUM_LSOURCES);
 	} else {
 		testFAIL("%s","Falló.\n");
-		ASSERT(false);
+		exit(EXIT_FAILURE);
 	}
 
 	sounds.clear();
@@ -708,6 +752,7 @@ void Test::loadAditionalData(void)
 	mMenuManager.build(GLOBAL_WINDOW->getWidth(),GLOBAL_WINDOW->getHeight(),5,5);
 	IMenu::setMenuManager(&mMenuManager);
 	////////////
+
 	createLevelManager();
 	testCollissionRaycast();
 	createPlayer();
@@ -733,7 +778,7 @@ void Test::loadAditionalData(void)
 		testSUCCESS("SoundAPI creada.\n");
 	} else {
 		testFAIL("Falló.\n");
-		ASSERT(false);
+		exit(EXIT_FAILURE);
 	}
 
 	// Create an empty playlist
@@ -745,17 +790,32 @@ void Test::loadAditionalData(void)
 		testSUCCESS("Playlist \"%s\" creada.\n", name.c_str());
 	} else {
 		testFAIL("Falló.\n");
-		ASSERT(false);
+		exit(EXIT_FAILURE);
 	}
 
 	// Recreate the same playlist
-	testBEGIN("Tratando de reinsertar otra Playlist con el mismo nombre.\n");
+	testBEGIN("Reinsertando otra Playlist con el mismo nombre.\n");
 	Ogre::String fails = mSoundHandler.newPlaylist(name, soundsList);
 	if (!fails.empty()) {
-		testSUCCESS("Éxito. Mensaje de error: %s", fails.c_str());
+		testSUCCESS("Éxito. Mensaje de error recibido: %s", fails.c_str());
 	} else {
 		testFAIL("Falló.\n");
-		ASSERT(false);
+		exit(EXIT_FAILURE);
+	}
+
+	// Rename that playlist
+	testBEGIN("Renombrando playlist.\n");
+	bool renamed = mSoundHandler.renamePlaylist(name, playlist1);
+	if (!renamed) {
+		testFAIL("Falló.\n");
+		exit(EXIT_FAILURE);
+	} else {
+		ASSERT(mSoundHandler.existsPlaylist(playlist1));
+		ASSERT(!mSoundHandler.existsPlaylist(name));
+		mSoundHandler.renamePlaylist(playlist1, name);
+		ASSERT(mSoundHandler.existsPlaylist(name));
+		ASSERT(!mSoundHandler.existsPlaylist(playlist1));
+		testSUCCESS("Éxito.\n");
 	}
 
 	// Delete playlist
@@ -764,17 +824,16 @@ void Test::loadAditionalData(void)
 	mSoundHandler.deletePlaylist(name);
 	if (mSoundHandler.existsPlaylist(name)) {
 		testFAIL("Falló.\n");
-		ASSERT(false);
+		exit(EXIT_FAILURE);
 	} else {
 		testSUCCESS("Playlist eliminada correctamente.\n");
 	}
 
 	// Create a non-empty playlist
 	testBEGIN("Creando Playlist \"%s\".\n", playlist1.c_str());
-	soundsList.push_back("fxZ4.ogg");
-	soundsList.push_back("fxZ10.ogg");
+	soundsList.push_back(audioFile[2]);
 	soundsList.push_back("no_existe.mp5");
-	soundsList.push_back("roar.wav");
+	soundsList.push_back(audioFile[3]);
 	soundsList.push_back("tampoco_existe.ogg");
 	fails = mSoundHandler.newPlaylist(playlist1, soundsList);
 	if (!fails.empty() && mSoundHandler.existsPlaylist(playlist1)) {
@@ -787,8 +846,34 @@ void Test::loadAditionalData(void)
 		}
 	} else {
 		testFAIL("Falló.\n");
-		ASSERT(false);
+		exit(EXIT_FAILURE);
 	}
+
+	// Check playlist default creation values
+	testBEGIN("Comprobando los valores por defecto de creación de playlists.\n");
+	if (mSoundHandler.getPlaylistPlayState(playlist1) != SSplayback::SS_NONE ||
+		mSoundHandler.getPlaylistRandomOrder(playlist1)						 ||
+		mSoundHandler.getPlaylistRandomSilence(playlist1)					 ||
+		!mSoundHandler.getPlaylistRepeat(playlist1)) {
+		testSUCCESS("Valores correctos: repeat, !random, !random_silence, "
+					"state == SSplayback::NONE\n");
+	} else{
+		testFAIL("Falló.\n");
+		exit(EXIT_FAILURE);
+	}
+
+	// Check playlist values modification
+	ASSERT(mSoundHandler.existsPlaylist(playlist1));
+	testBEGIN("Modificando valores de reproducción de los playlists.\n");
+	mSoundHandler.setPlaylistRandomOrder(playlist1, true);
+	ASSERT(mSoundHandler.getPlaylistRandomOrder(playlist1));
+	mSoundHandler.setPlaylistRandomSilence(playlist1, true);
+	ASSERT(mSoundHandler.getPlaylistRandomSilence(playlist1));
+	mSoundHandler.setPlaylistRepeat(playlist1, false);
+	mSoundHandler.setPlaylistRepeat(playlist1, true);
+	ASSERT(mSoundHandler.getPlaylistRepeat(playlist1));
+	testSUCCESS("Valores seleccionados: repeat, random, random_silence.\n");
+
 
 	// Initialize RNG
 	std::srand(time(NULL));
@@ -801,7 +886,6 @@ void Test::loadAditionalData(void)
 void Test::update()
 {
 	int size(0);
-	static SoundManager& sMgr(SoundManager::getInstance());
 	static float counter(0.0f);
 
 	if (counter == 0.0f) {
@@ -811,7 +895,7 @@ void Test::update()
 	}
 
 	counter += GLOBAL_TIME_FRAME;
-	sMgr.update();
+	mSoundHandler.update();
 	handleInput();
 
 	// update the game objects
@@ -827,29 +911,41 @@ void
 Test::pauseUnitsSounds()
 {
 	SoundManager& sMgr(SoundManager::getInstance());
-	bool playing = sMgr.isPlayingEnvSound(audioFile1);
+	bool playing[NUM_SFILES];
+	for (uint i=0 ; i < NUM_SFILES ; i++) {
+		playing[i] = sMgr.isPlayingEnvSound(audioFile[i]);
+	}
 
 	// Pause everything.
 	sMgr.globalPause();
-	// If music was playing, play it again.
-	if (playing) {
-		sMgr.playEnvSound(audioFile1, DEFAULT_ENV_GAIN, true);
+
+	// Environmental sounds which were playing must continue playing.
+	for (uint i=0 ; i < NUM_SFILES ; i++) {
+		if (playing[i]) {
+			sMgr.playEnvSound(audioFile[i], DEFAULT_ENV_GAIN, true);
+		}
 	}
 }
 
 
-// play again all paused unit sounds
+// Play again all paused unit sounds
 void
 Test::playUnitsSounds()
 {
 	SoundManager& sMgr(SoundManager::getInstance());
-	bool playing = sMgr.isPlayingEnvSound(audioFile1);
+	bool playing[NUM_SFILES];
+	for (uint i=0 ; i < NUM_SFILES ; i++) {
+		playing[i] = sMgr.isPlayingEnvSound(audioFile[i]);
+	}
 
 	// Play everything again
 	sMgr.globalPlay();
-	// If music wasn't playing, pause it.
-	if (!playing) {
-		sMgr.pauseEnvSound(audioFile1);
+
+	// Environmental sounds which were paused must continue paused.
+	for (uint i=0 ; i < NUM_SFILES ; i++) {
+		if (!playing[i]) {
+			sMgr.pauseEnvSound(audioFile[i]);
+		}
 	}
 }
 
@@ -858,7 +954,12 @@ Test::playUnitsSounds()
 void
 Test::pauseEnvSounds()
 {
-	SoundManager::getInstance().pauseEnvSound(audioFile1);
+	SoundManager& sMgr(SoundManager::getInstance());
+	for (uint i=0 ; i < NUM_SFILES ; i++) {
+		if (sMgr.isPlayingEnvSound(audioFile[i])) {
+			sMgr.pauseEnvSound(audioFile[i]);
+		}
+	}
 }
 
 
@@ -866,7 +967,12 @@ Test::pauseEnvSounds()
 void
 Test::playEnvSounds()
 {
-	SoundManager::getInstance().playEnvSound(audioFile1);
+	SoundManager& sMgr(SoundManager::getInstance());
+	for (uint i=0 ; i < NUM_SFILES ; i++) {
+		if (sMgr.isActiveEnvSound(audioFile[i])) {
+			sMgr.playEnvSound(audioFile[i], DEFAULT_ENV_GAIN, true);
+		}
+	}
 }
 
 
