@@ -53,7 +53,8 @@ PathfindingManager::~PathfindingManager()
 
 
 ////////////////////////////////////////////////////////////////////////////////
-void PathfindingManager::unloadActualLevel(void)
+void
+PathfindingManager::unloadActualLevel(void)
 {
 	delete mFunnel; mFunnel = 0;
 	delete mAStar; mAStar = 0;
@@ -63,8 +64,9 @@ void PathfindingManager::unloadActualLevel(void)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-int PathfindingManager::loadLevel(const std::vector<Triangle *> &triangles,
-		const std::vector<sm::Vertex *> &vertices)
+int
+PathfindingManager::loadLevel(const std::vector<Triangle *> &triangles,
+                              const std::vector<sm::Vertex *> &vertices)
 {
 	if(mNavMesh){
 		debug("Warning: Loading a new level without removing the first one\n");
@@ -87,9 +89,10 @@ int PathfindingManager::loadLevel(const std::vector<Triangle *> &triangles,
 
 
 ////////////////////////////////////////////////////////////////////////////////
-int PathfindingManager::loadLevel(const Graph &g,
-		const std::vector<Triangle *> &triangles,
-		const std::vector<sm::Vertex *> &vertices)
+int
+PathfindingManager::loadLevel(const Graph &g,
+                                  const std::vector<Triangle *> &triangles,
+                                  const std::vector<sm::Vertex *> &vertices)
 {
 	if(mNavMesh){
 		debug("Warning: Loading a new level without removing the first one\n");
@@ -124,8 +127,12 @@ int PathfindingManager::loadLevel(const Graph &g,
  * 	PATH_NOT_FOUND	when the path is not found
  *	LINE_PATH		when the unit can get the goal in a straight line
  */
-int PathfindingManager::getPath(const sm::Point &start, const sm::Point &goal,
-		Path &path, float radius, float delta)
+int
+PathfindingManager::getPath(const sm::Point &start,
+                            const sm::Point &goal,
+                            Path &path,
+                            float radius,
+                            float delta)
 {
 	ASSERT(mAStar);
 	path.clear();
@@ -165,8 +172,11 @@ int PathfindingManager::getPath(const sm::Point &start, const sm::Point &goal,
  * @path			The resulting path
  * @return errCode
  */
-int PathfindingManager::getRandomPath(const sm::Point &start, Path &path,
-		float radius, int numNodes)
+int
+PathfindingManager::getRandomPath(const sm::Point &start,
+                                  Path &path,
+                                  float radius,
+                                  int numNodes)
 {
 	// get the starting point node
 	const GNode *n = mNavMesh->getNodeFromPoint(start);
@@ -226,8 +236,11 @@ int PathfindingManager::getRandomPath(const sm::Point &start, Path &path,
  *	LINE_PATH		when the unit can get the goal in a straight line
  *	NORMAL_PATH		when there are a path
  */
-int PathfindingManager::updatePath(Path &path, int ap, const sm::Point &np,
-		float radius)
+int
+PathfindingManager::updatePath(Path &path,
+                               int ap,
+                               const sm::Point &np,
+                               float radius)
 {
 	ASSERT(!path.empty());
 	ASSERT(ap <= path.size());

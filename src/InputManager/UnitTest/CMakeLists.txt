@@ -121,7 +121,7 @@ include_directories( ${OIS_INCLUDE_DIRS}
 	${OGRE_SAMPLES_INCLUDEPATH}
 	${DEV_ROOT_PATH}/Common/DebugUtil
 	${DEV_ROOT_PATH}/Common
-	${DEV_ROOT_PATH}
+	${DEV_ROOT_PATH}/
 	${DEV_ROOT_PATH}/Common/tinyxml
 	${DEV_ROOT_PATH}/Common/GlobalObjects
 	${DEV_ROOT_PATH}/Utils/MouseCursor

@@ -166,7 +166,7 @@ protected:
 	 *	@note This function append the object to the collision manager, so
 	 *	we need to call this function before do anything
 	 */
-	void configCollObj(float w, float h, float mF, float mG);
+	void configCollObj(float w, float h, uint32 mF, uint32 mG);
 
 	/**
 	 * Get the height and the width of the bounding box of the entity.

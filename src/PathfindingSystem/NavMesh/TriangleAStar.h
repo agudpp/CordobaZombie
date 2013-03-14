@@ -120,10 +120,10 @@ private:
 
 private:
 	// Returns a path if exists a path in the cache or 0 if not
-	const Path getCachePath(NodePtr n1,	NodePtr n2, size_t &size);
+	const Path getCachePath(NodePtr n1,	NodePtr n2, size_t &size) const;
 
 	// Function used to add to the cache a path given 2 nodes
-	void addToCache(Path p, size_t size, NodePtr n1, NodePtr n2, float radius);
+	void addToCache(Path p, size_t size, NodePtr n1, NodePtr n2, float radius) const;
 
 	/* This is the main function that we apply A* to find the shortest path
 	 * given 2 nodes. If there are no path, then 0 is returned
@@ -136,9 +136,9 @@ private:
 
 private:
 	const TriangleNavMesh		*mNavMesh;
-	Path						mPath;
+	mutable Path				mPath;
 	int							mMaxPathSize;
-	TriangleCache               mCache;
+	mutable TriangleCache mCache;
 };
 
 #endif /* TRIANGLEASTAR_H_ */

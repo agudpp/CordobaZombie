@@ -71,8 +71,8 @@ static inline float nodeCost(TriangleAStar::NodePtr n1, TriangleAStar::NodePtr n
 	long long int pathQueries = 1;
 #endif
 
-const TriangleAStar::Path TriangleAStar::getCachePath(NodePtr n1, NodePtr n2,
-		size_t &size)
+const TriangleAStar::Path
+TriangleAStar::getCachePath(NodePtr n1, NodePtr n2, size_t &size) const
 {
 	// look for it in the cache
 	bool fwd = true;
@@ -96,8 +96,10 @@ const TriangleAStar::Path TriangleAStar::getCachePath(NodePtr n1, NodePtr n2,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void TriangleAStar::addToCache(Path p, size_t size, NodePtr n1,	NodePtr n2,
-		float radius)
+void
+TriangleAStar::addToCache(Path p, size_t size,
+                          NodePtr n1, NodePtr n2,
+                          float radius) const
 {
 	ASSERT(n1);
 	ASSERT(n2);

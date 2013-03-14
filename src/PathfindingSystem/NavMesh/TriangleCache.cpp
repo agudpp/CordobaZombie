@@ -98,8 +98,11 @@ void TriangleCache::addNewPath( const GNode *from, const GNode *to,
 }
 
 
-const GNode** TriangleCache::getPath( const GNode *from,
-		const GNode *to, bool &frwd, size_t &len)
+const GNode**
+TriangleCache::getPath(const GNode *from,
+                       const GNode *to,
+                       bool &frwd,
+                       size_t &len)
 {
 	ASSERT(from);
 	ASSERT(to);
@@ -139,8 +142,11 @@ const GNode** TriangleCache::getPath( const GNode *from,
 }
 
 
-const GNode** TriangleCache::findPath( const GNode *from,
-		const GNode *to, bool &frwd, size_t &len)
+const GNode**
+TriangleCache::findPath(const GNode *from,
+                        const GNode *to,
+                        bool &frwd,
+                        size_t &len)
 {
 	ASSERT(from);
 	ASSERT(to);

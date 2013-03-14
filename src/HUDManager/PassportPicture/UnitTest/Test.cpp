@@ -54,7 +54,7 @@ void Test::handleInput(void)
 
 Test::Test() :
         AppTester(false),
-        mInputManager(InputManager::getInstance())
+        mInputManager(input::InputManager::getInstance())
 {
 //	setUseDefaultInput(false);
     mPassport.load();

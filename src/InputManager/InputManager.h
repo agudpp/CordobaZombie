@@ -8,21 +8,31 @@
 #ifndef INPUTMANAGER_H_
 #define INPUTMANAGER_H_
 
+#include <Common/GlobalObjects/GlobalObjects.h>
+#include <Common/Math/CommonMath.h>
+#include <Common/DebugUtil/DebugUtil.h>
+#include <Utils/MouseCursor/MouseCursor.h>
 
-#include "GlobalObjects.h"
-#include "MouseCursor.h"
-#include "CommonMath.h"
-//#include "InputStateMachine.h"
-#include "DebugUtil.h"
 #include "InputMouse.h"
 #include "InputKeyboard.h"
 
+
+// Forward declarations
+//
 class CameraController;
 class LevelManager;
 class MenuManager;
-class InputActionObject;
 class IInputState;
 class GameUnit;
+
+namespace selection {
+class SelectionManager;
+class SelectableObject;
+}
+
+namespace input {
+
+class InputStateMachine;
 
 class InputManager
 {
@@ -33,6 +43,9 @@ class InputManager
 	static const float	CAMERA_MOVE_BOUNDS_R_LIMIT;
 	static const float	CAMERA_MOVE_BOUNDS_T_LIMIT;
 	static const float	CAMERA_MOVE_BOUNDS_B_LIMIT;
+
+	// Camera Zoom velocity
+	static const float	CAMERA_ZOOM_VEL;
 
 
 	// typedefs
@@ -82,7 +95,6 @@ public:
 		NUM_KEYS,
 	};
 
-	typedef std::vector<GameUnit *>		UnitSelVec;
 
 public:
 	/**
@@ -130,30 +142,6 @@ public:
 	inline float getMouseRelativeX(void) const;
 	inline float getMouseRelativeY(void) const;
 
-	/**
-	 * Handle a InputActionObject. This way we have to check if we can handle
-	 * or not the action and if we can, then we just activate the
-	 * "HandleActionState" to handle it.
-	 * @param	iao		The input action object to be handled
-	 * @returns	true	if can handle it,
-	 * 			false	otherwise
-	 */
-	bool handleActionObject(InputActionObject *iao);
-
-
-	//				GameUnits handling
-	/**
-	 * Select new Unit. Here we will check if we are pressing KEY_GROUP_UNITS
-	 * to determine if we have to "add" a new unit selected or if we are just
-	 * selecting one and only one
-	 * @param	unit	The game unit that we are selecting
-	 * @note	This function must be called EVERYTIME a unit is selected.
-	 */
-	void unitSelected(GameUnit *unit);
-	void unitUnselected(GameUnit *unit);
-	void unselectAll(void);
-	inline UnitSelVec &getUnitSelected(void);
-
 
 	//				HUDManager Handling
 	// TODO: aca deberiamos poner las funciones asociadas al hud. si es que
@@ -171,33 +159,40 @@ private:
 
 
 	/**
-	 * Configure default keys
+	 * @brief Configure default keys
 	 */
 	void configureDefaultKeys(void);
 
 	/**
-	 * Function used to handle keyboard input / mouse cursor input / raycast / menu
+	 * @brief Handle the raycasted object for the current state
+	 * @param raycastedObj  The current raycasted object
+	 */
+	void handleRaycastedObj(selection::SelectableObject *raycastedObj);
+
+	/**
+	 * @brief Function used to handle keyboard input / mouse cursor input /
+	 *        raycast / menu
 	 */
 	void handleKeyboard(void);
 	void handleMouse(void);
 	void handleRaycast(void);
 
 	/**
-	 * Check if we have to handle the Mouse Raycast (using the
-	 * MouseSelectionHandler).
+	 * @brief Check if we have to handle the Mouse Raycast (using the
+	 *        MouseSelectionHandler).
 	 */
 	inline bool shouldPerformRaycast(void) const;
 
 	/**
-	 * State machine associated functions
+	 * @brief State machine associated functions
 	 */
 	void newStateEvent(Event e);
 	void initState(State s);
 
 	/**
-	 * Handle camera movement (camera movement using the keyboard and the mouse
-	 * position).
-	 * Also handle camera rotation
+	 * @brief Handle camera movement (camera movement using the keyboard and the mouse
+	 *        position).
+	 *        Also handle camera rotation
 	 */
 	void handleCameraMovement(void);
 	void handleCameraRotation(void);
@@ -213,18 +208,17 @@ private:
 	inline void setAll(void);
 
 private:
-	LevelManager			*mLevelManager;
-	CameraController		*mCameraController;
-	MenuManager				*mMenuManager;
-	LevelZoneVec			mLevelZones;;
-	int 					mKeys[NUM_KEYS];
-//	InputStateMachine		mStateMachine;
-	InputActionObject		*mActualActionObj;
-	UnitSelVec				mUnitsSelected;
+	LevelManager            *mLevelManager;
+	CameraController        *mCameraController;
+	MenuManager             *mMenuManager;
+	LevelZoneVec            mLevelZones;;
+	int                     mKeys[NUM_KEYS];
+	InputStateMachine       *mStateMachine;
 	int                     mFlags;
 	State                   mActualState;
 	State                   mLastState;
 	Event                   mLastEvent;
+	selection::SelectionManager &mSelManager;
 
 };
 
@@ -261,12 +255,6 @@ inline float InputManager::getMouseRelativeX(void) const
 inline float InputManager::getMouseRelativeY(void) const
 {
 	return GLOBAL_CURSOR->getYRelativePos();
-}
-
-////////////////////////////////////////////////////////////////////////////////
-inline InputManager::UnitSelVec &InputManager::getUnitSelected(void)
-{
-	return mUnitsSelected;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -308,4 +296,5 @@ InputManager::shouldPerformRaycast(void) const
     return false;
 }
 
+}
 #endif /* INPUTMANAGER_H_ */

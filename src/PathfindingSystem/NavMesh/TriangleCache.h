@@ -60,7 +60,7 @@ public:
 	 * Like getPath but silent (doesn't refresh the path if founded)
 	 */
 	const GNode** findPath( const GNode *from, const GNode *to, bool &frwd,
-			size_t &len);
+			size_t &len) ;
 
 	/*
 	 * @clean:

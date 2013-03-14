@@ -65,7 +65,7 @@ public:
 	 */
 	inline int getNumColumns(void) const;
 	inline int getNumRows(void) const;
-	inline const sm::AABB &getAABB(void);
+	inline const sm::AABB &getAABB(void) const;
 
 	/**
 	 * Returns the point associated to a row and a column, this point is in
@@ -76,7 +76,7 @@ public:
 	 *
 	 * @note	This function is slow, do not call in the game loop
 	 */
-	inline void getPositionFromCell(int r, int c, sm::Vector2 &result);
+	inline void getPositionFromCell(int r, int c, sm::Vector2 &result) const;
 
 	/**
 	 * Check if we have line of sight between two points
@@ -113,26 +113,31 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 template<int numRows, int numColums>
-inline int LineOfSightManager<numRows, numColums>::getNumColumns(void) const
+inline int
+LineOfSightManager<numRows, numColums>::getNumColumns(void) const
 {
 	return numColums;
 }
 ////////////////////////////////////////////////////////////////////////////////
 template<int numRows, int numColums>
-inline int LineOfSightManager<numRows, numColums>::getNumRows(void) const
+inline int
+LineOfSightManager<numRows, numColums>::getNumRows(void) const
 {
 	return numRows;
 }
 template<int numRows, int numColums>
-inline const sm::AABB &LineOfSightManager<numRows, numColums>::getAABB(void)
+inline const
+sm::AABB &LineOfSightManager<numRows, numColums>::getAABB(void) const
 {
 	return mAABB;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 template<int numRows, int numColums>
-inline void LineOfSightManager<numRows, numColums>::getPositionFromCell(int r,
-		int c, sm::Vector2 &result)
+inline void
+LineOfSightManager<numRows, numColums>::getPositionFromCell(int r,
+		                                                    int c,
+		                                                    sm::Vector2 &result) const
 {
 	ASSERT(r < numRows);
 	ASSERT(c < numColums);
@@ -148,7 +153,8 @@ inline void LineOfSightManager<numRows, numColums>::getPositionFromCell(int r,
 
 ////////////////////////////////////////////////////////////////////////////////
 template<int numRows, int numColums>
-inline int LineOfSightManager<numRows, numColums>::getXPosition(const float &x) const
+inline int
+LineOfSightManager<numRows, numColums>::getXPosition(const float &x) const
 {
 	ASSERT(x >= 0);
 	int r = int(x*mFactorX);
@@ -158,7 +164,8 @@ inline int LineOfSightManager<numRows, numColums>::getXPosition(const float &x) 
 }
 ////////////////////////////////////////////////////////////////////////////////
 template<int numRows, int numColums>
-inline int LineOfSightManager<numRows, numColums>::getYPosition(const float &y) const
+inline int
+LineOfSightManager<numRows, numColums>::getYPosition(const float &y) const
 {
 	ASSERT(y >= 0);
 	int r = int(y*mFactorY);

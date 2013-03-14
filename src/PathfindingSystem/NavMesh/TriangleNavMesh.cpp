@@ -331,7 +331,8 @@ void TriangleNavMesh::setNumColumnsAndRows(int numColumns, int numRows)
 
 
 ////////////////////////////////////////////////////////////////////////////////
-const GNode *TriangleNavMesh::getNodeFromPoint(const sm::Point &p) const
+const GNode *
+TriangleNavMesh::getNodeFromPoint(const sm::Point &p) const
 {
 	ASSERT(mMatrix);
 	int r = MATRIX_GET_ROW(p.y);
@@ -340,7 +341,7 @@ const GNode *TriangleNavMesh::getNodeFromPoint(const sm::Point &p) const
 	if(c < 0 || c >= mColumnCount || r < 0 || r >= mRowCount) return 0;
 
 	// check if there are some Node checking the triangles
-	NodeVec &vec = mMatrix[r][c];
+	const NodeVec &vec = mMatrix[r][c];
 //
 //	debug("Getting node from point(%f,%f): matrix pos:(%d,%d)\n"
 //			"vecSize: %d\n", p.x, p.y,
@@ -353,7 +354,7 @@ const GNode *TriangleNavMesh::getNodeFromPoint(const sm::Point &p) const
 //			b.br.x, b.br.y);
 //#endif
 
-	for(int i = vec.size()-1; i >= 0; --i){
+	for(size_t i = 0, size = vec.size(); i < size; ++i){
 		// check if the point is inside the triangle
 		ASSERT(vec[i]->getTriangle());
 //		debug("sm::Point:(%f,%f) inside of: (%f,%f), (%f,%f), (%f,%f)\n",

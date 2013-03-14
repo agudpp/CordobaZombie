@@ -30,26 +30,13 @@ typedef float 	cScalar;
 
 // The flags used for the game units
 enum {
-	COL_FLAG_UNIT_PLAYER	= 0x00001,
-	COL_FLAG_UNIT_ZOMBIE	= 0x00002,
-	COL_FLAG_UNIT_CIVIL		= 0x00004,
-	COL_FLAG_WORLD_OBJECT	= 0x00008,
-	COL_FLAG_WALL			= 0x00010,
-	COL_FLAG_COLLECTABLE_OBJ= 0x00020,
-	/*
-	wander             = 0x00010,
-	cohesion           = 0x00020,
-	separation         = 0x00040,
-	allignment         = 0x00080,
-	obstacle_avoidance = 0x00100,
-	wall_avoidance     = 0x00200,
-	follow_path        = 0x00400,
-	pursuit            = 0x00800,
-	evade              = 0x01000,
-	interpose          = 0x02000,
-	hide               = 0x04000,
-	flock              = 0x08000,
-	offset_pursuit     = 0x10000,*/
+	COL_FLAG_UNIT_PLAYER	= 1,
+	COL_FLAG_UNIT_ZOMBIE	= (1 << 1),
+	COL_FLAG_UNIT_CIVIL		= (1 << 2),
+	COL_FLAG_WORLD_OBJECT	= (1 << 3),
+	COL_FLAG_WALL			= (1 << 4),
+	COL_FLAG_COLLECTABLE_OBJ= (1 << 5),
+	COL_FLAG_LEVEL_INFO_OBJ = (1 << 6),
 };
 
 /**

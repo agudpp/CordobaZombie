@@ -9,189 +9,98 @@
 #ifndef INPUTSTATEMACHINE_H_
 #define INPUTSTATEMACHINE_H_
 
+#include <vector>
+
+#include <SelectionSystem/SelectionData.h>
+#include <SelectionSystem/SelectionManager.h>
+
 #include "DebugUtil.h"
-#include "InputTransitionTable.h"
-#include "InputActionObject.h"
 #include "IInputState.h"
 
+
+// Forward decl
+//
+namespace selection {
+class SelectableObject;
+}
+
+namespace input {
+
+
 class InputStateMachine {
+
+    enum {
+        IS_EMPTY_SEL = 0,
+        IS_MULTI_PLAYER_SEL,
+        IS_OBJECT_SEL,
+        IS_SINGLE_PLAYER_SEL,
+        SIZE
+    };
+
 public:
-	inline InputStateMachine();
-	inline ~InputStateMachine();
+	InputStateMachine(selection::SelectionManager &selManager);
+	~InputStateMachine();
 
-	/**
-	 * Set the transition table to be used
-	 * The memory must be freed by the creator class, this class will NOT remove
-	 * any allocated memory
-	 */
-	inline void setTransitionTable(const InputTransitionTable *tt);
+    /**
+     * @brief Function called when a selection has changed. This will configure
+     *        the state machine to perform the correct ray cast selection the
+     *        adecuated state.
+     * @param selData   The selection data used to re-configure the state machine
+     */
+    void
+    selectionChanged(const selection::SelectionData &selData);
 
-	/**
-	 * Start the FSM
-	 */
-	inline void start(void);
+    /**
+     * @brief Perform the needed raycast depending on the last selection.
+     *        This function will show all the neccessary stuff in the level,
+     *        select whatever is needed, and so forth.
+     *        We will use the GLOBAL_CURSOR position to generate the RayCast
+     */
+    inline void
+    executeRayCast(void);
 
-	/**
-	 * Reset the FSM
-	 */
-	inline void reset(void);
-
-
-	/**
-	 * Go back to the last State
-	 */
-	inline void executeLastState(void);
-
-	/**
-	 * Returns the actual state and the last state
-	 */
-	inline IInputState *getActualState(void) const;
-	inline IInputState *getLastState(void) const;
-
-	/**
-	 * Get the last event executed
-	 */
-	inline int getLastEvent(void) const;
-
-	/**
-	 * Force to change the state. BE CAREFULL WITH THIS FUNCTION (we are avoiding
-	 * the table of this StateMachine
-	 */
-	inline void forceChangeState(IInputState *s);
-
-	/**
-	 * Receive an external input
-	 * @param e		The event
-	 * @param ao	The action object to pass (if any)
-	 */
-	inline void newEvent(int e, InputActionObject *ao = 0);
-
-	/**
-	 * Update the state machine
-	 */
-	inline void update(void);
+    /**
+     * @brief Returns the last raycasted object
+     * @returns the last raycasted object for any of the InputStates
+     */
+    inline selection::SelectableObject *
+    lastRaycastedObj(void);
 
 
 private:
-	// change states
-	inline void changeState(IInputState *newS, InputActionObject *ao = 0);
+
+    /**
+     * @brief Creates the states used by this class
+     */
+    void
+    createStates(void);
 
 private:
-	IInputState					*mActualState;
-	IInputState					*mLastState;
-	int							mLastEvent;
-	const InputTransitionTable	*mTT;
+	IInputState *mActualState;
+	IInputStatePtr mStates[SIZE];
+	selection::SelectionManager &mSelManager;
+	std::vector<selection::SelectableObject *> mAuxVec;
 
 };
 
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-inline InputStateMachine::InputStateMachine() :
-		mTT(0),
-		mActualState(0),
-		mLastState(0),
-		mLastEvent(0)
-{
 
-}
 ////////////////////////////////////////////////////////////////////////////////
-inline InputStateMachine::~InputStateMachine()
+inline void
+InputStateMachine::executeRayCast(void)
 {
-
+    ASSERT(mActualState != 0);
+    mActualState->executeRayCast();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-inline void InputStateMachine::setTransitionTable(const InputTransitionTable *tt)
+inline selection::SelectableObject *
+InputStateMachine::lastRaycastedObj(void)
 {
-	ASSERT(tt);
-	mTT = tt;
+    return mActualState->lastRaycastedObj();
 }
 
-////////////////////////////////////////////////////////////////////////////////
-inline void InputStateMachine::start(void)
-{
-	ASSERT(mTT);
-	ASSERT(mTT->getStartState());
-	ASSERT(mActualState == 0);
-
-	mActualState = mTTable->getStartState();
-	mActualState->enter();
 }
-
-////////////////////////////////////////////////////////////////////////////////
-inline void InputStateMachine::reset(void)
-{
-	ASSERT(mTT);
-	ASSERT(mTT->getStartState());
-
-	mLastEvent = 0;
-	changeState(mTTable->getStartState());
-}
-
-////////////////////////////////////////////////////////////////////////////////
-inline void InputStateMachine::executeLastState(void)
-{
-	changeState(mLastState);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-inline IInputState *InputStateMachine::getActualState(void) const
-{
-	return mActualState;
-}
-inline IInputState *InputStateMachine::getLastState(void) const
-{
-	return mLastState;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-inline int InputStateMachine::getLastEvent(void) const
-{
-	return mLastEvent;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-inline void InputStateMachine::forceChangeState(IInputState *s)
-{
-	ASSERT(s);
-	changeState(s);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-inline void InputStateMachine::newEvent(int e, InputActionObject *ao)
-{
-	ASSERT(mTT);
-	ASSERT(mActualState);
-	IInputState *nextState = mTTable->getNextState(mActualState, e);
-	if(!nextState){
-		debugWARNING("We cannot get next state from actual state: %d"
-				" and event %d\n", static_cast<int>(mActualState), e);
-	} else {
-		// stop the actual event
-		mLastEvent = e;
-		changeState(nextState, ao);
-	}
-}
-
-////////////////////////////////////////////////////////////////////////////////
-inline void InputStateMachine::update(void)
-{
-	ASSERT(mActualState);
-	mActualState->update();
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-inline void InputStateMachine::changeState(IInputState *newS,
-		InputActionObject *ao)
-{
-	mActualState->exit();
-	mLastState = mActualState;
-	mActualState = newS;
-	mActualState->enter(ao);
-}
-
-
-
 #endif /* INPUTSTATEMACHINE_H_ */

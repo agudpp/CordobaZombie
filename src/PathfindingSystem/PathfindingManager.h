@@ -50,14 +50,14 @@ public:
 	 * DO NOT DELET any triangle nor any vertex
 	 */
 	int loadLevel(const std::vector<Triangle *> &triangles,
-			const std::vector<sm::Vertex *> &vertices);
+	              const std::vector<sm::Vertex *> &vertices);
 
 	/* Load a level from a Graph
 	 * This triangles and vertices now belongs to the PathFinderManager.
 	 * DO NOT DELET any triangle nor any vertex
 	 */
 	int loadLevel(const Graph &g, const std::vector<Triangle *> &triangles,
-			const std::vector<sm::Vertex *> &vertices);
+	              const std::vector<sm::Vertex *> &vertices);
 
 	/* Function used to get the shortest path from 2 differents points
 	 * Requires:
@@ -73,8 +73,10 @@ public:
 	 *	LINE_PATH		when the unit can get the goal in a straight line
 	 *	NORMAL_PATH		when there are a path
 	 */
-	int getPath(const sm::Point &start, const sm::Point &end, Path &path,
-			float radius = 0.0f, float delta = 1);
+	int getPath(const sm::Point &start, const sm::Point &end,
+	            Path &path,
+	            float radius = 0.0f,
+	            float delta = 1);
 
 	/**
 	 * Get a random path from an specific position.
@@ -88,8 +90,10 @@ public:
 	 *
 	 * @note	We do not apply funnel algorithm here..
 	 */
-	int getRandomPath(const sm::Point &start, Path &path, float radius = 0.0f,
-			int numNodes = -1);
+	int getRandomPath(const sm::Point &start,
+	                  Path &path,
+	                  float radius = 0.0f,
+	                  int numNodes = -1);
 
 	/**
 	 * Returns the associated GNode to a certain point or 0 if there are not.
@@ -142,7 +146,8 @@ private:
  * Returns the associated GNode to a certain point or 0 if there are not.
  * @param	p	The point where we will get the GNode
  */
-inline const GNode *PathfindingManager::getNodeFromPoint(const sm::Point &p) const
+inline const GNode *
+PathfindingManager::getNodeFromPoint(const sm::Point &p) const
 {
 	ASSERT(mNavMesh);
 	return mNavMesh->getNodeFromPoint(p);

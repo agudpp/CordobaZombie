@@ -82,6 +82,13 @@ public:
     inline Connection addCallback(const SelectionSignal::slot_type &cb);
     inline void removeCallback(const Connection &cb);
 
+    /**
+     * @brief This function needs to be called every frame to call all the
+     *        callbacks we have associated to this class. This way we can
+     *        package the events all in one
+     */
+    inline void executeCallbacks(void);
+
 
 private:
     // Avoid construction / copying the class
@@ -93,7 +100,9 @@ private:
 private:
     SelectionSignal mSignal;
     ObjectsVec mSelectedObjects;
-    ObjectsVec mAuxVec;
+    ObjectsVec mUnselected;
+    ObjectsVec mLastSelection;
+    bool mDirty;
 };
 
 
@@ -123,6 +132,19 @@ const SelectionManager::ObjectsVec &
 SelectionManager::getObjects(void) const
 {
     return mSelectedObjects;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+inline void
+SelectionManager::executeCallbacks(void)
+{
+    if (!mDirty){
+        return;
+    }
+    mDirty = false;
+    mSignal(SelectionData(mSelectedObjects, mLastSelection, mUnselected));
+    mLastSelection.clear();
+    mUnselected.clear();
 }
 
 }
