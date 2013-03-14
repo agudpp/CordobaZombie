@@ -19,16 +19,19 @@ class SelectableObject;
 
 
 struct SelectionData {
-    SelectionData(const std::vector<SelectableObject *> &objs, bool areSelected) :
-        objects(objs)
-    ,   selected(areSelected)
+    SelectionData(const std::vector<SelectableObject *> &sel,
+                  const std::vector<SelectableObject *> &newSel,
+                  const std::vector<SelectableObject *> &unsel) :
+
+        selected(sel)
+    ,   lastSelection(newSel)
+    ,   unselected(unsel)
     {
     }
 
-
-    const bool selected;    // true mean the objects are selected, false
-                            // mean that the objects are being unselected
-    const std::vector<SelectableObject *> &objects;
+    const std::vector<SelectableObject *> &selected;
+    const std::vector<SelectableObject *> &lastSelection;
+    const std::vector<SelectableObject *> &unselected;
 };
 
 
@@ -41,7 +44,7 @@ struct Info {
 
 
     Info() :
-        passportPicture(std::numeric_limits<unsgined short>::max())
+        passportPicture(std::numeric_limits<unsigned short>::max())
     {}
 };
 

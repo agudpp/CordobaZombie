@@ -14,7 +14,8 @@ CollisionManager *GameObject::collMng = 0;
 
 
 ////////////////////////////////////////////////////////////////////////////////
-void GameObject::configCollObj(float w, float h, float mF, float mG)
+void
+GameObject::configCollObj(float w, float h, uint32 mF, uint32 mG)
 {
 	mCollObject.bb.setSize(w, h);
 	mCollObject.maskFlag = mF;

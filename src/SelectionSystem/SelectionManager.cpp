@@ -43,7 +43,8 @@ struct Remover {
 
 namespace selection {
 
-SelectionManager::SelectionManager()
+SelectionManager::SelectionManager() :
+    mDirty(false)
 {
 
 }
@@ -61,18 +62,21 @@ SelectionManager::select(SelectableObject *obj)
     if (isSelected(obj)){
         return;
     }
+    mDirty = true;
     mSelectedObjects.push_back(obj);
     obj->objectSelected();
-    mAuxVec.clear();
-    mAuxVec.push_back(obj);
-    mSignal(SelectionData(mAuxVec, true));
+    mLastSelection.push_back(obj);
+
+    // if this object was selected after any unselection we need to clear the
+    // object from unselected vector
+    removeElement(mUnselected, obj);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void
 SelectionManager::select(const std::vector<SelectableObject *> &objects)
 {
-    mAuxVec.clear();
+    mDirty = true;
     for(size_t i = 0, numObjs = objects.size(); i < numObjs; ++i){
         SelectableObject *obj = objects[i];
         ASSERT(obj);
@@ -81,32 +85,36 @@ SelectionManager::select(const std::vector<SelectableObject *> &objects)
         }
         mSelectedObjects.push_back(objects[i]);
         objects[i]->objectSelected();
-        mAuxVec.push_back(obj);
-    }
+        mLastSelection.push_back(obj);
 
-    mSignal(SelectionData(mAuxVec, true));
+        // just in case remove if from the unselected vector if
+        removeElement(mUnselected, obj);
+    }
 }
 
 void
 SelectionManager::unselect(SelectableObject *obj)
 {
     ASSERT(obj);
+    mDirty = true;
     if (!isSelected(obj)){
         return;
     }
     swapAndRemove(mSelectedObjects, obj->mIndex);
     obj->objectUnselected();
-    mAuxVec.clear();
-    mAuxVec.push_back(obj);
-    mSignal(SelectionData(mAuxVec, false));
 
+    // just in case remove it from the last selection vec
+    removeElement(mLastSelection, obj);
+
+    mUnselected.push_back(obj);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void
 SelectionManager::unselect(const std::vector<SelectableObject *> &objects)
 {
-    mAuxVec.clear();
+    mDirty = true;
+
     // this is slow, could be improved
     for(size_t i = 0, numObjs = objects.size(); i < numObjs; ++i){
         SelectableObject *obj = objects[i];
@@ -116,37 +124,43 @@ SelectionManager::unselect(const std::vector<SelectableObject *> &objects)
         }
         swapAndRemove(mSelectedObjects, obj->mIndex);
         obj->objectUnselected();
-        mAuxVec.push_back(obj);
+        mUnselected.push_back(obj);
+
+        // just in case remove it from the last selection vec
+        removeElement(mLastSelection, obj);
     }
-    mSignal(SelectionData(mAuxVec, false));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void
 SelectionManager::unselectAll(Type t)
 {
-    mAuxVec.clear();
+    mDirty = true;
+    mUnselected.clear();
     for(size_t i = 0, size = mSelectedObjects.size(); i < size; ++i){
         if (mSelectedObjects[i]->type() == t) {
-            mAuxVec.push_back(mSelectedObjects[i]);
+            SelectableObject *obj = mSelectedObjects[i];
+            mUnselected.push_back(obj);
             swapAndRemove(mSelectedObjects, i);
-            mSelectedObjects[i]->objectUnselected();
+            obj->objectUnselected();
             --i;
             --size;
-
+            // just in case remove it from the last selection vec
+            removeElement(mLastSelection, obj);
         }
     }
-    mSignal(SelectionData(mAuxVec, false));
 }
 
 
 void
 SelectionManager::unselectAll(void)
 {
+    mDirty = true;
     Remover remover;
     std::for_each(mSelectedObjects.begin(), mSelectedObjects.end(), remover);
 
-    mSignal(SelectionData(mSelectedObjects, false));
+    mUnselected = mSelectedObjects;
+    mLastSelection.clear();
     mSelectedObjects.clear();
 }
 

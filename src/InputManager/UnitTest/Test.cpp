@@ -181,22 +181,16 @@ void Test::loadAditionalData(void)
 	mCamController.setCamera(GLOBAL_CAMERA);
 
 	Ogre::AxisAlignedBox mb;
-	mb.setMaximum(800,800,800);
-	mb.setMinimum(-800,0,-800);
+	mb.setMaximum(13800,13800,13800);
+	mb.setMinimum(-3800,0,-3800);
 	mCamController.setCameraMoveZone(mb);
+	mCamController.setCameraVelocity(10.0f);
 
 	UpdatableObject::setUpdObjsManager(&mUpdaterManager);
 
-
-	for(int i = 0; i < 100; ++i){
-		Ogre::Entity *ent = GLOBAL_SCN_MNGR->createEntity(Ogre::SceneManager::PT_CUBE);
-		Ogre::SceneNode *node = GLOBAL_SCN_MNGR->getRootSceneNode()->createChildSceneNode();
-		node->setPosition(Ogre::Math::RangeRandom(-800, 800),
-				Ogre::Math::RangeRandom(0, 800),
-				Ogre::Math::RangeRandom(-800, 800));
-		node->attachObject(ent);
-//		GLOBAL_SCN_MNGR->getRootSceneNode()->addChild(node);
-	}
+	// load the level
+	Ogre::DotSceneLoader dsl;
+	dsl.parseDotScene("cuidad01.scene", "Popular", GLOBAL_SCN_MNGR);
 }
 
 /* function called every frame. Use GlobalObjects::lastTimeFrame */

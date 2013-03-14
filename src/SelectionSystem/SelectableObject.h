@@ -11,6 +11,7 @@
 #include <OgreMovableObject.h>
 
 #include "SelectionType.h"
+#include "SelectionData.h"
 
 namespace selection {
 

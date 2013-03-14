@@ -13,14 +13,14 @@
 #include <OgreAnimationTrack.h>
 #include <OgreAnimationState.h>
 
-#include <HUDManager/PassportPicture/PassportPicture.h>
-
 #include "AppTester.h"
 #include "DebugUtil.h"
+#include "CameraController.h"
 
 #include "MouseCursor.h"
 #include "UpdObjsManager.h"
 #include "InputManager.h"
+#include "PlayerUnit.h"
 
 
 class Test : public AppTester
@@ -44,14 +44,16 @@ private:
 	// handle input
 	void handleInput(void);
 
+	// create players
+	void createPlayers(void);
+
 private:
+	CameraController		mCamController;
 	MouseCursor				mMouseCursor;
 
 	UpdObjsManager			mUpdaterManager;
 	input::InputManager &mInputManager;
-	PassportPicture mPassport;
-	size_t mActualCol;
-	size_t mActualRow;
+	std::vector<PlayerUnit *> mUnits;
 
 };
 

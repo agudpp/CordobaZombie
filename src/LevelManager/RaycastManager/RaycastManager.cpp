@@ -10,14 +10,11 @@
 #include "RaycastManager.h"
 
 
-
-
-
 RaycastManager::RaycastManager() :
 mCollMngr(0),
 mRaySceneQuery(0)
 {
-	mRaySceneQuery = GLOBAL_SCN_MNGR->createRayQuery(mMouseRay,~0);
+    mRaySceneQuery = GLOBAL_SCN_MNGR->createRayQuery(mMouseRay,~0);
 }
 
 RaycastManager::~RaycastManager()
@@ -28,7 +25,8 @@ RaycastManager::~RaycastManager()
 /**
  * Set the collision manager to use.
  */
-void RaycastManager::setCollisionManager(CollisionManager *cm)
+void
+RaycastManager::setCollisionManager(CollisionManager *cm)
 {
 	ASSERT(cm);
 	mCollMngr = cm;
@@ -40,7 +38,8 @@ void RaycastManager::setCollisionManager(CollisionManager *cm)
  * the same size of the CollisionManager.
  * @param	yHeight		This is the height where the plane will be putted.
  */
-void RaycastManager::build(float y)
+void
+RaycastManager::build(float y)
 {
 	ASSERT(mCollMngr);
 
@@ -59,7 +58,10 @@ void RaycastManager::build(float y)
  * @param	result	The result
  */
 template<typename T>
-void RaycastManager::rayCast(float xrm, float yrm, mask_t mask, std::vector<T> &result)
+void
+RaycastManager::rayCast(float xrm, float yrm,
+                        mask_t mask,
+                        std::vector<T> &result) const
 {
 	ASSERT(mCollMngr);
 
@@ -90,7 +92,8 @@ void RaycastManager::rayCast(float xrm, float yrm, mask_t mask, std::vector<T> &
  * @return	The object picked or 0 if no object was found
  */
 template<typename T>
-T RaycastManager::rayCast(float xrm, float yrm, mask_t mask)
+T
+RaycastManager::rayCast(float xrm, float yrm, mask_t mask) const
 {
 	ASSERT(mCollMngr);
 
@@ -129,40 +132,6 @@ T RaycastManager::rayCast(float xrm, float yrm, mask_t mask)
 	return static_cast<T>(mResult[index]->userDefined);
 }
 
-/**
- * Perform a raycast using the actual relative position of the mouse.
- * @param	xrm		X relative mouse position
- * @param	yrm		Y relative mouse position
- * @param	result	The point associated to that position
- *
- * @return	True if success or false if there are no point associated
- */
-void RaycastManager::getPoint(float xrm, float yrm, sm::Vector2 &result)
-{
-	return getPoint(xrm, yrm, result);
-}
-void RaycastManager::getPoint(float xrm, float yrm, Ogre::Vector3 &r)
-{
-	// set up the ray
-	mMouseRay = GLOBAL_CAMERA->getCameraToViewportRay(xrm, yrm);
-
-	// check if the ray intersects our plane
-	// intersects() will return whether it intersects or not (the bool value) and
-	// what distance (the Real value) along the ray the intersection is
-	std::pair<bool, Ogre::Real> result = mMouseRay.intersects(mPlane);
-
-	if (result.first)
-	{
-		// if the ray intersect the plane, we have a distance value
-		// telling us how far from the ray origin the intersection occurred.
-		// the last thing we need is the point of the intersection.
-		// Ray provides us getPoint() function which returns a point
-		// along the ray, supplying it with a distance value.
-
-		// get the point where the intersection is
-		r = mMouseRay.getPoint(result.second);
-	}
-}
 
 /**
  * Performs a Ogre Raycast from a position of the mouse and the camera.
@@ -173,8 +142,11 @@ void RaycastManager::getPoint(float xrm, float yrm, Ogre::Vector3 &r)
  * @param	numR	Number of results we want to obtain
  * @return	All the objects obtained
  */
-Ogre::RaySceneQueryResult &RaycastManager::performOgreRay(float xrm, float yrm,
-		uint32 mask, bool sort, int numR)
+Ogre::RaySceneQueryResult &
+RaycastManager::performOgreRay(float xrm, float yrm,
+		                       uint32 mask,
+		                       bool sort,
+		                       int numR) const
 {
 	ASSERT(mRaySceneQuery);
 	mMouseRay = GLOBAL_CAMERA->getCameraToViewportRay(xrm, yrm);
