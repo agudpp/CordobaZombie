@@ -144,15 +144,12 @@ void Test::createPlayer(void)
 	mPlayerGroup->build();
 
 
-	static ShootContainer sc;
 	Shoot::setCollisionManager(mLevelManager.getCollisionManager());
-	Shoot::setContainer(&sc);
 	Shoot::setUpdObjsManager(&mUpdMngr);
 	for(int i = 0; i < 10; ++i){
 		Shoot *s = new Shoot;
 		s->build(Ogre::Math::RangeRandom(8,16));
 	}
-	Weapon::setShootContainer(&sc);
 	Gun9mm *w = new Gun9mm;
 	w->setOwner(mPlayers.back());
 	w->setPower(1);

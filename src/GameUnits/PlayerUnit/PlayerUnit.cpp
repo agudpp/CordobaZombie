@@ -84,7 +84,8 @@ PlayerUnit::PlayerUnit() :
 		mSelBillboard(0),
 		mUpdatePathTime(0),
 		mActualBomb(0),
-		mLifeChangeCb(0)
+		mLifeChangeCb(0),
+		mPlayerID(PlayerID::NONE)
 {
 	// by default we use the mSMTT
 	ASSERT(mSMTT);	// we must set this first

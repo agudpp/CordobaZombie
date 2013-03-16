@@ -10,16 +10,7 @@
 
 
 CollisionResult	Weapon::mCollResult;
-ShootContainer	*Weapon::mShootCont = 0;
-
-/**
- * Set the shoot container to be used
- */
-void Weapon::setShootContainer(ShootContainer *sc)
-{
-	ASSERT(sc);
-	mShootCont = sc;
-}
+ShootContainer	*Weapon::mShootCont = Shoot::getContainer();
 
 
 ////////////////////////////////////////////////////////////////////////////////

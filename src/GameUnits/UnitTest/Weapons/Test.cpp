@@ -214,7 +214,6 @@ void Test::createLine(void)
 
 void Test::createShoots(void)
 {
-	Shoot::setContainer(&mShootContainer);
 	Shoot::setCollisionManager(mLevelManager.getCollisionManager());
 	Shoot::setUpdObjsManager(&mUpdMngr);
 

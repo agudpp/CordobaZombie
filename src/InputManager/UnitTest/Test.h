@@ -21,6 +21,8 @@
 #include "UpdObjsManager.h"
 #include "InputManager.h"
 #include "PlayerUnit.h"
+#include <LevelManager/LevelManager.h>
+
 
 
 class Test : public AppTester
@@ -53,8 +55,8 @@ private:
 
 	UpdObjsManager			mUpdaterManager;
 	input::InputManager &mInputManager;
-	std::vector<PlayerUnit *> mUnits;
-
+	std::vector<PlayerUnit *> mPlayers;
+	LevelManager mLevelManager;
 };
 
 #endif /* TEST_H_ */

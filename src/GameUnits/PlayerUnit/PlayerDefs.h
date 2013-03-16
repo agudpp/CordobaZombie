@@ -10,6 +10,16 @@
 
 #include "GameUnitDefines.h"
 
+// The possible ids of the players
+//
+enum PlayerID {
+    PLAYER_TULIAN,
+    PLAYER_CORAL,
+    PLAYER_CARDENAL,
+    NUM_PLAYERS,
+    NONE,
+};
+
 // ANIMATIONS OF THE ZOMBIE
 #define PLAYER_ANIM_IDLE			"quieto"
 #define PLAYER_ANIM_WALK			"camina"

@@ -446,7 +446,6 @@ Test::createPlayer(void)
 
 	static ShootContainer sc;
 	Shoot::setCollisionManager(mLevelManager.getCollisionManager());
-	Shoot::setContainer(&sc);
 	Shoot::setUpdObjsManager(&mUpdMngr);
 	for(int i = 0; i < 10; ++i){
 		Shoot *s = new Shoot;
