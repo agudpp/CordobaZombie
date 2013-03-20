@@ -35,5 +35,4 @@ buildButtons(const TiXmlElement root,
 			 std::vector<OvEff::MenuButtonEffect> &buttons);
 
 
-
 }

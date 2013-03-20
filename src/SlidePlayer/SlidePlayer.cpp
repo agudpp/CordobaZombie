@@ -8,6 +8,12 @@
 #include "SlidePlayer.h"
 
 ////////////////////////////////////////////////////////////////////////////////
+/*
+ * @Overlay : The name of the slides overlay
+ * @OverleyEffectConfFile : The path of the file with the effects configuration
+ * for the overlays.
+ *
+ */
 SlidePlayer::SlidePlayer(const Ogre::String &Overlay,
 		const Ogre::String &OverleyEffectConfFile):
 mSlide(0),
@@ -120,6 +126,8 @@ SlidePlayer::~SlidePlayer()
 	if(!mHiddenSEffect){
 		delete mHiddenSEffect;
 	}
+	
+	//TODO full destroy de los overlay
 }
 
 

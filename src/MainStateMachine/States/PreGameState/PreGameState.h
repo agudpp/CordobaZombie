@@ -7,11 +7,15 @@
 
 #ifndef PREGAMESTATE_H_
 #define PREGAMESTATE_H_
+
 #include "IMainState.h"
 #include "SlidePlayer.h"
+#include "MenuButtonEffect.h"
+#include "CbMenuButton.h"
 
 
-class PreGameState : public IMainState
+
+class PreGameState : public IMainState, public CbMenuButton::Cb
 {
 
 	enum ButtonIndex {
@@ -51,6 +55,24 @@ public:
 	 */
 	virtual void exit(void);
 
+	/**
+	 * Function used to get the resources files used by the state.
+	 * The list returned is the list of the resources used by and only by this
+	 * state.
+	 */
+	virtual void getResources(IMainState::ResourcesInfoVec &resourcesList) const;
+
+	/**
+	 * TODO descripcion
+	 */
+	void operator()(CbMenuButton * b, CbMenuButton::ButtonID id);
+
+	/*
+	 * Call back function to let buttons effect tell us when they have done
+	 * hiding.
+	 */
+	void operator()(OvEff::OverlayEffect::EventID id);
+
 
 protected:
 	/**
@@ -59,7 +81,8 @@ protected:
 	void showBackground(const Ogre::String &overlayName);
 	void destroyBackground(void);
 	void createButtons(const TiXmlElement *root);
-	void createSlidePlayer(const char* overlays, const char* effects);
+	void buildSlidePlayer( const char* overlays, const char* effects
+						 , const char *slidenames);
 
 protected:
 	typedef std::vector<OvEff::MenuButtonEffect>	ButtonsEffectVec;
@@ -72,5 +95,7 @@ protected:
 	StrVec					 	mButtonNames;
 	ButtonsEffectVec			mCbButtons;
 };
+
+
 
 #endif /* LOADINGSTATE_H_ */

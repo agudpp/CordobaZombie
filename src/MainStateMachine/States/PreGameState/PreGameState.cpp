@@ -5,22 +5,40 @@
  *      Author: raul
  */
 
-//#include <OgreOverlayManager.h>
-//#include <OgreResourceManager.h>
-
-//#include "GlobalObjects.h"
-#include "DebugUtil.h"
 #include "PreGameState.h"
-//#include "GUIHelper.h"
+
+#include <boost/bind.hpp>
+#include "DebugUtil.h"
+#include "GUIHelper.h"
+#include "ButtonHelper.h"
+
 
 
 const std::string PreGameState::PREGAMEDIRNAME = "PreGameState/";
 
 const char *PreGameState::BUTTONS_NAMES[NUMBER_BUTTONS] =  {
-        "exitButton",
-        "prevButton",
-        "nextButton",
+        "ExitButton",
+        "PrevButton",
+        "NextButton",
 };
+
+
+////////////////////////////////////////////////////////////////////////////////
+void
+PreGameState::getResources(IMainState::ResourcesInfoVec & resourcesList) const{
+    resourcesList.clear();
+
+    //TODO A esta funcion le faltaría un parámetro, el cual es un diccionario
+    //como en la funcion de Enter, de allí deberia sacar el nombre del nivel
+    // y no hardcodear 'Demo' como estoy haciendo.
+
+    IMainState::ResourcesInfo rinfo;
+    rinfo.filePath = "/Levels/Demo/" + PREGAMEDIRNAME + "resources.cfg";
+    rinfo.groupNames.push_back("PreGameState");
+
+    resourcesList.push_back(rinfo);
+}
+
 
 
 
@@ -67,23 +85,27 @@ void PreGameState::createButtons(const TiXmlElement *root){
 	for(int i = 0; i < ButtonIndex::NUMBER_BUTTONS; ++i){
 		mButtonNames.push_back(BUTTONS_NAMES[i]);
 	}
-	CbBHelper::buildButtons(root, mButtonNames, mCbButtons);
-	ASSERT(mButtonNames.size()==mCbButtons.size());
+
+	CbBHelper::buildButtons(*root, mButtonNames, mCbButtons);
+	ASSERT(mButtonNames.size() == mCbButtons.size());
+
 	//Seteamos el callback de los botones
 	for(size_t i = 0; i < NUMBER_BUTTONS; ++i){
 		mCbButtons[i].getEffect()->addCallback(
 		        boost::bind(&PreGameState::operator(), this, _1));
 	}
 
+	debugGREEN("Enabling buttons\n");
+
 	// Enable buttons
 	for(size_t i = 0, size = ButtonIndex::NUMBER_BUTTONS; i < size; ++i){
 		mCbButtons[i].getButton()->setEnable(true);
-		ASSERT(mButtons[i].getEffect());
+		ASSERT(mCbButtons[i].getEffect());
 		mCbButtons[i].getEffect()->start();
+		debugGREEN("Showing button %s\n",
+				   mCbButtons[i].getButton()->getName().c_str());
 		mCbButtons[i].getEffect()->getElement()->show();
 	}
-
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -115,23 +137,41 @@ void PreGameState::operator()(CbMenuButton * b, CbMenuButton::ButtonID id)
 
 }
 
+////////////////////////////////////////////////////////////////////////////////
+void PreGameState::operator()(OvEff::OverlayEffect::EventID id){
 
+    if(id == OvEff::OverlayEffect::ENDING){
+        // Disable buttons
+   		for(size_t i = 0, size = mCbButtons.size(); i < size; ++i){
+			mCbButtons[i].getButton()->setEnable(false);
+		}
+
+		debugRAUL("Operator going out\n");
+
+        //TODO terminar de salir a donde sea que tenga que salir.
+
+    }else{
+        return;
+    }
+
+	return;
+}
 
 
 
 ////////////////////////////////////////////////////////////////////////////////
-void PreGameState::createSlidePlayer( const char *overlays
-									, const char *effects
-									, const char *slidenames)
+void PreGameState::buildSlidePlayer( const char *overlays
+								   , const char *effects
+								   , const char *slidenames)
 {
 
-	mSlidePlayer = SlidePlayer(overlays, effects);
+	mSlidePlayer = new SlidePlayer(overlays, effects);
 	ASSERT(mSlidePlayer);
 	// Load the slides
 	Ogre::MaterialManager& materialman =
 			Ogre::MaterialManager::getSingleton();
-	const std::string MatName = slidenames;
-	MatName += '/';
+	std::string MatName = slidenames;
+	MatName += "/";
 	int i = 1;
 	while(1){
 		std::stringstream strm;
@@ -165,8 +205,11 @@ void PreGameState::enter(const MainMachineInfo &info)
 
 	// Load resources
 	XMLHelper xmlhelper;
-	xmlhelper.setFilename(mPreGamePath + "config.xml");
+	xmlhelper.setFilename("config.xml");
+	xmlhelper.openXml();
 	const TiXmlElement *config = xmlhelper.getRootElement();
+	ASSERT(config);
+
 	// Background
 	const TiXmlElement *bkgrdNode = config->FirstChildElement("Background");
 	ASSERT(bkgrdNode);
@@ -177,12 +220,13 @@ void PreGameState::enter(const MainMachineInfo &info)
 	const TiXmlElement *slidesNode = config->FirstChildElement("SlidePlayer");
 	ASSERT(slidesNode);
 	// Slides
-	createSlidePlayer(slidesNode->Attribute("Overlays"),
+	buildSlidePlayer( slidesNode->Attribute("Overlays"),
 					  slidesNode->Attribute("Effects"),
 					  slidesNode->Attribute("Names"));
 
 	//Buttons
 	createButtons(config);
+	xmlhelper.closeXml();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -206,17 +250,29 @@ MainMachineEvent PreGameState::update(MainMachineInfo &info)
 		timeStamp = timer.getMilliseconds();
 
 		GLOBAL_KEYBOARD->capture();
-		if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_SPACE)){
+		if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_ESCAPE)){
 			if(!press){
 				press = true;
 				debugGREEN("EXIT\n");
-				// break
+				break;
 			}
-		} else {press = false;}
+		}else if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_B)){
+			if(!press){
+				press = true;
+				debugGREEN("Prev slide\n");
+				mSlidePlayer->prev();
+			}
+		}else if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_N)){
+			if(!press){
+				press = true;
+				debugGREEN("Next slide\n");
+				mSlidePlayer->next();
+			}
+		}else {press = false;}
 
 		// render the frame
 		if(!GLOBAL_ROOT->renderOneFrame()){
-			result = -1; //TODO: poner un error real aca
+			result = MME_ERROR;
 			break;
 		}
 
@@ -237,15 +293,12 @@ MainMachineEvent PreGameState::update(MainMachineInfo &info)
 /**
  * Function called when the state is not "the actual" anymore
  */
-void LoadingState::exit(void)
+void PreGameState::exit(void)
 {
 	debugRED("Exit STATE\n");
 	destroyBackground();
-	unloadLoadingBar();
 
-	// detroy the document
-	mLoaderManager->removeAll();
-	delete mDoc;
-	mDoc = 0;
+	delete mSlidePlayer;
+	mSlidePlayer = 0;
 
 }
