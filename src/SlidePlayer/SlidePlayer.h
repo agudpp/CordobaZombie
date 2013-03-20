@@ -21,6 +21,14 @@
  * 		You can then pass ass parameters the name of the new overlay and the
  * 	name of the effect configuration file to the class constructor. Be sure
  * 	that Ogre recognizes the new Overlay resource when you define it.
+ *
+ *
+ * [2]
+ *
+ * Require:
+ *
+ * 	SlidePlayer needs an "overlay effect manager" running "from the outside"
+ * 	to update its slides.
  */
 
 
@@ -181,8 +189,8 @@ private:
 	Ogre::Vector2						mHiddenPrevTL;
 	Ogre::Vector2						mNextTL;
 	Ogre::Vector2						mHiddenNextTL;
-	//TODO uso mi propio overlay manager???
-	OvEff::OverlayEffectManager			mOvEffMngr;
+	//TODO uso mi propio overlay manager??? --->> NO!!!!!
+	//OvEff::OverlayEffectManager			mOvEffMngr;
 
 
 private:

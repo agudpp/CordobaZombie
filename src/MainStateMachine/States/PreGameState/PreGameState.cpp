@@ -11,7 +11,8 @@
 #include "DebugUtil.h"
 #include "GUIHelper.h"
 #include "ButtonHelper.h"
-
+#include "MenuManager.h"
+#include "MouseCursor.h"
 
 
 const std::string PreGameState::PREGAMEDIRNAME = "PreGameState/";
@@ -24,6 +25,151 @@ const char *PreGameState::BUTTONS_NAMES[NUMBER_BUTTONS] =  {
 
 
 ////////////////////////////////////////////////////////////////////////////////
+PreGameState::PreGameState() :
+IMainState("LoadingState"),
+mBackground(0),
+mPreGamePath(""),
+mSlidePlayer(0)
+{
+}
+
+////////////////////////////////////////////////////////////////////////////////
+PreGameState::~PreGameState()
+{
+	destroyBackground();
+	delete mSlidePlayer;
+}
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+/**
+ * Entering the state with additional info
+ */
+void PreGameState::enter(const MainMachineInfo &info)
+{
+	debugGREEN("Entering PreGame State\n");
+
+	// Configure overlay effects manager
+	configureOEffMngr();
+
+	// get level pre-game path
+	std::string levelPath = info.params.at("LEVEL_PATH");
+	mPreGamePath = levelPath + PREGAMEDIRNAME;
+
+	// Load resources
+	XMLHelper xmlhelper;
+	xmlhelper.setFilename("config.xml");
+	xmlhelper.openXml();
+	const TiXmlElement *config = xmlhelper.getRootElement();
+	ASSERT(config);
+
+	// Background
+	const TiXmlElement *bkgrdNode = config->FirstChildElement("Background");
+	ASSERT(bkgrdNode);
+	std::string backOverlay = bkgrdNode->Attribute("path");
+	ASSERT(!backOverlay.empty());
+	this->showBackground(backOverlay);
+
+	// Slide player
+	const TiXmlElement *slidesNode = config->FirstChildElement("SlidePlayer");
+	ASSERT(slidesNode);
+	buildSlidePlayer( slidesNode->Attribute("Overlays"),
+					  slidesNode->Attribute("Effects"),
+					  slidesNode->Attribute("Names"));
+
+	// Buttons
+	createButtons(config);
+
+	// Close xml file
+	xmlhelper.closeXml();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/**
+ * Update the state... This function will be called once.
+ * @param	info	A structure used to pass information between states.
+ * @return	event	The resulting event to send back to the main state machine.
+ */
+MainMachineEvent PreGameState::update(MainMachineInfo &info)
+{
+	Ogre::Timer timer;
+	float timeStamp = 0;
+	MainMachineEvent result = MME_DONE;
+
+	float count = 0;
+	bool press = false;
+
+	// here is the main loop
+	// TODO: fix the FrameElapsedTime and check how to get the ogres one.
+	while(true) {
+
+		timeStamp = timer.getMilliseconds();
+
+		// capture input
+		GLOBAL_KEYBOARD->capture();
+		GLOBAL_MOUSE->capture();
+
+		// Check pressed keys
+		if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_ESCAPE)){
+			if(!press){
+				press = true;
+				debugGREEN("EXIT\n");
+				break;
+			}
+		}else if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_B)){
+			if(!press){
+				press = true;
+				mSlidePlayer->prev();
+			}
+		}else if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_N)){
+			if(!press){
+				press = true;
+				mSlidePlayer->next();
+			}
+		}else {press = false;}
+
+
+		// update position of the mouse cursor
+		GLOBAL_CURSOR->updatePosition(
+		        GLOBAL_MOUSE->getMouseState().X.abs,
+		        GLOBAL_MOUSE->getMouseState().Y.abs);
+
+		// render the frame
+		if(!GLOBAL_ROOT->renderOneFrame()){
+			result = MME_ERROR;
+			break;
+		}
+
+		// update everything else
+		GLOBAL_MENU_MNGR->update();
+        mOvEffManager.update();
+		mSlidePlayer->update();
+
+		// This must be called when we use the renderOneFrame approach
+		Ogre::WindowEventUtilities::messagePump();
+
+		GLOBAL_TIME_FRAME =	(timer.getMilliseconds() - timeStamp) * 0.001;
+
+	}
+
+	return result;
+}
+
+
+/**
+ * Function called when the state is not "the actual" anymore
+ */
+void PreGameState::exit(void)
+{
+	debugRED("Exit STATE\n");
+	destroyBackground();
+
+	delete mSlidePlayer;
+	mSlidePlayer = 0;
+
+}
+
 void
 PreGameState::getResources(IMainState::ResourcesInfoVec & resourcesList) const{
     resourcesList.clear();
@@ -64,24 +210,11 @@ void PreGameState::destroyBackground(void)
 	GUIHelper::fullDestroyOverlay(mBackground);
 }
 ////////////////////////////////////////////////////////////////////////////////
-PreGameState::PreGameState() :
-IMainState("LoadingState"),
-mBackground(0),
-mPreGamePath(""),
-mSlidePlayer(0)
-{
-}
-
-////////////////////////////////////////////////////////////////////////////////
-PreGameState::~PreGameState()
-{
-	destroyBackground();
-	delete mSlidePlayer;
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 void PreGameState::createButtons(const TiXmlElement *root){
 
+    mButtonNames.reserve(NUMBER_BUTTONS);
 	for(int i = 0; i < ButtonIndex::NUMBER_BUTTONS; ++i){
 		mButtonNames.push_back(BUTTONS_NAMES[i]);
 	}
@@ -95,15 +228,17 @@ void PreGameState::createButtons(const TiXmlElement *root){
 		        boost::bind(&PreGameState::operator(), this, _1));
 	}
 
-	debugGREEN("Enabling buttons\n");
+    // show the overlay
+    Ogre::Overlay *overlay = Ogre::OverlayManager::getSingleton().getByName(
+            "preGameStateOverlay/buttons");
+    ASSERT(overlay);
+    overlay->show();
 
 	// Enable buttons
 	for(size_t i = 0, size = ButtonIndex::NUMBER_BUTTONS; i < size; ++i){
 		mCbButtons[i].getButton()->setEnable(true);
 		ASSERT(mCbButtons[i].getEffect());
 		mCbButtons[i].getEffect()->start();
-		debugGREEN("Showing button %s\n",
-				   mCbButtons[i].getButton()->getName().c_str());
 		mCbButtons[i].getEffect()->getElement()->show();
 	}
 }
@@ -111,13 +246,13 @@ void PreGameState::createButtons(const TiXmlElement *root){
 ////////////////////////////////////////////////////////////////////////////////
 void PreGameState::operator()(CbMenuButton * b, CbMenuButton::ButtonID id)
 {
+	debugGREEN("Button %s callback!!\n", b->getName().c_str());
+
 	if(b == mCbButtons[PreGameState::exitButton].getButton()
 			&& id == CbMenuButton::LEFT_BUTTON)
 	{
 		debugGREEN("EXIT\n");
 		//TODO exit here ...
-		//mState = STATE_HIDDING;
-		//this->hideToExit();
 	}
 	else if(b == mCbButtons[PreGameState::prevButton].getButton()
 			&& id == CbMenuButton::LEFT_BUTTON)
@@ -131,7 +266,7 @@ void PreGameState::operator()(CbMenuButton * b, CbMenuButton::ButtonID id)
 	}
 	else
 	{
-		debugERROR("Invalid button has been pressed :S\n");
+		debugERROR("Invalid button or button event:S\n");
 		ASSERT(false);
 	}
 
@@ -140,11 +275,14 @@ void PreGameState::operator()(CbMenuButton * b, CbMenuButton::ButtonID id)
 ////////////////////////////////////////////////////////////////////////////////
 void PreGameState::operator()(OvEff::OverlayEffect::EventID id){
 
-    if(id == OvEff::OverlayEffect::ENDING){
+
+	debugBLUE("operator()\n");
+
+    if(id == OvEff::OverlayEffect::ENDING ){ //TODO && state == EXIT
         // Disable buttons
-   		for(size_t i = 0, size = mCbButtons.size(); i < size; ++i){
-			mCbButtons[i].getButton()->setEnable(false);
-		}
+//   		for(size_t i = 0, size = mCbButtons.size(); i < size; ++i){
+//			mCbButtons[i].getButton()->setEnable(false);
+//		}
 
 		debugRAUL("Operator going out\n");
 
@@ -192,113 +330,3 @@ void PreGameState::buildSlidePlayer( const char *overlays
 
 
 
-////////////////////////////////////////////////////////////////////////////////
-/**
- * Entering the state with additional info
- */
-void PreGameState::enter(const MainMachineInfo &info)
-{
-	debugGREEN("ENTERING PRE GAME STATE\n");
-
-	std::string levelPath = info.params.at("LEVEL_PATH");
-	mPreGamePath = levelPath + PREGAMEDIRNAME;
-
-	// Load resources
-	XMLHelper xmlhelper;
-	xmlhelper.setFilename("config.xml");
-	xmlhelper.openXml();
-	const TiXmlElement *config = xmlhelper.getRootElement();
-	ASSERT(config);
-
-	// Background
-	const TiXmlElement *bkgrdNode = config->FirstChildElement("Background");
-	ASSERT(bkgrdNode);
-	std::string backOverlay = bkgrdNode->Attribute("path");
-	ASSERT(!backOverlay.empty());
-	this->showBackground(backOverlay);
-
-	const TiXmlElement *slidesNode = config->FirstChildElement("SlidePlayer");
-	ASSERT(slidesNode);
-	// Slides
-	buildSlidePlayer( slidesNode->Attribute("Overlays"),
-					  slidesNode->Attribute("Effects"),
-					  slidesNode->Attribute("Names"));
-
-	//Buttons
-	createButtons(config);
-	xmlhelper.closeXml();
-}
-
-////////////////////////////////////////////////////////////////////////////////
-/**
- * Update the state... This function will be called once.
- * @param	info	A structure used to pass information between states.
- * @return	event	The resulting event to send back to the main state machine.
- */
-MainMachineEvent PreGameState::update(MainMachineInfo &info)
-{
-	Ogre::Timer timer;
-	float timeStamp = 0;
-	MainMachineEvent result = MME_DONE;
-
-	float count = 0;
-	bool press = false;
-
-	// here is the main loop
-	// TODO: fix the FrameElapsedTime and check how to get the ogres one.
-	while(true) {
-		timeStamp = timer.getMilliseconds();
-
-		GLOBAL_KEYBOARD->capture();
-		if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_ESCAPE)){
-			if(!press){
-				press = true;
-				debugGREEN("EXIT\n");
-				break;
-			}
-		}else if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_B)){
-			if(!press){
-				press = true;
-				debugGREEN("Prev slide\n");
-				mSlidePlayer->prev();
-			}
-		}else if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_N)){
-			if(!press){
-				press = true;
-				debugGREEN("Next slide\n");
-				mSlidePlayer->next();
-			}
-		}else {press = false;}
-
-		// render the frame
-		if(!GLOBAL_ROOT->renderOneFrame()){
-			result = MME_ERROR;
-			break;
-		}
-
-		// This must be called when we use the renderOneFrame approach
-		Ogre::WindowEventUtilities::messagePump();
-
-		Common::GlobalObjects::lastTimeFrame =
-				(timer.getMilliseconds() - timeStamp) * 0.001;
-
-		// Update the slide player
-		mSlidePlayer->update();
-	}
-
-	return result;
-}
-
-
-/**
- * Function called when the state is not "the actual" anymore
- */
-void PreGameState::exit(void)
-{
-	debugRED("Exit STATE\n");
-	destroyBackground();
-
-	delete mSlidePlayer;
-	mSlidePlayer = 0;
-
-}

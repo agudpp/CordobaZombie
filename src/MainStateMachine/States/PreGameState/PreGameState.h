@@ -12,6 +12,7 @@
 #include "SlidePlayer.h"
 #include "MenuButtonEffect.h"
 #include "CbMenuButton.h"
+#include "OverlayEffect.h"
 
 
 
@@ -81,6 +82,7 @@ protected:
 	void showBackground(const Ogre::String &overlayName);
 	void destroyBackground(void);
 	void createButtons(const TiXmlElement *root);
+	inline void configureOEffMngr(void);
 	void buildSlidePlayer( const char* overlays, const char* effects
 						 , const char *slidenames);
 
@@ -94,7 +96,15 @@ protected:
 	XMLHelper 					mXmlhelper;
 	StrVec					 	mButtonNames;
 	ButtonsEffectVec			mCbButtons;
+	OvEff::OverlayEffectManager	mOvEffManager;
+;
 };
+
+
+inline void PreGameState::configureOEffMngr(void)
+{
+	OvEff::OverlayEffect::setManager(&mOvEffManager);
+}
 
 
 

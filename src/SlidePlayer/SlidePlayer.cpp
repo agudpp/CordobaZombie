@@ -30,7 +30,7 @@ mHiddenSEffect(0)
 {
 
 	//Set the overlay EFFECT manager
-	OvEff::OverlayEffect::setManager(&mOvEffMngr);
+	//OvEff::OverlayEffect::setManager(&mOvEffMngr);
 
 	//
 	Ogre::OverlayManager&  overlayManager(Ogre::OverlayManager::getSingleton());
@@ -246,7 +246,7 @@ int SlidePlayer::update(void)
 {
 
 	//Update overlay effects
-	mOvEffMngr.update();
+	//mOvEffMngr.update();
 
 	if(mShowing == mSlide || isMoving()){
 
