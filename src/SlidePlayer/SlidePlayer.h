@@ -21,6 +21,14 @@
  * 		You can then pass ass parameters the name of the new overlay and the
  * 	name of the effect configuration file to the class constructor. Be sure
  * 	that Ogre recognizes the new Overlay resource when you define it.
+ *
+ *
+ * [2]
+ *
+ * Require:
+ *
+ * 	SlidePlayer needs an "overlay effect manager" running "from the outside"
+ * 	to update its slides.
  */
 
 
@@ -111,6 +119,12 @@ public:
 	int queueSlides(const slideVec &slides);
 
 	/*
+	 * Load slides with base name 'sldBaseName' into the slide player.
+	 * Slides must be present in an already loaded .material file.
+	 */
+	int loadSlides(const char *sldBaseName);
+
+	/*
 	 * Move to next slide.
 	 * 	@Return SP_OK on success; SP_END_REACHED if the end has been reached and
 	 * we are not able to go further.
@@ -151,6 +165,9 @@ public:
 	 * If has at least one slide
 	 */
 	inline bool hasSlides(void);
+
+
+
 private:
 
 	//
@@ -181,8 +198,8 @@ private:
 	Ogre::Vector2						mHiddenPrevTL;
 	Ogre::Vector2						mNextTL;
 	Ogre::Vector2						mHiddenNextTL;
-	//TODO uso mi propio overlay manager???
-	OvEff::OverlayEffectManager			mOvEffMngr;
+	//TODO uso mi propio overlay manager??? --->> NO!!!!!
+	//OvEff::OverlayEffectManager			mOvEffMngr;
 
 
 private:

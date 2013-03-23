@@ -164,7 +164,6 @@ private:
 	mm_states::Event 				mLastEvent;
 	bool							mBeforeUpdateCalled;
 	VideoRangeVec					mEnteringRanges;
-	MenuManager						mMenuManager;
 	OvEff::OverlayEffectManager		mOvEffManager;
 	VideoPlayerAPI					*mVideoPlayerAPI;
 	CallbackReceiber                mCbReceiver;

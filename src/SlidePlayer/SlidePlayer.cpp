@@ -8,6 +8,12 @@
 #include "SlidePlayer.h"
 
 ////////////////////////////////////////////////////////////////////////////////
+/*
+ * @Overlay : The name of the slides overlay
+ * @OverleyEffectConfFile : The path of the file with the effects configuration
+ * for the overlays.
+ *
+ */
 SlidePlayer::SlidePlayer(const Ogre::String &Overlay,
 		const Ogre::String &OverleyEffectConfFile):
 mSlide(0),
@@ -22,9 +28,6 @@ mPrevSEffect(0),
 mNextSEffect(0),
 mHiddenSEffect(0)
 {
-
-	//Set the overlay EFFECT manager
-	OvEff::OverlayEffect::setManager(&mOvEffMngr);
 
 	//
 	Ogre::OverlayManager&  overlayManager(Ogre::OverlayManager::getSingleton());
@@ -120,6 +123,8 @@ SlidePlayer::~SlidePlayer()
 	if(!mHiddenSEffect){
 		delete mHiddenSEffect;
 	}
+	
+	//TODO full destroy de los overlay
 }
 
 
@@ -238,7 +243,7 @@ int SlidePlayer::update(void)
 {
 
 	//Update overlay effects
-	mOvEffMngr.update();
+	//mOvEffMngr.update();
 
 	if(mShowing == mSlide || isMoving()){
 
@@ -358,6 +363,35 @@ int SlidePlayer::seek(int index){
 
 	return SP_OK;
 }
+
+////////////////////////////////////////////////////////////////////////////////
+int SlidePlayer::loadSlides(const char *sldBaseName){
+
+	Ogre::MaterialManager& materialman = Ogre::MaterialManager::getSingleton();
+	std::string MatName = sldBaseName;
+	MatName += "/";
+
+	int i = 1;
+	while(1){
+		std::stringstream strm;
+		strm << MatName << i;
+		if(!materialman.resourceExists(strm.str().c_str())){
+			break;
+		}
+		debugGREEN("Loading slide %s\n",strm.str().c_str());
+		queueSlide(Ogre::String(strm.str().c_str()));
+		i++;
+	}
+
+	if(i == 1){
+		debugWARNING("There are no slides with base name %s.\n", sldBaseName);
+		return SP_ERROR;
+	}
+
+	return SP_OK;
+
+}
+
 
 
 ////////////////////////////////////////////////////////////////////////////////

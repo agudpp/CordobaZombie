@@ -9,7 +9,7 @@
 #include "OverlayEffectBuilder.h"
 
 
-
+namespace CbBHelper{
 
 ////////////////////////////////////////////////////////////////////////////////
 void parseCbMenuButton(	const TiXmlElement *xml,
@@ -51,22 +51,34 @@ void parseCbMenuButton(	const TiXmlElement *xml,
 
 
 
+
+
+
 ////////////////////////////////////////////////////////////////////////////////
+
+/* @ buildButtons(...)
+ *
+ * __FUNCION__: por cada nombre de botón en 'names': busca su descripción en
+ * 'root' (bajo la sección "CbMenuButtons"), crea el boton a partir de la misma,
+ * y lo coloca en 'buttons'.
+ *
+ */
+
 void buildButtons(const TiXmlElement root,
 				  const std::vector<Ogre::String> &names,
 				  std::vector<OvEff::MenuButtonEffect> &buttons)
 {
 	if(names.empty()) return;
 
-
 	// get the CBMenuButtons config if we have
-	const TiXmlElement elem = root->FirstChildElement("CbMenuButtons");
+	const TiXmlElement *elem = root.FirstChildElement("CbMenuButtons");
 	ASSERT(elem);
 
 	// now find all the names and buttons
 	;
 	for(int i = 0, size = names.size(); i < size; ++i){
-		const TiXmlElement *bElem = XMLHelper::findChild(elem, names[i].c_str());
+		const TiXmlElement *bElem =
+				XMLHelper::findChild(elem, names[i].c_str());
 
 #ifdef DEBUG
 		if(!bElem){
@@ -81,3 +93,6 @@ void buildButtons(const TiXmlElement root,
 		buttons.push_back(button);
 	}
 }
+
+
+} //namespace CbBHelper

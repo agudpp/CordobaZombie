@@ -25,6 +25,7 @@
 #include "LoaderBuilder.h"
 #include "GlobalObjects.h"
 #include "MouseCursor.h"
+#include "MenuManager.h"
 
 #include "tinyxml.h"
 
@@ -187,6 +188,14 @@ static void configureGlobalObjects(SystemLoader &sl)
     Common::GlobalObjects::mouseCursor->setWindowDimensions(
             GLOBAL_WINDOW->getWidth(),
             GLOBAL_WINDOW->getHeight());
+
+    // Building Menu Manager
+    GLOBAL_MENU_MNGR = new MenuManager;
+    GLOBAL_MENU_MNGR->build(GLOBAL_WINDOW->getWidth(),
+    						GLOBAL_WINDOW->getHeight(),
+    						5,5);
+    IMenu::setMenuManager(GLOBAL_MENU_MNGR);
+
 }
 
 

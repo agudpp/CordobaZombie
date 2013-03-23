@@ -158,15 +158,6 @@ void MainMenuState::updateStateMachine(void)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void MainMenuState::configureMenuManager(void)
-{
-	// configure the IMenu
-	mMenuManager.build(GLOBAL_WINDOW->getWidth(),GLOBAL_WINDOW->getHeight(),
-			5,5);
-	IMenu::setMenuManager(&mMenuManager);
-}
-
-////////////////////////////////////////////////////////////////////////////////
 void MainMenuState::configureOvEffectManager(void)
 {
 	OvEff::OverlayEffect::setManager(&mOvEffManager);
@@ -318,7 +309,6 @@ void MainMenuState::enter(const MainMachineInfo &info)
 
 	// Load all the other stuff
 	try {
-		configureMenuManager();
 		configureOvEffectManager();
 		configureSoundManager();
 		configureVideoAPI();
@@ -375,7 +365,7 @@ MainMachineEvent MainMenuState::update(MainMachineInfo &info)
 		updateStateMachine();
 
 		// update all the other things
-		mMenuManager.update();
+		GLOBAL_MENU_MNGR->update();
         mVideoPlayerAPI->update(GLOBAL_TIME_FRAME);
         mOvEffManager.update();
 

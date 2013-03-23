@@ -13,6 +13,7 @@
 #include <sstream>
 
 
+
 namespace mm_states {
 
 
@@ -61,8 +62,6 @@ HistoryState::~HistoryState() {
  */
 
 void HistoryState::load(void){
-
-//	debugRAUL("LOADING History State\n");
 
 	// we will load all the buttons
 	if(mBtnNames.empty()){
@@ -124,7 +123,6 @@ void HistoryState::load(void){
 
 void HistoryState::beforeUpdate(void)
 {
-//	debugRAUL("BEFORE UPDATE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n\n\n");
 
 	mState = STATE_SHOWING;
 
