@@ -17,6 +17,10 @@
 
 const std::string PreGameState::PREGAMEDIRNAME = "PreGameState/";
 
+
+/*
+ * Buttons names as they should appear in the '*.overlay' file.
+ */
 const char *PreGameState::BUTTONS_NAMES[NUMBER_BUTTONS] =  {
         "ExitButton",
         "PrevButton",
@@ -26,10 +30,11 @@ const char *PreGameState::BUTTONS_NAMES[NUMBER_BUTTONS] =  {
 
 ////////////////////////////////////////////////////////////////////////////////
 PreGameState::PreGameState() :
-IMainState("LoadingState"),
+IMainState("PreGameState"),
 mBackground(0),
 mPreGamePath(""),
-mSlidePlayer(0)
+mSlidePlayer(0),
+mState(ENTER)
 {
 }
 
@@ -69,7 +74,7 @@ void PreGameState::enter(const MainMachineInfo &info)
 	ASSERT(bkgrdNode);
 	std::string backOverlay = bkgrdNode->Attribute("path");
 	ASSERT(!backOverlay.empty());
-	this->showBackground(backOverlay);
+	showBackground(backOverlay);
 
 	// Slide player
 	const TiXmlElement *slidesNode = config->FirstChildElement("SlidePlayer");
@@ -83,6 +88,9 @@ void PreGameState::enter(const MainMachineInfo &info)
 
 	// Close xml file
 	xmlhelper.closeXml();
+
+	// Change internal state to looping
+	mState = LOOP;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -100,9 +108,15 @@ MainMachineEvent PreGameState::update(MainMachineInfo &info)
 	float count = 0;
 	bool press = false;
 
-	// here is the main loop
 	// TODO: fix the FrameElapsedTime and check how to get the ogres one.
+
+	// Main loop :
+
 	while(true) {
+
+		if(mState == EXIT){
+			break;
+		}
 
 		timeStamp = timer.getMilliseconds();
 
@@ -110,25 +124,9 @@ MainMachineEvent PreGameState::update(MainMachineInfo &info)
 		GLOBAL_KEYBOARD->capture();
 		GLOBAL_MOUSE->capture();
 
-		// Check pressed keys
-		if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_ESCAPE)){
-			if(!press){
-				press = true;
-				debugGREEN("EXIT\n");
-				break;
-			}
-		}else if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_B)){
-			if(!press){
-				press = true;
-				mSlidePlayer->prev();
-			}
-		}else if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_N)){
-			if(!press){
-				press = true;
-				mSlidePlayer->next();
-			}
-		}else {press = false;}
-
+		if(mState == LOOP){
+			checkKeyInput();
+		}
 
 		// update position of the mouse cursor
 		GLOBAL_CURSOR->updatePosition(
@@ -157,6 +155,7 @@ MainMachineEvent PreGameState::update(MainMachineInfo &info)
 }
 
 
+////////////////////////////////////////////////////////////////////////////////
 /**
  * Function called when the state is not "the actual" anymore
  */
@@ -168,8 +167,16 @@ void PreGameState::exit(void)
 	delete mSlidePlayer;
 	mSlidePlayer = 0;
 
+	for(int i = 0, size = mCbButtons.size(); i < size; ++i){
+		delete mCbButtons[i].getButton();
+		delete mCbButtons[i].getEffect();
+	}
+	mCbButtons.clear();
+	mButtonNames.clear();
+
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void
 PreGameState::getResources(IMainState::ResourcesInfoVec & resourcesList) const{
     resourcesList.clear();
@@ -203,13 +210,18 @@ void PreGameState::showBackground(const Ogre::String &overlayName)
 	mBackground->show();
 }
 
+
+
+
 ////////////////////////////////////////////////////////////////////////////////
 void PreGameState::destroyBackground(void)
 {
 	if(!mBackground) return;
-	GUIHelper::fullDestroyOverlay(mBackground);
+	Ogre::OverlayManager::getSingleton().destroy(mBackground);
+	mBackground = 0;
 }
-////////////////////////////////////////////////////////////////////////////////
+
+
 
 ////////////////////////////////////////////////////////////////////////////////
 void PreGameState::createButtons(const TiXmlElement *root){
@@ -222,10 +234,11 @@ void PreGameState::createButtons(const TiXmlElement *root){
 	CbBHelper::buildButtons(*root, mButtonNames, mCbButtons);
 	ASSERT(mButtonNames.size() == mCbButtons.size());
 
-	//Seteamos el callback de los botones
+	//Set buttons callbacks
 	for(size_t i = 0; i < NUMBER_BUTTONS; ++i){
 		mCbButtons[i].getEffect()->addCallback(
 		        boost::bind(&PreGameState::operator(), this, _1));
+		static_cast<CbMenuButton*>(mCbButtons[i].getButton())->setCallback(this);
 	}
 
     // show the overlay
@@ -243,6 +256,8 @@ void PreGameState::createButtons(const TiXmlElement *root){
 	}
 }
 
+
+
 ////////////////////////////////////////////////////////////////////////////////
 void PreGameState::operator()(CbMenuButton * b, CbMenuButton::ButtonID id)
 {
@@ -251,8 +266,7 @@ void PreGameState::operator()(CbMenuButton * b, CbMenuButton::ButtonID id)
 	if(b == mCbButtons[PreGameState::exitButton].getButton()
 			&& id == CbMenuButton::LEFT_BUTTON)
 	{
-		debugGREEN("EXIT\n");
-		//TODO exit here ...
+		hideToExit();
 	}
 	else if(b == mCbButtons[PreGameState::prevButton].getButton()
 			&& id == CbMenuButton::LEFT_BUTTON)
@@ -272,24 +286,12 @@ void PreGameState::operator()(CbMenuButton * b, CbMenuButton::ButtonID id)
 
 }
 
+
 ////////////////////////////////////////////////////////////////////////////////
 void PreGameState::operator()(OvEff::OverlayEffect::EventID id){
 
-
-	debugBLUE("operator()\n");
-
-    if(id == OvEff::OverlayEffect::ENDING ){ //TODO && state == EXIT
-        // Disable buttons
-//   		for(size_t i = 0, size = mCbButtons.size(); i < size; ++i){
-//			mCbButtons[i].getButton()->setEnable(false);
-//		}
-
-		debugRAUL("Operator going out\n");
-
-        //TODO terminar de salir a donde sea que tenga que salir.
-
-    }else{
-        return;
+    if (id == OvEff::OverlayEffect::ENDING && mState == HIDE) {
+    	mState = EXIT;
     }
 
 	return;
@@ -305,27 +307,57 @@ void PreGameState::buildSlidePlayer( const char *overlays
 
 	mSlidePlayer = new SlidePlayer(overlays, effects);
 	ASSERT(mSlidePlayer);
-	// Load the slides
-	Ogre::MaterialManager& materialman =
-			Ogre::MaterialManager::getSingleton();
-	std::string MatName = slidenames;
-	MatName += "/";
-	int i = 1;
-	while(1){
-		std::stringstream strm;
-		strm << MatName << i;
-		if(!materialman.resourceExists(strm.str().c_str())){
-			break;
-		}
-		debugGREEN("loading slide %s\n",strm.str().c_str());
-		mSlidePlayer->queueSlide(Ogre::String(strm.str().c_str()));
-		i++;
-	}
+
+	mSlidePlayer->loadSlides(slidenames);
 
 	mSlidePlayer->show();
 }
 
 
+////////////////////////////////////////////////////////////////////////////////
+
+void PreGameState::hideToExit(void){
+
+	ASSERT(mState < HIDE);
+	mState = HIDE;
+
+	for(int i = 0, size = mCbButtons.size(); i < size; ++i){
+		mCbButtons[i].getButton()->setActive(false);
+		mCbButtons[i].getButton()->setEnable(false);
+		ASSERT(mCbButtons[i].getEffect());
+		mCbButtons[i].getEffect()->complement();
+		mCbButtons[i].getEffect()->start();
+	}
+
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+
+void PreGameState::checkKeyInput(void){
+
+	static bool press = false;
+
+	// Check pressed keys
+	if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_ESCAPE)){
+		if(!press){
+			press = true;
+			debugGREEN("EXIT\n");
+			hideToExit();
+		}
+	}else if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_B)){
+		if(!press){
+			press = true;
+			mSlidePlayer->prev();
+		}
+	}else if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_N)){
+		if(!press){
+			press = true;
+			mSlidePlayer->next();
+		}
+	}else {press = false;}
+
+}
 
 
 

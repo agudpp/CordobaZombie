@@ -119,6 +119,12 @@ public:
 	int queueSlides(const slideVec &slides);
 
 	/*
+	 * Load slides with base name 'sldBaseName' into the slide player.
+	 * Slides must be present in an already loaded .material file.
+	 */
+	int loadSlides(const char *sldBaseName);
+
+	/*
 	 * Move to next slide.
 	 * 	@Return SP_OK on success; SP_END_REACHED if the end has been reached and
 	 * we are not able to go further.
@@ -159,6 +165,9 @@ public:
 	 * If has at least one slide
 	 */
 	inline bool hasSlides(void);
+
+
+
 private:
 
 	//

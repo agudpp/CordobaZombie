@@ -29,9 +29,6 @@ mNextSEffect(0),
 mHiddenSEffect(0)
 {
 
-	//Set the overlay EFFECT manager
-	//OvEff::OverlayEffect::setManager(&mOvEffMngr);
-
 	//
 	Ogre::OverlayManager&  overlayManager(Ogre::OverlayManager::getSingleton());
 
@@ -366,6 +363,35 @@ int SlidePlayer::seek(int index){
 
 	return SP_OK;
 }
+
+////////////////////////////////////////////////////////////////////////////////
+int SlidePlayer::loadSlides(const char *sldBaseName){
+
+	Ogre::MaterialManager& materialman = Ogre::MaterialManager::getSingleton();
+	std::string MatName = sldBaseName;
+	MatName += "/";
+
+	int i = 1;
+	while(1){
+		std::stringstream strm;
+		strm << MatName << i;
+		if(!materialman.resourceExists(strm.str().c_str())){
+			break;
+		}
+		debugGREEN("Loading slide %s\n",strm.str().c_str());
+		queueSlide(Ogre::String(strm.str().c_str()));
+		i++;
+	}
+
+	if(i == 1){
+		debugWARNING("There are no slides with base name %s.\n", sldBaseName);
+		return SP_ERROR;
+	}
+
+	return SP_OK;
+
+}
+
 
 
 ////////////////////////////////////////////////////////////////////////////////

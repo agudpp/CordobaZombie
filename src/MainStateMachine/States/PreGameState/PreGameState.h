@@ -2,7 +2,10 @@
  * PreGameState.h
  *
  *  Created on: 28/10/2012
- *      Author: raul
+ *  Author: raul
+ *
+ *  Description: IMainState that runs before each playing level. Displays a
+ *  set of slides with information about coming playing level.
  */
 
 #ifndef PREGAMESTATE_H_
@@ -13,7 +16,6 @@
 #include "MenuButtonEffect.h"
 #include "CbMenuButton.h"
 #include "OverlayEffect.h"
-
 
 
 class PreGameState : public IMainState, public CbMenuButton::Cb
@@ -28,6 +30,13 @@ class PreGameState : public IMainState, public CbMenuButton::Cb
 
 	static const char *BUTTONS_NAMES[NUMBER_BUTTONS];
 
+	enum InternalState{
+		ENTER = 0,
+		LOOP,
+		HIDE,
+		EXIT,
+	};
+
 private:
 
 	static const std::string PREGAMEDIRNAME;
@@ -39,7 +48,8 @@ public:
 	/**
 	 * Entering the state with additional info
 	 * @note	We get the xml to parse throw the
-	 * 			info.params["LOAD_LEVEL_XML_NAME"] to get the filename of the xml
+	 * 			info.params["LOAD_LEVEL_XML_NAME"] to get the filename of the
+	 * 			xml.
 	 */
 	virtual void enter(const MainMachineInfo &info);
 
@@ -64,7 +74,7 @@ public:
 	virtual void getResources(IMainState::ResourcesInfoVec &resourcesList) const;
 
 	/**
-	 * TODO descripcion
+	 * Call-back function for menu buttons being pressed.
 	 */
 	void operator()(CbMenuButton * b, CbMenuButton::ButtonID id);
 
@@ -77,14 +87,44 @@ public:
 
 protected:
 	/**
-	 * Show/Destroy background
+	 * Show/Destroy background.
 	 */
 	void showBackground(const Ogre::String &overlayName);
 	void destroyBackground(void);
+
+	/*
+	 * Create each menu button. 'root' for getting the description of each of
+	 * them.
+	 */
 	void createButtons(const TiXmlElement *root);
+
+	/*
+	 * Set mOvEffManager as the overlay effect manager.
+	 */
 	inline void configureOEffMngr(void);
+
+	/*
+	 * Construct slide player and put slides in it.
+	 * TODO mejorar el cargado de slides para que no tenga que hacer tanto
+	 * desde aca :S
+	 */
 	void buildSlidePlayer( const char* overlays, const char* effects
 						 , const char *slidenames);
+
+
+	/*
+	 * Hide buttons and overlays before going out of this state. (normaly
+	 * using effects.
+	 */
+	void hideToExit(void);
+
+	/*
+	 * Check if there are keys being pressed.
+	 */
+	void checkKeyInput(void);
+
+
+
 
 protected:
 	typedef std::vector<OvEff::MenuButtonEffect>	ButtonsEffectVec;
@@ -93,12 +133,13 @@ protected:
 	Ogre::Overlay				*mBackground;
 	SlidePlayer					*mSlidePlayer;
 	std::string					mPreGamePath;
-	XMLHelper 					mXmlhelper;
 	StrVec					 	mButtonNames;
 	ButtonsEffectVec			mCbButtons;
 	OvEff::OverlayEffectManager	mOvEffManager;
-;
+	int							mState;
+
 };
+
 
 
 inline void PreGameState::configureOEffMngr(void)
