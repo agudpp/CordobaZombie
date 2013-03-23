@@ -113,7 +113,7 @@ include_directories( ${OIS_INCLUDE_DIRS}
 	${DEV_ROOT_PATH}/Common/GlobalObjects
 	${DEV_ROOT_PATH}/Common/QueueContainer
 	${DEV_ROOT_PATH}/Utils/MouseCursor
-	
+	${DEV_ROOT_PATH}
 	${DEV_ROOT_PATH}/Extras/AppTester
 )
 
@@ -127,6 +127,8 @@ include(${DEV_ROOT_PATH}/LevelManager/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/BillboardManager/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/UpdatableObjects/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/MenuSystem/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/InputManager/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/SelectionSystem/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/Common/Math/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/Common/Util/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/Common/DebugUtil/AutoGen.cmake)
@@ -147,7 +149,7 @@ set_property(TARGET tinyxml PROPERTY
                 IMPORTED_LOCATION ${DEV_ROOT_PATH}/Common/tinyxml/tinyxmlpath.a)
 
 target_link_libraries(OgreApp ${OGRE_LIBRARIES} ${OIS_LIBRARIES}
-	${SOUND_LIBRARIES} tinyxml box2D)
+	${SOUND_LIBRARIES} ${COMMON_LIBRARIES} tinyxml box2D)
 
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/dist/bin)
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/dist/media)

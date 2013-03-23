@@ -6,8 +6,8 @@
  */
 
 //TODO check the includes
-#include "Ogre\Ogre.h";
-#include "OIS\OIS.h";
+#include <Ogre.h>
+#include <OIS\OIS.h>
 
 #include "DotSceneLoader.h"
 #include "CollObjExporter.h"

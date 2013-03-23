@@ -3,14 +3,15 @@
  *
  *	This class handles the whole sound system playback
  *	by periodically updating all playing sources.
- *	That includes the GameUnits' SoundAPIs (v.gr. zombies grunts, weapon shots)
- *	and the environmental sounds (v.gr. background music)
+ *	That includes the GameUnits' SoundAPIs (e.g. zombies grunts, weapon shots)
+ *	and the environmental sounds (e.g. background music, random sounds)
  *
- *  Available audio file names (aka "sounds") must be loaded by means of
- *  loadSound() interface. Environmental sounds are completely controlled
- *  here, from creation to destruction.
+ *	Available audio file names (aka "sounds") must be loaded by means of
+ *	loadSound() interface. Environmental sounds are completely controlled
+ *	here, from creation to destruction.
  *
  *	The SoundManager is a SINGLETON CLASS.
+ *	The SoundManager is handled by the SoundHandler.
  *
  *  Created on: May 3, 2012
  *     Company: CordobaZombie
@@ -22,6 +23,7 @@
 
 #include <cstdint>  // uint64_t
 #include <vector>
+#include <tuple>
 #include <deque>
 #include <Ogre.h>
 #include "MultiplatformTypedefs.h"
@@ -200,7 +202,7 @@ public:
 	 ** @return
 	 ** SS_NO_ERROR			Sources successfully added.
 	 ** SS_NO_MEMORY		Insufficient memory for operation, nothing was done.
-	 ** SS_INTERNAL_ERROR	Unespecified.
+	 ** SS_INTERNAL_ERROR	Unspecified.
 	 **/
 	SSerror
 	addLSoundSources(unsigned int numSources);
@@ -216,7 +218,7 @@ public:
 	 ** @return
 	 ** SS_NO_ERROR			Sources successfully added.
 	 ** SS_NO_MEMORY		Insufficient memory for operation, nothing was done.
-	 ** SS_INTERNAL_ERROR	Unespecified.
+	 ** SS_INTERNAL_ERROR	Unspecified.
 	 **/
 	SSerror
 	addSSoundSources(unsigned int numSources);
@@ -243,12 +245,16 @@ public:
 	 ** @remarks
 	 ** Searches for the audio file "sName" in filesystem, and tries to
 	 ** load it as a new available sound buffer.
+	 ** If file was already loaded as a buffer then nothing is done.
+	 **
+	 ** @remarks
 	 ** If the compression format is not specified, file's name's extension
 	 ** is used to determine it.
 	 ** Default buffer type is SS_BUF_LOADED (i.e. load all audio data in mem)
 	 **
 	 ** @return
 	 ** SS_NO_ERROR			Audio file "sName" successfully loaded as buffer.
+	 ** SS_NO_BUFFER		Audio file "sName" had already been loaded.
 	 ** SS_NO_MEMORY		Not enough memory to work with. Go buy some.
 	 ** SS_INVALID_FILE		Unsupported/erroneous file audio format
 	 ** SS_FILE_NOT_FOUND	Inexistent audio file.
@@ -260,8 +266,19 @@ public:
 
 	/**
 	 ** @brief
+	 ** Tells whether sName is a loaded buffer in the system.
+	 **/
+	bool
+	isSoundLoaded(const Ogre::String& sName);
+
+	/**
+	 ** @brief
 	 ** Unloads the audio buffer named "sName" from memory.
 	 ** If no such buffer exists, nothing is done.
+	 **
+	 ** @remarks
+	 ** Doesn't check if the sound is being used by some source.
+	 ** May cause inconsistencies if user doesn't do that check beforehand.
 	 **/
 	void
 	unloadSound(const Ogre::String& sName);
@@ -271,16 +288,26 @@ public:
 	/*********************************************************************/
 	/****************    GLOBAL PLAYBACK CONTROLS    *********************/
 public:
+	/** XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX **
+	 * XXX - All these global methods should be accessed through XXX *
+	 * XXX - the stubs implemented in the SoundHandler.          XXX */
+
+	typedef void* EnvSoundId;
+
 	/**
 	 ** @brief
 	 ** Updates all sounds currently active in the system.
+	 **
+	 ** @param
+	 ** finished: if not NULL, will hold the IDs of the terminated EnvSounds
 	 **
 	 ** @remarks
 	 ** Updates must be done periodically, to allow streaming sources (such as
 	 ** MP3 or large OGGs) to refresh their internal buffering mechanisms.
 	 **/
 	void
-	update();
+	update(std::vector<EnvSoundId> *finished=0,
+			std::vector<EnvSoundId> *paused=0);
 
 	/**
 	 ** @brief
@@ -405,8 +432,9 @@ public:
 	 **
 	 ** @param
 	 **  sName: name of the audio file to play
-	 **   gain: volume of the sound, in [ 0.0 , 1.0 ] scale (default: 0.05)
+	 **   gain: volume of the sound, in [ 0.0 , 1.0 ] scale (default: 0.07)
 	 ** repeat: whether to repeat on end (default: false)
+	 **     id: if not NULL, give an ID to this sound for tracking
 	 **
 	 ** @return
 	 ** SS_NO_ERROR			Playback started
@@ -417,7 +445,8 @@ public:
 	SSerror
 	playEnvSound(const Ogre::String& sName,
 				 const Ogre::Real& gain = DEFAULT_ENV_GAIN,
-				 bool repeat = false);
+				 bool repeat = false,
+				 EnvSoundId id = 0);
 
 	/**
 	 ** @brief
@@ -522,6 +551,15 @@ public:
 
 	/*********************************************************************/
 	/*******************    UNITS' APIS SOUNDS    ************************/
+public:
+	/**
+	 ** @brief
+	 ** Tells whether audio file "sName" is an active sound in some SoundAPI.
+	 ** (i.e. playing or paused)
+	 **/
+	bool
+	isActiveAPISound(const Ogre::String& sName) const;
+
 private:
 	/**
 	 ** @brief
@@ -674,8 +712,10 @@ private:
 private:
 
 	typedef _HashTable<Ogre::String, SoundBuffer*>::HashTable HashStrBuff;
-	typedef std::pair<Ogre::String, ActiveSound*> EnvSound;   // Environmental
-	typedef std::pair<SoundAPI*,    ActiveSound*> UnitSound;  // Units'
+	// Environmental Sounds
+	typedef std::tuple<Ogre::String, ActiveSound*, EnvSoundId> EnvSound;
+	// Units' Sounds
+	typedef std::pair<SoundAPI*, ActiveSound*> UnitSound;
 
 	/* Camera from which position and orientation
 	 * are obtained for update() method. */
@@ -764,15 +804,23 @@ SoundManager::getOrientation()
 
 
 ////////////////////////////////////////////////////////////////////////////////
+inline bool
+SoundManager::isSoundLoaded(const Ogre::String& sName)
+{
+	return (mLoadedBuffers.find(sName) != mLoadedBuffers.end());
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
 inline void
 SoundManager::pauseEnvSound(const Ogre::String& sName)
 {
 	for (int i=0 ; i < mEnvSounds.size() ; i++) {
-		if (mEnvSounds[i].first == sName &&
-				mEnvSounds[i].second->mGlobalState != SSplayback::SS_PAUSED) {
-			mEnvSounds[i].second->mSource->pause();
-			mEnvSounds[i].second->mPlayState = SSplayback::SS_PAUSED;
-			mEnvSounds[i].second->mGlobalState = SSplayback::SS_NONE;
+		if (std::get<0>(mEnvSounds[i]) == sName &&
+			std::get<1>(mEnvSounds[i])->mGlobalState != SSplayback::SS_PAUSED) {
+			std::get<1>(mEnvSounds[i])->mSource->pause();
+			std::get<1>(mEnvSounds[i])->mPlayState = SSplayback::SS_PAUSED;
+			std::get<1>(mEnvSounds[i])->mGlobalState = SSplayback::SS_NONE;
 		}
 	}
 }

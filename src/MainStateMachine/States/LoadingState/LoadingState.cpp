@@ -28,16 +28,14 @@ const std::string LoadingState::LOADING_BAR = "LoadingStBar";
 void
 LoadingState::Updater::operator()(float w, const std::string& msg)
 {
-	debugBLUE("LoaderManager callback called with weight %.2f "
-			"and message: %s\n", w, msg.c_str());
+	static uint calls(0u);
 
 	ASSERT(mBar);
 	ASSERT(w > 0.0f);
 	mAccum += w;
 	mBar->setActualValue(mAccum);
 
-	// TODO: print message parameter below the loading bar
-	debugRED("TODO: print message parameter below the loading bar.\n")
+//	debugRED("TODO: print message parameter above/below the loading bar.\n")
 
 	// update the ogre render queue
 	mTimeStamp = mTimer.getMilliseconds();
@@ -125,7 +123,7 @@ LoadingState::configureLoaderManager(const std::string &levelPath)
 	// get the max value
 	const float max = mLoaderManager->getSumOfWeights();
 	mLoadingBar.setMaximumValue(max + 0.1f);
-	debug("mBar->setMaximumValue(): %f\n", max + 0.1f);
+	debug("Loading bar maximum weight: %.2f\n", max + 0.1f);
 	mUpdater.setLoadingBar(&mLoadingBar);
 	mLoaderManager->setCallback(&mUpdater);
 }

@@ -1,9 +1,10 @@
-/* This class will read an XML and will call for every child element the
- * corresponding loader (that will have to have the same name that the xml element)
- * See the sample.xml
- *
- *
+/*
  * LoaderManager.h
+ *
+ *  This class will read an XML, and then call for every child element the
+ *  corresponding loader.
+ *  Each loader must be named after the XML element it represents.
+ *  See the sample.xml
  *
  *  Created on: 27/09/2011
  *      Author: agustin
@@ -122,9 +123,7 @@ inline void LoaderManager::setCallback(LoaderCallback *callback)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-inline LoaderData &LoaderManager::getLoaderData(void)
-{
-	return mLoaderData;
-}
+inline LoaderData &LoaderManager::getLoaderData(void) { return mLoaderData; }
+
 
 #endif /* LOADERMANAGER_H_ */

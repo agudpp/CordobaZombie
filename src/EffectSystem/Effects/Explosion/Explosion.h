@@ -8,11 +8,11 @@
 #ifndef EXPLOSION_H_
 #define EXPLOSION_H_
 
-#include "Effects.h"
+#include <EffectSystem/Effect.h>
 #include <string>
 #include <cstdlib>
 
-class Explosion: public Effects {
+class Explosion: public Effect {
 private:
 	static int numberOfInstance;
 

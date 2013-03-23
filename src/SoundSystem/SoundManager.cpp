@@ -11,6 +11,7 @@
  *  here, from creation to destruction.
  *
  *	The SoundManager is a SINGLETON CLASS.
+ *	The SoundManager is handled by the SoundHandler.
  *
  *  Created on: May 9, 2012
  *     Company: CordobaZombie
@@ -18,10 +19,10 @@
  */
 
 
-#include "DebugUtil.h"
-#include "GlobalObjects.h"
-
 #include "SoundManager.h"
+
+#include <Common/DebugUtil/DebugUtil.h>
+#include <Common/GlobalObjects/GlobalObjects.h>
 
 #include "SoundEnums.h"
 #include "SoundBuffer.h"
@@ -368,7 +369,14 @@ SoundManager::loadSound(const Ogre::String& sName, SSformat format, SSbuftype ty
 	SSerror err = SSerror::SS_NO_ERROR;
 	SoundBuffer* buffer(0);
 
-	/* First find audio file absolute path */
+	// Check if buffer had already been loaded.
+	if (isSoundLoaded(sName)) {
+		debugWARNING("Sound \"%s\" had already been loaded in the system.",
+						sName.c_str());
+		return SSerror::SS_NO_BUFFER;
+	}
+
+	// First find audio file absolute path.
 	Ogre::ResourceGroupManager& resGM = Ogre::ResourceGroupManager::getSingleton();
 	Ogre::FileInfoListPtr files = resGM.findResourceFileInfo(
 			SOUNDS_RESOURCE_GROUP_NAME, sName);
@@ -380,7 +388,7 @@ SoundManager::loadSound(const Ogre::String& sName, SSformat format, SSbuftype ty
 	} else {
 		Ogre::FileInfoList::iterator it;
 		for (it = files->begin() ; it < files->end() ; it++) {
-			/* Compose audio file absolute path */
+			// Compose audio file absolute path.
 			sNameFullPath.append(it->archive->getName()+"/"+sName);
 			if (fileExists(sNameFullPath)) {
 				debug("\n Loading audio file %s\n", sNameFullPath.c_str());
@@ -389,17 +397,17 @@ SoundManager::loadSound(const Ogre::String& sName, SSformat format, SSbuftype ty
 				sNameFullPath.clear();
 			}
 		}
-		/* Found? */
+		// Found?
 		if (it == files->end() || sNameFullPath.size() <= 0) {
 			debug("%s","Recurso no encontrado.\n");
 			return SSerror::SS_FILE_NOT_FOUND;
 		}
 	}
 
-	/* Try to load audio file into buffer */
+	// Try to load audio file into buffer
 	err = BufferBuilder::bufferFromFile(sNameFullPath, &buffer, format, type);
 
-	/* Register new available sound */
+	// Register new available sound
 	if (err == SSerror::SS_NO_ERROR) {
 		ASSERT(buffer);
 		mLoadedBuffers.insert(std::make_pair(sName,buffer));
@@ -431,7 +439,8 @@ SoundManager::unloadSound(const Ogre::String& sName)
 
 ////////////////////////////////////////////////////////////////////////////////
 void
-SoundManager::update()
+SoundManager::update(std::vector<EnvSoundId> *finished,
+					 std::vector<EnvSoundId> *paused)
 {
 	ActiveSound* as;
 	SSplayback st = SSplayback::SS_FINISHED;
@@ -460,21 +469,29 @@ SoundManager::update()
 	// Update environmental sounds first.
 	for (int i=0 ; i < mEnvSounds.size() ; i++) {
 
-		as = mEnvSounds[i].second;
+		as = std::get<1>(mEnvSounds[i]);
 		st = as->mSource->update();
 
 		if (st == SSplayback::SS_FINISHED) {
-			debugBLUE("Finished env. sound \"%s\"\n", mEnvSounds[i].first.c_str());
+			if (0 != finished) {
+				// Register ID of sound termination in "finished" vector
+				finished->push_back((void*)std::get<2>(mEnvSounds[i]));
+			}
 			// Buffer was automatically detached from source.
 			// Erase EnvSound and recycle SoundSource.
-			stopEnvSound(mEnvSounds[i].first);
-			if (mEnvSounds.size() > 0) { i--; }  // Woooaaaahhh!!!
+			stopEnvSound(std::get<0>(mEnvSounds[i]));
+			if (mEnvSounds.size() > 0) i--;  // =D
 
 		} else if ((as->mPlayState | as->mGlobalState)
 				  	  & ( SSplayback::SS_FADING_IN
 				  		| SSplayback::SS_FADING_OUT
 				  		| SSplayback::SS_FADING_OUT_AND_PAUSE)) {
+			// Update current gain accoring to fading state.
 			fadeUpdate(*as);
+			if (0 != paused && !as->mSource->isPlaying()) {
+				// Paused during fade-out, register ID in "paused" vector
+				paused->push_back((void*)std::get<2>(mEnvSounds[i]));
+			}
 		}
 	}
 
@@ -485,8 +502,6 @@ SoundManager::update()
 		st = as->mSource->update(mUnitSounds[i].first->getPosition());
 
 		if (st == SSplayback::SS_FINISHED) {
-			debugBLUE("Finished unit sound \"%s\"\n",
-						mUnitSounds[i].first->getCurrentSound().c_str());
 			// Buffer was automatically detached from source.
 			// Erase UnitSound and recycle SoundSource.
 			stopSound(*mUnitSounds[i].first);
@@ -654,10 +669,10 @@ SoundManager::globalFadeIn(const Ogre::Real& time)
 bool
 SoundManager::isPlayingEnvSound(const Ogre::String& sName)
 {
-	/* Check whether "sName" is a playing environmental sound. */
+	// Check whether "sName" is a playing environmental sound.
 	for (uint i=0 ; i < mEnvSounds.size() ; i++) {
-		if (mEnvSounds[i].first == sName) {
-			return mEnvSounds[i].second->mSource->isPlaying();
+		if (std::get<0>(mEnvSounds[i]) == sName) {
+			return std::get<1>(mEnvSounds[i])->mSource->isPlaying();
 		}
 	}
 	return false;
@@ -668,10 +683,11 @@ SoundManager::isPlayingEnvSound(const Ogre::String& sName)
 bool
 SoundManager::isActiveEnvSound(const Ogre::String& sName)
 {
-	/* Check whether "sName" is an active environmental sound. */
+	// Check whether "sName" is an active environmental sound.
 	for (uint i=0 ; i < mEnvSounds.size() ; i++) {
-		if (mEnvSounds[i].first == sName) {
-			return mEnvSounds[i].second->mSource->isActive();
+		if (std::get<0>(mEnvSounds[i]) == sName) {
+			ASSERT(std::get<1>(mEnvSounds[i])->mSource->isActive());
+			return true;
 		}
 	}
 	return false;
@@ -682,10 +698,10 @@ SoundManager::isActiveEnvSound(const Ogre::String& sName)
 bool
 SoundManager::getEnvSoundRepeat(const Ogre::String& sName)
 {
-	/* If the environmental sound "sName" exists, return its repeat value. */
+	// If the environmental sound "sName" exists, return its repeat value.
 	for (uint i=0 ; i < mEnvSounds.size() ; i++) {
-		if (mEnvSounds[i].first == sName) {
-			return mEnvSounds[i].second->mSource->getRepeat();
+		if (std::get<0>(mEnvSounds[i]) == sName) {
+			return std::get<1>(mEnvSounds[i])->mSource->getRepeat();
 		}
 	}
 	return false;
@@ -696,7 +712,8 @@ SoundManager::getEnvSoundRepeat(const Ogre::String& sName)
 SSerror
 SoundManager::playEnvSound(const Ogre::String& sName,
 						   const Ogre::Real& gain,
-						   bool repeat)
+						   bool repeat,
+						   EnvSoundId id)
 {
 	SoundBuffer* buf(0);
 	SoundSource* src(0);
@@ -704,14 +721,14 @@ SoundManager::playEnvSound(const Ogre::String& sName,
 	SSerror err(SSerror::SS_NO_ERROR);
 	HashStrBuff::const_iterator it(mLoadedBuffers.end());
 
-	/* Check whether "sName" is an active environmental sound. */
+	// Check whether "sName" is an active environmental sound.
 	for (uint i=0 ; i < mEnvSounds.size() ; i++) {
-		if (mEnvSounds[i].first == sName) {
-			return playExistentSound(*mEnvSounds[i].second, gain, repeat);
+		if (std::get<0>(mEnvSounds[i]) == sName) {
+			return playExistentSound(*(std::get<1>(mEnvSounds[i])), gain, repeat);
 		}
 	}
 
-	/* Lookup buffer */
+	// Lookup buffer.
 	it = mLoadedBuffers.find(sName);
 	if (it == mLoadedBuffers.end()) {
 		debugWARNING("Sound \"%s\" wasn't loaded.\n", sName.c_str());
@@ -721,7 +738,7 @@ SoundManager::playEnvSound(const Ogre::String& sName,
 		buf = it->second;
 	}
 
-	/* Get free source */
+	// Get free source.
 	if (buf->type == SSbuftype::SS_BUF_LOADED) {
 		if (mAvailableLSS.empty()) {
 			debug("No free LSources to play env. sound \"%s\"\n", sName.c_str());
@@ -730,7 +747,7 @@ SoundManager::playEnvSound(const Ogre::String& sName,
 			src = mAvailableLSS.front();
 			mAvailableLSS.pop_front();
 		}
-	} else { /* buffer->type == SSbuftype::SS_BUF_STREAM */
+	} else { // buffer->type == SSbuftype::SS_BUF_STREAM
 		if (mAvailableSSS.empty()) {
 			debug("No free SSources to play env. sound \"%s\"\n", sName.c_str());
 			return SSerror::SS_NO_SOURCES;
@@ -740,23 +757,19 @@ SoundManager::playEnvSound(const Ogre::String& sName,
 		}
 	}
 
-	debugBLUE("Starting environmental sound \"%s\"\n", sName.c_str());
-
-	/* Start playback and register sound. */
+	// Start playback and register sound.
 	err = src->play(buf, gain, origin, repeat);
 	if (err == SSerror::SS_NO_ERROR) {
-		/* Success */
+		// Success.
 		alSourcei(src->mSource, AL_SOURCE_RELATIVE, AL_TRUE);
-		ActiveSound* newSound = new ActiveSound(src,
-												SSplayback::SS_PLAYING,
-												gain,
-												mActiveSounds.size());
+		ActiveSound* newSound = new ActiveSound(src,  SSplayback::SS_PLAYING,
+												gain, mActiveSounds.size());
 		mActiveSounds.push_back(newSound);
-		mEnvSounds.push_back(EnvSound(sName, newSound));
+		mEnvSounds.push_back(EnvSound(sName, newSound, id));
 
 	} else {
-		/* Failure */
-		debugERROR("Failed starting env. sound \"%s\" playback.", sName.c_str());
+		// Failure.
+		debugERROR("Failed starting environmental sound \"%s\".", sName.c_str());
 		if (src->getType() == SSsrctype::SS_SRC_LOADED) {
 			ASSERT(dynamic_cast<LSoundSource*>(src) != NULL);
 			mAvailableLSS.push_back((LSoundSource*)src);
@@ -780,8 +793,8 @@ SoundManager::stopEnvSound(const Ogre::String& sName)
 
 	/* Check whether "sName" is an active environmental sound. */
 	for (pos=0 ; pos < mEnvSounds.size() ; pos++) {
-		if (mEnvSounds[pos].first == sName) {
-			as = mEnvSounds[pos].second;
+		if (std::get<0>(mEnvSounds[pos]) == sName) {
+			as = std::get<1>(mEnvSounds[pos]);
 			break;
 		}
 	}
@@ -831,8 +844,8 @@ SoundManager::restartEnvSound(const Ogre::String& sName)
 
 	// Check whether "sName" is an active environmental sound.
 	for (uint i=0 ; i < mEnvSounds.size() ; i++) {
-		if (mEnvSounds[i].first == sName) {
-			as = mEnvSounds[i].second;
+		if (std::get<0>(mEnvSounds[i]) == sName) {
+			as = std::get<1>(mEnvSounds[i]);
 			break;
 		}
 	}
@@ -869,8 +882,8 @@ SoundManager::fadeOutEnvSound(const Ogre::String& sName, const Ogre::Real& time,
 
 	// Search environmental sound
 	for (int i=0 ; i < mEnvSounds.size() ; i++) {
-		if (mEnvSounds[i].first == sName) {
-			as = mEnvSounds[i].second;
+		if (std::get<0>(mEnvSounds[i]) == sName) {
+			as = std::get<1>(mEnvSounds[i]);
 			break;
 		}
 	}
@@ -905,8 +918,8 @@ SoundManager::fadeInEnvSound(const Ogre::String& sName, const Ogre::Real& time)
 
 	// Search environmental sound
 	for (int i=0 ; i < mEnvSounds.size() ; i++) {
-		if (mEnvSounds[i].first == sName) {
-			as = mEnvSounds[i].second;
+		if (std::get<0>(mEnvSounds[i]) == sName) {
+			as = std::get<1>(mEnvSounds[i]);
 			break;
 		}
 	}
@@ -936,6 +949,20 @@ SoundManager::fadeInEnvSound(const Ogre::String& sName, const Ogre::Real& time)
 /******************************************************************************/
 /******************************************************************************/
 /***********************    UNITS' APIS SOUNDS    *****************************/
+
+
+////////////////////////////////////////////////////////////////////////////////
+bool
+SoundManager::isActiveAPISound(const Ogre::String& sName) const
+{
+	for (uint i=0 ; i < mUnitSounds.size() ; i++) {
+		if (sName == mUnitSounds[i].first->getCurrentSound()) {
+			ASSERT(mUnitSounds[i].second->mSource->isActive());
+			return true;
+		}
+	}
+	return false;
+}
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1027,12 +1054,10 @@ SoundManager::playSound(SoundAPI& sAPI,
 		alSourcef(src->mSource, AL_MAX_DISTANCE, 30.0f);
 #endif
 
-	debugBLUE("Starting unit sound \"%s\"\n", sName.c_str());
-
-	/* Start playback and register sound. */
+	// Start playback and register sound.
 	err = src->play(buf, gain, sAPI.getPosition(), repeat);
 	if (err == SSerror::SS_NO_ERROR) {
-		/* Success */
+		// Success.
 		ActiveSound* newSound = new ActiveSound(src,
 												SSplayback::SS_PLAYING,
 												gain,
@@ -1042,7 +1067,7 @@ SoundManager::playSound(SoundAPI& sAPI,
 		mUnitSounds.push_back(UnitSound(&sAPI, newSound));
 
 	} else {
-		/* Failure */
+		// Failure.
 		debug("Failed starting unit sound \"%s\" playback.", sName.c_str());
 		if (src->getType() == SSsrctype::SS_SRC_LOADED) {
 			ASSERT(dynamic_cast<LSoundSource*>(src) != NULL);
@@ -1084,21 +1109,21 @@ SoundManager::stopSound(SoundAPI& sAPI)
 		as = mUnitSounds[sAPI.mActivationIndex].second;
 	}
 
-	/* Stop and free source. */
+	// Stop and free source.
 	as->mSource->stop();
 	alSourcei(as->mSource->mSource, AL_BUFFER, AL_NONE);
 	if (as->mSource->getType() == SSsrctype::SS_SRC_LOADED) {
-		/* LSoundSource */
+		// LSoundSource
 		ASSERT(dynamic_cast<LSoundSource*>(as->mSource) != NULL);
 		mAvailableLSS.push_back((LSoundSource*) as->mSource);
-	} else { /* getType() == SS_SRC_STREAM */
-		/* SSoundSource */
+	} else { // getType() == SS_SRC_STREAM
+		// SSoundSource
 		ASSERT(as->mSource->getType() == SSsrctype::SS_SRC_STREAM);
 		ASSERT(dynamic_cast<SSoundSource*>(as->mSource) != NULL);
 		mAvailableSSS.push_back((SSoundSource*) as->mSource);
 	}
 
-	/* Desregister unit sound. */
+	// Unregister unit sound.
 	mUnitSounds[sAPI.mActivationIndex] = mUnitSounds[mUnitSounds.size()-1];
 	mUnitSounds[sAPI.mActivationIndex].first->mActivationIndex = sAPI.mActivationIndex;
 	mUnitSounds.pop_back();

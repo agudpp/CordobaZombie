@@ -8,11 +8,11 @@
 #ifndef BLOOD_H_
 #define BLOOD_H_
 
-#include "Effects.h"
+#include <EffectSystem/Effect.h>
 #include <string>
 #include <cstdlib>
 
-class Blood: public Effects {
+class Blood: public Effect {
 private:
 	static int numberOfInstance;
 

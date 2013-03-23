@@ -27,6 +27,7 @@
 #include "LevelManager.h"
 #include "MenuManager.h"
 
+#include "SoundHandler.h"
 #include "ZombieUnit.h"
 #include "PlayerUnit.h"
 #include "PlayerUnit/PlayerGroup/PlayerGroup.h"
@@ -102,6 +103,7 @@ private:
 	CollectableObject		   *mCollectable;
 	UpdObjsManager				mUpdMngr;
 	MenuManager					mMenuManager;
+	SoundHandler&				mSoundHandler;
 };
 
 

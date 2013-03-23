@@ -109,7 +109,7 @@ inline void LoadingBar::setActualValue(float v)
 	ASSERT(mMaxValue > 0);
 	ASSERT(v >= 0);
 	if(v > mMaxValue) v = mMaxValue;
-	setState(v/mMaxValue);
+	setState(v/mMaxValue*100.0f);
 }
 inline float LoadingBar::actualValue(void) const
 {
