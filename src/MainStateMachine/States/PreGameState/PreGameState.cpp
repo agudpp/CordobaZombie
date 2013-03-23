@@ -114,9 +114,7 @@ MainMachineEvent PreGameState::update(MainMachineInfo &info)
 
 	while(true) {
 
-		if(mState == EXIT){
-			break;
-		}
+		if (mState == EXIT) break;
 
 		timeStamp = timer.getMilliseconds();
 
@@ -124,14 +122,11 @@ MainMachineEvent PreGameState::update(MainMachineInfo &info)
 		GLOBAL_KEYBOARD->capture();
 		GLOBAL_MOUSE->capture();
 
-		if(mState == LOOP){
-			checkKeyInput();
-		}
+		if(mState == LOOP) checkKeyInput();
 
 		// update position of the mouse cursor
-		GLOBAL_CURSOR->updatePosition(
-		        GLOBAL_MOUSE->getMouseState().X.abs,
-		        GLOBAL_MOUSE->getMouseState().Y.abs);
+		GLOBAL_CURSOR->updatePosition( GLOBAL_MOUSE->getMouseState().X.abs
+									 , GLOBAL_MOUSE->getMouseState().Y.abs);
 
 		// render the frame
 		if(!GLOBAL_ROOT->renderOneFrame()){
@@ -175,6 +170,7 @@ void PreGameState::exit(void)
 	mButtonNames.clear();
 
 }
+
 
 ////////////////////////////////////////////////////////////////////////////////
 void

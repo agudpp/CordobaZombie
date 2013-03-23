@@ -57,7 +57,7 @@ public:
 	 * Update the state... This function will be called once.
 	 * @param	info	The structure used to pass throw the states. If we want
 	 * 					to fill it with some information then we can do it.
-	 * @return	event	The event that was happend.
+	 * @return	event	The event that happened.
 	 */
 	virtual MainMachineEvent update(MainMachineInfo &info);
 
@@ -111,7 +111,6 @@ protected:
 	void buildSlidePlayer( const char* overlays, const char* effects
 						 , const char *slidenames);
 
-
 	/*
 	 * Hide buttons and overlays before going out of this state. (normaly
 	 * using effects.
@@ -122,8 +121,6 @@ protected:
 	 * Check if there are keys being pressed.
 	 */
 	void checkKeyInput(void);
-
-
 
 
 protected:
