@@ -55,7 +55,7 @@ private:
 
 	UpdObjsManager			mUpdaterManager;
 	input::InputManager &mInputManager;
-	std::vector<PlayerUnit *> mPlayers;
+	std::vector<PlayerUnitPtr> mPlayers;
 	LevelManager mLevelManager;
 };
 

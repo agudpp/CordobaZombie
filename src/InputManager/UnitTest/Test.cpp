@@ -18,6 +18,7 @@
 
 #include <GameUnits/Weapon/ShortWeapon/9mm/Gun9mm.h>
 #include <GameUnits/PlayerUnit/StateMachine/PlayerFSMBuilder.h>
+#include <GameUnits/PlayerUnit/PlayerUnitBuilder.h>
 
 
 // Add corners to a box
@@ -141,49 +142,20 @@ void
 Test::createPlayers(void)
 {
     GameObject::collMng = mLevelManager.getCollisionManager();
-    Ogre::Real  MAX_VEL = 180.0f;
     PlayerSMTTable *tt = PlayerFSMBuilder::build();
     PlayerUnit::setSMTransitionTable(tt);
-
-
-
-    for(int i = 0; i < 1; i++){
-        Ogre::Entity * ent = GLOBAL_SCN_MNGR->createEntity("coral.mesh");
-        Ogre::SceneNode *node = GLOBAL_SCN_MNGR->getRootSceneNode()->createChildSceneNode();
-
-        PlayerUnit *zu = new PlayerUnit;
-        zu->setEntity(ent);
-        zu->setSceneNode(node);
-        zu->setHeight(5);
-        zu->build();
-        zu->setLife(9);
-        node->showBoundingBox(true);
-        zu->setMaxVelocity(MAX_VEL*2.0f);
-        zu->setVelocity(MAX_VEL);
-
-        sm::Vector2 p;
-        p.x = 507 + 5*i;
-        p.y = 788 + 30*i;
-        zu->setPosition(p);
-        mPlayers.push_back(zu);
-    }
-
     Shoot::setCollisionManager(mLevelManager.getCollisionManager());
     Shoot::setUpdObjsManager(&mUpdaterManager);
     for(int i = 0; i < 10; ++i){
         Shoot *s = new Shoot;
         s->build(Ogre::Math::RangeRandom(8,16));
     }
-//    Gun9mm *w = new Gun9mm;
-//    w->setOwner(mPlayers.back());
-//    w->setPower(1);
-//    w->setSqrRange(90000.0);
-//    w->setID(WP_ID_9MM);
-//    w->setEntity(GLOBAL_SCN_MNGR->createEntity("9mm.mesh"));
-//    Weapon::Ammunition ammo;
-//    ammo.ammo = 25;
-//    w->setAmmunition(ammo);
-//    mPlayers.back()->addNewWeapon(w);
+
+    // build the player:
+//    PlayerUnitBuilder &playerBuilder = PlayerUnitBuilder::instance();
+//    mPlayers.push_back(playerBuilder.buildPlayer(PlayerID::PLAYER_CORAL));
+
+
 }
 
 
@@ -241,8 +213,9 @@ void Test::loadAditionalData(void)
 	UpdatableObject::setUpdObjsManager(&mUpdaterManager);
 
 	// load the level
-	Ogre::DotSceneLoader dsl;
-	dsl.parseDotScene("cuidad01.scene", "Popular", GLOBAL_SCN_MNGR);
+//	Ogre::DotSceneLoader dsl;
+//	dsl.parseDotScene("cuidad01.scene", "Popular", GLOBAL_SCN_MNGR);
+	createPlayers();
 }
 
 /* function called every frame. Use GlobalObjects::lastTimeFrame */
@@ -319,14 +292,14 @@ void Test::update()
 		kPressed5 = false;
 	}
 
-//	handleInput();
+	handleInput();
 
 
     if(mKeyboard->isKeyDown(OIS::KC_ESCAPE)) {
         // we have to exit
         mStopRunning = true;
     }
-	mInputManager.update();
+//	mInputManager.update();
 
 	mUpdaterManager.updateAllObjects();
 	for (size_t i = 0, size = mPlayers.size(); i < size; ++i) {

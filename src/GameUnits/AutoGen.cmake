@@ -26,6 +26,7 @@ set(SRCS
 	${DEV_ROOT_PATH}/GameUnits/PlayerUnit/StateMachine/PlayerPickObjectState.cpp
 	${DEV_ROOT_PATH}/GameUnits/PlayerUnit/StateMachine/PlayerReloadingState.cpp
 	${DEV_ROOT_PATH}/GameUnits/PlayerUnit/PlayerUnit.cpp
+	${DEV_ROOT_PATH}/GameUnits/PlayerUnit/PlayerUnitBuilder.cpp
 	${DEV_ROOT_PATH}/GameUnits/UnitGroup/Formations/CircularFormation.cpp
 	${DEV_ROOT_PATH}/GameUnits/UnitGroup/UnitGroup.cpp
 	${DEV_ROOT_PATH}/GameUnits/GameItem/LifeGameItem/LifeGameItem.cpp
@@ -94,7 +95,9 @@ set(HDRS
 	${DEV_ROOT_PATH}/GameUnits/PlayerUnit/StateMachine/PlayerAttackingState.h
 	${DEV_ROOT_PATH}/GameUnits/PlayerUnit/StateMachine/PlayerBombState.h
 	${DEV_ROOT_PATH}/GameUnits/PlayerUnit/PlayerUnit.h
+	${DEV_ROOT_PATH}/GameUnits/PlayerUnit/PlayerUnitBuilder.h
 	${DEV_ROOT_PATH}/GameUnits/PlayerUnit/PlayerDefs.h
+	${DEV_ROOT_PATH}/GameUnits/PlayerUnit/PlayerUnitManager.h
 	${DEV_ROOT_PATH}/GameUnits/UnitGroup/Formations/CircularFormation.h
 	${DEV_ROOT_PATH}/GameUnits/UnitGroup/UnitGroup.h
 	${DEV_ROOT_PATH}/GameUnits/UnitGroup/UnitAttackStrategy.h
