@@ -1,8 +1,9 @@
 /*
  * CollObjExporter.cpp
  *
- *  Created on: 23/05/2012
- *      Author: santiago
+ *  Created on: Mar 23, 2013
+ *     Company: CordobaZombie
+ *      Author: Budde, Carlos Esteban.
  */
 
 #include "CommonMath.h"
@@ -96,7 +97,7 @@ Ogre::String CollObjExporter::userDefExtractor(const Ogre::String &source){
 			 *			<name="xxx_circle"> ||
 			 *			<name="xxx_poly">
 			 */
-			return Ogre::StringUtil::split(source,"_",2)[1];
+			return Ogre::StringUtil::getsplit(source,"_",2)[1];
 }
 
 /* Returns type, number of vertex and coords of the ent.
@@ -115,7 +116,7 @@ std::string CollObjExporter::createFromMesh(Ogre::Node* node, Ogre::Entity *ent,
 		return "";
 	}
 	
-	// analize the specified type
+	// Identify specified type
 	if(userDef == "poly"){
 		data << createPolyShape(mod_pos, cont, triangles);
 	} else if(userDef == "circle"){
@@ -214,13 +215,14 @@ std::string CollObjExporter::createPolyShape(const Ogre::Vector3 &mod_pos, PolyS
 	debug("Real number of vertex %zd\n", vSet.size());
 	int arraySize = vSet.size();
 	
-	data << "poly\n";
-	data << arraySize << "\n";
+	data << "poly\t";
+	data << arraySize << "\t";
 
 	// print every vertex
 	for(int i= 0; i< arraySize; i++){
-		data << vSet[i]->x + mod_pos.x << " " << vSet[i]->y + mod_pos.z << "\n";
+		data << "\t" << vSet[i]->x + mod_pos.x << " " << vSet[i]->y + mod_pos.z;
 	}
+	data << "\n";
 	
 	return data.str();
 }
@@ -242,8 +244,8 @@ std::string CollObjExporter::createEdgeShape(const Ogre::Vector3 &mod_pos, PolyS
 		vert[i]->y += mod_pos.z;
 	}
 
-	data << "edge\n";
-	data << vert[0]->x << " " << vert[0]->y << "\n";
+	data << "edge\t";
+	data << vert[0]->x << " " << vert[0]->y << "\t";
 	data << vert[1]->x << " " << vert[1]->y << "\n";
 
 	return data.str();
@@ -264,8 +266,8 @@ std::string CollObjExporter::createCircleShape(const Ogre::Vector3 &mod_pos, Pol
 
 	// get the radius
 	float radius = vert[0]->squaredDistance(*vert[1]);
-	data << "circle\n";
-	data << mod_pos.x << " " << mod_pos.z << "\n";
+	data << "circle\t";
+	data << mod_pos.x << " " << mod_pos.z << "\t";
 	data << radius << "\n";
 
 	return data.str();
@@ -344,11 +346,14 @@ std::string CollObjExporter::createAABBShape(const Ogre::Vector3 &mod_pos, PolyS
 	}
 	
 	getBoundingBox(vert, shape);
-	data << "aabb\n";
-	data << shape.tl.x << " " << shape.br.y << "\n";
-	data << shape.tl.x << " " << shape.tl.y << "\n";
-	data << shape.br.x << " " << shape.tl.y << "\n";
-	data << shape.br.x << " " << shape.br.y << "\n";
-	
+	// 0 ******** 1
+	//	 * AABB *
+	// 3 ******** 2
+	data << "aabb\t";
+	data << shape.tl.x << " " << shape.br.y << "\t";  // 0
+	data << shape.tl.x << " " << shape.tl.y << "\t";  // 1
+	data << shape.br.x << " " << shape.tl.y << "\t";  // 2
+	data << shape.br.x << " " << shape.br.y << "\n";  // 3
+
 	return data.str();
 }

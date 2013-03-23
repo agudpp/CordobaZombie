@@ -1,12 +1,22 @@
 /*
- * CollObjExporter.cpp
+ * CollObjExporter main
  *
- *  Created on: 23/05/2012
- *      Author: santiago
+ *  Created on: Mar 23, 2013
+ *     Company: CordobaZombie
+ *      Author: Budde, Carlos Esteban.
  */
 
-//TODO check the includes
-#include "Ogre\Ogre.h";
+
+/**
+ ** TODO: revisar el código entero y reescribirlo
+ **       La idea es que esto genere un archivo .txt con la info geométrica
+ **       de colisiones de los entities del juego.
+ **       Después, en tiempo de ejecución leemos ese .txt y con él generamos
+ **       dinámicamente los CollisionObjects
+ **/
+
+
+#include "Ogre.h";
 #include "OIS\OIS.h";
 
 #include "DotSceneLoader.h"

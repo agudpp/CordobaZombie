@@ -1,18 +1,20 @@
 /*
  * CollObjExporter.h
  *
- *  Created on: 23/05/2012
- *      Author: santiago
+ *  Created on: Mar 23, 2013
+ *     Company: CordobaZombie
+ *      Author: Budde, Carlos Esteban.
  */
 
 #ifndef COLLOBJEXPORTER_H_
 #define COLLOBJEXPORTER_H_
 
-#include <Ogre\OgreEntity.h>
-#include <Ogre\OgreMesh.h>
-#include <Ogre\OgreSubEntity.h>
+#include <OgreEntity.h>
+#include <OgreMesh.h>
+#include <OgreSubEntity.h>
 
 #include "CollisionObject.h"
+#include "DebugUtil.h"
 #include "Util.h"
 
 /**
@@ -28,11 +30,32 @@ class CollObjExporter
 {
 public:
 	/**
-	 * loads a .scene file and extracts the position of the collision objects
-	 */
-	static std::string CollObjExporter::sceneExtractor(Ogre::SceneNode* scene);
-	static std::string CollObjExporter::createFromMesh(Ogre::Node* node, Ogre::Entity *ent,
-			const Ogre::String &userDef);
+	 ** @brief
+	 ** Extract all 2D positions from given SceneNode,
+	 ** which are relevant to the collision system.
+	 **
+	 ** @return
+	 ** String containing a sequence of 2D positions in the format:
+	 ** <SceneNode name>\n
+	 ** <number of elements>\n
+	 ** <elem1_name elem1_attr1 elem1_attr2 ... elem1_attrN1>\n
+	 ** <elem2_name elem2_attr1 elem2_attr2 ... elem2_attrN2>\n
+	 ** ...
+	 ** <elemM_name elemM_attr1 elemM_attr2 ... elemM_attrNM>\n
+	 **/
+	static std::string
+	sceneExtractor(Ogre::SceneNode* scene);
+
+	/**
+	 ** @brief
+	 ** Extract 2D positions from given Entity, for the collision system.
+	 **
+	 ** @return
+	 ** String containing a sequence of 2D points positions in the format:
+	 ** <elem_name elem_attr1 elem_attr2 ... elem_attrN>\n
+	 **/
+	static std::string
+	createFromMesh(Ogre::Node *node, Ogre::Entity *ent, const Ogre::String &userDef);
 
 private:
 	static Ogre::String userDefExtractor(const Ogre::String &source);
