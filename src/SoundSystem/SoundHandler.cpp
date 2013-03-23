@@ -639,12 +639,7 @@ SSerror
 SoundHandler::startPlaylist(const Ogre::String& name, Playlist *plp)
 {
 	SSerror err(SS_NO_ERROR);
-	Playlist *pl(0);
-	if (plp) {
-		pl = plp;
-	} else {
-		pl = getPlaylist(name);
-	}
+	Playlist *pl = plp ? plp : getPlaylist(name);
 
 	if (!pl) {
 		return SSerror::SS_FILE_NOT_FOUND;
@@ -720,7 +715,7 @@ SoundHandler::stopPlaylist(const Ogre::String& name)
 		if (sSoundManager.isActiveEnvSound(*sound)) {
 			err = sSoundManager.stopEnvSound(*sound);
 		}
-		if (err == SS_NO_ERROR) {
+		if (err == SSerror::SS_NO_ERROR) {
 			// Success
 			pl->mCurrent = 0;
 			pl->mTimeSinceFinish = 0.0f;
