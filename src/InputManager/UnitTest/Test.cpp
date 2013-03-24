@@ -101,6 +101,20 @@ void Test::loadAditionalData(void)
 /* function called every frame. Use GlobalObjects::lastTimeFrame */
 void Test::update()
 {
+    static bool k1 = false;
+
+    selection::SelectionManager &selManager = selection::SelectionManager::getInstance();
+
+    if(mKeyboard->isKeyDown(OIS::KC_1)) {
+        if (k1 == false) {
+            k1 = true;
+            // unselect all
+            selManager.unselectAll();
+        }
+    } else {
+        k1 = true;
+    }
+
     if(mKeyboard->isKeyDown(OIS::KC_ESCAPE)) {
         // we have to exit
         mStopRunning = true;

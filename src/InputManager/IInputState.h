@@ -76,6 +76,12 @@ public:
     inline selection::SelectableObject *
     lastRaycastedObj(void);
 
+    /**
+     * @brief Reset to 0 the last raycasted object
+     */
+    inline void
+    resetLastRaycastedObj(void);
+
 
 protected:
 	//			Auxiliary functions to be used by the states.
@@ -186,6 +192,11 @@ inline selection::SelectableObject *
 IInputState::lastRaycastedObj(void)
 {
     return sOnMouseOverObj;
+}
+inline void
+IInputState::resetLastRaycastedObj(void)
+{
+    sOnMouseOverObj = 0;
 }
 
 }

@@ -48,6 +48,8 @@ InputStateMachine::selectionChanged(const selection::SelectionData &selData)
     if (selData.selected.empty()){
         // we have no selection
         mActualState = mStates[IS_EMPTY_SEL].get();
+        mActualState->configure(selData);
+        mActualState->resetLastRaycastedObj();
         return;
     }
 
@@ -58,6 +60,10 @@ InputStateMachine::selectionChanged(const selection::SelectionData &selData)
         // players selected..
         mActualState = (mAuxVec.size() == 1) ? mStates[IS_SINGLE_PLAYER_SEL].get()
                                              : mStates[IS_MULTI_PLAYER_SEL].get();
+
+        mActualState->configure(selData);
+        mActualState->resetLastRaycastedObj();
+
         return;
     }
     // else objects selected??
