@@ -6,13 +6,16 @@
  *      Author: Budde, Carlos Esteban.
  */
 
-#include "CommonMath.h"
-#include "Triangle.h"
-#include "CollObjExporter.h"
 #include <string>
 #include <cstring>	// strnlen()
 #include <sstream>	// std::stringstream
 #include <fts.h>	// Filesystem handler (FTS, FTSENT, fts_open()...)
+
+#include "CommonMath.h"
+#include "Triangle.h"
+#include "CollObjExporter.h"
+#include "GlobalObjects.h"
+#include "DotSceneLoader.h"
 
 
 namespace {
@@ -25,7 +28,7 @@ struct TmpEdge {
 
 ////////////////////////////////////////////////////////////////////////////////
 void
-CollObjExporter::getBoundingBox(std::vector<const sm::Vertex *> &v, sm::AABB &bb)
+CollObjExporter::getBoundingBox(const std::vector<sm::Vertex *> &v, sm::AABB &bb)
 {
 	ASSERT(v.size() >= 2);
 
@@ -193,7 +196,7 @@ CollObjExporter::createPolyShape(const Ogre::Vector3 &mod_pos,
 	std::vector<Triangle *> &tri = triangles.getObjs();
 	std::vector<sm::Vertex *> &vert = cont.getObjs();
 	std::stringstream data;
-	sm::Vertex *v = 0;
+	const sm::Vertex *v = 0;
 	int untouched = 1;  // '1' to enter loop
 
 	// Find central vertex, which touches all triangles
@@ -240,11 +243,11 @@ CollObjExporter::createPolyShape(const Ogre::Vector3 &mod_pos,
 	std::vector<const sm::Vertex *> vSet;
 	v = edges.front().v1;
 	vSet.push_back(v);  // Save the first vertex first
-	for (numVert = 0 ; numVert < edges.size() ; numVert++) {
+	for (size_t numVert = 0 ; numVert < edges.size() ; numVert++) {
 		// On each iteration we add a new vertex
 		for (int i=0 ; i < edges.size() ; i++) {
 			if (edges[i].v1 == vSet.back()) {
-				vSet.push_back(edge[i].v2);
+				vSet.push_back(edges[i].v2);
 				break;
 			} else if (edges[i].v2 == vSet.back()){
 				vSet.push_back(edges[i].v1);
@@ -366,20 +369,21 @@ CollObjExporter::createBoxShape(const Ogre::Vector3 &mod_pos,
 	if (shared.size() != 2 || notShared.size() != 2) {
 		debugERROR("Wrong shared vertices for triangles of BoxShape.\n"
 					"Should have 2 shared and 2 not shared vertices,\n"
-					"%zu and %zu (resp.) received.\n");
+					"%zu and %zu (resp.) received.\n",
+					shared.size(), notShared.size());
 		return "";
 	}
 
 	// Push the vertices, clockwise or counterclockwise
 	data << "box  "
 		 << (shared[0]->x + mod_pos.x)    << "  "
-		 << (shared[0]->y + mos_pos.z)    << "  "
+		 << (shared[0]->y + mod_pos.z)    << "  "
 		 << (notShared[0]->x + mod_pos.x) << "  "
-		 << (notShared[0]->y + mos_pos.z) << "  "
+		 << (notShared[0]->y + mod_pos.z) << "  "
 		 << (shared[1]->x + mod_pos.x)    << "  "
-		 << (shared[1]->y + mos_pos.z)    << "  "
+		 << (shared[1]->y + mod_pos.z)    << "  "
 		 << (notShared[1]->x + mod_pos.x) << "  "
-		 << (notShared[1]->y + mos_pos.z) << "\n";
+		 << (notShared[1]->y + mod_pos.z) << "\n";
 	
 	return data.str();
 }
@@ -393,7 +397,7 @@ CollObjExporter::createAABBShape(const Ogre::Vector3 &mod_pos,
 {
 	sm::AABB shape;
 	std::stringstream data;
-	std::vector<sm::Vertex *> &vert = cont.getObjs();
+	std::vector<sm::Vertex *> vert = cont.getObjs();
 
 	if (vert.size() != 4) {
 		debugERROR("Wrong number of vertices for AABBShape.\n"
@@ -407,6 +411,7 @@ CollObjExporter::createAABBShape(const Ogre::Vector3 &mod_pos,
 		vert[i]->y += mod_pos.z;
 	}
 	
+
 	getBoundingBox(vert, shape);
 	// 0 ****** 1
 	// *        *

@@ -7,20 +7,12 @@
  */
 
 
-/**
- ** TODO: revisar el código entero y reescribirlo
- **       La idea es que esto genere un archivo .txt con la info geométrica
- **       de colisiones de los entities del juego.
- **       Después, en tiempo de ejecución leemos ese .txt y con él generamos
- **       dinámicamente los CollisionObjects
- **/
-
 #include <iostream>
 #include <fstream>
 #include <cstdlib>
 
 #include "Ogre.h"
-#include "OIS\OIS.h"
+#include "OIS/OIS.h"
 
 #include "DotSceneLoader.h"
 #include "CollObjExporter.h"
@@ -178,7 +170,7 @@ private:
 
 int main (void)
 {
-	const char fname("collision_objects.dat");
+	const char fname[] = "collision_objects.dat";
 	std::ofstream outfile(fname);
 	CollObjExporter exporter;
 	MyApplication app;

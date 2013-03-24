@@ -160,7 +160,7 @@ private:
 	 ** Create a bounding box from a list of 2D vertices
 	 **/
 	static void
-	getBoundingBox(std::vector<const sm::Vertex *> &v, sm::AABB &bb);
+	getBoundingBox(const std::vector<sm::Vertex *> &v, sm::AABB &bb);
 };
 
 #endif /* COLLOBJEXPORTER_H_ */
