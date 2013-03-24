@@ -16,6 +16,7 @@
 
 #include "DotSceneLoader.h"
 #include "CollObjExporter.h"
+#include "GlobalObjects.h"
 #include "DebugUtil.h"
 
 
@@ -23,7 +24,7 @@ class MyApplication
 {
 public:
 	MyApplication() {
-		_root = new Ogre::Root("plugins_d.cfg");
+		_root = new Ogre::Root("plugins.cfg");
 		if(!_root->showConfigDialog()){
 			debugERROR("Couldn't create Ogre root.\n")
 			exit(EXIT_FAILURE);
@@ -37,14 +38,19 @@ public:
 	}
 
 	int startup() {
+		Common::GlobalObjects::ogreRoot = _root;
+		Common::GlobalObjects::window = _window;
+		Common::GlobalObjects::sceneManager = _sceneManager;
+
 		loadResources();
 //		createScene();
+
 		return 0;
 	}
 
 	void loadResources() {
 		Ogre::ResourceGroupManager& rgm(Ogre::ResourceGroupManager::getSingleton());
-		rgm.addResourceLocation(".", "Filesystem", "Popular");
+		rgm.addResourceLocation(".", "FileSystem", "Popular");
 		rgm.initialiseAllResourceGroups();
 	}
 
@@ -186,15 +192,14 @@ int main (void)
 	// Call exporter on CWD
 	std::string data = exporter.dirExtractor();
 	if (data.empty()) {
-		debugERROR("Data export failed.\n");
-		outfile.close();
-		return EXIT_FAILURE;
+		debugWARNING("\nData export produced no output. "
+					"Are there any .scene files in around?\n");
 	} else {
 		outfile << data;
-		outfile.close();
 		std::cout << "Collision data exported into file " << fname << std::endl;
 	}
 
+	outfile.close();
 	return EXIT_SUCCESS;
 }
 

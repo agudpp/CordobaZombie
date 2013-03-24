@@ -53,7 +53,7 @@ CollObjExporter::getBoundingBox(const std::vector<sm::Vertex *> &v, sm::AABB &bb
 std::string
 CollObjExporter::dirExtractor(void)
 {
-	const char *CWD[] = {"."};  // Current Working Directory
+	const char *CWD[] = {".", 0};  // Current Working Directory
     FTS *ftsp(0);
     FTSENT *p(0);
     int fts_options = FTS_PHYSICAL | FTS_NOCHDIR;
@@ -79,6 +79,7 @@ CollObjExporter::dirExtractor(void)
     p = fts_read(ftsp);
 
     // Call sceneExtractor() for each .scene file in CWD
+	int numfiles(0);
     while (true) {
     	// Read each element inside CWD
     	p = fts_read(ftsp);
@@ -92,13 +93,15 @@ CollObjExporter::dirExtractor(void)
         } else if (p->fts_info == FTS_F) {
         	fnamelen = strnlen(p->fts_path, 100);
         	if (fnamelen > 6
-        		&& 0 == strncmp(&p->fts_path[fnamelen-7], ".scene", 6)) {
+        		&& 0 == strncmp(&p->fts_path[fnamelen-6], ".scene", 6)) {
         		// .scene file found! build SceneNode from it
         		dsl.parseDotScene(p->fts_path, "General", GLOBAL_SCN_MNGR, sn);
         		output << sceneExtractor(sn);
+        		numfiles++;
         	}
         }
     }
+    debugBLUE("# of .scene files processed: %d\n", numfiles);
 
 	return output.str();
 }
