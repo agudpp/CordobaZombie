@@ -35,12 +35,15 @@ SinglePlayerSel::configure(const selection::SelectionData &selData)
     // fill the players vec with the selected players
     mPlayers.clear();
     sSelectionMngr->getObjects(selection::Type::SEL_TYPE_PLAYER, mPlayers);
+    ASSERT(mPlayers.size() == 1); // ensure only one player is selected
 }
 
 void
 SinglePlayerSel::executeRayCast(void)
 {
-
+    // we only need to raycast and get the first object...
+//    selection::SelectableObject *selObj = getFirstRaycastedObj();
+//    newRaycastedObject(selObj);
 }
 
 

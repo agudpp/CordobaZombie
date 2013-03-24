@@ -36,32 +36,9 @@ EmptySelection::configure(const selection::SelectionData &selData)
 void
 EmptySelection::executeRayCast(void)
 {
-    // We execute the Ogre raycast instead of getting the position in the
-    // plane where the player will be moving.
-    // We only want the first object that is closer to the camera over the ray
-    Ogre::RaySceneQueryResult &results = performRayQuery(RAYCAST_MASK);
-    if (results.empty()){
-        // no results found
-        newRaycastedObject(0);
-        return;
-    }
-    // else there are new raycasted objects, we want only the first one
-    Ogre::RaySceneQueryResultEntry &obj = results.front();
-    ASSERT(obj.movable && obj.worldFragment == 0);
-
-    // check if we have something in the user any
-    const Ogre::Any &anyObj = obj.movable->getUserAny();
-    if (anyObj.isEmpty()) {
-        newRaycastedObject(0);
-        return;
-    }
-
-    // advise the object that we are over him with the mouse
-    // Thanks to Ogre we have to do a any_cast that is a string comparison!!!!
-    // so nice! so efficient
-    selection::SelectableObject *selObj =
-        Ogre::any_cast<selection::SelectableObject*>(anyObj);
-    newRaycastedObject(selObj);
+    // we only need to raycast and get the first object...
+       selection::SelectableObject *selObj = getFirstRaycastedObj(RAYCAST_MASK);
+       newRaycastedObject(selObj);
 }
 
 

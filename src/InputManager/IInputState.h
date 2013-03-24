@@ -129,7 +129,19 @@ protected:
      *                      If selObject is 0 then we call the MouseOverExit
      *                      to the last object
      */
-    inline void newRaycastedObject(selection::SelectableObject *selObject);
+    inline void
+    newRaycastedObject(selection::SelectableObject *selObject);
+
+    /**
+     * @brief Auxiliary function to get the first SelectableObject associated
+     *        to a movable object that has the UserAny (that is the SelectableObj).
+     *        If no movable object is raycasted or the movable hasn't any UserAny
+     *        then 0 is returned, otherwise the Selectable object is returned
+     * @param RAYCAST_MASK  The mask to be used to execute the raycast
+     * @returns selObject   The closest selectableObject raycasted, or 0 if not
+     */
+    inline selection::SelectableObject *
+    getFirstRaycastedObj(uint32 RAYCAST_MASK);
 
 protected:
 
@@ -197,6 +209,40 @@ inline void
 IInputState::resetLastRaycastedObj(void)
 {
     sOnMouseOverObj = 0;
+}
+
+inline selection::SelectableObject *
+IInputState::getFirstRaycastedObj(uint32 RAYCAST_MASK)
+{
+    // We execute the Ogre raycast instead of getting the position in the
+    // plane where the player will be moving.
+    // We only want the first object that is closer to the camera over the ray
+    Ogre::RaySceneQueryResult &results = performRayQuery(RAYCAST_MASK);
+    if (results.empty()){
+        // no results found
+        return 0;
+    }
+
+    // else there are new raycasted objects, we want only the first one
+    Ogre::RaySceneQueryResultEntry &obj = results.front();
+    if (obj.movable == 0) {
+        // no movable object (probably a world fragment?.. this shouldn't
+        // be happening
+        debugWARNING("Probably we had wrongly set the RAYCAST_FLAGS?\n");
+        return 0;
+    }
+
+    // check if we have something in the user any
+    const Ogre::Any &anyObj = obj.movable->getUserAny();
+    if (anyObj.isEmpty()) {
+        // no user defined
+        return 0;
+    }
+
+    // advise the object that we are over him with the mouse
+    // Thanks to Ogre we have to do a any_cast that is a string comparison!!!!
+    // so nice! so efficient
+    return Ogre::any_cast<selection::SelectableObject*>(anyObj);
 }
 
 }
