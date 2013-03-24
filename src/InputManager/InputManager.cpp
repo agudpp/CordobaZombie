@@ -17,6 +17,20 @@
 #include "IInputState.h"
 #include "InputStateMachine.h"
 
+
+
+// Helper MACRO for input checking and release keys
+//
+#define INPUT_CHECK(buttonCondition, pressedFlag, codeToRunOnPressed) \
+    if(buttonCondition){\
+        if(!pressedFlag){\
+            pressedFlag = 1;\
+            codeToRunOnPressed\
+        }\
+    } else {\
+        pressedFlag = 0;\
+    }
+
 namespace input {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -43,16 +57,26 @@ InputManager::configureDefaultKeys(void)
 	mKeys[KEY_PAUSE_GAME]		= input::KC_PAUSE;
 	mKeys[KEY_OPEN_CELLPHONE]	= input::KC_ADD;
 
-	// Mouse
-	mKeys[MOUSE_BUTTON_LEFT]	= input::MB_Left;
-	mKeys[MOUSE_BUTTON_RIGHT]	= input::MB_Right;
-	mKeys[MOUSE_BUTTON_MIDDLE]	= input::MB_Middle;
 }
 
 void
 InputManager::handleRaycastedObj(selection::SelectableObject *raycastedObj)
 {
-    // for now we will select the object only
+    // if the object is already selected probably we don't want to do anything..
+    if (mSelManager.isSelected(raycastedObj)) {
+        return;
+    }
+
+    // check if Control is pressed
+    if(!input::InputKeyboard::isKeyDown(static_cast<input::KeyCode>(
+                           mKeys[inputID::KEY_GROUP_UNITS]))) {
+        // add selection
+        mSelManager.select(raycastedObj);
+    } else {
+        // we want to remove all the selection and just select this one
+        mSelManager.unselectAll();
+        mSelManager.select(raycastedObj);
+    }
 
 }
 
@@ -352,17 +376,35 @@ InputManager::update(void)
     if (shouldPerformRaycast()){
         // perform it and do whatever we need
         mStateMachine->executeRayCast();
+    } else {
+        // probably we don't wan to do nothing? because for example the mouse
+        // is still pressed from the last frame, here we can handle the
+        // rectangle selection?
+        return;
     }
 
     // check for raycasted objects now
     selection::SelectableObject *raycastedObj = mStateMachine->lastRaycastedObj();
-    if (raycastedObj == 0) {
-        // nothing to do?
-        return;
-    }
 
-    // else we will handle the raycasted object
-    handleRaycastedObj(raycastedObj);
+    // now check of mouse left button press, if the button is pressed then we
+    // will want to:
+    // 1) Unselect players (if raycastedObj == 0
+    // 2) Select a new player?
+    // for now we will select the object only
+
+    INPUT_CHECK(InputMouse::isMouseDown(input::MB_Left),\
+                mInputFlags.leftButtonPressed,\
+                // if there are no object raycasted then we want to unselect
+                // all the objects
+                if (raycastedObj == 0) {
+                    mSelManager.unselectAll();
+                    return;
+                }
+
+                // else we want to handle the raycasted object
+                handleRaycastedObj(raycastedObj);
+    )
+
 
 }
 

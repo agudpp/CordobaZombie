@@ -9,6 +9,8 @@
 #include "PlayerDefs.h"
 #include "CollectableObjTypes.h"
 
+#include <SelectionSystem/SelectionType.h>
+
 PlayerSMTTable *PlayerUnit::mSMTT = 0;
 BillboardManager *PlayerUnit::mBillboardMngr = 0;
 
@@ -16,7 +18,8 @@ const float  PlayerUnit::UPDATE_PATH_TIME = 0.5f;
 
 
 ////////////////////////////////////////////////////////////////////////////////
-void PlayerUnit::attachWeaponToBone(Weapon *newWeapon, Weapon *oldWeapn)
+void
+PlayerUnit::attachWeaponToBone(Weapon *newWeapon, Weapon *oldWeapn)
 {
 	ASSERT(newWeapon);
 
@@ -35,7 +38,8 @@ void PlayerUnit::attachWeaponToBone(Weapon *newWeapon, Weapon *oldWeapn)
 
 
 ////////////////////////////////////////////////////////////////////////////////
-void PlayerUnit::obtainAndAdviseNearbyZombies(void)
+void
+PlayerUnit::obtainAndAdviseNearbyZombies(void)
 {
 	// check all the objects that are close
 	getNearbyObjects(ZOMBIE_MAX_VISIBILITY_DIST, ZOMBIE_MAX_VISIBILITY_DIST,
@@ -53,7 +57,8 @@ void PlayerUnit::obtainAndAdviseNearbyZombies(void)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void PlayerUnit::loadBillboards(void)
+void
+PlayerUnit::loadBillboards(void)
 {
 	if(mBillboardMngr && mBillboardMngr->isCreated()){
 		return;
@@ -84,7 +89,8 @@ PlayerUnit::PlayerUnit() :
 		mSelBillboard(0),
 		mUpdatePathTime(0),
 		mActualBomb(0),
-		mLifeChangeCb(0)
+		mLifeChangeCb(0),
+		mPlayerID(PlayerID::NONE)
 {
 	// by default we use the mSMTT
 	ASSERT(mSMTT);	// we must set this first
@@ -95,6 +101,8 @@ PlayerUnit::PlayerUnit() :
 
 	mIAState.event = IAEP_NONE;
 
+	// set the type of this type of selectable object
+	setType(selection::Type::SEL_TYPE_PLAYER);
 
 }
 
@@ -115,7 +123,8 @@ PlayerUnit::~PlayerUnit()
 
 
 ////////////////////////////////////////////////////////////////////////////////
-void PlayerUnit::objectSelected(void)
+void
+PlayerUnit::objectSelected(void)
 {
 	if(mSelBillboard){
 		// actually selected, change the atlas
@@ -127,7 +136,8 @@ void PlayerUnit::objectSelected(void)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void PlayerUnit::objectUnselected(void)
+void
+PlayerUnit::objectUnselected(void)
 {
 	if(mSelBillboard){
 		mBillboardMngr->letAvailable(mSelBillboard);
@@ -136,16 +146,21 @@ void PlayerUnit::objectUnselected(void)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void PlayerUnit::mouseOverObject(void)
+void
+PlayerUnit::mouseOverObject(void)
 {
 	// if is actually selected, we do nothing?
-	if(mSelBillboard) return;
+	if (mSelBillboard) {
+	    return;
+	}
 	// else we get new billboard and use it
 	mSelBillboard = mBillboardMngr->getNewBillboard(PLAYER_BB_MOUSE_OVER);
+	debugBLUE("mSelBillboard being used\n");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void PlayerUnit::mouseExitObject(void)
+void
+PlayerUnit::mouseExitObject(void)
 {
 	// if we are already selected then we do nothing
 	if(!mSelBillboard){
@@ -159,12 +174,14 @@ void PlayerUnit::mouseExitObject(void)
 		// we are in "mouse over".. so we clear this billboard
 		mBillboardMngr->letAvailable(mSelBillboard);
 		mSelBillboard = 0;
+		debugBLUE("mSelBillboard not used anymore\n");
 	}
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////
-void PlayerUnit::beenHit(const Hit_t &hit)
+void
+PlayerUnit::beenHit(const Hit_t &hit)
 {
 	// TODO:
 	mLastHit = hit;
@@ -179,19 +196,22 @@ void PlayerUnit::beenHit(const Hit_t &hit)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void PlayerUnit::borning(void)
+void
+PlayerUnit::borning(void)
 {
 	// TODO:
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void PlayerUnit::dead(void)
+void
+PlayerUnit::dead(void)
 {
 	// TODO:
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-bool PlayerUnit::build(void)
+bool
+PlayerUnit::build(void)
 {
 
 	// load the animations of the entity
@@ -244,7 +264,8 @@ bool PlayerUnit::build(void)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void PlayerUnit::unitClose(GameUnit *unit)
+void
+PlayerUnit::unitClose(GameUnit *unit)
 {
 	// TODO:
 	ASSERT(false);
@@ -252,7 +273,8 @@ void PlayerUnit::unitClose(GameUnit *unit)
 
 
 ////////////////////////////////////////////////////////////////////////////////
-void PlayerUnit::newExternalEvent(SMEvent e)
+void
+PlayerUnit::newExternalEvent(SMEvent e)
 {
 	if(mFSM.getLastEvent() != PlayerUnit::E_MOVE_TO){
 		mFSM.newEvent(PlayerUnit::E_MOVE_TO);
@@ -264,7 +286,8 @@ void PlayerUnit::newExternalEvent(SMEvent e)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void PlayerUnit::update(void)
+void
+PlayerUnit::update(void)
 {
 	// TODO:
 
@@ -289,7 +312,8 @@ void PlayerUnit::update(void)
 ///////						Function of this class					//////
 
 ////////////////////////////////////////////////////////////////////////////////
-void PlayerUnit::addNewWeapon(Weapon *w)
+void
+PlayerUnit::addNewWeapon(Weapon *w)
 {
 	ASSERT(w);
 	if(hasWeaponType(w->getType())){
@@ -317,7 +341,8 @@ void PlayerUnit::addNewWeapon(Weapon *w)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void PlayerUnit::removeWeapon(int wtype)
+void
+PlayerUnit::removeWeapon(int wtype)
 {
 	ASSERT(wtype < Weapon::W_NONE);
 	ASSERT(mWeapons[wtype]);
@@ -346,7 +371,8 @@ void PlayerUnit::removeWeapon(int wtype)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void PlayerUnit::setWeapon(int wtype)
+void
+PlayerUnit::setWeapon(int wtype)
 {
 	ASSERT(wtype < Weapon::W_NONE);
 	ASSERT(mWeapons[wtype]);
@@ -357,7 +383,8 @@ void PlayerUnit::setWeapon(int wtype)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void PlayerUnit::changeBestNextWeapon(void)
+void
+PlayerUnit::changeBestNextWeapon(void)
 {
 	// get the best weapon
 	for(int i = 0; i < Weapon::W_NONE; ++i){
@@ -372,7 +399,8 @@ void PlayerUnit::changeBestNextWeapon(void)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void PlayerUnit::addBomb(Bomb *b)
+void
+PlayerUnit::addBomb(Bomb *b)
 {
 	ASSERT(b);
 	ASSERT(!hasBomb(b));
@@ -384,7 +412,8 @@ void PlayerUnit::addBomb(Bomb *b)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void PlayerUnit::removeBomb(Bomb *b)
+void
+PlayerUnit::removeBomb(Bomb *b)
 {
 	ASSERT(b);
 	ASSERT(hasBomb(b));
@@ -400,7 +429,8 @@ void PlayerUnit::removeBomb(Bomb *b)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-bool PlayerUnit::plantBomb(Bomb *b, const sm::Vector2 &position)
+bool
+PlayerUnit::plantBomb(Bomb *b, const sm::Vector2 &position)
 {
 	ASSERT(b);
 	ASSERT(hasBomb(b));
@@ -420,7 +450,8 @@ bool PlayerUnit::plantBomb(Bomb *b, const sm::Vector2 &position)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void PlayerUnit::addItem(GameItem *i)
+void
+PlayerUnit::addItem(GameItem *i)
 {
 	ASSERT(!hasItem(i)); // TODO: no podemos alzar mas de 1 item igual??
 #ifdef DEBUG
@@ -432,7 +463,8 @@ void PlayerUnit::addItem(GameItem *i)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void PlayerUnit::removeItem(GameItem *i)
+void
+PlayerUnit::removeItem(GameItem *i)
 {
 	ASSERT(hasItem(i));
 	mBackPack.removeBackpackItemUserDef(i);
@@ -445,13 +477,15 @@ void PlayerUnit::removeItem(GameItem *i)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void PlayerUnit::useItem(GameItem *i)
+void
+PlayerUnit::useItem(GameItem *i)
 {
 	ASSERT(false);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void PlayerUnit::getNearbyPlayers(PlayerVector &players)
+void
+PlayerUnit::getNearbyPlayers(PlayerVector &players)
 {
 	// check all the objects that are close
 	getNearbyObjects(PLAYER_MAX_VISIBILITY_DIST, PLAYER_MAX_VISIBILITY_DIST,
@@ -467,7 +501,8 @@ void PlayerUnit::getNearbyPlayers(PlayerVector &players)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void PlayerUnit::moveUnitTo(const sm::Vector2 &p)
+void
+PlayerUnit::moveUnitTo(const sm::Vector2 &p)
 {
 	if(!getPathTo(p)){
 		// TODO: reproducimos algun sonido de que no podemos movernos hasta ese
@@ -487,14 +522,16 @@ void PlayerUnit::moveUnitTo(const sm::Vector2 &p)
 
 
 ////////////////////////////////////////////////////////////////////////////////
-void PlayerUnit::setSMTransitionTable(PlayerSMTTable *tt)
+void
+PlayerUnit::setSMTransitionTable(PlayerSMTTable *tt)
 {
 	ASSERT(tt);
 	mSMTT = tt;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void PlayerUnit::collectObject(CollectableObject *co){
+void
+PlayerUnit::collectObject(CollectableObject *co){
 	ASSERT(co);
 	mTargetColObject = co;
 	const Ogre::Vector3 & pos3 = co->getNode()->getPosition();
@@ -513,7 +550,8 @@ void PlayerUnit::collectObject(CollectableObject *co){
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void PlayerUnit::addCollectObeject(CollectableObject *c)
+void
+PlayerUnit::addCollectObeject(CollectableObject *c)
 {
 	ASSERT(c);
 	// check the type of the object and
@@ -542,7 +580,8 @@ void PlayerUnit::addCollectObeject(CollectableObject *c)
 
 
 ////////////////////////////////////////////////////////////////////////////////
-bool PlayerUnit::canPickObject(void){
+bool
+PlayerUnit::canPickObject(void){
 #ifdef DEBUG
 	debugColor(DEBUG_YELLOW, "RELLENAR LA FUNCION CanPickObject\n");
 #endif

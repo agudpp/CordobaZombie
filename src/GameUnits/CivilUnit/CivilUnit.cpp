@@ -5,9 +5,13 @@
  *      Author: agustin
  */
 
-#include "GameUnitDefines.h"
-#include "CollisionTypedefs.h"
 #include "CivilUnit.h"
+
+#include <CollisionSystem/CollisionTypedefs.h>
+#include <SelectionSystem/SelectionType.h>
+
+#include "GameUnitDefines.h"
+
 
 
 CivilUnit::GameUnitVec				CivilUnit::mNearbyZombies;
@@ -51,6 +55,9 @@ CivilUnit::CivilUnit() :
 	// by default we use the mSMTT
 	ASSERT(mSMTTable);	// we must set this first
 	mFSM.setTransitionTable(mSMTTable);
+
+	// set the type of this unit
+	setType(selection::Type::SEL_TYPE_CIVIL);
 }
 
 CivilUnit::~CivilUnit()

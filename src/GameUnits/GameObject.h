@@ -187,7 +187,10 @@ protected:
 	}
 
 private:
+	// Avoid copy and = operator to all the units and objects..
+	//
 	GameObject(const GameObject &);
+	GameObject &operator=(const GameObject &);
 
 
 	/**

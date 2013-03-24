@@ -46,11 +46,6 @@ public:
 	virtual ~Weapon();
 
 	/**
-	 * Set the shoot container to be used
-	 */
-	static void setShootContainer(ShootContainer *sc);
-
-	/**
 	 * Set/Get weapon ID
 	 */
 	inline unsigned short getID(void) const;

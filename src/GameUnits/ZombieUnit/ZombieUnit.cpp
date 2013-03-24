@@ -4,11 +4,13 @@
  *  Created on: 13/02/2012
  *      Author: agustin
  */
-#include "GlobalObjects.h"
-#include "ZombieDefs.h"
+
 #include "ZombieUnit.h"
+#include "ZombieDefs.h"
 #include "SoundFamilyTable.h"
 
+#include <SelectionSystem/SelectionType.h>
+#include <Common/GlobalObjects/GlobalObjects.h>
 
 ZombieSMTTable		*ZombieUnit::mSMTT = 0;
 ZombieQueue			*ZombieUnit::mQueue = 0;
@@ -77,8 +79,10 @@ ZombieUnit::ZombieUnit() :
 	 ** TODO  ¡Quitar ese hardcodeo de acá!
 	 ************************************************************************/
 
-
 	mQueue->addNewObject(this);
+
+	// Set the Selectable Type of this object
+	setType(selection::Type::SEL_TYPE_ZOMBIE);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

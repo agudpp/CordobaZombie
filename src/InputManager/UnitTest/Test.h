@@ -21,6 +21,7 @@
 #include "UpdObjsManager.h"
 #include "InputManager.h"
 #include "PlayerUnit.h"
+#include <LevelManager/LevelManager.h>
 
 
 class Test : public AppTester
@@ -52,9 +53,11 @@ private:
 	MouseCursor				mMouseCursor;
 
 	UpdObjsManager			mUpdaterManager;
-	input::InputManager &mInputManager;
+	input::InputManager *mInputManager;
 	std::vector<PlayerUnit *> mUnits;
 
+	std::vector<PlayerUnitPtr> mPlayers;
+	LevelManager mLevelManager;
 };
 
 #endif /* TEST_H_ */

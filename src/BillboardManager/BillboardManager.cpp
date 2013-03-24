@@ -33,17 +33,12 @@ BillboardManager::~BillboardManager()
 	mNode->getParentSceneNode()->removeAndDestroyChild(mNode->getName());
 }
 
-/**
- * Load a Billboardset using a radius create the billboards and
- * a material
- * @param r		The radius to be used
- * @param mn	Material Name to be used
- * @param size	The number of billboard to allocate
- *
- * @return 		True on success false otherwise
- */
-bool BillboardManager::createSet(Ogre::Real r, const Ogre::String &mn, int size,
-		int aSize)
+
+bool
+BillboardManager::createSet(Ogre::Real r,
+                            const Ogre::String &mn,
+                            int size,
+                            int nAtlas)
 {
 	ASSERT(!mBillboardSet);
 
@@ -61,15 +56,6 @@ bool BillboardManager::createSet(Ogre::Real r, const Ogre::String &mn, int size,
 	// create the scene node
 	mNode = GLOBAL_SCN_MNGR->getRootSceneNode()->createChildSceneNode();
 
-	// Configure the atlas size if we need it
-	ASSERT(aSize > 0);
-	if(aSize == 1){
-		return true;
-	}
-	int textSize = GUIHelper::getTextureWidth(mn);
-	mAtlasSize = static_cast<float>(textSize) / static_cast<float>(size);
-	mAtlasSize = mAtlasSize / static_cast<float>(textSize);
-
 	// enqueue the billboards
 	for(int i = 0; i < size; ++i){
 		Ogre::Billboard *b = mBillboardSet->createBillboard(Ogre::Vector3(0,-9999.0f,0));
@@ -77,7 +63,12 @@ bool BillboardManager::createSet(Ogre::Real r, const Ogre::String &mn, int size,
 		mBillboards.push_back(b);
 	}
 
-
+	// Configure the atlas size if we need it
+    ASSERT(nAtlas > 0);
+    if(nAtlas == 1){
+        return true;
+    }
+    mAtlasSize = 1.0f / static_cast<float>(nAtlas);
 
 	return true;
 }
@@ -85,7 +76,8 @@ bool BillboardManager::createSet(Ogre::Real r, const Ogre::String &mn, int size,
 /**
  * Returns if the manager is created or not
  */
-bool BillboardManager::isCreated(void)
+bool
+BillboardManager::isCreated(void)
 {
 	return mBillboardSet != 0;
 }
@@ -93,7 +85,8 @@ bool BillboardManager::isCreated(void)
 /**
  * Set the billboards visible/invisible
  */
-void BillboardManager::setVisible(bool visible)
+void
+BillboardManager::setVisible(bool visible)
 {
 	ASSERT(mBillboardSet);
 	mBillboardSet->setVisible(visible);
@@ -103,7 +96,8 @@ void BillboardManager::setVisible(bool visible)
  * Set the "bounds" where the billboards will be seen (normally the size of
  * the level by now).
  */
-void BillboardManager::setBounds(const Ogre::AxisAlignedBox &bb, Ogre::Real radius)
+void
+BillboardManager::setBounds(const Ogre::AxisAlignedBox &bb, Ogre::Real radius)
 {
 	ASSERT(mBillboardSet);
 	mBillboardSet->setBounds(bb, radius);
@@ -113,7 +107,8 @@ void BillboardManager::setBounds(const Ogre::AxisAlignedBox &bb, Ogre::Real radi
 /**
  * Get a new Billboard. If have no more billboard then 0 is returned
  */
-Ogre::Billboard *BillboardManager::getNewBillboard(int atlasNumber)
+Ogre::Billboard
+*BillboardManager::getNewBillboard(int atlasNumber)
 {
 	ASSERT(mBillboardSet);
 	if(mBillboards.empty()){
@@ -143,7 +138,8 @@ Ogre::Billboard *BillboardManager::getNewBillboard(int atlasNumber)
  * @param	bb			The billboard to modify
  * @param	atlasNum	The atlas number to be set
  */
-void BillboardManager::changeAtlas(Ogre::Billboard *bb, int atlasNumber)
+void
+BillboardManager::changeAtlas(Ogre::Billboard *bb, int atlasNumber)
 {
 	ASSERT(bb);
 	ASSERT(atlasNumber >= 0);
@@ -156,7 +152,8 @@ void BillboardManager::changeAtlas(Ogre::Billboard *bb, int atlasNumber)
 /**
  * Returns the atlas id of a billboard
  */
-int BillboardManager::getAtlas(Ogre::Billboard *bb)
+int
+BillboardManager::getAtlas(Ogre::Billboard *bb)
 {
 	ASSERT(bb);
 	const Ogre::Real x1 = bb->getTexcoordRect().left;
@@ -166,7 +163,8 @@ int BillboardManager::getAtlas(Ogre::Billboard *bb)
 /**
  * Let a new billboard available
  */
-void BillboardManager::letAvailable(Ogre::Billboard *b)
+void
+BillboardManager::letAvailable(Ogre::Billboard *b)
 {
 	ASSERT(b);
 	ASSERT(mBillboards.size()+1 <= mBillboardSet->getPoolSize());

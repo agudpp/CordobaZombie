@@ -52,8 +52,6 @@ public:
 	 */
 	static void
 	setLevelManager(LevelManager *im);
-	static void
-	setSelectionManager(selection::SelectionManager *sm);
 
 	/**
 	 * @brief Configure the State using the current selection data

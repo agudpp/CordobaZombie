@@ -7,9 +7,12 @@
  */
 #include "IInputState.h"
 
+#include <SelectionSystem/SelectionManager.h>
+
 namespace input {
 
-selection::SelectionManager *IInputState::sSelectionMngr = 0;
+selection::SelectionManager *IInputState::sSelectionMngr =
+    &selection::SelectionManager::getInstance();
 LevelManager *IInputState::sLevelManager = 0;
 CollisionResult IInputState::mCollObjs;
 selection::SelectableObject *IInputState::sOnMouseOverObj = 0;
@@ -20,13 +23,6 @@ IInputState::setLevelManager(LevelManager *lm)
 {
 	ASSERT(lm);
 	sLevelManager = lm;
-}
-
-void
-IInputState::setSelectionManager(selection::SelectionManager *sm)
-{
-	ASSERT(sm);
-	sSelectionMngr = sm;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

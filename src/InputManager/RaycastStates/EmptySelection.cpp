@@ -49,11 +49,18 @@ EmptySelection::executeRayCast(void)
     Ogre::RaySceneQueryResultEntry &obj = results.front();
     ASSERT(obj.movable && obj.worldFragment == 0);
 
+    // check if we have something in the user any
+    const Ogre::Any &anyObj = obj.movable->getUserAny();
+    if (anyObj.isEmpty()) {
+        newRaycastedObject(0);
+        return;
+    }
+
     // advise the object that we are over him with the mouse
     // Thanks to Ogre we have to do a any_cast that is a string comparison!!!!
     // so nice! so efficient
     selection::SelectableObject *selObj =
-        Ogre::any_cast<selection::SelectableObject *>(obj.movable->getUserAny());
+        Ogre::any_cast<selection::SelectableObject*>(anyObj);
     newRaycastedObject(selObj);
 }
 

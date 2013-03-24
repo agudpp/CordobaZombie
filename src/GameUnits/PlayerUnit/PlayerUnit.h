@@ -9,6 +9,8 @@
 #define PLAYERUNIT_H_
 
 
+#include <boost/shared_ptr.hpp>
+
 #include "FSM/StateMachine.h"
 #include "GameUnit.h"
 #include "PlayerDefs.h"
@@ -176,6 +178,12 @@ public:
 
 
 	///////						Function of this class					//////
+
+	/**
+	 * @brief Set/Get the player ID
+	 */
+	inline PlayerID playerID(void) const;
+	inline void setPlayerID(PlayerID pid);
 
 	/**
 	 * Set the callback to be called when the life of the player change
@@ -380,6 +388,10 @@ protected:
 
 
 private:
+	// Avoid copying players
+	//
+	PlayerUnit(const PlayerUnit&);
+	PlayerUnit &operator=(const PlayerUnit&);
 
 	/**
 	 * Obtain all the nearby zombies to this unit and save the result in
@@ -398,21 +410,22 @@ private:
 
 
 private:
-	PlayerStateMachine				mFSM;
-	GameUnit						*mTarget;
-	int								mAttackingBehavior;
-	ZombieUnitVec					mNearbyZombies;
-	Weapon							*mWeapons[Weapon::W_NONE];
-	int								mActualWeapon;
-	PlayerWorldContext				mWorldContext;
-	Ogre::Billboard 				*mSelBillboard;
-	float							mUpdatePathTime;
-	Bomb							*mActualBomb;
-	CollectableObject				*mTargetColObject;
-	Backpack						mBackPack;
-	PlayerCallback					*mLifeChangeCb;
-	BombsVec						mBombs;
-	ItemsVec						mItems;
+	PlayerStateMachine              mFSM;
+	GameUnit                        *mTarget;
+	int                             mAttackingBehavior;
+	ZombieUnitVec                   mNearbyZombies;
+	Weapon                          *mWeapons[Weapon::W_NONE];
+	int                             mActualWeapon;
+	PlayerWorldContext              mWorldContext;
+	Ogre::Billboard                 *mSelBillboard;
+	float                           mUpdatePathTime;
+	Bomb                            *mActualBomb;
+	CollectableObject               *mTargetColObject;
+	Backpack                        mBackPack;
+	PlayerCallback                  *mLifeChangeCb;
+	BombsVec                        mBombs;
+	ItemsVec                        mItems;
+	PlayerID                        mPlayerID;
 
 
 
@@ -425,10 +438,25 @@ private:
 };
 
 
+// typedef
+//
+typedef boost::shared_ptr<PlayerUnit> PlayerUnitPtr;
 
 
 ///////							IMPLEMENTATION							////////
 
+
+////////////////////////////////////////////////////////////////////////////////
+inline PlayerID
+PlayerUnit::playerID(void) const
+{
+    return mPlayerID;
+}
+inline void
+PlayerUnit::setPlayerID(PlayerID pid)
+{
+    mPlayerID = pid;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 inline void PlayerUnit::setLifeCallback(PlayerCallback *cb)

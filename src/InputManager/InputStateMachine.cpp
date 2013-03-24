@@ -28,7 +28,10 @@ InputStateMachine::InputStateMachine(selection::SelectionManager &selManager) :
     mActualState(0)
 ,   mSelManager(selManager)
 {
+    createStates();
 
+    // by default use the empty selectio state
+    mActualState = mStates[IS_EMPTY_SEL].get();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -47,6 +50,7 @@ InputStateMachine::selectionChanged(const selection::SelectionData &selData)
         mActualState = mStates[IS_EMPTY_SEL].get();
         return;
     }
+
     // else some selection is there, check for players
     mAuxVec.clear();
     mSelManager.getObjects(selection::Type::SEL_TYPE_PLAYER, mAuxVec);

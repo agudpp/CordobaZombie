@@ -8,6 +8,8 @@
 #ifndef INPUTMANAGER_H_
 #define INPUTMANAGER_H_
 
+#include <cstdlib>
+
 #include <Common/GlobalObjects/GlobalObjects.h>
 #include <Common/Math/CommonMath.h>
 #include <Common/DebugUtil/DebugUtil.h>
@@ -73,6 +75,28 @@ class InputManager
 
 	};
 
+	// Flags used for the mouse buttons and keys pressed/released logic
+	//
+	struct InputFlags {
+	    InputFlags()
+	    {
+	        clearFlags();
+	    }
+
+	    // mouse flags
+	    unsigned char leftButtonPressed : 1;
+	    unsigned char rightButtonPressed : 1;
+	    unsigned char middleButtonPressed : 1;
+
+	    // keyboard flags
+
+
+	    void clearFlags(void)
+	    {
+	        std::memset(this, 0, sizeof(InputFlags));
+	    }
+	};
+
 public:
 	// Here we let public the possibility to configure the keys used in the game
 	enum inputID {
@@ -85,11 +109,6 @@ public:
 		KEY_EXIT_GAME,
 		KEY_PAUSE_GAME,
 		KEY_OPEN_CELLPHONE,
-
-		///////////////////////////////////////////////////////////////////////
-		MOUSE_BUTTON_LEFT,
-		MOUSE_BUTTON_RIGHT,
-		MOUSE_BUTTON_MIDDLE,
 
 		///////////////////////////////////////////////////////////////////////
 		NUM_KEYS,
@@ -219,6 +238,7 @@ private:
 	State                   mLastState;
 	Event                   mLastEvent;
 	selection::SelectionManager &mSelManager;
+	InputFlags              mInputFlags;
 
 };
 
@@ -283,6 +303,9 @@ inline void InputManager::setAll(void)
 inline bool
 InputManager::shouldPerformRaycast(void) const
 {
+    //TODO: do the real check here
+    return true;
+
     const sm::Vector2 mousePosition(GLOBAL_CURSOR->getXRelativePos(),
                                     GLOBAL_CURSOR->getYRelativePos());
     // TODO: probably here we have to improve this using the MainMenuManager
