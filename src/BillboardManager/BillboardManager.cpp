@@ -11,6 +11,12 @@
 
 #include "BillboardManager.h"
 
+
+namespace billboard {
+
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 BillboardManager::BillboardManager() :
 mBillboardSet(0),
 mNode(0),
@@ -33,7 +39,7 @@ BillboardManager::~BillboardManager()
 	mNode->getParentSceneNode()->removeAndDestroyChild(mNode->getName());
 }
 
-
+////////////////////////////////////////////////////////////////////////////////
 bool
 BillboardManager::createSet(Ogre::Real r,
                             const Ogre::String &mn,
@@ -73,18 +79,14 @@ BillboardManager::createSet(Ogre::Real r,
 	return true;
 }
 
-/**
- * Returns if the manager is created or not
- */
+////////////////////////////////////////////////////////////////////////////////
 bool
 BillboardManager::isCreated(void)
 {
 	return mBillboardSet != 0;
 }
 
-/**
- * Set the billboards visible/invisible
- */
+////////////////////////////////////////////////////////////////////////////////
 void
 BillboardManager::setVisible(bool visible)
 {
@@ -92,10 +94,7 @@ BillboardManager::setVisible(bool visible)
 	mBillboardSet->setVisible(visible);
 }
 
-/**
- * Set the "bounds" where the billboards will be seen (normally the size of
- * the level by now).
- */
+////////////////////////////////////////////////////////////////////////////////
 void
 BillboardManager::setBounds(const Ogre::AxisAlignedBox &bb, Ogre::Real radius)
 {
@@ -104,9 +103,7 @@ BillboardManager::setBounds(const Ogre::AxisAlignedBox &bb, Ogre::Real radius)
 	mBillboardSet->setCullIndividually(true);
 }
 
-/**
- * Get a new Billboard. If have no more billboard then 0 is returned
- */
+////////////////////////////////////////////////////////////////////////////////
 Ogre::Billboard
 *BillboardManager::getNewBillboard(int atlasNumber)
 {
@@ -133,11 +130,7 @@ Ogre::Billboard
 	return result;
 }
 
-/**
- * Change the atlas of a billboard
- * @param	bb			The billboard to modify
- * @param	atlasNum	The atlas number to be set
- */
+////////////////////////////////////////////////////////////////////////////////
 void
 BillboardManager::changeAtlas(Ogre::Billboard *bb, int atlasNumber)
 {
@@ -149,9 +142,7 @@ BillboardManager::changeAtlas(Ogre::Billboard *bb, int atlasNumber)
 	bb->setTexcoordRect(x1, 0.0f, x1+mAtlasSize, 1.0f);
 }
 
-/**
- * Returns the atlas id of a billboard
- */
+////////////////////////////////////////////////////////////////////////////////
 int
 BillboardManager::getAtlas(Ogre::Billboard *bb)
 {
@@ -160,9 +151,7 @@ BillboardManager::getAtlas(Ogre::Billboard *bb)
 	return (x1 / mAtlasSize);
 }
 
-/**
- * Let a new billboard available
- */
+////////////////////////////////////////////////////////////////////////////////
 void
 BillboardManager::letAvailable(Ogre::Billboard *b)
 {
@@ -178,4 +167,14 @@ BillboardManager::letAvailable(Ogre::Billboard *b)
 
 	// hide it
 	b->setPosition(0,-9999.0f,0);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void
+BillboardManager::destroyAll(void)
+{
+    ASSERT(false);
+}
+
+
 }

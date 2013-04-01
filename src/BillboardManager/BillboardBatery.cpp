@@ -8,6 +8,11 @@
 #include "GlobalObjects.h"
 #include "BillboardBatery.h"
 
+
+namespace billboard {
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 BillboardBatery::BillboardBatery() :
 mActualIndex(0),
 mBillboardSet(0),
@@ -31,24 +36,20 @@ BillboardBatery::~BillboardBatery()
 }
 
 
-/**
- * Load a Billboardset using a radius create the billboards and
- * a material
- * @param r		The radius to be used
- * @param mn	Material Name to be used
- * @param size	The number of billboard to allocate
- *
- * @return 		True on success false otherwise
- */
-bool BillboardBatery::createSet(Ogre::Real r, const Ogre::String &mn, int size)
+////////////////////////////////////////////////////////////////////////////////
+bool
+BillboardBatery::createSet(Ogre::Real width, Ogre::Real height,
+                                const Ogre::String &mn,
+                                size_t count,
+                                const std::vector<UVCoords> &coords)
 {
 	ASSERT(!mBillboardSet);
 
-	mBillboardSet = GLOBAL_SCN_MNGR->createBillboardSet(size);
+	mBillboardSet = GLOBAL_SCN_MNGR->createBillboardSet(count);
 
 	// create the billboard
 	//	result->createBillboard(Ogre::Vector3::ZERO, Ogre::ColourValue::Green);
-	mBillboardSet->setDefaultDimensions(r, r);
+	mBillboardSet->setDefaultDimensions(width, height);
 	mBillboardSet->setBillboardType(Ogre::BBT_PERPENDICULAR_COMMON);
 	mBillboardSet->setCommonDirection(Ogre::Vector3::UNIT_Y);
 	mBillboardSet->setCommonUpVector(Ogre::Vector3::UNIT_Z);
@@ -56,11 +57,9 @@ bool BillboardBatery::createSet(Ogre::Real r, const Ogre::String &mn, int size)
 	mBillboardSet->setVisible(true);
 
 	// move all the billboards down
-	for(int i = 0; i < size; ++i){
-		Ogre::Billboard *b = mBillboardSet->createBillboard(-999,-999,-999);
-//		b->setPosition(-9999,-9999,-9999);
+	for(size_t i = 0; i < count; ++i){
+		Ogre::Billboard *b = mBillboardSet->createBillboard(0, -999, 0);
 	}
-	debug("Num billboards: %d\n", mBillboardSet->getNumBillboards());
 
 	// create the scene node
 	mNode = GLOBAL_SCN_MNGR->getRootSceneNode()->createChildSceneNode();
@@ -68,37 +67,43 @@ bool BillboardBatery::createSet(Ogre::Real r, const Ogre::String &mn, int size)
 	mNode->attachObject(mBillboardSet);
 	mActualIndex = 0;
 
+	ASSERT(!coords.empty());
+	mCoords = coords;
+
 	return true;
 }
 
-
-/**
- * Hide all the billboards
- */
-void BillboardBatery::setVisible(bool v)
+////////////////////////////////////////////////////////////////////////////////
+void
+BillboardBatery::setVisible(bool v)
 {
 	mNode->setVisible(v);
 }
 
-/**
- * Show a new billboard in some position with some normal vector
- */
-void BillboardBatery::showBillboard(const Ogre::Vector3 &pos)
+////////////////////////////////////////////////////////////////////////////////
+void
+BillboardBatery::showBillboard(const Ogre::Vector3 &pos)
 {
 	ASSERT(mBillboardSet);
 
 	// get the available billboard
-	int index = mActualIndex % mBillboardSet->getNumBillboards();
-	mActualIndex++;
+	const size_t index = mActualIndex % mBillboardSet->getNumBillboards();
+	++mActualIndex;
+
+	// get the index in the coords
+	const size_t coordsIndex = index % mCoords.size();
 
 	Ogre::Billboard *b = mBillboardSet->getBillboard(index);
 	ASSERT(b);
 
 	// put the billboard in the corresponding position
 	b->setPosition(pos);
+	const UVCoords &coords = mCoords[coordsIndex];
+	b->setTexcoordRect(coords.u0, coords.v0, coords.u1, coords.v1);
 
 	// update the billboard dimension
 	mBillboardSet->_updateBounds();
 }
 
 
+}

@@ -11,15 +11,54 @@
 
 #include <OgreBillboard.h>
 #include <OgreBillboardSet.h>
+#include <Utils/GUI/AtlasOverlay/MultiAtlasOverlay.h>
 
 #include "BillboardBatery.h"
+#include "BillboardDefs.h"
+
+namespace billboard {
 
 class BillboardManager {
 public:
-	BillboardManager();
+
+    /**
+     * @brief singleton instance
+     */
+    static BillboardManager &instance(void)
+    {
+        static BillboardManager instance;
+        return instance;
+    }
+
 	~BillboardManager();
 
+
+	////////////////////////////////////////////////////////////////////////////
+	///                         Battery methods                              ///
+	////////////////////////////////////////////////////////////////////////////
+
 	/**
+	 * @brief Configure (create) a BillboardBattery.
+	 * @param batInfo   The battery Info used to construct the battery
+	 */
+	inline void
+	createBattery(const BatteryInfo &batInfo);
+
+	/**
+	 * @brief Get a Battery
+	 * @param id    The BatteryID we want to get
+	 * @returns the associated BillboardBattery
+	 */
+	inline BillboardBatery &
+	getBattery(BatteryID id);
+
+
+	////////////////////////////////////////////////////////////////////////////
+	///                         General methods                              ///
+	////////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * TODO: Remove this function, use the future new system
 	 * Load a Billboardset using a radius create the billboards and
 	 * a material
 	 * @param r		The radius to be used
@@ -72,15 +111,50 @@ public:
 	 */
 	void letAvailable(Ogre::Billboard *);
 
+	/**
+	 * @brief Destroy all the billboards
+	 */
+	void destroyAll(void);
 
 private:
-	typedef std::deque<Ogre::Billboard *>	BillboardQueue;
+    BillboardManager();
+    BillboardManager(const BillboardManager&);
+    BillboardManager& operator=(const BillboardManager&);
+
+private:
+	typedef std::deque<Ogre::Billboard *>   BillboardQueue;
+
 
 	BillboardQueue		mBillboards;
 	Ogre::BillboardSet	*mBillboardSet;
 	Ogre::SceneNode		*mNode;
 	float				mAtlasSize;
+	MultiAtlasOverlay mAtlasOverlay;
+	BillboardBatery mBatteries[BatteryID::SIZE];
 
 };
 
+
+// Inline implementations
+//
+inline void
+BillboardManager::createBattery(const BatteryInfo &batInfo)
+{
+    ASSERT(batInfo.id < BatteryID::SIZE);
+    ASSERT(!mBatteries[batInfo.id].isCreated());
+    mBatteries[batInfo.id].createSet(batInfo.width, batInfo.height,
+                                     batInfo.materialName,
+                                     batInfo.count,
+                                     batInfo.coords);
+}
+
+
+inline BillboardBatery &
+BillboardManager::getBattery(BatteryID id)
+{
+    ASSERT(id < BatteryID::SIZE);
+    return mBatteries[id];
+}
+
+}
 #endif /* BILLBOARDMANAGER_H_ */

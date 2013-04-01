@@ -43,8 +43,8 @@ private:
 
 private:
 	MouseCursor				mMouseCursor;
-	BillboardBatery			mBbBatery;
-	BillboardManager		mBbManager;
+	billboard::BillboardBatery			mBbBatery;
+	billboard::BillboardManager mBbManager;
 
 };
 

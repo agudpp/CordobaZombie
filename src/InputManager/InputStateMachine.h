@@ -15,8 +15,14 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include <OgreBillboard.h>
+
 #include <SelectionSystem/SelectionData.h>
+#include <SelectionSystem/SelectionType.h>
 #include <SelectionSystem/SelectionManager.h>
+#include <Common/GlobalObjects/GlobalObjects.h>
+#include <Common/DebugUtil/DebugUtil.h>
+#include <Utils/MouseCursor/MouseCursor.h>
 
 #include "IInputState.h"
 
@@ -79,6 +85,28 @@ private:
     void
     createStates(void);
 
+    /**
+     * @brief Auxiliary function used to show a overlay in a position on
+     *        the map (over the pathfinding) if it is possible. If not, false
+     *        is returned, if it is possible, true is returned.
+     *        We will use the current IInputState to get the position in the
+     *        map.
+     * @returns true if we are showing an overlay over the map, false if not
+     */
+    bool
+    tryToShowOverlaysOnMap(void);
+
+    // Helper functions to handle mouse cursor for different states and object
+    // types
+    //
+    inline void
+    showCursorSinglePlayer(selection::Type selType);
+
+    // Helper functions to handle the current object with the raycasted object
+    //
+    inline void
+    handleRaycastedObjSingle(const selection::SelectableObject *raycastedObj);
+
 private:
 	IInputState *mActualState;
 	IInputStatePtr mStates[SIZE];
@@ -87,6 +115,8 @@ private:
 	LevelManager *mLevelManager;
 	InputManager &mInputManager;
     State mState;
+    Ogre::Billboard *mMoveSingleBillboard;
+    bool mMoveBillbardVisible;
 
 };
 
@@ -95,8 +125,55 @@ typedef boost::shared_ptr<InputStateMachine> InputStateMachinePtr;
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
+inline void
+InputStateMachine::showCursorSinglePlayer(selection::Type selType)
+{
+    ASSERT(!mAuxVec.empty());
 
+    MouseCursor &mc = *GLOBAL_CURSOR;
 
+    switch (selType) {
+    case selection::Type::SEL_TYPE_PLAYER:
+    case selection::Type::SEL_TYPE_NONE:
+    case selection::Type::SEL_TYPE_CIVIL:
+        // normal cursor
+        mc.setCursor(MouseCursor::Cursor::NORMAL_CURSOR);
+        break;
+    case selection::Type::SEL_TYPE_ZOMBIE:
+        mc.setCursor(MouseCursor::Cursor::ATTACK_CURSOR);
+        break;
+    case selection::Type::SEL_TYPE_LVL_OBJECT:
+        mc.setCursor(MouseCursor::Cursor::PICK_OBJECT_CURSOR);
+        break;
+    default:
+        ASSERT(false);
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+inline void
+InputStateMachine::handleRaycastedObjSingle(const selection::SelectableObject *raycastedObj)
+{
+    ASSERT(raycastedObj);
+
+    switch (raycastedObj->type()) {
+    case selection::Type::SEL_TYPE_PLAYER:
+    case selection::Type::SEL_TYPE_NONE:
+    case selection::Type::SEL_TYPE_CIVIL:
+        // Do nothing...
+        break;
+    case selection::Type::SEL_TYPE_ZOMBIE:
+        // attack the zombie
+        debugBLUE("ATTACKKKKKKK!!\n");
+        break;
+    case selection::Type::SEL_TYPE_LVL_OBJECT:
+        // pick object!
+        debugBLUE("PICKKKKINGGG object!\n");
+        break;
+    default:
+        ASSERT(false);
+    }
+}
 
 }
 #endif /* INPUTSTATEMACHINE_H_ */

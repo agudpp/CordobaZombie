@@ -40,6 +40,16 @@ public:
 	inline void setNumberImages(int iprow, int ipcolumn);
 
 	/**
+	 * @brief Configure the Multiatlas to be used only for uv calculation
+	 * @param materialName  The material name we want to use to configure this
+     * @param   iprow       Number of images per row
+     * @param   ipcolumn    Number of images per column
+	 */
+	inline void configureAtlasForCalculus(const Ogre::String &materialName,
+	                                      size_t ipRow,
+	                                      size_t ipColumn);
+
+	/**
 	 * Change the atlas position
 	 * @param	row		The row to be selected
 	 * @param	column	The column to be selected
@@ -54,6 +64,19 @@ public:
      * @param index     The index of the image we want to use
      */
 	inline void changeAtlas(size_t index);
+
+	/**
+	 * @brief Get the uv coordinates from an index or indices
+	 * @param index | row,col   The glbal index or the row and column to get the
+	 *                          uv
+	 * @param u0,u1,v0,v1       The resulting uv coordinates
+	 */
+	inline void getUVs(size_t row, size_t column,
+	                   Ogre::Real &u0, Ogre::Real &v0,
+	                   Ogre::Real &u1, Ogre::Real &v1) const;
+    inline void getUVs(size_t index,
+                       Ogre::Real &u0, Ogre::Real &v0,
+                       Ogre::Real &u1, Ogre::Real &v1) const;
 
 private:
 	Ogre::PanelOverlayElement		*mCont;
@@ -103,6 +126,28 @@ MultiAtlasOverlay::setNumberImages(int iprow, int ipcolumn)
 
 ////////////////////////////////////////////////////////////////////////////////
 inline void
+MultiAtlasOverlay::configureAtlasForCalculus(const Ogre::String &materialName,
+                                             size_t iprow,
+                                             size_t ipcolumn)
+{
+    ASSERT(mCont == 0);
+
+    int textSizex = GUIHelper::getTextureWidth(materialName);
+    mAtlasFactorX = static_cast<Ogre::Real>(textSizex) /
+        static_cast<Ogre::Real>(ipcolumn);
+    mAtlasFactorX = mAtlasFactorX / static_cast<Ogre::Real>(textSizex);
+
+    int textSizey = GUIHelper::getTextureHeight(materialName);
+    mAtlasFactorY = static_cast<Ogre::Real>(textSizey) /
+        static_cast<Ogre::Real>(iprow);
+    mAtlasFactorY = mAtlasFactorY / static_cast<Ogre::Real>(textSizey);
+
+    mNumRows = iprow;
+    mNumCols = ipcolumn;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+inline void
 MultiAtlasOverlay::changeAtlas(int row, int column)
 {
 	ASSERT(mCont);
@@ -120,5 +165,28 @@ MultiAtlasOverlay::changeAtlas(size_t index)
     const std::size_t col = index - (mNumCols * row);
     changeAtlas(row, col);
 }
+
+inline void
+MultiAtlasOverlay::getUVs(size_t row, size_t column,
+                          Ogre::Real &u0, Ogre::Real &v0,
+                          Ogre::Real &u1, Ogre::Real &v1) const
+{
+    ASSERT(column < mNumCols);
+    ASSERT(row < mNumRows);
+    u0 = (mAtlasFactorX * column);
+    v0 = (mAtlasFactorY * row);
+    u1 = u0 + mAtlasFactorX;
+    v1 = v0 + mAtlasFactorY;
+}
+inline void
+MultiAtlasOverlay::getUVs(size_t index,
+                          Ogre::Real &u0, Ogre::Real &v0,
+                          Ogre::Real &u1, Ogre::Real &v1) const
+{
+    const std::size_t row = index / mNumCols;
+    const std::size_t col = index - (mNumCols * row);
+    getUVs(row, col, u0, v0, u1, v1);
+}
+
 
 #endif /* MULTIATLASOVERLAY_H_ */

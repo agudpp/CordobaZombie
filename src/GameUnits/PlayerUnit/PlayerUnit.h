@@ -401,13 +401,6 @@ private:
 	 */
 	void obtainAndAdviseNearbyZombies(void);
 
-	/**
-	 * Load the Billboard associated to the players
-	 */
-	void loadBillboards(void);
-
-
-
 
 private:
 	PlayerStateMachine              mFSM;
@@ -430,7 +423,7 @@ private:
 
 
 	// The billboard Manager used by all the units
-	static	BillboardManager				*mBillboardMngr;
+	static	billboard::BillboardManager &mBillboardMngr;
 
 	// The transition table used by all the players.. if we will use a unique
 	// otherwise we have to delete this

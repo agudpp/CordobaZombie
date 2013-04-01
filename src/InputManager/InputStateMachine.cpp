@@ -8,11 +8,12 @@
 
 #include "InputStateMachine.h"
 
+#include <BillboardManager/BillboardManager.h>
 #include <SelectionSystem/SelectionType.h>
 #include <SelectionSystem/SelectionManager.h>
 #include <SelectionSystem/SelectableObject.h>
 #include <LevelManager/LevelManager.h>
-#include <Common/DebugUtil/DebugUtil.h>
+#include <GameUnits/PlayerUnit/PlayerUnit.h>
 
 #include "InputManager/RaycastStates/EmptySelection.h"
 #include "RaycastStates/SinglePlayerSel.h"
@@ -30,6 +31,15 @@ InputStateMachine::createStates(void)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+bool
+InputStateMachine::tryToShowOverlaysOnMap(void)
+{
+
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 InputStateMachine::InputStateMachine(selection::SelectionManager &selManager,
                                      LevelManager *lvlManager,
                                      InputManager &inputManager) :
@@ -38,6 +48,8 @@ InputStateMachine::InputStateMachine(selection::SelectionManager &selManager,
 ,   mLevelManager(lvlManager)
 ,   mInputManager(inputManager)
 ,   mState(State::IS_EMPTY_SEL)
+,   mMoveSingleBillboard(0)
+,   mMoveBillbardVisible(false)
 {
     ASSERT(lvlManager != 0);
 
@@ -45,6 +57,10 @@ InputStateMachine::InputStateMachine(selection::SelectionManager &selManager,
 
     // by default use the empty selectio state
     mActualState = mStates[IS_EMPTY_SEL].get();
+
+    debugWARNING("TODO: Change this using the new interface of billboards...\n");
+    mMoveSingleBillboard =
+        billboard::BillboardManager::instance().getNewBillboard(0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -57,6 +73,16 @@ InputStateMachine::~InputStateMachine()
 void
 InputStateMachine::selectionChanged(const selection::SelectionData &selData)
 {
+    // reset the mouse cursor
+    MouseCursor &mc = *GLOBAL_CURSOR;
+    if (mc.getCursor() != MouseCursor::Cursor::NORMAL_CURSOR) {
+        mc.setCursor(MouseCursor::Cursor::NORMAL_CURSOR);
+    }
+
+    // hide move billboard
+    mMoveSingleBillboard->setPosition(0.0f, -9999.0f, 0.f);
+
+
     // TODO: here we should perform all the logic to set the correct state
     if (selData.selected.empty()){
         // we have no selection
@@ -93,6 +119,8 @@ InputStateMachine::selectionChanged(const selection::SelectionData &selData)
 void
 InputStateMachine::update(void)
 {
+    MouseCursor &mc = *GLOBAL_CURSOR;
+
     // We have to perform raycast?
     if (mInputManager.shouldPerformRaycast()){
         // perform it and do whatever we need
@@ -165,20 +193,91 @@ InputStateMachine::update(void)
     // now we have to execute the logic depending on the current selectio-state
     const bool rightButtonReleased =
         mInputManager.isKeyReleased(inputID::MOUSE_BUTTON_RIGHT);
+    const bool rightButtonPressed =
+            mInputManager.isKeyDown(inputID::MOUSE_BUTTON_RIGHT);
+    const bool isAPlayerSelected = raycastedObj &&
+        raycastedObj->type() == selection::Type::SEL_TYPE_PLAYER;
 
     switch (mState) {
+    ////////////////////////////////////////////////////////////////////////////
     case State::IS_EMPTY_SEL:
-
+        // we have nothing to do?..
         break;
+    ////////////////////////////////////////////////////////////////////////////
     case State::IS_MULTI_PLAYER_SEL:
 
         break;
+    ////////////////////////////////////////////////////////////////////////////
     case State::IS_OBJECT_SEL:
 
         break;
+    ////////////////////////////////////////////////////////////////////////////
     case State::IS_SINGLE_PLAYER_SEL:
+    {
+        // we have a player selected, we have to do:
+        // 1) If we are not pressing the right button, then we want to show
+        //    a overlay in the pathfinding place
+        // 2) If we are not pressing the right button and we are over an object
+        //    we have to change the mouse cursor icon (depending on the object
+        //    we are over).
+        // 3) If we are pressing the right button and we are over a free space
+        //    then we have to move the player over there.
+        // 4) If we are over an object and pressing the button then we have
+        //    to send the player over the object and pick it / activate it..
 
+        Ogre::Vector3 pointInPlane;
+        mActualState->performRayAgainstPlane(pointInPlane);
+        const bool isPointInPath = mActualState->isPointInPath(pointInPlane);
+
+        if (!rightButtonReleased) {
+            // check if we are over an object
+            if (raycastedObj != 0) {
+                // we are over an object... then we have to handle the mouse
+                // icon depending of the object
+                showCursorSinglePlayer(raycastedObj->type());
+            } else {
+                // we have not raycasted any object, check if we have to show
+                // the billboard of movement in the map
+                if (isPointInPath) {
+                    // show the billboard and the cursor
+                    mc.setCursor(MouseCursor::Cursor::MOVE_CRUSOR);
+                    mMoveSingleBillboard->setPosition(pointInPlane);
+                    mMoveBillbardVisible = true;
+                } else {
+                    // we have nothing to show nor do...
+                    mc.setCursor(MouseCursor::Cursor::NORMAL_CURSOR);
+                    if (mMoveBillbardVisible) {
+                        mMoveBillbardVisible = false;
+                        mMoveSingleBillboard->setPosition(0.0f, -9999.0f, 0.f);
+                    }
+                }
+            }
+        } else {
+            // we just release the button
+            if (raycastedObj != 0) {
+                // we just click over an object...
+                handleRaycastedObjSingle(raycastedObj);
+            } else {
+                // no object raycasted... check if we have to move the player
+                // to that position
+                if (isPointInPath) {
+                    // move the player
+                    ASSERT(dynamic_cast<PlayerUnit *>(mAuxVec.back()));
+                    PlayerUnit *player = static_cast<PlayerUnit *>(mAuxVec.back());
+                    player->moveUnitTo(sm::Vector2(pointInPlane.x, pointInPlane.z));
+                } else {
+                    // emit sound that the player couldn't move over there?
+                    // TODO:
+                }
+            }
+        }
+
+        // if we are pressing the button then we probably want to show
+        // other mouse cursor (to give an idea of animation)
+        // TODO
+    }
         break;
+    ////////////////////////////////////////////////////////////////////////////
     default:
         // WTF!
         ASSERT(false);

@@ -55,6 +55,8 @@ Test::createPlayers(void)
     PlayerUnitBuilder &playerBuilder = PlayerUnitBuilder::instance();
     mPlayers.push_back(playerBuilder.buildPlayer(PlayerID::PLAYER_CORAL));
 
+    mPlayers.back()->setPosition(sm::Vector2(1169.335327, 1365.213867));
+
 
 }
 
@@ -65,6 +67,15 @@ Test::Test() :
 	input::IInputState::setLevelManager(&mLevelManager);
     mInputManager = &input::InputManager::getInstance();
     mInputManager->setCameraController(&mCamController);
+
+    // Remove this will be deprecated soon
+    billboard::BillboardManager::instance().createSet(50,
+                                                      "BillboardManager/Atlas",
+                                                      3,
+                                                      2);
+    billboard::BillboardManager::instance().setBounds(Ogre::AxisAlignedBox(
+                Ogre::Vector3(-9999.9f,-9999.9f,-9999.9f),
+                Ogre::Vector3(999999.9f,999999.9f,999999.9f)),999999.9f);
 }
 
 Test::~Test()
@@ -88,21 +99,23 @@ void Test::loadAditionalData(void)
 	UpdatableObject::setUpdObjsManager(&mUpdaterManager);
 
 	// build the level
-    Ogre::Entity *ent = GLOBAL_SCN_MNGR->createEntity("pathfinder.mesh");
+    Ogre::Entity *ent = GLOBAL_SCN_MNGR->createEntity("pathfinding.mesh");
     mLevelManager.load(ent, 25000, 25000, 100, 100);
     mLevelManager.showTriangles();
     mInputManager->setLevelManager(&mLevelManager);
 
 	// load the level
-	Ogre::DotSceneLoader dsl;
-	dsl.parseDotScene("cuidad01.scene", "Popular", GLOBAL_SCN_MNGR);
+//	Ogre::DotSceneLoader dsl;
+//	dsl.parseDotScene("cuidad01.scene", "Popular", GLOBAL_SCN_MNGR);
 	createPlayers();
+
 }
 
 /* function called every frame. Use GlobalObjects::lastTimeFrame */
 void Test::update()
 {
     static bool k1 = false;
+    static bool k2 = false;
 
     selection::SelectionManager &selManager = selection::SelectionManager::getInstance();
 
@@ -113,7 +126,18 @@ void Test::update()
             selManager.unselectAll();
         }
     } else {
-        k1 = true;
+        k1 = false;
+    }
+
+    if(mKeyboard->isKeyDown(OIS::KC_2)) {
+        if (k2 == false) {
+            k2 = true;
+            // unselect all
+            const Ogre::Vector3 &camPost = mCamController.getCamPos();
+            debugYELLOW("cameraPos: %f, %f, %f\n", camPost.x, camPost.y, camPost.z);
+        }
+    } else {
+        k2 = false;
     }
 
     if(mKeyboard->isKeyDown(OIS::KC_ESCAPE)) {
@@ -133,6 +157,8 @@ void Test::update()
 	for (size_t i = 0, size = mPlayers.size(); i < size; ++i) {
 	    mPlayers[i]->update();
 	}
+
+
 
 	// update selection changes
 	selection::SelectionManager::getInstance().executeCallbacks();

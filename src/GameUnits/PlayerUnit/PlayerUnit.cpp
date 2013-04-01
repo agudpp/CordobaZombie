@@ -12,7 +12,8 @@
 #include <SelectionSystem/SelectionType.h>
 
 PlayerSMTTable *PlayerUnit::mSMTT = 0;
-BillboardManager *PlayerUnit::mBillboardMngr = 0;
+billboard::BillboardManager &PlayerUnit::mBillboardMngr =
+    billboard::BillboardManager::instance();
 
 const float  PlayerUnit::UPDATE_PATH_TIME = 0.5f;
 
@@ -57,31 +58,6 @@ PlayerUnit::obtainAndAdviseNearbyZombies(void)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void
-PlayerUnit::loadBillboards(void)
-{
-	if(mBillboardMngr && mBillboardMngr->isCreated()){
-		return;
-	}
-
-	mBillboardMngr = new BillboardManager;
-
-	// create the billboard manager
-	// ONLY 3 players
-	mBillboardMngr->createSet(getRadius(), PLAYER_BB_SEL_NAME, 3,
-			PLAYER_BB_SEL_NUM);
-
-	// set the size of the level (all the possible size...)
-	// TODO: change this..?
-	mBillboardMngr->setBounds(Ogre::AxisAlignedBox(
-			Ogre::Vector3(-9999.9f,-9999.9f,-9999.9f),
-			Ogre::Vector3(999999.9f,999999.9f,999999.9f)),999999.9f);
-}
-
-
-
-
-////////////////////////////////////////////////////////////////////////////////
 PlayerUnit::PlayerUnit() :
 		mFSM(this),
 		mAttackingBehavior(PlayerUnit::BH_NORMAL),
@@ -110,11 +86,6 @@ PlayerUnit::PlayerUnit() :
 ////////////////////////////////////////////////////////////////////////////////
 PlayerUnit::~PlayerUnit()
 {
-	if(mBillboardMngr){
-		delete mBillboardMngr;
-		mBillboardMngr = 0;
-	}
-
 	// TODO: Que hacemos con las bombas?
 	// TODO: que hacemos con los items?
 	// TODO: que hacemos con las armas?
@@ -128,11 +99,11 @@ PlayerUnit::objectSelected(void)
 {
 	if(mSelBillboard){
 		// actually selected, change the atlas
-		mBillboardMngr->changeAtlas(mSelBillboard, PLAYER_BB_SELECTION);
+		mBillboardMngr.changeAtlas(mSelBillboard, PLAYER_BB_SELECTION);
 		return;
 	}
 	// get new billboard
-	mSelBillboard = mBillboardMngr->getNewBillboard(PLAYER_BB_SELECTION);
+	mSelBillboard = mBillboardMngr.getNewBillboard(PLAYER_BB_SELECTION);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -140,7 +111,7 @@ void
 PlayerUnit::objectUnselected(void)
 {
 	if(mSelBillboard){
-		mBillboardMngr->letAvailable(mSelBillboard);
+		mBillboardMngr.letAvailable(mSelBillboard);
 		mSelBillboard = 0;
 	}
 }
@@ -154,8 +125,7 @@ PlayerUnit::mouseOverObject(void)
 	    return;
 	}
 	// else we get new billboard and use it
-	mSelBillboard = mBillboardMngr->getNewBillboard(PLAYER_BB_MOUSE_OVER);
-	debugBLUE("mSelBillboard being used\n");
+	mSelBillboard = mBillboardMngr.getNewBillboard(PLAYER_BB_MOUSE_OVER);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -167,14 +137,13 @@ PlayerUnit::mouseExitObject(void)
 		return;
 	}
 
-	if(mBillboardMngr->getAtlas(mSelBillboard) == PLAYER_BB_SELECTION){
+	if(mBillboardMngr.getAtlas(mSelBillboard) == PLAYER_BB_SELECTION){
 		// do nothing
 		return;
 	} else {
 		// we are in "mouse over".. so we clear this billboard
-		mBillboardMngr->letAvailable(mSelBillboard);
+		mBillboardMngr.letAvailable(mSelBillboard);
 		mSelBillboard = 0;
-		debugBLUE("mSelBillboard not used anymore\n");
 	}
 }
 
@@ -256,9 +225,6 @@ PlayerUnit::build(void)
 
 	// Start the FSM
 	mFSM.start();
-
-	// create the billboards for every unit
-	loadBillboards();
 
 	return true;
 }
