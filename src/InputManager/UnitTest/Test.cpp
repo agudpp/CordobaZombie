@@ -91,6 +91,7 @@ void Test::loadAditionalData(void)
     Ogre::Entity *ent = GLOBAL_SCN_MNGR->createEntity("pathfinder.mesh");
     mLevelManager.load(ent, 25000, 25000, 100, 100);
     mLevelManager.showTriangles();
+    mInputManager->setLevelManager(&mLevelManager);
 
 	// load the level
 	Ogre::DotSceneLoader dsl;

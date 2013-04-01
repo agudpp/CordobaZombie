@@ -82,9 +82,15 @@ public:
     inline void
     resetLastRaycastedObj(void);
 
-
-protected:
 	//			Auxiliary functions to be used by the states.
+
+    /**
+     * @brief Get the point in the plane of the level when performing the
+     *        raycast (using the position of the mouse).
+     * @returns intersection of the raycast in the plane level.
+     */
+    inline void
+    performRayAgainstPlane(Ogre::Vector3 &result) const;
 
 	/**
 	 * Performs a RaySceneQuery using the actual position of the mouse.
@@ -157,6 +163,16 @@ protected:
 //
 typedef boost::shared_ptr<IInputState> IInputStatePtr;
 
+
+////////////////////////////////////////////////////////////////////////////////
+inline void
+IInputState::performRayAgainstPlane(Ogre::Vector3 &result) const
+{
+    const MouseCursor *mc = GLOBAL_CURSOR;
+    sLevelManager->getRaycastManger()->getPoint(mc->getXRelativePos(),
+                                                mc->getYRelativePos(),
+                                                result);
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 inline Ogre::RaySceneQueryResult &

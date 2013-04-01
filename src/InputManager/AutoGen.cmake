@@ -28,6 +28,7 @@ set(HDRS
 	${DEV_ROOT_PATH}/InputManager/IInputState.h
 	${DEV_ROOT_PATH}/InputManager/InputMouse.h
 	${DEV_ROOT_PATH}/InputManager/InputTransitionTable.h
+	${DEV_ROOT_PATH}/InputManager/InputKeys.h
 	${DEV_ROOT_PATH}/InputManager/InputKeyboard.h
 )
 

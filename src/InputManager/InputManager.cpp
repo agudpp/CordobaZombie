@@ -18,19 +18,6 @@
 #include "InputStateMachine.h"
 
 
-
-// Helper MACRO for input checking and release keys
-//
-#define INPUT_CHECK(buttonCondition, pressedFlag, codeToRunOnPressed) \
-    if(buttonCondition){\
-        if(!pressedFlag){\
-            pressedFlag = 1;\
-            codeToRunOnPressed\
-        }\
-    } else {\
-        pressedFlag = 0;\
-    }
-
 namespace input {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -256,7 +243,7 @@ InputManager::InputManager() :
 		mLevelManager(0),
 		mCameraController(0),
 		mMenuManager(0),
-		mStateMachine(new InputStateMachine(selection::SelectionManager::getInstance())),
+		mStateMachine(0),
 		mFlags(~0),
 		mActualState(S_NORMAL),
 		mLastState(S_NORMAL),
@@ -264,12 +251,6 @@ InputManager::InputManager() :
 		mSelManager(selection::SelectionManager::getInstance())
 {
 	configureDefaultKeys();
-
-	// register the InputStateMachine to the selection manager to receive
-	// events
-	mSelManager.addCallback(boost::bind(&InputStateMachine::selectionChanged,
-	                                    mStateMachine,
-	                                    _1));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -284,6 +265,19 @@ InputManager::setLevelManager(LevelManager *lm)
 {
 	ASSERT(lm);
 	mLevelManager = lm;
+
+	debugWARNING("This operation should be called only once...\n");
+
+	mStateMachineConn.disconnect();
+	delete mStateMachine;
+	mStateMachine = new InputStateMachine(mSelManager, mLevelManager, *this);
+
+    // register the InputStateMachine to the selection manager to receive
+    // events
+	mStateMachineConn = mSelManager.addCallback(
+	    boost::bind(&InputStateMachine::selectionChanged,
+	                mStateMachine,
+	                _1));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -323,6 +317,9 @@ InputManager::addLevelZone(const sm::AABB &bb)
 void
 InputManager::update(void)
 {
+    // update input keys
+    updateKeyFlags();
+
     // update the GLOBAL_CURSOR (TODO: probably we don't want to do this always)
     GLOBAL_CURSOR->updatePosition(input::InputMouse::absX(),
                                   input::InputMouse::absY());
@@ -372,39 +369,9 @@ InputManager::update(void)
         ASSERT(false);
     }
 
-    // We have to perform raycast?
-    if (shouldPerformRaycast()){
-        // perform it and do whatever we need
-        mStateMachine->executeRayCast();
-    } else {
-        // probably we don't wan to do nothing? because for example the mouse
-        // is still pressed from the last frame, here we can handle the
-        // rectangle selection?
-        return;
-    }
-
-    // check for raycasted objects now
-    selection::SelectableObject *raycastedObj = mStateMachine->lastRaycastedObj();
-
-    // now check of mouse left button press, if the button is pressed then we
-    // will want to:
-    // 1) Unselect players (if raycastedObj == 0
-    // 2) Select a new player?
-    // for now we will select the object only
-
-    INPUT_CHECK(InputMouse::isMouseDown(input::MB_Left),\
-                mInputFlags.leftButtonPressed,\
-                // if there are no object raycasted then we want to unselect
-                // all the objects
-                if (raycastedObj == 0) {
-                    mSelManager.unselectAll();
-                    return;
-                }
-
-                // else we want to handle the raycasted object
-                handleRaycastedObj(raycastedObj);
-    )
-
+    // update the state machine
+    ASSERT(mStateMachine != 0);
+    mStateMachine->update();
 
 }
 

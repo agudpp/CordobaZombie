@@ -1,4 +1,6 @@
-/*
+/* Class that will handle the selection and the main input system (select a
+ * player, move players, select objects, etc)
+ *
  * InputStateMachine.h
  *
  *  Created on: 04/08/2012
@@ -11,10 +13,11 @@
 
 #include <vector>
 
+#include <boost/shared_ptr.hpp>
+
 #include <SelectionSystem/SelectionData.h>
 #include <SelectionSystem/SelectionManager.h>
 
-#include "DebugUtil.h"
 #include "IInputState.h"
 
 
@@ -22,14 +25,23 @@
 //
 namespace selection {
 class SelectableObject;
+class SelectionManager;
 }
+
+namespace input {
+class InputManager;
+}
+
+class LevelManager;
+
 
 namespace input {
 
 
 class InputStateMachine {
 
-    enum {
+    // the possible states
+    enum State {
         IS_EMPTY_SEL = 0,
         IS_MULTI_PLAYER_SEL,
         IS_OBJECT_SEL,
@@ -37,8 +49,11 @@ class InputStateMachine {
         SIZE
     };
 
+
 public:
-	InputStateMachine(selection::SelectionManager &selManager);
+	InputStateMachine(selection::SelectionManager &selManager,
+	                  LevelManager *lvlManager,
+	                  InputManager &inputManager);
 	~InputStateMachine();
 
     /**
@@ -51,21 +66,10 @@ public:
     selectionChanged(const selection::SelectionData &selData);
 
     /**
-     * @brief Perform the needed raycast depending on the last selection.
-     *        This function will show all the neccessary stuff in the level,
-     *        select whatever is needed, and so forth.
-     *        We will use the GLOBAL_CURSOR position to generate the RayCast
+     * @brief Function called to update the logic of the InputManager
      */
-    inline void
-    executeRayCast(void);
-
-    /**
-     * @brief Returns the last raycasted object
-     * @returns the last raycasted object for any of the InputStates
-     */
-    inline selection::SelectableObject *
-    lastRaycastedObj(void);
-
+    void
+    update(void);
 
 private:
 
@@ -80,27 +84,19 @@ private:
 	IInputStatePtr mStates[SIZE];
 	selection::SelectionManager &mSelManager;
 	std::vector<selection::SelectableObject *> mAuxVec;
+	LevelManager *mLevelManager;
+	InputManager &mInputManager;
+    State mState;
 
 };
 
 
+typedef boost::shared_ptr<InputStateMachine> InputStateMachinePtr;
+
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////////////////////////
-inline void
-InputStateMachine::executeRayCast(void)
-{
-    ASSERT(mActualState != 0);
-    mActualState->executeRayCast();
-}
 
-////////////////////////////////////////////////////////////////////////////////
-inline selection::SelectableObject *
-InputStateMachine::lastRaycastedObj(void)
-{
-    return mActualState->lastRaycastedObj();
-}
 
 }
 #endif /* INPUTSTATEMACHINE_H_ */

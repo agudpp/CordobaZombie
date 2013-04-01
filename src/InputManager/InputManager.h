@@ -14,9 +14,11 @@
 #include <Common/Math/CommonMath.h>
 #include <Common/DebugUtil/DebugUtil.h>
 #include <Utils/MouseCursor/MouseCursor.h>
+#include <SelectionSystem/SelectionManager.h>
 
 #include "InputMouse.h"
 #include "InputKeyboard.h"
+#include "InputKeys.h"
 
 
 // Forward declarations
@@ -28,7 +30,6 @@ class IInputState;
 class GameUnit;
 
 namespace selection {
-class SelectionManager;
 class SelectableObject;
 }
 
@@ -75,45 +76,6 @@ class InputManager
 
 	};
 
-	// Flags used for the mouse buttons and keys pressed/released logic
-	//
-	struct InputFlags {
-	    InputFlags()
-	    {
-	        clearFlags();
-	    }
-
-	    // mouse flags
-	    unsigned char leftButtonPressed : 1;
-	    unsigned char rightButtonPressed : 1;
-	    unsigned char middleButtonPressed : 1;
-
-	    // keyboard flags
-
-
-	    void clearFlags(void)
-	    {
-	        std::memset(this, 0, sizeof(InputFlags));
-	    }
-	};
-
-public:
-	// Here we let public the possibility to configure the keys used in the game
-	enum inputID {
-		KEY_GROUP_UNITS = 0,
-		KEY_MOVE_CAM_UP,
-		KEY_MOVE_CAM_DOWN,
-		KEY_MOVE_CAM_LEFT,
-		KEY_MOVE_CAM_RIGHT,
-		KEY_MOVE_CAM_FREE,		// key used to move the cam with the mouse
-		KEY_EXIT_GAME,
-		KEY_PAUSE_GAME,
-		KEY_OPEN_CELLPHONE,
-
-		///////////////////////////////////////////////////////////////////////
-		NUM_KEYS,
-	};
-
 
 public:
 	/**
@@ -157,9 +119,11 @@ public:
 	 * Check key / mouse buttons pressed and mouse position functions (interface)
 	 */
 	inline bool isKeyDown(inputID key) const;
-	inline bool isMosuseDown(inputID key) const;
+	inline bool wasKeyPressed(inputID key) const;
+	inline bool isKeyReleased(inputID key) const;
 	inline float getMouseRelativeX(void) const;
 	inline float getMouseRelativeY(void) const;
+	inline const KeyFlags &getKeyFlags(void) const;
 
 
 	//				HUDManager Handling
@@ -170,6 +134,12 @@ public:
 	 * Update all the logic of the Input system (update the actual state).
 	 */
 	void update(void);
+
+    /**
+     * @brief Check if we have to handle the Mouse Raycast (using the
+     *        MouseSelectionHandler).
+     */
+    inline bool shouldPerformRaycast(void) const;
 
 private:
 	InputManager();
@@ -197,12 +167,6 @@ private:
 	void handleRaycast(void);
 
 	/**
-	 * @brief Check if we have to handle the Mouse Raycast (using the
-	 *        MouseSelectionHandler).
-	 */
-	inline bool shouldPerformRaycast(void) const;
-
-	/**
 	 * @brief State machine associated functions
 	 */
 	void newStateEvent(Event e);
@@ -226,19 +190,25 @@ private:
 	inline void clearAll(void);
 	inline void setAll(void);
 
+	// Input key flags handler (fill and set the corresponding flags of the
+	// key and mouse buttons
+	//
+	inline void updateKeyFlags(void);
+
 private:
 	LevelManager            *mLevelManager;
 	CameraController        *mCameraController;
 	MenuManager             *mMenuManager;
-	LevelZoneVec            mLevelZones;;
-	int                     mKeys[NUM_KEYS];
+	LevelZoneVec            mLevelZones;
+	int                     mKeys[inputID::NUM_KEYS];
+	selection::SelectionManager::Connection mStateMachineConn;
 	InputStateMachine       *mStateMachine;
 	int                     mFlags;
 	State                   mActualState;
 	State                   mLastState;
 	Event                   mLastEvent;
 	selection::SelectionManager &mSelManager;
-	InputFlags              mInputFlags;
+	KeyFlags                mKeyFlags;
 
 };
 
@@ -246,55 +216,75 @@ private:
 
 
 ////////////////////////////////////////////////////////////////////////////////
-inline CameraController *InputManager::getCameraController(void)
+inline CameraController *
+InputManager::getCameraController(void)
 {
 	return mCameraController;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-inline MenuManager *InputManager::getMenuManager(void)
+inline MenuManager *
+InputManager::getMenuManager(void)
 {
 	return mMenuManager;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-inline bool InputManager::isKeyDown(InputManager::inputID key) const
+inline bool
+InputManager::isKeyDown(inputID key) const
 {
-	return input::InputKeyboard::isKeyDown(static_cast<input::KeyCode>(
-	        mKeys[key]));
+	return mKeyFlags.isKeyPressed(key);
 }
-inline bool InputManager::isMosuseDown(InputManager::inputID key) const
+inline bool
+InputManager::wasKeyPressed(inputID key) const
 {
-	return input::InputMouse::isMouseDown(static_cast<input::MouseButtonID>(
-	        mKeys[key]));
+	return mKeyFlags.wasKeyPressed(key);
 }
-inline float InputManager::getMouseRelativeX(void) const
+inline bool
+InputManager::isKeyReleased(inputID key) const
+{
+	return mKeyFlags.isKeyReleased(key);
+}
+
+inline float
+InputManager::getMouseRelativeX(void) const
 {
 	return GLOBAL_CURSOR->getXRelativePos();
 }
-inline float InputManager::getMouseRelativeY(void) const
+inline float
+InputManager::getMouseRelativeY(void) const
 {
 	return GLOBAL_CURSOR->getYRelativePos();
 }
+inline const KeyFlags &
+InputManager::getKeyFlags(void) const
+{
+    return mKeyFlags;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
-inline void InputManager::setFlag(int f)
+inline void
+InputManager::setFlag(int f)
 {
     mFlags |= f;
 }
-inline bool InputManager::isSet(int f) const
+inline bool
+InputManager::isSet(int f) const
 {
     return mFlags & f;
 }
-inline void InputManager::clear(int f)
+inline void
+InputManager::clear(int f)
 {
     mFlags &= ~f;
 }
-inline void InputManager::clearAll(void)
+inline void
+InputManager::clearAll(void)
 {
     mFlags = 0;
 }
-inline void InputManager::setAll(void)
+inline void
+InputManager::setAll(void)
 {
     mFlags = ~0;
 }
@@ -317,6 +307,26 @@ InputManager::shouldPerformRaycast(void) const
         }
     }
     return false;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+inline void
+InputManager::updateKeyFlags(void)
+{
+    // update keyboard buttons
+    for (size_t i = 0; i < inputID::NUM_KEYBOARD_KEYS; ++i) {
+        mKeyFlags.setKeyNewState(static_cast<inputID>(i),
+                                 input::InputKeyboard::isKeyDown(
+                                     static_cast<input::KeyCode>(mKeys[i])));
+    }
+
+    // update mouse buttons
+    mKeyFlags.setKeyNewState(inputID::MOUSE_BUTTON_LEFT,
+                             input::InputMouse::isMouseDown(MouseButtonID::MB_Left));
+    mKeyFlags.setKeyNewState(inputID::MOUSE_BUTTON_RIGHT,
+                             input::InputMouse::isMouseDown(MouseButtonID::MB_Right));
+    mKeyFlags.setKeyNewState(inputID::MOUSE_BUTTON_MIDDLE,
+                             input::InputMouse::isMouseDown(MouseButtonID::MB_Middle));
 }
 
 }
