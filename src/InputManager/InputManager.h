@@ -12,9 +12,10 @@
 #include "GlobalObjects.h"
 #include "MouseCursor.h"
 #include "CommonMath.h"
-#include "InputStateMachine.h"
+//#include "InputStateMachine.h"
 #include "DebugUtil.h"
-#include "MouseSelectionHandler.h"
+#include "InputMouse.h"
+#include "InputKeyboard.h"
 
 class CameraController;
 class LevelManager;
@@ -27,16 +28,37 @@ class InputManager
 {
 	// define the bounds where the mouse will start to move the camera in %
 	// relative to the window size
-	static const float	CAMERA_MOVE_BOUNDS_LIMITS	=	0.01f;
-	static const float	CAMERA_MOVE_BOUNDS_L_LIMIT	=	CAMERA_MOVE_BOUNDS_LIMITS;
-	static const float	CAMERA_MOVE_BOUNDS_R_LIMIT	=	1.0f-CAMERA_MOVE_BOUNDS_LIMITS;
-	static const float	CAMERA_MOVE_BOUNDS_T_LIMIT	=	CAMERA_MOVE_BOUNDS_LIMITS;
-	static const float	CAMERA_MOVE_BOUNDS_B_LIMIT	=	1.0f-CAMERA_MOVE_BOUNDS_LIMITS;
+	static const float	CAMERA_MOVE_BOUNDS_LIMITS;
+	static const float	CAMERA_MOVE_BOUNDS_L_LIMIT;
+	static const float	CAMERA_MOVE_BOUNDS_R_LIMIT;
+	static const float	CAMERA_MOVE_BOUNDS_T_LIMIT;
+	static const float	CAMERA_MOVE_BOUNDS_B_LIMIT;
 
 
 	// typedefs
 	typedef std::vector<sm::AABB>		LevelZoneVec;
 
+	// Internal flags
+	enum Flag {
+	    RaycastEnabled = (1 << 1),
+	    CameraMovementEnabled = (1 << 2),
+	    CameraRotationEnabled = (1 << 3),
+	    CameraZoomEnabled =     (1 << 4),
+
+	};
+
+	// Events and state
+	enum Event {
+	    E_NONE = 0,
+	    E_DONE,
+	    E_ROTATE_CAMERA,
+	};
+
+	enum State {
+	    S_NORMAL = 0,
+	    S_ROTATING_CAMERA,
+
+	};
 
 public:
 	// Here we let public the possibility to configure the keys used in the game
@@ -47,10 +69,6 @@ public:
 		KEY_MOVE_CAM_LEFT,
 		KEY_MOVE_CAM_RIGHT,
 		KEY_MOVE_CAM_FREE,		// key used to move the cam with the mouse
-		KEY_ROTATE_CAM_X_POS,	// rotate positive the camera throw axis X
-		KEY_ROTATE_CAM_X_NEG,	// rotate negative the camera throw axis X
-		KEY_ROTATE_CAM_Y_POS,
-		KEY_ROTATE_CAM_Y_NEG,
 		KEY_EXIT_GAME,
 		KEY_PAUSE_GAME,
 		KEY_OPEN_CELLPHONE,
@@ -67,7 +85,15 @@ public:
 	typedef std::vector<GameUnit *>		UnitSelVec;
 
 public:
-	InputManager();
+	/**
+	 * Singleton
+	 */
+	static InputManager &getInstance(void)
+	{
+	    static InputManager instance;
+	    return instance;
+	}
+
 	~InputManager();
 
 	/**
@@ -80,12 +106,6 @@ public:
 	 */
 	void setCameraController(CameraController *cc);
 	inline CameraController *getCameraController(void);
-
-	/**
-	 * Set the mouse cursor used to handle the camera and ray casts...
-	 */
-	void setMouseCursor(MouseCursor *mc);
-	inline MouseCursor *getMouseCursor(void);
 
 	/**
 	 * Set the MenuManager to use. This automatically will update the MenuManager
@@ -145,6 +165,10 @@ public:
 	void update(void);
 
 private:
+	InputManager();
+	InputManager(const InputManager &);
+	InputManager &operator=(const InputManager);
+
 
 	/**
 	 * Configure default keys
@@ -164,18 +188,43 @@ private:
 	 */
 	bool shouldPerformRaycast(void) const;
 
+	/**
+	 * State machine associated functions
+	 */
+	void newStateEvent(Event e);
+	void initState(State s);
+
+	/**
+	 * Handle camera movement (camera movement using the keyboard and the mouse
+	 * position).
+	 * Also handle camera rotation
+	 */
+	void handleCameraMovement(void);
+	void handleCameraRotation(void);
+	void handleCameraZoom(void);
+
+
+	// Flag handling helper functions
+	//
+	inline void setFlag(int f);
+	inline bool isSet(int f) const;
+	inline void clear(int f);
+	inline void clearAll(void);
+	inline void setAll(void);
 
 private:
 	LevelManager			*mLevelManager;
 	CameraController		*mCameraController;
-	MouseCursor				*mMouseCursor;
 	MenuManager				*mMenuManager;
 	LevelZoneVec			mLevelZones;;
 	int 					mKeys[NUM_KEYS];
-	InputStateMachine		mStateMachine;
+//	InputStateMachine		mStateMachine;
 	InputActionObject		*mActualActionObj;
 	UnitSelVec				mUnitsSelected;
-	MouseSelectionHandler   mMouseSelHandler;
+	int                     mFlags;
+	State                   mActualState;
+	State                   mLastState;
+	Event                   mLastEvent;
 
 };
 
@@ -188,13 +237,6 @@ inline CameraController *InputManager::getCameraController(void)
 	return mCameraController;
 }
 
-
-////////////////////////////////////////////////////////////////////////////////
-inline MouseCursor *InputManager::getMouseCursor(void)
-{
-	return mMouseCursor;
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 inline MenuManager *InputManager::getMenuManager(void)
 {
@@ -204,27 +246,49 @@ inline MenuManager *InputManager::getMenuManager(void)
 ////////////////////////////////////////////////////////////////////////////////
 inline bool InputManager::isKeyDown(InputManager::inputID key) const
 {
-	return GLOBAL_KEYBOARD->isKeyDown(mKeys[key]);
+	return input::InputKeyboard::isKeyDown(static_cast<input::KeyCode>(
+	        mKeys[key]));
 }
 inline bool InputManager::isMosuseDown(InputManager::inputID key) const
 {
-	return GLOBAL_MOUSE->getMouseState().buttonDown(mKeys[key]);
+	return input::InputMouse::isMouseDown(static_cast<input::MouseButtonID>(
+	        mKeys[key]));
 }
 inline float InputManager::getMouseRelativeX(void) const
 {
-	ASSERT(mMouseCursor);
-	return mMouseCursor->getXRelativePos();
+	return GLOBAL_CURSOR->getXRelativePos();
 }
 inline float InputManager::getMouseRelativeY(void) const
 {
-	ASSERT(mMouseCursor);
-	return mMouseCursor->getYRelativePos();
+	return GLOBAL_CURSOR->getYRelativePos();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 inline InputManager::UnitSelVec &InputManager::getUnitSelected(void)
 {
 	return mUnitsSelected;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+inline void InputManager::setFlag(int f)
+{
+    mFlags |= f;
+}
+inline bool InputManager::isSet(int f) const
+{
+    return mFlags & f;
+}
+inline void InputManager::clear(int f)
+{
+    mFlags &= ~f;
+}
+inline void InputManager::clearAll(void)
+{
+    mFlags = 0;
+}
+inline void InputManager::setAll(void)
+{
+    mFlags = ~0;
 }
 
 

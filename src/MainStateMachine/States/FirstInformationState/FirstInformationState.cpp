@@ -18,6 +18,11 @@
 #include "GUIHelper.h"
 
 
+const float  FirstInformationState::SHOWING_TIME = 3.65f;
+const float  FirstInformationState::FADING_TIME  = 1.0f;
+
+
+
 ////////////////////////////////////////////////////////////////////////////////
 Ogre::Overlay *FirstInformationState::showNext(void)
 {
@@ -126,7 +131,8 @@ void FirstInformationState::configure(Ogre::Real ft, Ogre::Real st)
 }
 
 void
-FirstInformationState::getResources(IMainState::ResourcesInfoVec &resourcesList) const
+FirstInformationState::getResources(IMainState::ResourcesInfoVec &resourcesList,
+                                    const MainMachineInfo &info) const
 {
     resourcesList.clear();
 

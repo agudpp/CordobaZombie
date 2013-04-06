@@ -45,6 +45,17 @@ public:
 			TiXmlElement *elem,
 			std::list<Ogre::AnimationState *> &animList);
 
+	/**
+	 * Get an animation from an xml document.
+	 *  @scnManager     the SceneManager
+     *  @node           The SceneNode to load the AnimationStates
+     *  @xmlFileName    The xml filename, where we will parse the <animation>
+     *                  node (if more than one then we will parse the first one).
+	 */
+	static Ogre::AnimationState *getAnimationFromFile(Ogre::SceneManager *scnManager,
+	                                                  Ogre::SceneNode *node,
+	                                                  const char *xmlFilename);
+
 
 	/* Loads an XmlDocument from a filename.
 	 * Requires:

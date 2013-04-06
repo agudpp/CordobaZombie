@@ -71,7 +71,8 @@ public:
 	 * The list returned is the list of the resources used by and only by this
 	 * state.
 	 */
-	virtual void getResources(IMainState::ResourcesInfoVec &resourcesList) const;
+	virtual void getResources(IMainState::ResourcesInfoVec &resourcesList,
+							  const MainMachineInfo &info) const;
 
 	/**
 	 * Call-back function for menu buttons being pressed.

@@ -42,8 +42,12 @@ public:
 	 * Function used to get the resources files used by the state.
 	 * The list returned is the list of the resources used by and only by this
 	 * state.
+	 * We also will pass the MainMachineInfo just in case we need it (for example
+	 * loadingLevel and gameLoop States will be used for multiple levels so
+	 * the resources location will be different for the same state).
 	 */
-	virtual void getResources(ResourcesInfoVec &resourcesList) const
+	virtual void getResources(ResourcesInfoVec &resourcesList,
+	                          const MainMachineInfo &info) const
 	{
 	    debugERROR("Esta clase tiene que estar reimplementada en las clases que "
 	            "heredan, en este caso el estado %s no lo tiene implementado\n",

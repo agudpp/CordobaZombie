@@ -42,11 +42,8 @@ MainTransitionFunction *MainTFBuilder::build(const TiXmlElement  *elem)
 	// FIXME ahora hacemos hardcoded
 	MainTransitionFunction *tt = new MainTransitionFunction;
 
+	// TODO: borrar estas tres líneas para que luego siga cargando todo
 	PreGameState *preGameState = new PreGameState;
-
-
-	//loadingState->setLoaderManager(mLoaderManager);
-	// TODO: borrar estas dos líneas para que luego siga cargando todo
 	tt->setStartState(preGameState);
 	return tt;
 
@@ -57,10 +54,13 @@ MainTransitionFunction *MainTFBuilder::build(const TiXmlElement  *elem)
 	MainMenuState *mainMenu = new MainMenuState;
 	LoadingState *loadingState = new LoadingState;
 	ExitState *exitState = new ExitState;
-//	PreGameState *preGameState = new PreGameState;
+	//PreGameState *preGameState = new PreGameState;
+
+	loadingState->setLoaderManager(mLoaderManager);
 
 	// build the transitions
-	tt->setStartState(firstInformation);
+	//tt->setStartState(firstInformation);
+	tt->setStartState(mainMenu);
 
 	tt->addNewEntry(firstInformation, MainMachineEvent::MME_DONE, video);
 	tt->addNewEntry(video, MainMachineEvent::MME_DONE, sponsors);

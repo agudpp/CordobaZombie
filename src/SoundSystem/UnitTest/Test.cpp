@@ -60,6 +60,7 @@
 #include "LSoundSource.h"
 
 
+const float Test::TIME_UPDATE_PERIOD = 1.0;
 
 
 /******************************************************************************/

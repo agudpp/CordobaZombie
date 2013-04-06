@@ -8,6 +8,11 @@
 #include "ProximityBomb.h"
 #include "GlobalObjects.h"
 
+
+
+const float  ProximityBomb::CHECK_TIME = 0.5f;
+
+
 ProximityBomb::ProximityBomb() :
 Bomb(Bomb::BOMB_PROXIMITY),
 mActivationTime(0),

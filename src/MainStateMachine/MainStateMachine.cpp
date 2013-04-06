@@ -71,7 +71,7 @@ MainStateMachine::loadResources(IMainState *state)
     }
 
     IMainState::ResourcesInfoVec resources;
-    state->getResources(resources);
+    state->getResources(resources, mInfo);
     if(resources.empty()){
 	debugWARNING("State \"%s\" had no resources to load.\n",
 			state->getName().c_str());
@@ -133,7 +133,7 @@ MainStateMachine::unloadResources(IMainState *state)
         return;
 
     IMainState::ResourcesInfoVec resources;
-    state->getResources(resources);
+    state->getResources(resources, mInfo);
 
     if(resources.empty()){
 	debugWARNING("State \"%s\" had no resources to unload\n",

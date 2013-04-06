@@ -40,7 +40,7 @@ typedef GenericFunctor<void, int>		PlayerCallback;
 class PlayerUnit : public GameUnit
 {
 	// The time that have to pass to update the path in engaging state
-	static const float	UPDATE_PATH_TIME		=	0.5f;
+	static const float	UPDATE_PATH_TIME;
 
 public:
 	typedef std::vector<GameUnit *>	ZombieUnitVec;

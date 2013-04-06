@@ -10,42 +10,65 @@
 
 #include <vector>
 
+#include <OgreAnimationState.h>
+
 #include "IMainState.h"
 
 
 // Forward declaration
 class GameUnit;
+class ZombieUnit;
+class PlayerUnit;
+class CivilUnit;
 class UpdObjsManager;
 class LoaderManager;
 class LevelManager;
 class MenuManager;
+class CameraController;
 
 class GameLoopState : public IMainState
 {
+    static const char *CAMERA_INTRO_FILENAME;
+
 	typedef std::vector<GameUnit*>			GameUnitVec;
+
+	enum State {
+	    None = 0,
+	    IntroVideo,     // when running a intro video
+	    MainLoop,       // when running the main loop
+	    ExtraApp,       // running extra apps (pause, cellphone, etc)
+	};
+
 public:
 	struct GameLoopData {
 		LoaderManager			*loaderManager;
 		UpdObjsManager			*updatableObjsManager;
 		MenuManager				*menuManager;
 		LevelManager			*levelManager;
+		CameraController        *cameraController;
 	};
 public:
 	GameLoopState();
 	virtual ~GameLoopState();
 
 	/**
-	 * Set/Get the loading system used for this level
+	 * Set the loading system used for this level
 	 */
 	void setData(GameLoopData *lm);
-	GameLoopData *getData(void);
-
 
 
 
 	////////////////////////////////////////////////////////////////////////////
 	/////					IMainState Functions							////
 	////////////////////////////////////////////////////////////////////////////
+
+	/**
+     * Function used to get the resources files used by the state.
+     * The list returned is the list of the resources used by and only by this
+     * state.
+     */
+    virtual void getResources(ResourcesInfoVec &resourcesList,
+                              const MainMachineInfo &info) const;
 
 	/**
 	 * Entering the state with additional info
@@ -69,6 +92,19 @@ public:
 
 
 protected:
+
+	/**
+	 * Check if there are animation to reproduce for this level.
+     * @return Anim in case there is an animation to reproduce.
+     *         0 otherwise
+	 */
+	Ogre::AnimationState *getLevelAnimation(void) const;
+
+	/**
+	 * Setup the scene (configure the mouse cursor, initial animation? etc)
+	 */
+	virtual void setupScene(void);
+
 	/**
 	 * This function is called to update all the main logic of the game and
 	 * measure the time to get the "LastTimeFrame".
@@ -97,13 +133,15 @@ protected:
 	virtual void unloadResources(void);
 
 protected:
-	LoaderManager			*mLoaderManager;
-	UpdObjsManager			*mUpdatableObjsManager;
-	MenuManager				*mMenuManager;
-	LevelManager			*mLevelManager;
-	MainMachineInfo			mInfo;
-	GameUnitVec				mGameUnits;
-	bool					mRunning;
+	LoaderManager           *mLoaderManager;
+	UpdObjsManager          *mUpdatableObjsManager;
+	MenuManager             *mMenuManager;
+	LevelManager            *mLevelManager;
+	MainMachineInfo         mInfo;
+	GameUnitVec             mGameUnits;
+	CameraController        *mCameraController;
+	bool                    mRunning;
+	State                   mState;
 };
 
 #endif /* GAMELOOPSTATE_H_ */

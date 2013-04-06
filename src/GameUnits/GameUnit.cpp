@@ -9,6 +9,8 @@
 #include "GameUnit.h"
 
 
+const float GameUnit::SQRD_PATHPOINT_DIST  =   30.0f;
+
 
 ////////////////////////////////////////////////////////////////////////////////
 void GameUnit::loadAnimations(const std::vector<Ogre::String> &anims)

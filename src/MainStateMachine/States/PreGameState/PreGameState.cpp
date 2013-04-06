@@ -174,7 +174,9 @@ void PreGameState::exit(void)
 
 ////////////////////////////////////////////////////////////////////////////////
 void
-PreGameState::getResources(IMainState::ResourcesInfoVec & resourcesList) const{
+PreGameState::getResources(IMainState::ResourcesInfoVec & resourcesList,
+		                   const MainMachineInfo &info) const{
+
     resourcesList.clear();
 
     //TODO A esta funcion le faltaría un parámetro, el cual es un diccionario
@@ -184,6 +186,8 @@ PreGameState::getResources(IMainState::ResourcesInfoVec & resourcesList) const{
     IMainState::ResourcesInfo rinfo;
     rinfo.filePath = "/Levels/Demo/" + PREGAMEDIRNAME + "resources.cfg";
     rinfo.groupNames.push_back("PreGameState");
+
+    debugRAUL("%s\n",rinfo.filePath.c_str());
 
     resourcesList.push_back(rinfo);
 }

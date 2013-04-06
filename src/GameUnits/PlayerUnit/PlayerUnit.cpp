@@ -12,7 +12,7 @@
 PlayerSMTTable *PlayerUnit::mSMTT = 0;
 BillboardManager *PlayerUnit::mBillboardMngr = 0;
 
-
+const float  PlayerUnit::UPDATE_PATH_TIME = 0.5f;
 
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -43,7 +43,7 @@ void Test::handleInput(void)
 	// CAMERA
 //	float lCoeff = 200.0f * Common::GlobalObjects::lastTimeFrame;
 	Ogre::Vector3 mTranslationVec = Ogre::Vector3::ZERO;
-	Ogre::Real zoom = 0.0f;
+	Ogre::Real zoom = mCamController.zoom();
 
 	// HERE WE DEFINE THE KEYS USED TO MOVE THE CAMERA, WE WILL USE THE
 	// ARROWS TO MOVE THE CAMERA
@@ -54,7 +54,7 @@ void Test::handleInput(void)
 
 	// MOUSE
 	const OIS::MouseState& lMouseState = GLOBAL_MOUSE->getMouseState();
-	mMouseCursor.updatePosition(lMouseState.X.abs, lMouseState.Y.abs);
+	GLOBAL_CURSOR->updatePosition(lMouseState.X.abs, lMouseState.Y.abs);
 
 	if(mKeyboard->isKeyDown(OIS::KC_LEFT) || mKeyboard->isKeyDown(OIS::KC_A) ||
 			lMouseState.X.abs <= 0)
@@ -68,11 +68,11 @@ void Test::handleInput(void)
 	}
 	if(mKeyboard->isKeyDown(OIS::KC_Q))
 	{
-		zoom += 1;
+		zoom += 0.05f;
 	}
 	if(mKeyboard->isKeyDown(OIS::KC_E))
 	{
-		zoom -= 1;
+		zoom -= 0.05f;
 	}
 	if(mKeyboard->isKeyDown(OIS::KC_UP) || mKeyboard->isKeyDown(OIS::KC_W) ||
 			lMouseState.Y.abs <= 0)
@@ -89,45 +89,47 @@ void Test::handleInput(void)
 	{
 		mCamController.moveCamera(mTranslationVec);
 	}
-	if(zoom != 0.0f){
+	if(zoom != mCamController.zoom()){
 		mCamController.zoomCamera(zoom);
 	}
 
 	if(mKeyboard->isKeyDown(OIS::KC_R))
 	{
-		mCamController.rotateCameraY(Ogre::Radian(-1));
+//		mCamController.rotateCameraY(Ogre::Radian(-1));
 	}
 	if(mKeyboard->isKeyDown(OIS::KC_T))
 	{
-		mCamController.rotateCameraY(Ogre::Radian(1));
+//		mCamController.rotateCameraY(Ogre::Radian(1));
 	}
 
 	if(mKeyboard->isKeyDown(OIS::KC_Z))
 	{
-		mCamController.rotateCameraX(Ogre::Radian(-1));
+//		mCamController.rotateCameraX(Ogre::Radian(-1));
 	}
 	if(mKeyboard->isKeyDown(OIS::KC_X))
 	{
-		mCamController.rotateCameraX(Ogre::Radian(1));
+//		mCamController.rotateCameraX(Ogre::Radian(1));
 	}
 
-
+	const float lMouseZ = float(lMouseState.Z.rel);
+	float scrollZoom = mCamController.zoom();
+	if (lMouseZ > 0.0f) {
+	    scrollZoom += 1.f;
+	} else if (lMouseZ < 0.0f) {
+	    scrollZoom -= 1.f;
+	}
+	if(scrollZoom != mCamController.zoom()){
+        mCamController.zoomCamera(scrollZoom);
+    }
 
 	// check tracking camera
 	static int lastX = 0, lastY = 0;
+    const float lMouseX = float(lMouseState.X.rel);
+    const float lMouseY = float(lMouseState.Y.rel);
 	if(lMouseState.buttonDown(OIS::MB_Right)){
-		if(lastX > lMouseState.X.abs) {
-			mCamController.rotateCameraY(Ogre::Radian(10));
-		} else if(lastX < lMouseState.X.abs){
-			mCamController.rotateCameraY(Ogre::Radian(-10));
-		}
-		lastX = lMouseState.X.abs;
-		if(lastY > lMouseState.Y.abs) {
-			mCamController.rotateCameraX(Ogre::Radian(10));
-		} else if(lastY < lMouseState.Y.abs){
-			mCamController.rotateCameraX(Ogre::Radian(-10));
-		}
-		lastY = lMouseState.Y.abs;
+	    const float factor = -0.01 * mCamController.getRotationVelocity();
+	    mCamController.rotateCamera(Ogre::Radian(lMouseX * factor),
+		                            Ogre::Radian(lMouseY * factor));
 	}
 
 
@@ -135,21 +137,12 @@ void Test::handleInput(void)
 }
 
 Test::Test() :
-        AppTester(false)
+        AppTester(false),
+        mInputManager(InputManager::getInstance())
 {
 	setUseDefaultInput(false);
-	mMouseCursor.setVisible(true);
-	mMouseCursor.setWindowDimensions(GLOBAL_WINDOW->getWidth(), GLOBAL_WINDOW->getHeight());
 
-
-	//We put the cursor in the middle of the screen
-	OIS::MouseState &mMouseState = const_cast<OIS::MouseState &>(mMouse->getMouseState());
-	mMouseState.X.abs = mCamera->getViewport()->getActualWidth() / 2;
-	mMouseState.Y.abs = mCamera->getViewport()->getActualHeight() / 2;
-
-	mMouseCursor.updatePosition(mMouseState.X.abs,mMouseState.Y.abs);
-
-
+	mInputManager.setCameraController(&mCamController);
 }
 
 Test::~Test()
@@ -214,6 +207,7 @@ void Test::update()
 	static bool kPressed2 = false;
 	static bool kPressed3 = false;
 	static bool kPressed4 = false;
+	static bool kPressed5 = false;
 
 	if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_1)){
 		if(!kPressed){
@@ -263,8 +257,30 @@ void Test::update()
 	} else {
 		kPressed4 = false;
 	}
+	if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_SPACE)){
+		if(!kPressed5){
+			kPressed5 = true;
+			static Ogre::AnimationState *anim = 0;
+			if (anim != 0) {
+			    GLOBAL_SCN_MNGR->destroyAnimationState(anim->getAnimationName());
+			}
+			anim = Common::Util::getAnimationFromFile(GLOBAL_SCN_MNGR,
+			                                              mCamController.getCameraSceneNode(),
+			                                              "anim.xml");
+			mCamController.reproduceAnimation(anim);
+		}
+	} else {
+		kPressed5 = false;
+	}
 
-	handleInput();
+//	handleInput();
+
+
+    if(mKeyboard->isKeyDown(OIS::KC_ESCAPE)) {
+        // we have to exit
+        mStopRunning = true;
+    }
+	mInputManager.update();
 
 	mUpdaterManager.updateAllObjects();
 }

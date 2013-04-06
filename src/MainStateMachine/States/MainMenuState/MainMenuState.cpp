@@ -347,7 +347,8 @@ MainMenuState::~MainMenuState()
 
 ////////////////////////////////////////////////////////////////////////////////
 void
-MainMenuState::getResources(IMainState::ResourcesInfoVec &resourcesList) const
+MainMenuState::getResources(IMainState::ResourcesInfoVec &resourcesList,
+                            const MainMachineInfo &info) const
 {
     resourcesList.clear();
 

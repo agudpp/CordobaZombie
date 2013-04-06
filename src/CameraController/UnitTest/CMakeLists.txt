@@ -89,6 +89,7 @@ endif()
 
 
 set (DEV_ROOT_PATH $ENV{ESTRATEGIA2012_DEV_PATH})
+include(${DEV_ROOT_PATH}/CommonFlags.cmake)  # Customized compilation flags
 
  
 set(HDRS		
@@ -127,15 +128,29 @@ include_directories( ${OIS_INCLUDE_DIRS}
 	${DEV_ROOT_PATH}/Extras/AppTester
 )
 
+include(${DEV_ROOT_PATH}/BillboardManager/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/CameraController/AutoGen.cmake)
-include(${DEV_ROOT_PATH}/UpdatableObjects/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/CollisionSystem/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/Common/DebugUtil/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/Common/DotSceneLoader/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/Common/GUIHelper/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/Common/Math/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/Common/Util/AutoGen.cmake)
-include(${DEV_ROOT_PATH}/Common/DebugUtil/AutoGen.cmake)
-#include(${DEV_ROOT_PATH}/LoadingSystem/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/Common/QueueContainer/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/Common/XMLHelper/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/GameUnits/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/IA/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/InputManager/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/LevelManager/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/LoadingSystem/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/LoadingSystem/Loaders/EnvironmentLoader/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/MenuSystem/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/PathfindingSystem/AutoGen.cmake)
-include(${DEV_ROOT_PATH}/Common/DotSceneLoader/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/SoundSystem/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/UpdatableObjects/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/SelectionSystem/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/Helpers/GameUnitHelper/AutoGen.cmake)
+
 
 
 add_executable(OgreApp WIN32 ${HDRS} ${SRCS})
@@ -148,7 +163,8 @@ add_library(tinyxml STATIC IMPORTED)
 set_property(TARGET tinyxml PROPERTY
                 IMPORTED_LOCATION ${DEV_ROOT_PATH}/Common/tinyxml/tinyxmlpath.a)
 
-target_link_libraries(OgreApp ${OGRE_LIBRARIES} ${OIS_LIBRARIES} tinyxml box2D)
+target_link_libraries(OgreApp ${OGRE_LIBRARIES} ${OIS_LIBRARIES} tinyxml box2D
+    ${OPENAL_LIBRARIES} ${COMMON_LIBRARIES})
  
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/dist/bin)
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/dist/media)

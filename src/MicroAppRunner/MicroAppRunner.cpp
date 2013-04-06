@@ -17,7 +17,7 @@
 #include "MicroAppRunner.h"
 #include "MicroApp.h"
 
-MicroApp *MicroAppRunner::microApp = 0;
+MicroApp *MicroAppRunner::sMicroApp = 0;
 
 
 void MicroAppRunner::showFade(bool begin)
@@ -110,9 +110,9 @@ void MicroAppRunner::showFade(bool begin)
 
 void MicroAppRunner::runMicroApp(void)
 {
-	if(!microApp){
+	if(!sMicroApp){
 		debugERROR("Error: app is null\n");
-		ASSERT(app);
+		ASSERT(false);
 		return;
 	}
 
@@ -126,7 +126,7 @@ void MicroAppRunner::runMicroApp(void)
 	Ogre::Real frameTime = 0;
 
 	// load the app
-	microApp->load();
+	sMicroApp->load();
 
 	// here is the main loop
 	while(true) {
@@ -138,7 +138,7 @@ void MicroAppRunner::runMicroApp(void)
 		GLOBAL_MOUSE->capture();
 
 		// update the app
-		if(microApp->update(frameTime) != MicroApp::CONTINUE){
+		if(sMicroApp->update(frameTime) != MicroApp::CONTINUE){
 			break;
 		}
 
@@ -153,10 +153,10 @@ void MicroAppRunner::runMicroApp(void)
 	}
 
 	// unload the app
-	microApp->unload();
+	sMicroApp->unload();
 
 	// remove the microapp
-	microApp = 0;
+	sMicroApp = 0;
 
 	showFade(false);
 

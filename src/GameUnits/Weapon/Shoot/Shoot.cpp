@@ -15,7 +15,7 @@ CollisionManager	*Shoot::mCollMngr = 0;
 ShootContainer		*Shoot::mContainer = 0;
 CollisionResult		Shoot::mCollResult;
 Hit_t				Shoot::mHit;
-
+const Ogre::Real Shoot::COEFF_FACTOR    = 200.0f;
 
 
 /**

@@ -22,9 +22,9 @@ public:
 	/**
 	 * Enqueue the MicroApp to be executed
 	 */
-	inline static void enqueueMicroApp(MicroApp *app);
-	inline static void hasMicroAppToRun(void) const;
-	inline static void clearMicroAppsQueue(void);
+    static inline void enqueueMicroApp(MicroApp *app);
+    static inline bool hasMicroAppToRun(void);
+    static inline void clearMicroAppsQueue(void);
 
 	/* Run an micro app. This function blocks until the micro app finish.
 	 * The MicroApp to run is the first that was enqueued.
@@ -38,24 +38,24 @@ private:
 
 private:
 	// the last micro app enqueued
-	static MicroApp *microApp;
+	static MicroApp *sMicroApp;
 };
 
 
 
 
-inline static void MicroAppRunner::enqueueMicroApp(MicroApp *app)
+inline void MicroAppRunner::enqueueMicroApp(MicroApp *app)
 {
 	ASSERT(app);
-	microApp = app;
+	sMicroApp = app;
 }
-inline static void MicroAppRunner::hasMicroAppToRun(void) const
+inline bool MicroAppRunner::hasMicroAppToRun(void)
 {
-	return microApp != 0;
+	return sMicroApp != 0;
 }
-inline static void MicroAppRunner::clearMicroAppsQueue(void)
+inline void MicroAppRunner::clearMicroAppsQueue(void)
 {
-	microApp = 0;
+    sMicroApp = 0;
 }
 
 #endif /* MICROAPPRUNNER_H_ */

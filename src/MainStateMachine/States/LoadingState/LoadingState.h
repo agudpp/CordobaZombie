@@ -54,7 +54,8 @@ public:
      * The list returned is the list of the resources used by and only by this
      * state.
      */
-    virtual void getResources(ResourcesInfoVec &resourcesList) const;
+    virtual void getResources(ResourcesInfoVec &resourcesList,
+                              const MainMachineInfo &info) const;
 	/**
 	 * Entering the state with additional info
 	 * @note	We get the xml to parse throw the

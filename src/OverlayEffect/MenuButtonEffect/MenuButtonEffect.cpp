@@ -21,6 +21,7 @@ MenuButtonEffect::MenuButtonEffect(MenuButton *button, OverlayEffect *effect) :
 
 MenuButtonEffect::~MenuButtonEffect()
 {
+    mConnection.disconnect();
 }
 
 void MenuButtonEffect::operator()(OverlayEffect::EventID id)

@@ -153,6 +153,7 @@ include(${DEV_ROOT_PATH}/VideoPlayer/FfmpegVideoPlayer/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/Helpers/MetaRscManager/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/Helpers/GameUnitHelper/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/SelectionSystem/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/MicroAppRunner/AutoGen.cmake)
 
 
 
@@ -168,7 +169,7 @@ set_property(TARGET tinyxml PROPERTY
                 IMPORTED_LOCATION ${DEV_ROOT_PATH}/Common/tinyxml/tinyxmlpath.a)
 
 target_link_libraries(OgreApp ${OGRE_LIBRARIES} ${OIS_LIBRARIES} tinyxml box2D 
-avcodec avutil avformat swscale ${OPENAL_LIBRARIES} ${COMMON_LIBRARIES})
+avcodec avutil avformat swscale ${OPENAL_LIBRARIES} ${COMMON_LIBRARIES} boost_system)
  
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/dist/bin)
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/dist/media)

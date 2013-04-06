@@ -214,14 +214,14 @@ bool Util::getAnimation(Ogre::SceneManager *scnManager,
 	ASSERT(elem);
 
 	if(Ogre::String(elem->Value()) != "animations") {
-		debug("Invalid animation xml: %s \n", elem->Value());
+		debugERROR("Invalid animation xml: %s \n", elem->Value());
 		return false;
 	}
 	animList.clear();
 
 	TiXmlElement *pElement = elem->FirstChildElement("animation");
 	if(!pElement){
-		debug("No animations found\n");
+		debugERROR("No animations found\n");
 		return false;
 	}
 	while(pElement){
@@ -279,8 +279,52 @@ bool Util::getAnimation(Ogre::SceneManager *scnManager,
 		pElement = pElement->NextSiblingElement("animation");
 	}
 
-
 	return true;
+}
+
+Ogre::AnimationState *
+Util::getAnimationFromFile(Ogre::SceneManager *scnManager,
+                           Ogre::SceneNode *node,
+                           const char *xmlFilename)
+{
+    ASSERT(scnManager != 0);
+    ASSERT(node != 0);
+    ASSERT(xmlFilename != 0);
+    // load the file
+    std::auto_ptr<TiXmlDocument> doc(loadXmlDocument(xmlFilename));
+    if(!doc.get()){
+        debugERROR("Error loading the animation for the camera %s not found\n",
+                xmlFilename);
+        return 0;
+    }
+    TiXmlElement *anim = doc->RootElement();
+    if (anim == 0 || !(anim = anim->FirstChildElement("animations"))){
+        debugERROR("Error: No animation found in the xml %s\n", xmlFilename);
+        return 0;
+    }
+
+    // Now parse the animations
+    std::list<Ogre::AnimationState *> animList;
+    if(!getAnimation(scnManager,
+                     node,
+                     anim,
+                     animList)){
+        debugERROR("Error: Some error occur when loading the animation in %s\n",
+                xmlFilename);
+        return 0;
+    }
+
+    // tODO podemos optimizar esto solo leyendo la primera animacion en vez de todas
+    // si es que el archivo tiene mas de una
+    if (animList.empty()) {
+        debugERROR("No animations found for %s\n", xmlFilename);
+        return 0;
+    }
+    const Ogre::String &animName = animList.front()->getAnimationName();
+    // now we have the anim, check for that
+    ASSERT(scnManager->hasAnimationState(animName));
+
+    return scnManager->getAnimationState(animName);;
 }
 
 
