@@ -43,7 +43,7 @@ public:
 	 * The list returned is the list of the resources used by and only by this
 	 * state.
 	 */
-	virtual void getResources(ResourcesInfoVec &resourcesList)
+	virtual void getResources(ResourcesInfoVec &resourcesList) const
 	{
 	    debugERROR("Esta clase tiene que estar reimplementada en las clases que "
 	            "heredan, en este caso el estado %s no lo tiene implementado\n",

@@ -88,7 +88,7 @@ if (NOT OGRE_BUILD_PLATFORM_IPHONE)
 endif()
 
 
-set (DEV_ROOT_PATH /home/agustin/programacion/ogre/estrategia2012/svn/estrategia2012/trunk/src/)
+set (DEV_ROOT_PATH $ENV{ESTRATEGIA2012_DEV_PATH})
 
  
 set(HDRS		

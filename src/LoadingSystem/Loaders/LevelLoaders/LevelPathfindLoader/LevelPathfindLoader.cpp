@@ -14,7 +14,7 @@ LevelPathfindLoader::LevelPathfindLoader() :
 Loader("LevelPathfindLoader"),
 mPathfindingManager(0)
 {
-
+    setWeight(20);
 }
 
 LevelPathfindLoader::~LevelPathfindLoader()
@@ -26,9 +26,12 @@ LevelPathfindLoader::~LevelPathfindLoader()
 // Functoin used to load something
 int LevelPathfindLoader::load(TiXmlElement*elem, LoaderData *data)
 {
-	ASSERT(mPathfindingManager);
+	ASSERT(data);
 	ASSERT(elem);
 	ASSERT(Ogre::String(elem->Value()) == "LevelPathfindingLoader");
+
+	mPathfindingManager = data->pathfindingManager;
+	ASSERT(mPathfindingManager);
 
 	// load the pathfinding.
 	const TiXmlElement *e = elem->FirstChildElement("file");
@@ -65,4 +68,5 @@ int LevelPathfindLoader::unload()
 	ASSERT(mPathfindingManager);
 	mPathfindingManager->unloadActualLevel();
 	debugGREEN("Pathfinding level loaded ok\n");
+	return 0;
 }

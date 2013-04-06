@@ -25,10 +25,12 @@
 #define GLOBAL_WINDOW				Common::GlobalObjects::window
 #define GLOBAL_LVL_MNGR				Common::GlobalObjects::levelMngr
 #define GLOBAL_CURSOR				Common::GlobalObjects::mouseCursor
+#define GLOBAL_MENU_MNGR			Common::GlobalObjects::menuManager
 
 
 class LevelManager;
 class MouseCursor;
+class MenuManager;
 
 
 namespace Common {
@@ -56,6 +58,8 @@ public:
 
 	// Globarl Mouse cursor
 	static MouseCursor          *mouseCursor;
+
+	static MenuManager			*menuManager;
 
 
 public:

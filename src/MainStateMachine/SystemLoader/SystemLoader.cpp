@@ -139,9 +139,16 @@ void SystemLoader::ogreLoadResources(void) throw (SystemLoader::ErrorException)
 			path.append("/");
 	}
 #endif
-	std::string fname = path + "resources.cfg";
+	//std::string fname = path + "resources.cfg";
+	//debugGREEN("Trying to parse the resource file %s\n", fname.c_str());
+	//ogreLoadRsrcFile(fname, path);
+
+	// FIXME Esto de abajo es para que carge recursos globales solamente. Estos
+	// recursos son necesarios durante todo el juego.
+	std::string fname = path + "globalResources.cfg";
 	debugGREEN("Trying to parse the resource file %s\n", fname.c_str());
 	ogreLoadRsrcFile(fname, path);
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////

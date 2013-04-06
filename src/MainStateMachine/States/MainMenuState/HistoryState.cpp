@@ -16,6 +16,7 @@
 #include "SoundFamilyTable.h"
 
 
+
 namespace mm_states {
 
 
@@ -63,8 +64,10 @@ HistoryState::~HistoryState()
  * marcando asi el numero de slide en la secuencia.
  */
 
+
 void HistoryState::load(void)
 {
+
 	// we will load all the buttons
 	if(mButtons.empty()){
 
@@ -125,6 +128,7 @@ void HistoryState::load(void)
 
 void HistoryState::beforeUpdate(void)
 {
+
 	mState = STATE_SHOWING;
 
     // show the overlay
@@ -156,7 +160,8 @@ void HistoryState::beforeUpdate(void)
 
 void HistoryState::update(void)
 {
-//	debugRAUL("=#=#=#=#=#=#=#=#=#=#=#= UPDATE History State\n");
+
+	this->checkInput();
 
 	mSlidePlayer->update();
 

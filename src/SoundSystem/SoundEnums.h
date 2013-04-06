@@ -10,26 +10,30 @@
 #define SOUNDENUMS_H_
 
 
-/* Ogre's resource manager name for sound files. */
+// Ogre's resource manager name for sound files.
 #define  SOUNDS_RESOURCE_GROUP_NAME  "Sounds"
 
-/* Number of internal buffers for each SSoundSource. */
+// Number of internal buffers for each SSoundSource.
 #define  SS_NUM_INT_BUFFERS	3
 
-/* Maximum data size of each internal buffer in a SSoundSource. */
+// Maximum data size of each internal buffer in a SSoundSource.
 #define  SS_SIZE_INT_BUFFERS	(1<<14)  // 16 KB
 
-/* Minimum buffer length for streaming.
- * Audio files smaller than this may NOT use streaming. */
+// Minimum buffer length for streaming.
+// Audio files smaller than this may NOT use streaming.
 #define	 SS_MIN_STREAM_LEN  SS_SIZE_INT_BUFFERS
 
-/* Static's array size for OGG files parsing. Usually 4096 */
+// Static's array size for OGG files parsing. Usually 4096
 #define  OGG_BUFF_SIZE  (1<<12)  // 4 K
 
-/* Default gain values (i.e. sound volume) for environmental and unit sounds. */
+// Default gain values (i.e. sound volume) for environmental and unit sounds.
 #define  DEFAULT_ENV_GAIN	(0.07f)
 #define  DEFAULT_UNIT_GAIN	(1.0) // (10.0f*DEFAULT_ENV_GAIN)
 
+// Range of randomization (in seconds) for random-silence playbacks
+// (see SoundHandler::newPlaylist(...)
+#define  MIN_SILENCE  (2.0f)
+#define  MAX_SILENCE  (10.0f*MIN_SILENCE)
 
 
 /* Supported audio compression formats */

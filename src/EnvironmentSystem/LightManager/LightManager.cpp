@@ -1,5 +1,5 @@
 
-#include "Ogre\Ogre.h";
+#include <Ogre.h>;
 #include "OIS\OIS.h";
 #include "LightManager.h";
 

@@ -11,16 +11,40 @@
 #include <algorithm>
 #include <cmath>
 
+#include "LevelGeometryLoader.h"
 #include "DotSceneLoader.h"
+#include "LoaderManager.h"
 #include "DebugUtil.h"
 #include "GlobalObjects.h"
 
-#include "LevelGeometryLoader.h"
 
+////////////////////////////////////////////////////////////////////////////////
+void LevelGeometryLoader::setChunkWeight(TiXmlElement* elem)
+{
+	TiXmlElement* item(0);
+	uint itemsToProcess(0u);
+
+	for (item = elem->FirstChildElement("staticGeometries")->
+				FirstChildElement("staticGeometry");
+		 item != 0;
+		 item = item->NextSiblingElement("staticGeometry")) {
+		itemsToProcess++;
+	}
+
+	for (TiXmlElement* item = elem->FirstChildElement("nodes")->
+				FirstChildElement("node");
+		 item != 0;
+		 item = item->NextSiblingElement("node")) {
+		itemsToProcess++;
+	}
+
+	// mChunkWeight is a percentage.
+	mChunkWeight = 1.0f / itemsToProcess;
+}
 
 
 ////////////////////////////////////////////////////////////////////////////////
-bool LevelGeometryLoader::processEntityStaticGeoemtry(TiXmlElement *XMLNode,
+bool LevelGeometryLoader::processEntityStaticGeometry(TiXmlElement *XMLNode,
 		Ogre::StaticGeometry *sgeo)
 {
 	ASSERT(XMLNode);
@@ -78,8 +102,9 @@ bool LevelGeometryLoader::processEntityStaticGeoemtry(TiXmlElement *XMLNode,
 	// creates the entity
 	Ogre::Entity *ent = 0;
 	try {
-		ent = Common::GlobalObjects::sceneManager->createEntity("entity_" + meshFile, meshFile);
+		ent = Common::GlobalObjects::sceneManager->createEntity(meshFile);
 	} catch (...) {
+	    debugERROR("Error creating entity with name %s\n", meshFile.c_str());
 		return false;
 	}
 
@@ -120,6 +145,7 @@ bool LevelGeometryLoader::processStaticGeometries(TiXmlElement *XMLRoot)
 	Ogre::Vector3			dimension;
 	bool					visible;
 	Ogre::String			name;
+	std::string				msg;
 	bool					castShadow;
 
 	// parse the staticGeometries
@@ -133,7 +159,6 @@ bool LevelGeometryLoader::processStaticGeometries(TiXmlElement *XMLRoot)
 
 		try {
 			sgeo = Common::GlobalObjects::sceneManager->createStaticGeometry(name);
-			debug("StaticGeometry %s created\n", name.c_str());
 		} catch(...) {
 			debug("Error: Invalid name to StaticGeometry\n" );
 			return false;
@@ -164,13 +189,12 @@ bool LevelGeometryLoader::processStaticGeometries(TiXmlElement *XMLRoot)
 			ASSERT(false);
 			mStaticGeometry.erase(mStaticGeometry.end()-1);
 			Common::GlobalObjects::sceneManager->destroyStaticGeometry(sgeo);
-			pElement = pElement->NextSiblingElement("staticGeometry");
-			continue;
+			goto nextElement;
 		}
 		auxPElem = auxPElem->FirstChildElement("entity");
 		while(auxPElem){
 			// get the entities associated
-			if(!processEntityStaticGeoemtry(auxPElem, sgeo)){
+			if(!processEntityStaticGeometry(auxPElem, sgeo)){
 				debug("Error: Invalid entity of StaticGeometry\n" );
 				return false;
 			}
@@ -181,7 +205,13 @@ bool LevelGeometryLoader::processStaticGeometries(TiXmlElement *XMLRoot)
 		// build the staticGeometry
 		sgeo->build();
 
-		pElement = pElement->NextSiblingElement("staticGeometry");
+		nextElement:
+			// Update the loading bar.
+			msg = "Static geometry \"" + name + "\" loaded.\n";
+			if (mCallback)
+				(*(LoaderManager::LoaderCallback*)mCallback)(mChunkWeight, msg);
+
+			pElement = pElement->NextSiblingElement("staticGeometry");
 	}
 
 
@@ -208,19 +238,25 @@ Ogre::Entity *LevelGeometryLoader::processEntity(TiXmlElement *XMLNode)
 	TiXmlElement *auxPElem = XMLNode->FirstChildElement("position");
 	if(auxPElem) {
 		position = Ogre::DotSceneLoader::parseVector3(auxPElem);
+	} else {
+	    debugWARNING("No position found for %s\n", meshFile.c_str());
 	}
 
 	// get the rotation
 	auxPElem = XMLNode->FirstChildElement("rotation");
 	if(auxPElem) {
 		rotation = Ogre::DotSceneLoader::parseQuaternion(auxPElem);
-	}
+	} else {
+        debugWARNING("No rotation found for %s\n", meshFile.c_str());
+    }
 
 	// get the scale
 	auxPElem = XMLNode->FirstChildElement("scale");
 	if(auxPElem) {
 		scale = Ogre::DotSceneLoader::parseVector3(auxPElem);
-	}
+	} else {
+        debugWARNING("No scale found for %s\n", meshFile.c_str());
+    }
 
 	size_t count = 0;
 	// load the subentities
@@ -235,10 +271,11 @@ Ogre::Entity *LevelGeometryLoader::processEntity(TiXmlElement *XMLNode)
 		subEntities.resize(count);
 		pElement = pElement->FirstChildElement("subentity");
 		while(pElement){
-			int index = Ogre::DotSceneLoader::getAttribInt(pElement, "index");
-
-			subEntities[index] = Ogre::DotSceneLoader::getAttrib(pElement, "materialName");
-
+			const int index = Ogre::DotSceneLoader::getAttribInt(pElement,
+			                                                     "index");
+			ASSERT(index < count);
+			subEntities[index] = Ogre::DotSceneLoader::getAttrib(pElement,
+			                                                    "materialName");
 			pElement = pElement->NextSiblingElement("subentity");
 		}
 	}
@@ -246,16 +283,19 @@ Ogre::Entity *LevelGeometryLoader::processEntity(TiXmlElement *XMLNode)
 	// creates the entity
 	Ogre::Entity *ent = 0;
 	try {
-		ent = Common::GlobalObjects::sceneManager->createEntity("entity_" + meshFile, meshFile);
+		ent = GLOBAL_SCN_MNGR->createEntity(meshFile);
 	} catch (...) {
+	    debugERROR("Error creating an entity with name %s\n", meshFile.c_str());
 		return 0;
 	}
 
 	// set the subentities config
-	size_t subentityCount = std::min(subEntities.size(), (size_t)ent->getNumSubEntities());
-	for (size_t subentityIndex = 0; subentityIndex < subentityCount; subentityIndex++)
-	{
-		Ogre::SubEntity* subentity = ent->getSubEntity((unsigned int)subentityIndex);
+	size_t subentityCount = std::min(subEntities.size(),
+	                                 static_cast<size_t>(ent->getNumSubEntities()));
+	for (size_t subentityIndex = 0; subentityIndex < subentityCount;
+	        subentityIndex++) {
+		Ogre::SubEntity* subentity = ent->getSubEntity(
+		        static_cast<unsigned int>(subentityIndex));
 		subentity->setMaterialName(subEntities[subentityIndex]);
 	}
 
@@ -339,11 +379,10 @@ bool LevelGeometryLoader::processNode(TiXmlElement *XMLNode, Ogre::SceneNode *&p
 	pElement = XMLNode->FirstChildElement("entity");
 	while(pElement)
 	{
-	  Ogre::Entity *ent = processEntity(pElement);
-	  ASSERT(ent);
-	  pNode->attachObject(ent);
-	  pElement = pElement->NextSiblingElement("entity");
-
+	    Ogre::Entity *ent = processEntity(pElement);
+	    ASSERT(ent);
+	    pNode->attachObject(ent);
+	    pElement = pElement->NextSiblingElement("entity");
 	}
 
 #ifdef DEBUG
@@ -382,7 +421,9 @@ bool LevelGeometryLoader::processNodes(TiXmlElement *XMLNode)
 {
 	ASSERT(XMLNode);
 
+	Ogre::SceneNode* node(0);
     TiXmlElement *pElement;
+    std::string msg;
 
     XMLNode = XMLNode->FirstChildElement("nodes");
     if(!XMLNode){
@@ -394,16 +435,24 @@ bool LevelGeometryLoader::processNodes(TiXmlElement *XMLNode)
     pElement = XMLNode->FirstChildElement("node");
     while(pElement)
     {
-    	Ogre::SceneNode *node = 0;
         if(!processNode(pElement, node)){
         	debugERROR("Error processing node\n");
         	ASSERT(false);
         	return false;
+        } else {
+            ASSERT(node);
+            ASSERT(node->getAttachedObject(0)); // we have something attached
+            mSceneNodes.push_back(node);
         }
+
+        // Update the loading bar.
+        msg = pElement->Attribute("name");
+        msg = "Node \"" + msg + "\" loaded.\n";
+		if (mCallback)
+			(*(LoaderManager::LoaderCallback*)mCallback)(mChunkWeight, msg);
+
         pElement = pElement->NextSiblingElement("node");
-        ASSERT(node);
-        ASSERT(node->getAttachedObject(0)); // we have something attached
-        mEntities.push_back(node);
+        node = 0;
     }
 
     return true;
@@ -416,6 +465,8 @@ LevelGeometryLoader::LevelGeometryLoader() :
 {
 	debugOPTIMIZATION("Probablemente este de mas que \"Trackiemos\" las "
 			"staticGeometry cuando en realidad el SceneManager las tiene todas\n");
+	// set the weight associated to this Loader...
+	setWeight(40);
 }
 
 
@@ -426,9 +477,12 @@ LevelGeometryLoader::~LevelGeometryLoader()
 }
 
 
-// Functoin used to load something
+////////////////////////////////////////////////////////////////////////////////
+// Resources loading
 int LevelGeometryLoader::load(TiXmlElement *elem, LoaderData *data)
 {
+	uint itemsToProcess(0u);
+
 	ASSERT(elem);
 
 	// clear all the elements load before
@@ -443,48 +497,53 @@ int LevelGeometryLoader::load(TiXmlElement *elem, LoaderData *data)
 		return -1;
 	}
 
+	// Check the number of items to process, in order to customize
+	// the loading bar *increase effect*
+	setChunkWeight(elem);
+
+	// Load Static Geometries.
 	debugGREEN("Parsing StaticGeometries\n");
-	// first parse the static geometries
 	if(!processStaticGeometries(elem)){
-		debugERROR("Error Processing static Geometries\n");
+		debugERROR("Error parsing static Geometries\n");
 		ASSERT(false);
 		return -1;
 	}
 
-	debugGREEN("Parsing the entities now\n");
+	// Load Nodes and Entities.
+	debugGREEN("Parsing the entities\n");
 	if(!processNodes(elem)){
 		debugERROR("Error parsing entities\n");
 		ASSERT(false);
 		return -1;
 	}
 
-	debugGREEN("All geometry level loaded\n");
+	debugGREEN("LevelGeometry loaded.\n");
 	return 0;
 }
 
 // Unload the information?
 int LevelGeometryLoader::unload()
 {
-	debugRED("TODO: ?\n");
 	// first of all we will destroy all the static geometries
 	for(int i = 0; i < mStaticGeometry.size(); ++i){
 		GLOBAL_SCN_MNGR->destroyStaticGeometry(mStaticGeometry[i]);
 	}
-	// TODO: podemos usar GLOBAL_SCN_MNGR->destroyAllStaticGeometry(void);
 	mStaticGeometry.clear();
 
 	// destroy all the entities
-	debugWARNING("Solo estamos borrando los scene nodes y entities del scene "
-			"manager pero probablemente no los meshes... Habria que hacer un "
-			"destructor general\n");
-	for(int i = 0; i < mEntities.size(); ++i){
-		Ogre::MovableObject *ent = mEntities[i]->getAttachedObject(0);
+	debugColor(DEBUG_BROWN, "Solo estamos borrando los scene nodes y entities "
+			"del scene manager, pero probablemente no los meshes.\nHabria que "
+			"hacer un destructor general. TODO: hacer un memory test sobre "
+			"esto, para ver si realmente estamos liberando todo o no. "
+	        "Para la demo NO hace falta.\n");
+	for(int i = 0; i < mSceneNodes.size(); ++i){
+		Ogre::MovableObject *ent = mSceneNodes[i]->getAttachedObject(0);
 		// TODO: deberiamos obtener todos los "attachedobjects" usando el iterator
 		GLOBAL_SCN_MNGR->destroyMovableObject(ent);
 		GLOBAL_SCN_MNGR->getRootSceneNode()->removeAndDestroyChild(
-				mEntities[i]->getName());
+				mSceneNodes[i]->getName());
 	}
-	mEntities.clear();
+	mSceneNodes.clear();
 
 	return 0;
 }

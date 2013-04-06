@@ -73,6 +73,8 @@ MainStateMachine::loadResources(IMainState *state)
     IMainState::ResourcesInfoVec resources;
     state->getResources(resources);
     if(resources.empty()){
+	debugWARNING("State \"%s\" had no resources to load.\n",
+			state->getName().c_str());
         return;
     }
 
@@ -101,7 +103,7 @@ MainStateMachine::loadResources(IMainState *state)
     // load all the resources files first
     for(size_t size = resources.size(), i = 0; i < size; ++i){
         if (!ogreLoadRsrcFile(path + resources[i].filePath, path)){
-            debugERROR("Error loading resource file [%lu]: %s\n", i,
+            debugERROR("Error loading resource file [%d]: %s\n", (int) i,
                     resources[i].filePath.c_str());
         }
         debugGREEN("Loading Resource file for %s state: %s\n:",
@@ -134,6 +136,8 @@ MainStateMachine::unloadResources(IMainState *state)
     state->getResources(resources);
 
     if(resources.empty()){
+	debugWARNING("State \"%s\" had no resources to unload\n",
+			state->getName().c_str());
         return;
     }
 

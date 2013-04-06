@@ -14,25 +14,31 @@
 
 #include <string>
 
+#include "Loader.h"
 #include "LoaderManager.h"
 #include "LoadingBar.h"
 #include "IMainState.h"
+#include "MetaRscManager.h"
 
 class TiXmlDocument;
 
 
 class LoadingState : public IMainState
 {
-	struct Updater : public LoaderManager::LoaderCallback {
-		void operator()(Loader *l);
+    static const std::string BACKGROUND_NAME;
+    static const std::string LOADING_BAR;
 
+
+	struct Updater : public LoaderManager::LoaderCallback {
+		void operator()(float, const std::string&);
 		void setLoadingBar(LoadingBar *b);
 	private:
-		LoadingBar	*mBar;
+		LoadingBar*	mBar;
 		float		mAccum;
 		Ogre::Timer mTimer;
 		float 		mTimeStamp;
 	};
+
 
 public:
 	LoadingState();
@@ -43,6 +49,12 @@ public:
 	 */
 	void setLoaderManager(LoaderManager *lm);
 
+	/**
+     * Function used to get the resources files used by the state.
+     * The list returned is the list of the resources used by and only by this
+     * state.
+     */
+    virtual void getResources(ResourcesInfoVec &resourcesList) const;
 	/**
 	 * Entering the state with additional info
 	 * @note	We get the xml to parse throw the
@@ -68,28 +80,30 @@ protected:
 	/**
 	 * Show/Destroy background
 	 */
-	void showBackground(const Ogre::String &overlayName);
+	void showBackground(void);
 	void destroyBackground(void);
 
 	/**
 	 * Load the xml of the level and set it to the LoaderManager
 	 */
-	void configureLoaderManager(const MainMachineInfo &info);
+	void configureLoaderManager(const std::string &levelPath);
 
 	/**
 	 * Load the Loading bar after the LoaderManager was configured
 	 */
-	void configureLoadingBar(const Ogre::String &overlayName);
+	void configureLoadingBar(void);
 	void unloadLoadingBar(void);
 
 protected:
-	LoaderManager		*mLoaderManager;
+	typedef std::vector<helper::MetaRscManager::FileID> RscFileIDVec;
+
+	LoaderManager*		mLoaderManager;
 	LoadingBar			mLoadingBar;
-	Ogre::Overlay		*mBackground;
+	Ogre::Overlay*		mBackground;
 	Updater				mUpdater;
-	TiXmlDocument		*mDoc;
-
-
+	TiXmlDocument*		mDoc;
+	RscFileIDVec		mRsrcFiles;
+	bool				mRunning;
 };
 
 #endif /* LOADINGSTATE_H_ */

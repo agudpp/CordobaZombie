@@ -1,9 +1,10 @@
-/* This class will read an XML and will call for every child element the
- * corresponding loader (that will have to have the same name that the xml element)
- * See the sample.xml
- *
- *
+/*
  * LoaderManager.h
+ *
+ *  This class will read an XML, and then call for every child element the
+ *  corresponding loader.
+ *  Each loader must be named after the XML element it represents.
+ *  See the sample.xml
  *
  *  Created on: 27/09/2011
  *      Author: agustin
@@ -19,9 +20,9 @@
 #include <algorithm>
 
 #include "DebugUtil.h"
-#include "Loader.h"
 #include "tinyxml.h"
 #include "LoaderData.h"
+#include "Loader.h"
 
 class TiXmlDocument;
 
@@ -30,12 +31,23 @@ class LoaderManager
 public:
 	class LoaderCallback {
 	public:
-		virtual void operator()(Loader *loader) = 0;
+		virtual void operator()(float, const std::string&) = 0;
 	};
+
+private:
+	struct Updater : public Loader::LoaderCallback {
+		Updater();
+		void operator()(float, const std::string&);
+		void setCallback(LoaderManager::LoaderCallback* lcb);
+		float	mCurrentLoaderWeight;
+	private:
+		LoaderManager::LoaderCallback*	mCallback;
+	};
+
 public:
 	LoaderManager();
 
-	// This class do NOT remove the memory of anything
+	// This class does NOT free any memory.
 	~LoaderManager();
 
 	// add new loader
@@ -44,10 +56,11 @@ public:
 	void removeLoader(Loader *l);
 	void removeLoader(const std::string &name);
 	void removeAll(void);
+	void deleteAll(void);
 
 	// Set the Callback to receive information about the loader that was already
 	// "finished" of loading
-	void setCallback(LoaderCallback *callback);
+	inline void setCallback(LoaderCallback *callback);
 
 	// Get the sum of weights of all the Loaders that this Manager has
 	int getSumOfWeights(void) const;
@@ -62,6 +75,7 @@ public:
 	// Removes elements
 	void removeElement(const TiXmlElement *);
 	void removeElement(const Ogre::String &resource);
+	void removeAllElements(void);
 
 	// TODO: falta hacer el cargado de datos desde un string.
 	// solo vamos a implementar
@@ -85,15 +99,31 @@ private:
 	std::vector<Loader *>				mLoaders;
 	std::vector<const TiXmlElement *>	mXmlElements;
 	std::vector<Ogre::String>			mStrElements;
-	LoaderCallback						*mCallback;
 	LoaderData							mLoaderData;
+	Updater								mUpdater;
 
 };
 
 
-inline LoaderData &LoaderManager::getLoaderData(void)
+////////////////////////////////////////////////////////////////////////////////
+inline LoaderManager::Updater::Updater() : mCallback(0) {};
+
+////////////////////////////////////////////////////////////////////////////////
+inline void LoaderManager::Updater::setCallback(LoaderManager::LoaderCallback* lcb)
 {
-	return mLoaderData;
+	ASSERT(lcb);
+	mCallback = lcb;
 }
+
+////////////////////////////////////////////////////////////////////////////////
+inline void LoaderManager::setCallback(LoaderCallback *callback)
+{
+	ASSERT(callback);
+	mUpdater.setCallback(callback);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+inline LoaderData &LoaderManager::getLoaderData(void) { return mLoaderData; }
+
 
 #endif /* LOADERMANAGER_H_ */

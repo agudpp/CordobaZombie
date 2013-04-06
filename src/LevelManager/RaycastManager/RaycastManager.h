@@ -41,7 +41,7 @@ public:
 	/**
 	 * Perform a raycast using the actual relative position of the mouse.
 	 * Get all the objects using the collision manager and returns that ones
-	 * that are seted as userDefined (casting it automatically).
+	 * that are set as userDefined (casting it automatically).
 	 * @param	xrm		X relative mouse position
 	 * @param	yrm		Y relative mouse position
 	 * @param	mask	The mask to be used.

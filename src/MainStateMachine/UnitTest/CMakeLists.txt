@@ -93,8 +93,9 @@ endif()
 
 
 set (DEV_ROOT_PATH $ENV{ESTRATEGIA2012_DEV_PATH})
-include(${DEV_ROOT_PATH}/CommonFlags.cmake)  # Customized compilation flags
 
+# Customized compilation flags and link libraries
+include(${DEV_ROOT_PATH}/CommonFlags.cmake)
  
 set(HDRS		
 
@@ -113,6 +114,7 @@ include_directories( ${OIS_INCLUDE_DIRS}
 	${DEV_ROOT_PATH}/Common/DebugUtil
 	${DEV_ROOT_PATH}/Common/tinyxml
 	${DEV_ROOT_PATH}/Common
+	${DEV_ROOT_PATH}/
 	${DEV_ROOT_PATH}/Common/QueueContainer
 	${DEV_ROOT_PATH}/Common/GlobalObjects
 	${DEV_ROOT_PATH}/Utils/MouseCursor
@@ -132,6 +134,7 @@ include(${DEV_ROOT_PATH}/Common/GUIHelper/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/Common/Math/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/Common/Util/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/Common/XMLHelper/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/Common/ButtonHelper/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/GameUnits/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/IA/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/InputManager/AutoGen.cmake)
@@ -147,6 +150,9 @@ include(${DEV_ROOT_PATH}/UpdatableObjects/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/Utils/GUI/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/Utils/GUI/Text2D/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/VideoPlayer/FfmpegVideoPlayer/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/Helpers/MetaRscManager/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/Helpers/GameUnitHelper/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/SelectionSystem/AutoGen.cmake)
 
 
 

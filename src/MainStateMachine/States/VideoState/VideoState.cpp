@@ -198,6 +198,6 @@ void VideoState::exit(void)
 
 
 ////////////////////////////////////////////////////////////////////////////////
-void VideoState::getResources(ResourcesInfoVec &resourcesList)
+void VideoState::getResources(ResourcesInfoVec &resourcesList) const
 {
 }

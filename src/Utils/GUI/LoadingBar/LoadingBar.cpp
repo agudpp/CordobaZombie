@@ -103,7 +103,7 @@ void LoadingBar::setState(float progress)
 
 	// change the size of the progress bar
 
-	const float newWidth = (mActualProgress / 100.0f)  * mMaxSize;
+	const float newWidth = (mActualProgress / 100.0f) * mMaxSize;
 	mProgress->setWidth(newWidth);
 	if(mSliceImage){
 		// use slice..

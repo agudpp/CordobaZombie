@@ -42,7 +42,7 @@ class AppTester {
 public:
 	/* constructor
 	 */
-	AppTester();
+	AppTester(bool disableInputGrabbing = true);
 
 	/* run the editor */
 	int run();
@@ -81,6 +81,8 @@ protected:
 			const Ogre::String &path = "");
 
 
+private:
+	AppTester(const AppTester &);
 
 protected:
 	Ogre::Root *mRoot;
@@ -94,6 +96,7 @@ protected:
 	OIS::Mouse *mMouse;
 
 	bool		mDefaultInput;
+	bool mDisableInputGrabbing;
 
 	// camera
 	Ogre::Camera *mCamera;

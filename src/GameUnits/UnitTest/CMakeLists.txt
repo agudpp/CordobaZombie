@@ -127,14 +127,17 @@ include_directories( ${OIS_INCLUDE_DIRS}
 	
 	${DEV_ROOT_PATH}/Extras/AppTester
 )
-include(${DEV_ROOT_PATH}/Common/Math/AutoGen.cmake)
 
+# Acá incluir todos los paths necesarios para la compilación
+include(${DEV_ROOT_PATH}/CommonFlags.cmake}
+include(${DEV_ROOT_PATH}/Common/Math/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/SelectionSystem/AutoGen.cmake)
 
 add_executable(OgreApp WIN32 ${HDRS} ${SRCS})
  
 set_target_properties(OgreApp PROPERTIES DEBUG_POSTFIX _d)
  
-target_link_libraries(OgreApp ${OGRE_LIBRARIES} ${OIS_LIBRARIES})
+target_link_libraries(OgreApp ${OGRE_LIBRARIES} ${OIS_LIBRARIES} ${COMMON_LIBRARIES})
  
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/dist/bin)
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/dist/media)

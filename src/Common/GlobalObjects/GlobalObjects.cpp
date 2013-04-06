@@ -22,12 +22,11 @@ Ogre::Root			*GlobalObjects::ogreRoot = 0;
 
 Ogre::RenderWindow	*GlobalObjects::window = 0;
 
-
 LevelManager		*GlobalObjects::levelMngr = 0;
 
 MouseCursor         *GlobalObjects::mouseCursor = 0;
 
-
+MenuManager			*GlobalObjects::menuManager = 0;
 
 
 

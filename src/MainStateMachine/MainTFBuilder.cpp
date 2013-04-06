@@ -19,6 +19,7 @@
 #include "ExitState.h"
 
 #include "VideoState.h"
+#include "PreGameState.h"
 
 
 MainTFBuilder::MainTFBuilder()
@@ -41,6 +42,14 @@ MainTransitionFunction *MainTFBuilder::build(const TiXmlElement  *elem)
 	// FIXME ahora hacemos hardcoded
 	MainTransitionFunction *tt = new MainTransitionFunction;
 
+	PreGameState *preGameState = new PreGameState;
+
+
+	//loadingState->setLoaderManager(mLoaderManager);
+	// TODO: borrar estas dos líneas para que luego siga cargando todo
+	tt->setStartState(preGameState);
+	return tt;
+
 	//states
 	FirstInformationState *firstInformation= new FirstInformationState;
 	SponsorsState *sponsors = new SponsorsState;
@@ -48,11 +57,7 @@ MainTransitionFunction *MainTFBuilder::build(const TiXmlElement  *elem)
 	MainMenuState *mainMenu = new MainMenuState;
 	LoadingState *loadingState = new LoadingState;
 	ExitState *exitState = new ExitState;
-
-
-
-	loadingState->setLoaderManager(mLoaderManager);
-//	tt->setStartState(loadingState);
+//	PreGameState *preGameState = new PreGameState;
 
 	// build the transitions
 	tt->setStartState(firstInformation);
@@ -60,7 +65,7 @@ MainTransitionFunction *MainTFBuilder::build(const TiXmlElement  *elem)
 	tt->addNewEntry(firstInformation, MainMachineEvent::MME_DONE, video);
 	tt->addNewEntry(video, MainMachineEvent::MME_DONE, sponsors);
 	tt->addNewEntry(sponsors, MainMachineEvent::MME_DONE, mainMenu);
-	tt->addNewEntry(mainMenu, MainMachineEvent::MME_DONE, mainMenu);
+	tt->addNewEntry(mainMenu, MainMachineEvent::MME_DONE, loadingState);
 	tt->addNewEntry(mainMenu, MainMachineEvent::MME_EXIT, exitState);
 
 	// TODO: tenemos que agregar newGame -> loading state por ejemplo?

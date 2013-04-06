@@ -109,7 +109,8 @@ protected:
 	checkInput();
 
 private:
-	// FIXME Eclipse doesn't recognize this (correct) syntax
+	// FIXME Eclipse won't recognize this "boost preferred" syntax,
+	// but it does recognize the "portable" one (see http://goo.gl/V6AeZ)
 	typedef boost::signal<void ()>		actions;  // Buttons actions
 	typedef std::vector<Ogre::String>	StrVec;
 	typedef std::vector<OvEff::MenuButtonEffect>  ButtonsEffectVec;
