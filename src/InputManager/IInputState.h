@@ -197,7 +197,7 @@ inline bool
 IInputState::isPointInPath(const Ogre::Vector3 &pos) const
 {
 	return sLevelManager->getPathfinderManager()->getNodeFromPoint(
-			sm::Vector2(pos.x, pos.z));
+			sm::Vector2(pos.x, pos.z)) != 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

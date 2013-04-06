@@ -54,8 +54,10 @@ Test::createPlayers(void)
     // build the player:
     PlayerUnitBuilder &playerBuilder = PlayerUnitBuilder::instance();
     mPlayers.push_back(playerBuilder.buildPlayer(PlayerID::PLAYER_CORAL));
-
     mPlayers.back()->setPosition(sm::Vector2(1169.335327, 1365.213867));
+    mPlayers.push_back(playerBuilder.buildPlayer(PlayerID::PLAYER_TULIAN));
+    mPlayers.back()->setPosition(sm::Vector2(1139.335327, 1395.213867));
+
 
 
 }

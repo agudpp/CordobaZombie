@@ -42,8 +42,8 @@ void
 SinglePlayerSel::executeRayCast(void)
 {
     // we only need to raycast and get the first object...
-//    selection::SelectableObject *selObj = getFirstRaycastedObj();
-//    newRaycastedObject(selObj);
+    selection::SelectableObject *selObj = getFirstRaycastedObj(RAYCAST_MASK);
+    newRaycastedObject(selObj);
 }
 
 

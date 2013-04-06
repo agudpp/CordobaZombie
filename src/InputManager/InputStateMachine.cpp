@@ -129,7 +129,7 @@ InputStateMachine::update(void)
         // probably we don't wan to do nothing? because for example the mouse
         // is still pressed from the last frame, here we can handle the
         // rectangle selection?
-//        return;
+        return;
     }
 
     // check for raycasted objects now
@@ -140,7 +140,10 @@ InputStateMachine::update(void)
     // 1) Unselect players (if raycastedObj == 0
     // 2) Select a new player?
     // for now we will select the object only
-    if (mInputManager.isKeyDown(inputID::MOUSE_BUTTON_LEFT)) {
+    const bool leftMousePressed =
+        mInputManager.isKeyDown(inputID::MOUSE_BUTTON_LEFT);
+
+    if (leftMousePressed) {
         // if the mouse was pressed in the last frame then we are doing the
         // box selection probably... note that the frame rate is very high
         // so we need to use some kind of time counter here.
@@ -185,7 +188,11 @@ InputStateMachine::update(void)
         } else {
             // doesn't care the current selection
             mSelManager.unselectAll();
-            mSelManager.select(raycastedObj);
+
+            // if it is a player then select it
+            if (playerClicked) {
+                mSelManager.select(raycastedObj);
+            }
             return;
         }
     }
