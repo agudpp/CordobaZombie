@@ -96,7 +96,6 @@ set (DEV_ROOT_PATH $ENV{ESTRATEGIA2012_DEV_PATH})
 
 # Customized compilation flags and link libraries
 include(${DEV_ROOT_PATH}/CommonFlags.cmake)
-target_link_libraries(OgreApp ${COMMON_FLAGS})
  
 set(HDRS		
 
