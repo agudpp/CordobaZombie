@@ -20,13 +20,19 @@
 #include "DebugUtil.h"
 
 
+#define  ESTRATEGIA2012_RC_PATH  "ESTRATEGIA2012_RC_PATH"
+#define  RESOURCES_CONF_FILE     "resources.cfg"
+#define  PLUGINS_CONF_FILE       "plugins.cfg"
+
+
+
 class MyApplication
 {
 public:
 	MyApplication() {
-		_root = new Ogre::Root("plugins.cfg");
+		_root = new Ogre::Root(PLUGINS_CONF_FILE);
 		if(!_root->showConfigDialog()){
-			debugERROR("Couldn't create Ogre root.\n")
+			debugERROR("Couldn't create Ogre root from %s.\n", PLUGINS_CONF_FILE);
 			exit(EXIT_FAILURE);
 		}
 		_window = _root->initialise(true,"Collision Object Exporter");
@@ -49,10 +55,65 @@ public:
 	}
 
 	void loadResources() {
-		Ogre::ResourceGroupManager& rgm(Ogre::ResourceGroupManager::getSingleton());
-		rgm.addResourceLocation(".", "FileSystem", "Popular");
-		rgm.initialiseAllResourceGroups();
+	    std::string path, fname;
+
+	    // Load CWD resources
+		Ogre::ResourceGroupManager::getSingleton().
+				addResourceLocation(".", "FileSystem", "Popular");
+
+	    // Load aditional resources from Dropbox.
+	    if(!Common::Util::readEnvVar(ESTRATEGIA2012_RC_PATH, path)){
+	        debugERROR("Error reading the environmental variable \"%s\"\n"
+	                "You have to configure your system... ask Agu Perez\n",
+	                ESTRATEGIA2012_RC_PATH);
+	        exit(EXIT_FAILURE);
+	    } else {
+			if(path.size()-1 >= 0 && path[path.size()-1] != '/'){
+				path.append("/");
+			}
+	    	fname = path + RESOURCES_CONF_FILE;
+	    }
+	    loadResourcesFromFile(fname, path);
+
+	    Ogre::ResourceGroupManager::getSingleton().initialiseAllResourceGroups();
 	}
+
+
+	void loadResourcesFromFile(const Ogre::String &file, const Ogre::String &path)
+	{
+	    Ogre::ConfigFile cf;
+	    Ogre::String secName, typeName, archName;
+
+	    ASSERT(path.size()-1 >= 0 && path[path.size()-1] == '/');
+
+		// Load resource paths from config file
+	    try {
+	        cf.load(file);
+	    } catch(...) {
+	        debugERROR("ERROR: config file \"%s\" not found\n", file.c_str());
+	        return;
+	    }
+
+	    // Go through all sections & settings in the file
+	    Ogre::ConfigFile::SectionIterator seci = cf.getSectionIterator();
+	    Ogre::ResourceGroupManager &rgm(Ogre::ResourceGroupManager::getSingleton());
+
+	    debugBLUE("Loading resources from file %s\n", file.c_str());
+	    while (seci.hasMoreElements())
+	    {
+	        secName = seci.peekNextKey();
+	        Ogre::ConfigFile::SettingsMultiMap *settings = seci.getNext();
+	        Ogre::ConfigFile::SettingsMultiMap::iterator i;
+	        for (i = settings->begin(); i != settings->end(); ++i)
+	        {
+	            typeName = i->first;
+	            archName = path + i->second;
+	            //debugGREEN("DEBUG: %s -- %s -- %s\n",archName, typeName, secName);
+	            rgm.addResourceLocation(archName, typeName, secName);
+	        }
+	    }
+	}
+
 
 	void createScene() {
 		std::ifstream in;
@@ -176,7 +237,7 @@ private:
 
 int main (void)
 {
-	const char fname[] = "collision_objects.dat";
+	const char fname[] = "collision_objects.dat";  // OUTPUT FILENAME XXX
 	std::ofstream outfile(fname);
 	CollObjExporter exporter;
 	MyApplication app;
@@ -196,7 +257,8 @@ int main (void)
 					"Are there any .scene files in around?\n");
 	} else {
 		outfile << data;
-		std::cout << "Collision data exported into file " << fname << std::endl;
+		std::cout << DEBUG_GREEN "\nCollision data exported into file \""
+				  << fname << "\"\n" << DEBUG_NC << std::endl;
 	}
 
 	outfile.close();

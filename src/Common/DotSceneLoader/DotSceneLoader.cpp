@@ -1,5 +1,6 @@
 #include "DotSceneLoader.h"
 
+#include <sstream>  // std::ostringstream
 #include <Ogre.h>
 
 #include "DebugUtil.h"
@@ -8,7 +9,11 @@
 using namespace std;
 namespace Ogre {
 
-void DotSceneLoader::parseDotScene(const String &SceneName, const String &groupName, SceneManager *yourSceneMgr, SceneNode *pAttachNode, const String &sPrependNode)
+void DotSceneLoader::parseDotScene(const String &SceneName,
+								   const String &groupName,
+								   SceneManager *yourSceneMgr,
+								   SceneNode *pAttachNode,
+								   const String &sPrependNode)
 {
     // set up shared object values
     m_sGroupName = groupName;
@@ -44,15 +49,21 @@ void DotSceneLoader::parseDotScene(const String &SceneName, const String &groupN
         if( XMLDoc->Error() )
         {
             //We'll just log, and continue on gracefully
-            LogManager::getSingleton().logMessage("[DotSceneLoader] The TiXmlDocument reported an error");
+        	std::ostringstream error;
+        	error << "[DotSceneLoader:" << __LINE__ << "] "
+        		  << "The TiXmlDocument reported an error";
+            LogManager::getSingleton().logMessage(error.str().c_str());
             delete XMLDoc;
             return;
         }
     }
-    catch(...)
+    catch(Ogre::Exception &e)
     {
         //We'll just log, and continue on gracefully
-        LogManager::getSingleton().logMessage("[DotSceneLoader] Error creating TiXmlDocument");
+    	std::ostringstream error;
+    	error << "[DotSceneLoader:" << __LINE__ << "] "
+    		  << "Error creating TiXmlDocument\n" << e.what();
+        LogManager::getSingleton().logMessage(error.str().c_str());
         delete XMLDoc;
         return;
     }
@@ -60,7 +71,10 @@ void DotSceneLoader::parseDotScene(const String &SceneName, const String &groupN
     // Validate the File
     XMLRoot = XMLDoc->RootElement();
     if( String( XMLRoot->Value()) != "scene"  ) {
-        LogManager::getSingleton().logMessage( "[DotSceneLoader] Error: Invalid .scene File. Missing <scene>" );
+    	std::ostringstream error;
+    	error << "[DotSceneLoader:" << __LINE__ << "] "
+    		  << "Error: Invalid .scene File. Missing <scene>";
+        LogManager::getSingleton().logMessage(error.str().c_str());
         delete XMLDoc;
         return;
     }
@@ -601,9 +615,12 @@ void DotSceneLoader::processLookTarget(TiXmlElement *XMLNode, SceneNode *pParent
 
         pParent->lookAt(position, relativeTo, localDirection);
     }
-    catch(Ogre::Exception &/*e*/)
+    catch(Ogre::Exception &e)
     {
-        LogManager::getSingleton().logMessage("[DotSceneLoader] Error processing a look target!");
+    	std::ostringstream error;
+    	error << "[DotSceneLoader:" << __LINE__ << "] "
+    		  << "Error processing a look target!\n" << e.what();
+        LogManager::getSingleton().logMessage(error.str().c_str());
     }
 }
 
@@ -632,9 +649,12 @@ void DotSceneLoader::processTrackTarget(TiXmlElement *XMLNode, SceneNode *pParen
         SceneNode *pTrackNode = mSceneMgr->getSceneNode(nodeName);
         pParent->setAutoTracking(true, pTrackNode, localDirection, offset);
     }
-    catch(Ogre::Exception &/*e*/)
+    catch(Ogre::Exception &e)
     {
-        LogManager::getSingleton().logMessage("[DotSceneLoader] Error processing a track target!");
+    	std::ostringstream error;
+    	error << "[DotSceneLoader:" << __LINE__ << "] "
+    		  << "Error processing a track target!\n" << e.what();
+        LogManager::getSingleton().logMessage(error.str().c_str());
     }
 }
 
@@ -658,13 +678,15 @@ void DotSceneLoader::processEntity(TiXmlElement *XMLNode, SceneNode *pParent)
 
     // Process vertexBuffer (?)
     pElement = XMLNode->FirstChildElement("vertexBuffer");
-    if(pElement)
+    if(pElement) {
         ;//processVertexBuffer(pElement);
+    }
 
     // Process indexBuffer (?)
     pElement = XMLNode->FirstChildElement("indexBuffer");
-    if(pElement)
+    if(pElement) {
         ;//processIndexBuffer(pElement);
+    }
 
     // Create the entity
     Entity *pEntity = 0;
@@ -681,9 +703,12 @@ void DotSceneLoader::processEntity(TiXmlElement *XMLNode, SceneNode *pParent)
         	pEntity->setMaterial(mat);
 
         }
-    }catch(Ogre::Exception &/*e*/)
+    }catch(Ogre::Exception &e)
     {
-        LogManager::getSingleton().logMessage("[DotSceneLoader] Error loading an entity!");
+    	std::ostringstream error;
+    	error << "[DotSceneLoader:" << __LINE__ << "] "
+    		  << "Error loading an entity!\n" << e.what();
+        LogManager::getSingleton().logMessage(error.str().c_str());
     }
 
     // Process userDataReference (?)
@@ -707,9 +732,12 @@ void DotSceneLoader::processParticleSystem(TiXmlElement *XMLNode, SceneNode *pPa
         ParticleSystem *pParticles = mSceneMgr->createParticleSystem(name, file);
         pParent->attachObject(pParticles);
     }
-    catch(Ogre::Exception &/*e*/)
+    catch(Ogre::Exception &e)
     {
-        LogManager::getSingleton().logMessage("[DotSceneLoader] Error creating a particle system!");
+    	std::ostringstream error;
+    	error << "[DotSceneLoader:" << __LINE__ << "] "
+    		  << "Error creating a particle system!\n" << e.what();
+        LogManager::getSingleton().logMessage(error.str().c_str());
     }
 }
 
@@ -997,15 +1025,21 @@ bool  DotSceneLoader::parseStaticGeometry(const String &SceneName,
 		if( XMLDoc->Error() )
 		{
 			//We'll just log, and continue on gracefully
-			LogManager::getSingleton().logMessage("[DotSceneLoader] The TiXmlDocument reported an error");
+	    	std::ostringstream error;
+	    	error << "[DotSceneLoader:" << __LINE__ << "] "
+	    		  << "The TiXmlDocument reported an error";
+			LogManager::getSingleton().logMessage(error.str().c_str());
 			delete XMLDoc;
 			return false;
 		}
 	}
-	catch(...)
+	catch(Ogre::Exception &e)
 	{
 		//We'll just log, and continue on gracefully
-		LogManager::getSingleton().logMessage("[DotSceneLoader] Error creating TiXmlDocument");
+    	std::ostringstream error;
+    	error << "[DotSceneLoader:" << __LINE__ << "] "
+    		  << "Error creating TiXmlDocument\n" << e.what();
+		LogManager::getSingleton().logMessage(error.str().c_str());
 		delete XMLDoc;
 		return false;
 	}
@@ -1013,7 +1047,10 @@ bool  DotSceneLoader::parseStaticGeometry(const String &SceneName,
 	// Validate the File
 	XMLRoot = XMLDoc->RootElement();
 	if( String( XMLRoot->Value()) != "scene"  ) {
-		LogManager::getSingleton().logMessage( "[DotSceneLoader] Error: Invalid .scene File. Missing <scene>" );
+		std::ostringstream error;
+    	error << "[DotSceneLoader:" << __LINE__ << "] "
+    		  << "Invalid .scene File. Missing <scene> tag";
+		LogManager::getSingleton().logMessage(error.str().c_str());
 		delete XMLDoc;
 		return false;
 	}
@@ -1026,7 +1063,10 @@ bool  DotSceneLoader::parseStaticGeometry(const String &SceneName,
 
 	// Process the scene
 	if(!processStaticGeometries(XMLRoot)){
-		LogManager::getSingleton().logMessage( "[DotSceneLoader] Error parsing the StaticGemoetries" );
+		std::ostringstream error;
+    	error << "[DotSceneLoader:" << __LINE__ << "] "
+    		  << "Error parsing the StaticGemoetries";
+		LogManager::getSingleton().logMessage(error.str().c_str());
 		delete XMLDoc;
 		//TODO: destroy every staticGeometry
 		return false;
@@ -1127,7 +1167,10 @@ bool DotSceneLoader::processStaticGeometries(TiXmlElement *XMLRoot)
 	// Process nodes (?)
 	pElement = XMLRoot->FirstChildElement("staticGeometries");
 	if(!pElement){
-		LogManager::getSingleton().logMessage( "[DotSceneLoader] Error: Invalid .scene processStaticGeometries" );
+		std::ostringstream error;
+    	error << "[DotSceneLoader:" << __LINE__ << "] "
+    		  << "Error: Invalid .scene processStaticGeometries";
+		LogManager::getSingleton().logMessage(error.str().c_str());
 		return false;
 	}
 
@@ -1151,8 +1194,11 @@ bool DotSceneLoader::processStaticGeometries(TiXmlElement *XMLRoot)
 
 		try {
 			sgeo = mSceneMgr->createStaticGeometry(name);
-		} catch(...) {
-			LogManager::getSingleton().logMessage( "[DotSceneLoader] Error: Invalid name to StaticGeometry" );
+		} catch(Ogre::Exception &e) {
+			std::ostringstream error;
+	    	error << "[DotSceneLoader:" << __LINE__ << "] "
+	    		  << "Error: Invalid name to StaticGeometry\n" << e.what();
+			LogManager::getSingleton().logMessage(error.str().c_str());
 			return false;
 		}
 
@@ -1180,7 +1226,10 @@ bool DotSceneLoader::processStaticGeometries(TiXmlElement *XMLRoot)
 		while(auxPElem){
 			// get the entities associated
 			if(!processEntityStaticGeoemtry(auxPElem, sgeo)){
-				LogManager::getSingleton().logMessage( "[DotSceneLoader] Error: Invalid entity of StaticGeometry" );
+				std::ostringstream error;
+		    	error << "[DotSceneLoader:" << __LINE__ << "] "
+		    		  << "Error: Invalid entity of StaticGeometry";
+				LogManager::getSingleton().logMessage(error.str().c_str());
 				return false;
 			}
 

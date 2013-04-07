@@ -58,9 +58,7 @@ CollObjExporter::dirExtractor(void)
     FTSENT *p(0);
     int fts_options = FTS_PHYSICAL | FTS_NOCHDIR;
 	size_t fnamelen(0);
-    Ogre::DotSceneLoader dsl;
 	std::stringstream output;
-	Ogre::SceneNode *sn(0);
 
     // Try to open CWD
     ftsp = fts_open((char* const*)CWD, fts_options, NULL);
@@ -92,11 +90,13 @@ CollObjExporter::dirExtractor(void)
 
         } else if (p->fts_info == FTS_F) {
         	fnamelen = strnlen(p->fts_path, 100);
-        	if (fnamelen > 6
+        	if (fnamelen > 6  // consider ".scene" extension
         		&& 0 == strncmp(&p->fts_path[fnamelen-6], ".scene", 6)) {
+        	    Ogre::DotSceneLoader dsl;
         		// .scene file found! build SceneNode from it
-        		dsl.parseDotScene(p->fts_path, "General", GLOBAL_SCN_MNGR, sn);
-        		output << sceneExtractor(sn);
+        		debugBLUE("Extracting collision info from file \"%s\"\n", p->fts_path);
+        		dsl.parseDotScene(p->fts_path, "Popular", GLOBAL_SCN_MNGR, 0);
+        		output << sceneExtractor(dsl.mAttachNode);
         		numfiles++;
         	}
         }
@@ -112,23 +112,27 @@ std::string
 CollObjExporter::sceneExtractor(Ogre::SceneNode* scene)
 {
 	std::stringstream output;
-	// FIX ME output << nombre_del_scene;
+	ASSERT(scene);
 	output << scene->getName() << "\n";
 	output << scene->numChildren() << "\n";
 
 	// we go through each scene child...
-	Ogre::Node::ChildNodeIterator scene_it = scene->getChildIterator();
+	Ogre::SceneNode::ChildNodeIterator scene_it = scene->getChildIterator();
 	while (scene_it.hasMoreElements()){
 		//... and process the attached entity
 		Ogre::Node* node = scene_it.getNext();
-		Ogre::SceneNode::ObjectIterator node_it = ((Ogre::SceneNode *)node)->getAttachedObjectIterator();
+		ASSERT(node);
+		Ogre::SceneNode::ObjectIterator node_it =
+				((Ogre::SceneNode *)node)->getAttachedObjectIterator();
 		if (node_it.hasMoreElements()){
 			Ogre::Entity* ent = (Ogre::Entity*)node_it.getNext();
 			Ogre::String type = userDefExtractor(ent->getName());
 			// createFromMesh returns type and all the vertex
-			output << CollObjExporter::entityExtractor(node, ent, type);
-		}else{
-			return "scene error: bad form\n";
+			output << entityExtractor(node, ent, type);
+		} else {
+			debugERROR("Scene error: bad form. ABORTING EXTRACTION\n");
+			output << "\n...scene error: bad form. ABORTING EXTRACTION\n";
+			return output.str().c_str();
 		}
 	}
 	return output.str();
@@ -281,6 +285,7 @@ CollObjExporter::createCircleShape(const Ogre::Vector3 &mod_pos,
 	std::vector<sm::Vertex *> &vert = cont.getObjs();
 	std::stringstream data;
 
+	debugBLUE("# of vertex: %zu\n", vert.size());
 	ASSERT(vert.size() == 2);
 
 	data << "circle  "
@@ -328,7 +333,7 @@ CollObjExporter::createBoxShape(const Ogre::Vector3 &mod_pos,
 		return "";
 	}
 
-	// Triangles shared vertices recognition
+	// Triangles shared-vertices recognition
 	std::vector<const sm::Vertex *> shared;
 	std::vector<const sm::Vertex *> notShared;
 
@@ -352,26 +357,20 @@ CollObjExporter::createBoxShape(const Ogre::Vector3 &mod_pos,
 	} else {
 		notShared.push_back(t_a->v3);
 	}
-	if (find(shared.begin(), shared.end(), t_b->v1) != shared.end()) {
-		shared.push_back(t_b->v1);
-	} else {
+	if (find(shared.begin(), shared.end(), t_b->v1) == shared.end()) {
 		notShared.push_back(t_b->v1);
 	}
-	if (find(shared.begin(), shared.end(), t_b->v2) != shared.end()) {
-		shared.push_back(t_b->v2);
-	} else {
+	if (find(shared.begin(), shared.end(), t_b->v2) == shared.end()) {
 		notShared.push_back(t_b->v2);
 	}
-	if (find(shared.begin(), shared.end(), t_b->v3) != shared.end()) {
-		shared.push_back(t_b->v3);
-	} else {
+	if (find(shared.begin(), shared.end(), t_b->v3) == shared.end()) {
 		notShared.push_back(t_b->v3);
 	}
 
 	// Check number of shared vertices is correct
 	if (shared.size() != 2 || notShared.size() != 2) {
 		debugERROR("Wrong shared vertices for triangles of BoxShape.\n"
-					"Should have 2 shared and 2 not shared vertices,\n"
+					"Should have 2 shared and 2 not shared vertices,"
 					"%zu and %zu (resp.) received.\n",
 					shared.size(), notShared.size());
 		return "";
