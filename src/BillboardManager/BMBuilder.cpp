@@ -93,8 +93,8 @@ parseAtlasInfo(const TiXmlElement &node, billboard::AtlasInfo &result)
     parseFloat(node, "height", result.height);
     parseUnsigned(node, "height", result.count);
 
-    ASSERT(node.NextSiblingElement("UVCoords"));
-    parseUVs(*node.NextSiblingElement("UVCoords"), result.uvs);
+    ASSERT(node.FirstChildElement("UVCoords"));
+    parseUVs(*node.FirstChildElement("UVCoords"), result.uvs);
 }
 
 // Parse a BatteryInfo from an xml node

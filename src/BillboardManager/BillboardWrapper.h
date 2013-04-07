@@ -47,7 +47,7 @@ public:
 
     // reset the pointer of the billboard
     //
-    inline void operator=(int x) {ASSERT(x == 0); mBillboard = 0;}
+    inline void reset(void) {mBillboard = 0;}
 
     // get/set the atlas ID
     //

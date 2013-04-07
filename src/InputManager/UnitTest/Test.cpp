@@ -22,6 +22,7 @@
 #include <GameUnits/PlayerUnit/PlayerDefs.h>
 #include <InputManager/IInputState.h>
 #include <SelectionSystem/SelectionManager.h>
+#include <BillboardManager/BMBuilder.h>
 
 
 // Add corners to a box
@@ -71,13 +72,17 @@ Test::Test() :
     mInputManager->setCameraController(&mCamController);
 
     // Remove this will be deprecated soon
-    billboard::BillboardManager::instance().createSet(50,
-                                                      "BillboardManager/Atlas",
-                                                      3,
-                                                      2);
-    billboard::BillboardManager::instance().setBounds(Ogre::AxisAlignedBox(
-                Ogre::Vector3(-9999.9f,-9999.9f,-9999.9f),
-                Ogre::Vector3(999999.9f,999999.9f,999999.9f)),999999.9f);
+    billboard::BillboardManager &bminstance = billboard::BillboardManager::instance();
+//    bminstance.createSet(50,
+//                         "BillboardManager/Atlas",
+//                         3,
+//                         2);
+    boost::shared_ptr<TiXmlDocument> doc(Common::Util::loadXmlDocument("BillboardSample.xml"));
+    billboard::BMBuilder::configure(doc->RootElement(), bminstance);
+
+    bminstance.setBounds(Ogre::AxisAlignedBox(
+                         Ogre::Vector3(-9999.9f,-9999.9f,-9999.9f),
+                         Ogre::Vector3(999999.9f,999999.9f,999999.9f)),999999.9f);
 }
 
 Test::~Test()

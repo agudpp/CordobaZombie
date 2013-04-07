@@ -184,7 +184,7 @@ BillboardManager::groupAtlasInfo(const std::vector<const AtlasInfo *> &av,
     // resort each of this groups using the second criteria "height"
     uvComparator.useWidth = false;
 
-    Ogre::Real compW = atlasVec.back()->width;
+    Ogre::Real compW = atlasVec[0]->width;
     size_t begin = 0;
     for (size_t i = 1, size = atlasVec.size(); i < size; ++i) {
         // push elements until we have a difference
@@ -212,8 +212,8 @@ BillboardManager::groupAtlasInfo(const std::vector<const AtlasInfo *> &av,
     typedef std::list<const AtlasInfo *> AtlasInfoList;
 
     result.push_back(AtlasInfoList());
-    AtlasInfoList *currentList = &result.back();
-    currentList->push_back(atlasVec.back());
+    AtlasInfoList *currentList = &result.front();
+    currentList->push_back(atlasVec.front());
     Ogre::Real lastWidth = currentList->back()->width;
     Ogre::Real lastHeight = currentList->back()->height;
     for (size_t i = 1, size = atlasVec.size(); i < size; ++i) {
@@ -341,7 +341,8 @@ BillboardManager::createAtlas(const Ogre::String &matName,
         size_t numBillboards = 0;
 
         mQueues.push_back(bqueuePtr);
-
+        debugRED("groupedAtlas.size(): %u\tgroupedAtlas[i].size(): %u\n",
+            groupedAtlas.size(), groupedAtlas[i].size());
         for (std::list<const AtlasInfo *>::const_iterator it = groupedAtlas[i].begin(),
                 eit = groupedAtlas[i].end(); it != eit; ++it) {
             MapType::const_iterator mapIt = atlasMap.find((*it)->index);
@@ -352,6 +353,7 @@ BillboardManager::createAtlas(const Ogre::String &matName,
 
             // link in our map this id with the QueuePtr
             AtlasIDHash::iterator idIt = mAtlasIDs.find((*it)->index);
+            debugBLUE("Iterating: %u\n", (*it)->index);
             ASSERT(idIt == mAtlasIDs.end()); // we have to ensure that we have
                                              // not two equal ids
 
@@ -422,6 +424,7 @@ BillboardManager::changeAtlas(BillboardWrapper &bb, unsigned int atlasNumber)
 
 	const UVCoords &coords = it->second.coords;
 	bb->setTexcoordRect(coords.u0, coords.v0, coords.u1, coords.v1);
+	bb.setAtlasID(atlasNumber);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

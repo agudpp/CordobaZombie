@@ -112,7 +112,7 @@ PlayerUnit::objectUnselected(void)
 {
 	if(mSelBillboard){
 		mBillboardMngr.letAvailable(mSelBillboard);
-		mSelBillboard = 0;
+		mSelBillboard.reset();
 	}
 }
 
@@ -143,7 +143,7 @@ PlayerUnit::mouseExitObject(void)
 	} else {
 		// we are in "mouse over".. so we clear this billboard
 		mBillboardMngr.letAvailable(mSelBillboard);
-		mSelBillboard = 0;
+		mSelBillboard.reset();
 	}
 }
 
