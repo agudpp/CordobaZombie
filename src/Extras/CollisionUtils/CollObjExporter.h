@@ -33,6 +33,8 @@ public:
 	 ** @return
 	 ** String containing a sequence of 2D positions, as for sceneExtractor(),
 	 ** one for each .scene file in CWD. Format is:
+	 ** <number of .scene files parsed>\n
+	 ** \n
 	 ** <SceneNode1 name>\n
 	 ** <number of elements>\n
 	 ** <elem1_name elem1_attr1 elem1_attr2 ... elem1_attrN1>\n
@@ -44,6 +46,7 @@ public:
 	 ** etc.
 	 **
 	 ** @remarks
+	 ** Newline character is UNIX/MAC's '\n'
 	 ** See sceneExtractor() for detailed info about the returned string format.
 	 **/
 	static std::string
@@ -62,6 +65,9 @@ public:
 	 ** ...
 	 ** <elemM_name elemM_attr1 elemM_attr2 ... elemM_attrNM>\n
 	 ** \n
+	 **
+	 ** @remarks
+	 ** Newline character is UNIX/MAC's '\n'
 	 **/
 	static std::string
 	sceneExtractor(Ogre::SceneNode* scene);
@@ -75,6 +81,7 @@ public:
 	 ** <elem_name  elem_attr1  elem_attr2  ...  elem_attrN>\n
 	 **
 	 ** @remarks
+	 ** Newline character is UNIX/MAC's '\n'
 	 ** See create***Shape() for detailed info about the returned string format.
 	 **/
 	static std::string
@@ -103,8 +110,7 @@ private:
 	 ** Vertices are returned counterclockwise
 	 **/
 	static std::string
-	createPolyShape(const Ogre::Vector3 &mod_pos,
-					PolyStructsContainer<sm::Vertex *> &cont,
+	createPolyShape(PolyStructsContainer<sm::Vertex *> &vertices,
 					PolyStructsContainer<Triangle *> &triangles);
 
 	/**
@@ -116,8 +122,7 @@ private:
 	 ** "" on error
 	 **/
 	static std::string
-	createCircleShape(const Ogre::Vector3 &mod_pos,
-					  PolyStructsContainer<sm::Vertex *> &cont,
+	createCircleShape(PolyStructsContainer<sm::Vertex *> &vertices,
 					  PolyStructsContainer<Triangle *> &triangles);
 
 	/**
@@ -129,8 +134,7 @@ private:
 	 ** "" on error
 	 **/
 	static std::string
-	createEdgeShape(const Ogre::Vector3 &mod_pos,
-					PolyStructsContainer<sm::Vertex *> &cont,
+	createEdgeShape(PolyStructsContainer<sm::Vertex *> &vertices,
 					PolyStructsContainer<Triangle *> &triangles);
 
 	/**
@@ -142,8 +146,7 @@ private:
 	 ** "" on error
 	 **/
 	static std::string
-	createBoxShape(const Ogre::Vector3 &mod_pos,
-				   PolyStructsContainer<sm::Vertex *> &cont,
+	createBoxShape(PolyStructsContainer<sm::Vertex *> &vertices,
 				   PolyStructsContainer<Triangle *> &triangles);
 
 	/**
@@ -155,8 +158,7 @@ private:
 	 ** "" on error
 	 **/
 	static std::string
-	createAABBShape(const Ogre::Vector3 &mod_pos,
-					PolyStructsContainer<sm::Vertex *> &cont,
+	createAABBShape(PolyStructsContainer<sm::Vertex *> &vertices,
 					PolyStructsContainer<Triangle *> &triangles);
 
 	/**

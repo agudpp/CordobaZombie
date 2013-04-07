@@ -88,7 +88,7 @@ Ogre::Vector3 Util::parseVector3(TiXmlElement *XMLNode)
  */
 bool Util::getTrianglesFromMesh(PolyStructsContainer<sm::Vertex *> &cont,
 		PolyStructsContainer<Triangle *> &triangles,
-		Ogre::MeshPtr mesh)
+		Ogre::MeshPtr mesh, const Ogre::Matrix4 &trmatrix)
 {
 	ASSERT(!mesh.isNull());
 
@@ -106,6 +106,13 @@ bool Util::getTrianglesFromMesh(PolyStructsContainer<sm::Vertex *> &cont,
 	long unsigned* indices = 0;
 
 	getMeshInformation(mesh.get(),vertex_count,vertices,index_count,indices);
+
+	// Apply parent SceneNode transformations to all vertices of mesh
+	if (trmatrix != Ogre::Matrix4::IDENTITY) {
+		for (size_t i = 0 ; i < vertex_count ; i++) {
+			vertices[i] = trmatrix * vertices[i];
+		}
+	}
 
 	// TODO: hacer esta funcion mas rapida, estamos buscando para cada vector
 	// el vertice asociado. Es lento

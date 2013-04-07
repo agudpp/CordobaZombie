@@ -10,6 +10,8 @@
 #include <cstring>	// strnlen()
 #include <sstream>	// std::stringstream
 #include <fts.h>	// Filesystem handler (FTS, FTSENT, fts_open()...)
+#include <math.h>	// fabs()
+
 
 #include "CommonMath.h"
 #include "Triangle.h"
@@ -23,6 +25,30 @@ struct TmpEdge {
 	const sm::Vertex *v1;
 	const sm::Vertex *v2;
 };
+
+#define  ALIGNMENT_TOLERANCE  1e-10
+
+/**
+ ** @brief
+ ** Vertex (x,y)-coordinates alignment check
+ **
+ ** @return
+ ** 0 if not aligned
+ ** 1 if  x  aligned
+ ** 2 if  y  aligned
+ **/
+int
+aligned(const sm::Vertex *v1, const sm::Vertex *v2) {
+	ASSERT(v1 && v2);
+	if (fabs(v1->y - v2->y) < ALIGNMENT_TOLERANCE)
+		return 2;
+	else if (fabs(v1->x - v2->x) < ALIGNMENT_TOLERANCE)
+		return 1;
+	else
+		return 0;
+}
+
+
 }
 
 
@@ -33,9 +59,10 @@ CollObjExporter::dirExtractor(void)
 	const char *CWD[] = {".", 0};  // Current Working Directory
     FTS *ftsp(0);
     FTSENT *p(0);
-    int fts_options = FTS_PHYSICAL | FTS_NOCHDIR;
+    const int fts_options = FTS_PHYSICAL | FTS_NOCHDIR;
 	size_t fnamelen(0);
 	std::stringstream output;
+	unsigned int numfiles(0);
 
     // Try to open CWD
     ftsp = fts_open((char* const*)CWD, fts_options, NULL);
@@ -54,7 +81,6 @@ CollObjExporter::dirExtractor(void)
     p = fts_read(ftsp);
 
     // Call sceneExtractor() for each .scene file in CWD
-	int numfiles(0);
     while (true) {
     	// Read each element inside CWD
     	p = fts_read(ftsp);
@@ -78,9 +104,11 @@ CollObjExporter::dirExtractor(void)
         	}
         }
     }
-    debugBLUE("# of .scene files processed: %d\n", numfiles);
+    debugBLUE("# of .scene files processed: %u\n", numfiles);
 
-	return output.str();
+    std::stringstream header;
+    header << numfiles << "\n\n";
+	return header.str() + output.str();
 }
 
 
@@ -125,33 +153,33 @@ CollObjExporter::entityExtractor(Ogre::Node* node,
 	ASSERT(node);
 	ASSERT(ent);
 
-	Ogre::Vector3 mod_pos = node->getPosition();
-	PolyStructsContainer<sm::Vertex *> cont;
+	PolyStructsContainer<sm::Vertex *> vertices;
 	PolyStructsContainer<Triangle *> triangles;
 	std::stringstream data;
 
-	if(!Common::Util::getTrianglesFromMesh(cont, triangles, ent->getMesh())){
+	if (!Common::Util::getTrianglesFromMesh(vertices, triangles, ent->getMesh(),
+											node->_getFullTransform())){
 		debugERROR("Error getting triangles from mesh\n");
 		return "";
 	}
 	
 	// Identify specified type
 	if (userDef == "poly"){
-		data << createPolyShape(mod_pos, cont, triangles);
+		data << createPolyShape(vertices, triangles);
 	} else if (userDef == "circle") {
-		data << createCircleShape(mod_pos, cont, triangles);
+		data << createCircleShape(vertices, triangles);
 	} else if (userDef == "edge") {
-		data << createEdgeShape(mod_pos, cont, triangles);
+		data << createEdgeShape(vertices, triangles);
 	} else if (userDef == "box") {
-		data << createBoxShape(mod_pos, cont, triangles);
+		data << createBoxShape(vertices, triangles);
 	} else if (userDef == "aabb") {
-		data << createAABBShape(mod_pos, cont, triangles);
+		data << createAABBShape(vertices, triangles);
 	} else {
 		debugERROR("Unknown shape type: \"%s\"\n", userDef.c_str());
 		return "";
 	}
 
-	cont.removeAndFreeAll();
+	vertices.removeAndFreeAll();
 	triangles.removeAndFreeAll();
 
 	return data.str();
@@ -160,12 +188,11 @@ CollObjExporter::entityExtractor(Ogre::Node* node,
 
 ////////////////////////////////////////////////////////////////////////////////
 std::string
-CollObjExporter::createPolyShape(const Ogre::Vector3 &mod_pos,
-								 PolyStructsContainer<sm::Vertex *> &cont,
+CollObjExporter::createPolyShape(PolyStructsContainer<sm::Vertex *> &vertices,
 								 PolyStructsContainer<Triangle *> &triangles)
 {
 	std::vector<Triangle *> &tri = triangles.getObjs();
-	std::vector<sm::Vertex *> &vert = cont.getObjs();
+	std::vector<sm::Vertex *> &vert = vertices.getObjs();
 	std::stringstream data;
 	const sm::Vertex *v = 0;
 	int untouched = 1;  // '1' to enter loop
@@ -231,8 +258,7 @@ CollObjExporter::createPolyShape(const Ogre::Vector3 &mod_pos,
 	data << "poly  " << vSet.size();
 	// Print all vertices
 	for (int i=0 ; i < vSet.size() ; i++) {
-		data << "  " << vSet[i]->x + mod_pos.x
-			 << "  " << vSet[i]->y + mod_pos.z;
+		data << "  " << vSet[i]->x << "  " << vSet[i]->y;
 	}
 	data << "\n";
 	
@@ -242,18 +268,18 @@ CollObjExporter::createPolyShape(const Ogre::Vector3 &mod_pos,
 
 ////////////////////////////////////////////////////////////////////////////////
 std::string
-CollObjExporter::createCircleShape(const Ogre::Vector3 &mod_pos,
-								   PolyStructsContainer<sm::Vertex *> &cont,
+CollObjExporter::createCircleShape(PolyStructsContainer<sm::Vertex *> &vertices,
 								   PolyStructsContainer<Triangle *> &triangles)
 {
-	std::vector<sm::Vertex *> &vert = cont.getObjs();
+	std::vector<sm::Vertex *> &vert = vertices.getObjs();
 	std::stringstream data;
 
 	debugBLUE("# of vertex: %zu\n", vert.size());
-	ASSERT(vert.size() == 2);
+//	ASSERT(vert.size() == 2);
+
 
 	data << "circle  "
-		 << mod_pos.x << "  " << mod_pos.z << "  "			// center
+//		 << mod_pos.x << "  " << mod_pos.z << "  "			// center
 		 << (vert[0]->squaredDistance(*vert[1])) << "\n";	// radius
 
 	return data.str();
@@ -262,21 +288,23 @@ CollObjExporter::createCircleShape(const Ogre::Vector3 &mod_pos,
 
 ////////////////////////////////////////////////////////////////////////////////
 std::string
-CollObjExporter::createEdgeShape(const Ogre::Vector3 &mod_pos,
-								 PolyStructsContainer<sm::Vertex *> &cont,
+CollObjExporter::createEdgeShape(PolyStructsContainer<sm::Vertex *> &vertices,
 								 PolyStructsContainer<Triangle *> &triangles)
 {
-	std::vector<sm::Vertex *> &vert = cont.getObjs();
+	std::vector<sm::Vertex *> &vert = vertices.getObjs();
 	std::stringstream data;
 
-	ASSERT(vert.size() == 2);
+	// We receive 3 vertices, two of them overlap
+	ASSERT(vert.size() == 3);
 
-	// Return vertices updated with object position
-	data << "edge  "
-		 << (vert[0]->x + mod_pos.x) << "  "
-		 << (vert[0]->y + mod_pos.y) << "  "
-		 << (vert[1]->x + mod_pos.x) << "  "
-		 << (vert[1]->y + mod_pos.y) << "\n";
+	// Register both (non equal) vertices of the edge
+	data << "edge  " << vert[0]->x << "  " << vert[0]->y << "  ";
+	if (vert[0]->x == vert[1]->x && vert[0]->y == vert[1]->y) {
+		data << vert[2]->x << "  " << vert[2]->y << "\n";
+	} else {
+		ASSERT(vert[0]->x == vert[2]->x && vert[0]->y == vert[2]->y);
+		data << vert[1]->x << "  " << vert[1]->y << "\n";
+	}
 
 	return data.str();
 }
@@ -284,8 +312,7 @@ CollObjExporter::createEdgeShape(const Ogre::Vector3 &mod_pos,
 
 ////////////////////////////////////////////////////////////////////////////////
 std::string
-CollObjExporter::createBoxShape(const Ogre::Vector3 &mod_pos,
-								PolyStructsContainer<sm::Vertex *> &cont,
+CollObjExporter::createBoxShape(PolyStructsContainer<sm::Vertex *> &vertices,
 								PolyStructsContainer<Triangle *> &triangles)
 {
 	std::vector<Triangle *> &tri = triangles.getObjs();
@@ -298,12 +325,9 @@ CollObjExporter::createBoxShape(const Ogre::Vector3 &mod_pos,
 	}
 
 	// Triangles shared-vertices recognition
-	std::vector<const sm::Vertex *> shared;
-	std::vector<const sm::Vertex *> notShared;
-
-	const sm::Vertex *v = 0;
-	Triangle *t_a = tri[0];
-	Triangle *t_b = tri[1];
+	std::vector<const sm::Vertex *> shared, notShared;
+	Triangle *t_a = tri[0],
+			 *t_b = tri[1];
 
 	// This method is slow, but has major error checking.
 	if (t_a->v1==t_b->v1 || t_a->v1==t_b->v2 || t_a->v1==t_b->v3) {
@@ -342,14 +366,10 @@ CollObjExporter::createBoxShape(const Ogre::Vector3 &mod_pos,
 
 	// Push the vertices, clockwise or counterclockwise
 	data << "box  "
-		 << (shared[0]->x + mod_pos.x)    << "  "
-		 << (shared[0]->y + mod_pos.z)    << "  "
-		 << (notShared[0]->x + mod_pos.x) << "  "
-		 << (notShared[0]->y + mod_pos.z) << "  "
-		 << (shared[1]->x + mod_pos.x)    << "  "
-		 << (shared[1]->y + mod_pos.z)    << "  "
-		 << (notShared[1]->x + mod_pos.x) << "  "
-		 << (notShared[1]->y + mod_pos.z) << "\n";
+		 << shared[0]->x    << "  " << shared[0]->y    << "  "
+		 << notShared[0]->x << "  " << notShared[0]->y << "  "
+		 << shared[1]->x    << "  " << shared[1]->y    << "  "
+		 << notShared[1]->x << "  " << notShared[1]->y << "\n";
 	
 	return data.str();
 }
@@ -357,13 +377,12 @@ CollObjExporter::createBoxShape(const Ogre::Vector3 &mod_pos,
 
 ////////////////////////////////////////////////////////////////////////////////
 std::string
-CollObjExporter::createAABBShape(const Ogre::Vector3 &mod_pos,
-								 PolyStructsContainer<sm::Vertex *> &cont,
+CollObjExporter::createAABBShape(PolyStructsContainer<sm::Vertex *> &vertices,
 								 PolyStructsContainer<Triangle *> &triangles)
 {
 	sm::AABB shape;
 	std::stringstream data;
-	std::vector<sm::Vertex *> vert = cont.getObjs();
+	std::vector<sm::Vertex *> vert = vertices.getObjs();
 
 	if (vert.size() != 4) {
 		debugERROR("Wrong number of vertices for AABBShape.\n"
@@ -371,12 +390,10 @@ CollObjExporter::createAABBShape(const Ogre::Vector3 &mod_pos,
 		return "";
 	}
 	
-	// Correct the position
-	for(int i= 0; i< 4; i++){
-		vert[i]->x += mod_pos.x;
-		vert[i]->y += mod_pos.z;
-	}
-	
+	// Check we've really been given an AABB
+	ASSERT((aligned(vert[0], vert[1]) && aligned(vert[2], vert[3])) ||
+		   (aligned(vert[0], vert[2]) && aligned(vert[1], vert[3])) ||
+		   (aligned(vert[0], vert[3]) && aligned(vert[1], vert[2])));
 
 	getBoundingBox(vert, shape);
 	// 0 ****** 1

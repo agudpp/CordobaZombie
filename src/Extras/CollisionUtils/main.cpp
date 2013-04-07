@@ -40,9 +40,7 @@ public:
 		_sceneManager = _root->createSceneManager(Ogre::ST_GENERIC);
 	}
 
-	~MyApplication() {
-		delete _root;
-	}
+	~MyApplication() {}
 
 	int startup() {
 		Common::GlobalObjects::ogreRoot = _root;
@@ -263,7 +261,7 @@ int main (void)
 		std::cout << DEBUG_GREEN "\nCollision data exported into file \""
 				  << fname << "\"\n" << DEBUG_NC << std::endl;
 		importer.importFromFile(fname);
-		std::vector<CollisionObject> vec = importer.getCollisionObjects();
+		std::vector<CollisionObject*> vec = importer.getCollisionObjects();
 		ASSERT(vec.size() == 0);
 	}
 

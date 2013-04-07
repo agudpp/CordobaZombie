@@ -17,6 +17,7 @@
 
 #include "CollisionObject.h"
 
+
 class CollObjImporter
 {
 public:
@@ -25,19 +26,21 @@ public:
 
 	/**
 	 ** @brief
-	 ** Read plain text file "fname", parse collision information from it
+	 ** Read plain text file in "path", parse collision information from it
 	 ** and generate collision objects accordingly.
 	 **
 	 ** @remarks
-	 ** Expected plain text file format is specified in CollObjExporter.h
 	 ** Correctly parsed objects are allocated internally in dynamic mem.
+	 ** "path" must point to a readable plain text file.
+	 ** Expected text format is specified in function
+	 ** CollObjExporter.h:dirExtractor()
 	 **
 	 ** @return
 	 ** true if parsing and constructions successfull
 	 ** false otherwise (+ error msg output to stderr)
 	 **/
 	bool
-	importFromFile(Ogre::String fname);
+	importFromFile(Ogre::String path);
 
 	/**
 	 ** @brief
@@ -45,12 +48,13 @@ public:
 	 **
 	 ** @remarks
 	 ** Vector's objects were allocated dynamically, dispose of with delete()
+	 ** Consider aliasing before deleting.
 	 **/
-	inline std::vector<CollisionObject>&
+	inline std::vector<CollisionObject*>&
 	getCollisionObjects(void);
 
 private:
-	std::vector<CollisionObject>	mParsedCollObjs;
+	std::vector<CollisionObject*>	mParsedCollObjs;
 };
 
 
@@ -58,7 +62,7 @@ private:
 /****************************     INLINES     *********************************/
 
 ////////////////////////////////////////////////////////////////////////////////
-std::vector<CollisionObject>&
+std::vector<CollisionObject*>&
 CollObjImporter::getCollisionObjects(void)
 {
 	return mParsedCollObjs;
