@@ -7,6 +7,7 @@
  */
 
 #include <algorithm>
+#include <cmath>
 
 #include "GlobalObjects.h"
 #include "GUIHelper.h"
@@ -156,18 +157,25 @@ BillboardManager::groupAtlasInfo(const std::vector<const AtlasInfo *> &av,
     // make a copy of the vector
     std::vector<const AtlasInfo *> atlasVec = av;
 
-    // sort the result using the width
+    // sort the result using the width using a tolerance value (epsilon)
+    // to avoid any kind of float rounding up stuff
     struct UVComparator {
+        #define TOLERANCE 1.e-3f
+
         bool operator()(const AtlasInfo *a, const AtlasInfo *b)
         {
             if (useWidth) {
-                return a->width < b->width;
+                const float abs = std::abs(a->width - b->width);
+                return (abs > TOLERANCE) ? a->width < b->width : false;
             } else {
                 // use height
-                return a->height < b->height;
+                const float abs = std::abs(a->height - b->height);
+                return (abs > TOLERANCE) ? a->height < b->height : false;
             }
         }
         bool useWidth;
+
+        #undef TOLERANCE
     } uvComparator;
 
     uvComparator.useWidth = true;
@@ -297,8 +305,7 @@ BillboardManager::createAtlas(const Ogre::String &matName,
                               const std::map<unsigned int, AtlasInfo> &atlasMap)
 {
     // first of all we will clear the "hash" or map
-    mAtlasIDs.clear(); // this is slow, should be called on level start up
-    mQueues.clear();
+    destroyAll();
 
     if (atlasMap.empty()) {
         debugWARNING("We are receiving an empty atlasMap?\n");
@@ -362,105 +369,81 @@ BillboardManager::createAtlas(const Ogre::String &matName,
 bool
 BillboardManager::isCreated(void)
 {
-    // TODO: change this to use the new version
-	return mBillboardSet != 0;
+	return !mQueues.empty();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void
 BillboardManager::setVisible(bool visible)
 {
-    // TODO: change this to use the new version
-	ASSERT(mBillboardSet);
-	mBillboardSet->setVisible(visible);
+    for (size_t i = 0, size = mQueues.size(); i < size; ++i) {
+        mQueues[i]->set()->setVisible(visible);
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void
 BillboardManager::setBounds(const Ogre::AxisAlignedBox &bb, Ogre::Real radius)
 {
-    // TODO: change this to use the new version
-	ASSERT(mBillboardSet);
-	mBillboardSet->setBounds(bb, radius);
-	mBillboardSet->setCullIndividually(true);
+    for (size_t i = 0, size = mQueues.size(); i < size; ++i) {
+        mQueues[i]->set()->setBounds(bb, radius);
+        mQueues[i]->set()->setCullIndividually(true);
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-Ogre::Billboard
-*BillboardManager::getNewBillboard(int atlasNumber)
+BillboardWrapper
+BillboardManager::getNewBillboard(unsigned int atlasNumber)
 {
-    // TODO: change this to use the new version
-	ASSERT(mBillboardSet);
-	if(mBillboards.empty()){
-		return 0;
-	}
-	// check if we have to attach to the scene node
-	if(mBillboards.size() == mBillboardSet->getPoolSize()){
-		// this is the first that we will remove
-		mNode->attachObject(mBillboardSet);
+    AtlasIDHash::iterator it = mAtlasIDs.find(atlasNumber);
+    if(it == mAtlasIDs.end()){
+        // no atlas found
+		return BillboardWrapper(0, 0);
 	}
 
-	Ogre::Billboard *result = mBillboards.front();
-	mBillboards.pop_front();
-
-	// configure the atlas if needed
-	if(atlasNumber >= 0){
-		Ogre::Real x1 = (mAtlasSize * atlasNumber);
-		ASSERT(x1 + mAtlasSize <= 1.0f);
-		result->setTexcoordRect(x1, 0.0f, x1+mAtlasSize, 1.0f);
-	}
-
-	return result;
+	// get the billboard from the associated BillboardQueue
+    ASSERT(it->second.queue);
+    BillboardQueue *queue = it->second.queue;
+    return BillboardWrapper(queue->getNewBillboard(it->second.coords), atlasNumber);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void
-BillboardManager::changeAtlas(Ogre::Billboard *bb, int atlasNumber)
+BillboardManager::changeAtlas(BillboardWrapper &bb, unsigned int atlasNumber)
 {
-    // TODO: change this to use the new version
 	ASSERT(bb);
-	ASSERT(atlasNumber >= 0);
 
-	Ogre::Real x1 = (mAtlasSize * atlasNumber);
-	ASSERT(x1 + mAtlasSize <= 1.0f);
-	bb->setTexcoordRect(x1, 0.0f, x1+mAtlasSize, 1.0f);
-}
+	AtlasIDHash::iterator it = mAtlasIDs.find(atlasNumber);
+	if(it == mAtlasIDs.end()){
+        // no atlas found
+	    ASSERT(it != mAtlasIDs.end());
+        return;
+    }
 
-////////////////////////////////////////////////////////////////////////////////
-int
-BillboardManager::getAtlas(Ogre::Billboard *bb)
-{
-    // TODO: change this to use the new version
-	ASSERT(bb);
-	const Ogre::Real x1 = bb->getTexcoordRect().left;
-	return (x1 / mAtlasSize);
+	const UVCoords &coords = it->second.coords;
+	bb->setTexcoordRect(coords.u0, coords.v0, coords.u1, coords.v1);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void
-BillboardManager::letAvailable(Ogre::Billboard *b)
+BillboardManager::letAvailable(BillboardWrapper &b)
 {
     // TODO: change this to use the new version
-	ASSERT(b);
-	ASSERT(mBillboards.size()+1 <= mBillboardSet->getPoolSize());
+	ASSERT(b.billboard());
+	AtlasIDHash::iterator it = mAtlasIDs.find(b.atlasID());
+    ASSERT(it != mAtlasIDs.end()); // we need to ensure this
+    ASSERT(it->second.queue);
 
-	mBillboards.push_back(b);
-
-	// check if it was the last one
-	if(mBillboards.size() == mBillboardSet->getPoolSize()){
-		mNode->detachObject(mBillboardSet);
-	}
-
-	// hide it
-	b->setPosition(0,-9999.0f,0);
+    it->second.queue->letAvailable(b);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void
 BillboardManager::destroyAll(void)
 {
-    // TODO: change this to use the new version
-    ASSERT(false);
+    mAtlasIDs.clear(); // this is slow, should be called on level start up
+    mQueues.clear();
+
 }
 
 

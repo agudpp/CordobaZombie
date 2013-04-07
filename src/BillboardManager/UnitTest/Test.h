@@ -15,6 +15,7 @@
 
 #include "BillboardBatery.h"
 #include "BillboardManager.h"
+#include "BillboardWrapper.h"
 #include "AppTester.h"
 #include "DebugUtil.h"
 

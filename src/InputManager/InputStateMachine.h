@@ -17,6 +17,7 @@
 
 #include <OgreBillboard.h>
 
+#include <BillboardManager/BillboardWrapper.h>
 #include <SelectionSystem/SelectionData.h>
 #include <SelectionSystem/SelectionType.h>
 #include <SelectionSystem/SelectionManager.h>
@@ -115,7 +116,7 @@ private:
 	LevelManager *mLevelManager;
 	InputManager &mInputManager;
     State mState;
-    Ogre::Billboard *mMoveSingleBillboard;
+    billboard::BillboardWrapper mMoveSingleBillboard;
     bool mMoveBillbardVisible;
 
 };

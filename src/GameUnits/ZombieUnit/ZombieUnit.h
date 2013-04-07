@@ -11,12 +11,16 @@
 #include <vector>
 #include <set>
 
+#include <BillboardManager/BillboardManager.h>
+#include <BillboardManager/BillboardBatery.h>
+#include <BillboardManager/BillboardWrapper.h>
+
 #include "ZombieDefs.h"
 #include "FSM/StateMachine.h"
 #include "GameUnit.h"
 #include "ZombieFactory.h"
-#include "BillboardBatery.h"
-#include "BillboardManager.h"
+
+
 
 
 // zombie state machine
@@ -254,7 +258,7 @@ private:
 	TargetList						mTargets;
 	const Ogre::SceneNode			*mSoundTarget;
 	GameUnit						*mSpreader;
-	Ogre::Billboard 				*mSelBillboard;
+	billboard::BillboardWrapper		mSelBillboard;
 
 	// The transition table used by all the zombies
 	static ZombieSMTTable		*mSMTT;

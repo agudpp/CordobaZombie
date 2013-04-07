@@ -48,7 +48,7 @@ InputStateMachine::InputStateMachine(selection::SelectionManager &selManager,
 ,   mLevelManager(lvlManager)
 ,   mInputManager(inputManager)
 ,   mState(State::IS_EMPTY_SEL)
-,   mMoveSingleBillboard(0)
+,   mMoveSingleBillboard(0, 0)
 ,   mMoveBillbardVisible(false)
 {
     ASSERT(lvlManager != 0);

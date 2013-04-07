@@ -29,7 +29,7 @@ ZombieUnit::ZombieUnit() :
 		mFSM(this),
 		mSoundTarget(0),
 		mSpreader(0),
-		mSelBillboard(0)
+		mSelBillboard(0,0)
 {
 	ASSERT(mBloodBatery);
 	ASSERT(mQueue);

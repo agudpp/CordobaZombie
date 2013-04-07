@@ -11,6 +11,9 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include <BillboardManager/BillboardManager.h>
+#include <BillboardManager/BillboardWrapper.h>
+
 #include "FSM/StateMachine.h"
 #include "GameUnit.h"
 #include "PlayerDefs.h"
@@ -27,7 +30,7 @@
 #include "BackpackItem.h"
 #include "GeneralTypedefs.h"
 #include "BackpackItemAssociator.h"
-#include "BillboardManager.h"
+
 
 //#include "CollectableObjTypes.h"
 
@@ -410,7 +413,7 @@ private:
 	Weapon                          *mWeapons[Weapon::W_NONE];
 	int                             mActualWeapon;
 	PlayerWorldContext              mWorldContext;
-	Ogre::Billboard                 *mSelBillboard;
+	billboard::BillboardWrapper     mSelBillboard;
 	float                           mUpdatePathTime;
 	Bomb                            *mActualBomb;
 	CollectableObject               *mTargetColObject;

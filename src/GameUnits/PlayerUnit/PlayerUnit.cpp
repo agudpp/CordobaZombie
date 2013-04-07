@@ -62,7 +62,7 @@ PlayerUnit::PlayerUnit() :
 		mFSM(this),
 		mAttackingBehavior(PlayerUnit::BH_NORMAL),
 		mWorldContext(this),
-		mSelBillboard(0),
+		mSelBillboard(0,0),
 		mUpdatePathTime(0),
 		mActualBomb(0),
 		mLifeChangeCb(0),

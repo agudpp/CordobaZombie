@@ -22,6 +22,7 @@
 
 #include "BillboardBatery.h"
 #include "BillboardDefs.h"
+#include "BillboardWrapper.h"
 
 namespace billboard {
 
@@ -47,6 +48,12 @@ class BillboardManager {
 
         // returns a billboard to the queue
         void letAvailable(Ogre::Billboard *);
+
+        // returns the Billboard set
+        inline Ogre::BillboardSet* set(void) const
+        {
+            return mSet;
+        }
 
     private:
 
@@ -160,28 +167,31 @@ public:
 	 * @param	atlasNumber	If we are using atlas we can specify by parameter
 	 * 						the atlas position we want to use (starting from 0)
 	 */
-	Ogre::Billboard *
-	getNewBillboard(int atlasNumber = -1);
+	BillboardWrapper
+	getNewBillboard(unsigned int atlasNumber);
 
 	/**
 	 * Change the atlas of a billboard
 	 * @param	bb			The billboard to modify
 	 * @param	atlasNum	The atlas number to be set
+	 * @note    Note that this method will change the uvs coords only, will
+	 *          no check for any other kind of things (bb will have the texture
+	 *          uvs associated to the atlasNumber item)
 	 */
 	void
-	changeAtlas(Ogre::Billboard *bb, int atlasNumber);
+	changeAtlas(BillboardWrapper &bb, unsigned int atlasNumber);
 
 	/**
 	 * Returns the atlas id of a billboard
 	 */
-	int
-	getAtlas(Ogre::Billboard *bb);
+	inline unsigned int
+	getAtlas(BillboardWrapper &bb);
 
 	/**
 	 * Let a new billboard available
 	 */
 	void
-	letAvailable(Ogre::Billboard *);
+	letAvailable(BillboardWrapper &);
 
 	/**
 	 * @brief Destroy all the billboards
@@ -241,6 +251,12 @@ BillboardManager::getBattery(BatteryID id)
 {
     ASSERT(id < BatteryID::SIZE);
     return mBatteries[id];
+}
+
+inline unsigned int
+BillboardManager::getAtlas(BillboardWrapper &bb)
+{
+    return bb.atlasID();
 }
 
 }
