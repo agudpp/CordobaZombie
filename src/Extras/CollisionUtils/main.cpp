@@ -16,6 +16,7 @@
 
 #include "DotSceneLoader.h"
 #include "CollObjExporter.h"
+#include "CollObjImporter.h"
 #include "GlobalObjects.h"
 #include "DebugUtil.h"
 
@@ -240,6 +241,7 @@ int main (void)
 	const char fname[] = "collision_objects.dat";  // OUTPUT FILENAME XXX
 	std::ofstream outfile(fname);
 	CollObjExporter exporter;
+	CollObjImporter importer;
 	MyApplication app;
 
 	if (!outfile.is_open()) {
@@ -257,11 +259,14 @@ int main (void)
 					"Are there any .scene files in around?\n");
 	} else {
 		outfile << data;
+		outfile.close();
 		std::cout << DEBUG_GREEN "\nCollision data exported into file \""
 				  << fname << "\"\n" << DEBUG_NC << std::endl;
+		importer.importFromFile(fname);
+		std::vector<CollisionObject> vec = importer.getCollisionObjects();
+		ASSERT(vec.size() == 0);
 	}
 
-	outfile.close();
 	return EXIT_SUCCESS;
 }
 

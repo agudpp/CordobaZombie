@@ -27,29 +27,6 @@ struct TmpEdge {
 
 
 ////////////////////////////////////////////////////////////////////////////////
-void
-CollObjExporter::getBoundingBox(const std::vector<sm::Vertex *> &v, sm::AABB &bb)
-{
-	ASSERT(v.size() >= 2);
-
-	float minx, miny, maxx, maxy;
-	minx = maxx = v[0]->x;
-	miny = maxy = v[0]->y;
-
-	for(int i = v.size()-1; i >= 0; --i){
-		if(minx > v[i]->x){minx = v[i]->x;}
-		if(maxx < v[i]->x){maxx = v[i]->x;}
-		if(miny > v[i]->y){miny = v[i]->y;}
-		if(maxy < v[i]->y){maxy = v[i]->y;}
-	}
-	bb.tl.x = minx;
-	bb.tl.y = maxy;
-	bb.br.x = maxx;
-	bb.br.y = miny;
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
 std::string
 CollObjExporter::dirExtractor(void)
 {
@@ -136,19 +113,6 @@ CollObjExporter::sceneExtractor(Ogre::SceneNode* scene)
 		}
 	}
 	return output.str();
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-std::string CollObjExporter::userDefExtractor(const Ogre::String &source)
-{
-			/* format:	<name="xxx_box">    ||
-			 *			<name="xxx_aabb">   ||
-			 *			<name="xxx_edge">   ||
-			 *			<name="xxx_circle"> ||
-			 *			<name="xxx_poly">
-			 */
-			return Ogre::StringUtil::split(source,"_",2)[1];
 }
 
 

@@ -1,6 +1,9 @@
 /*
  * CollObjExporter.h
  *
+ *  Extract info for the Collision System from .mesh and .scene local files,
+ *  and output in plain text format.
+ *
  *  Created on: Mar 23, 2013
  *     Company: CordobaZombie
  *      Author: Budde, Carlos Esteban.
@@ -24,7 +27,8 @@ class CollObjExporter
 public:
 	/**
 	 ** @brief
-	 ** Call sceneExtractor() for every .scene file in CWD
+	 ** Generate plain text information from .scene local files.
+	 ** For that, call sceneExtractor() for every .scene file in CWD
 	 **
 	 ** @return
 	 ** String containing a sequence of 2D positions, as for sceneExtractor(),
@@ -84,7 +88,7 @@ private:
 	 ** @return
 	 ** Either "box", "aabb", "edge", "circle" or "poly"
 	 **/
-	static std::string
+	static inline std::string
 	userDefExtractor(const Ogre::String &source);
 
 	/**
@@ -159,8 +163,49 @@ private:
 	 ** @brief
 	 ** Create a bounding box from a list of 2D vertices
 	 **/
-	static void
+	static inline void
 	getBoundingBox(const std::vector<sm::Vertex *> &v, sm::AABB &bb);
 };
+
+
+/******************************************************************************/
+/****************************     INLINES     *********************************/
+
+////////////////////////////////////////////////////////////////////////////////
+std::string
+CollObjExporter::userDefExtractor(const Ogre::String &source)
+{
+			/* format:	<name="xxx_box">    ||
+			 *			<name="xxx_aabb">   ||
+			 *			<name="xxx_edge">   ||
+			 *			<name="xxx_circle"> ||
+			 *			<name="xxx_poly">
+			 */
+			return Ogre::StringUtil::split(source,"_",2)[1];
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+void
+CollObjExporter::getBoundingBox(const std::vector<sm::Vertex *> &v, sm::AABB &bb)
+{
+	ASSERT(v.size() >= 2);
+
+	float minx, miny, maxx, maxy;
+	minx = maxx = v[0]->x;
+	miny = maxy = v[0]->y;
+
+	for(int i = v.size()-1; i >= 0; --i){
+		if(minx > v[i]->x){minx = v[i]->x;}
+		if(maxx < v[i]->x){maxx = v[i]->x;}
+		if(miny > v[i]->y){miny = v[i]->y;}
+		if(maxy < v[i]->y){maxy = v[i]->y;}
+	}
+	bb.tl.x = minx;
+	bb.tl.y = maxy;
+	bb.br.x = maxx;
+	bb.br.y = miny;
+}
+
 
 #endif /* COLLOBJEXPORTER_H_ */

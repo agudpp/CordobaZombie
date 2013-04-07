@@ -96,11 +96,13 @@ target_link_libraries(OgreApp ${COMMON_FLAGS})
 set(HDRS		
 	${DEV_ROOT_PATH}/Extras/AppTester/AppTester.h
 	./CollObjExporter.h
+	./CollObjImporter.h
 )
  
 set(SRCS
 	${DEV_ROOT_PATH}/Extras/AppTester/AppTester.cpp
 	./CollObjExporter.cpp
+	./CollObjImporter.cpp
 	./main.cpp
 )
  
