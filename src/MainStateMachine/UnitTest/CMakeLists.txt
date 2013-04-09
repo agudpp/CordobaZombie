@@ -147,9 +147,13 @@ include(${DEV_ROOT_PATH}/UpdatableObjects/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/Utils/GUI/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/Utils/GUI/Text2D/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/VideoPlayer/FfmpegVideoPlayer/AutoGen.cmake)
-
-
-
+include(${DEV_ROOT_PATH}/SelectionSystem/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/Helpers/GameUnitHelper/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/Helpers/MetaRscManager/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/MicroAppRunner/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/Common/ButtonHelper/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/Common/DebugUtil/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/Common/AutoGen.cmake)
 
 add_executable(OgreApp WIN32 ${HDRS} ${SRCS})
  
