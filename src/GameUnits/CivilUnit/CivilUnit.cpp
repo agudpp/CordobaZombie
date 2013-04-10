@@ -14,6 +14,9 @@ CivilUnit::GameUnitVec				CivilUnit::mNearbyZombies;
 CivilSMTTable						*CivilUnit::mSMTTable = 0;
 
 
+const float  CivilUnit::SAFE_SQR_DIST = 15.0f*15.0f;
+
+
 ////////////////////////////////////////////////////////////////////////////////
 void CivilUnit::setSMTTable(CivilSMTTable *t)
 {

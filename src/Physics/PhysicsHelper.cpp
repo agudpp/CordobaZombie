@@ -12,6 +12,16 @@
 
 #include <cmath>
 
+
+
+const float  PhysicsHelper::GRAVITY_FACTOR      =   9.8f;
+const float  PhysicsHelper::FLOOR_POSITION_Y    =   .0f;
+const float  PhysicsHelper::NEGLIBILE_FORCE     =   0.1f;   // when we have force
+                                                            // lower than this we
+                                                            // avoid it
+
+
+
 ////////////////////////////////////////////////////////////////////////////////
 bool PhysicsHelper::updateAllObject(PhysicObject &obj)
 {

@@ -51,7 +51,7 @@ public:
 	 * The list returned is the list of the resources used by and only by this
 	 * state.
 	 */
-	void getResources(ResourcesInfoVec &resourcesList);
+	void getResources(ResourcesInfoVec &resourcesList) const;
 
 private:
 

@@ -8,6 +8,13 @@
 #include <iostream>
 #include <string>
 #include <auto_ptr.h>
+// For stack trace print and signal handling
+#include <ucontext.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/wait.h>
+#include <csignal>
+#include <unistd.h>
 
 #include "DebugUtil.h"
 #include "SystemLoader.h"
@@ -15,6 +22,7 @@
 #include "MainTFBuilder.h"
 #include "Util.h"
 #include "LoaderManager.h"
+#include "LoaderBuilder.h"
 #include "GlobalObjects.h"
 #include "MouseCursor.h"
 
@@ -39,6 +47,55 @@ extern "C" {
 
 
 /**
+ * Function used to handle the sigsevs and all that signals and print the
+ * stack trace automatically
+ */
+void
+bt_sighandler(int sig, siginfo_t *info, void *secret)
+{
+
+    char pid_buf[30];
+    sprintf(pid_buf, "%d", getpid());
+    char name_buf[512];
+    name_buf[readlink("/proc/self/exe", name_buf, 511)]=0;
+    int child_pid = fork();
+    if (!child_pid) {
+        dup2(STDERR_FILENO,STDOUT_FILENO); // redirect output to stderr
+        fprintf(stdout, DEBUG_RED DEBUG_INVERT "Caught signal %d (%s)\33[0m\n", sig,
+        		 sig == SIGSEGV ? "SIGSEGV" : (sig == SIGABRT ? "SIGABRT" :
+        		(sig == SIGKILL ? "SIGKILL" : (sig == SIGTERM ? "SIGTERM" :
+        		(sig == SIGUSR1 ? "SIGUSR1" : "UNKNOWN")))));
+        fprintf(stdout,"Stack trace for %s pid=%s\n", name_buf, pid_buf);
+        execlp("gdb", "gdb", "--batch", "-n", "-ex", "thread", "-ex", "bt",
+        		name_buf, pid_buf, NULL);
+        abort(); /* If gdb failed to start */
+    } else {
+        waitpid(child_pid,NULL,0);
+    }
+    exit(EXIT_FAILURE);
+}
+/**
+ * Configure signals
+ */
+static void
+configureSignals(void)
+{
+    /* Install our signal handler */
+    struct sigaction sa;
+
+    sa.sa_sigaction = bt_sighandler;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = SA_RESTART | SA_SIGINFO;
+    sigaction(SIGSEGV, &sa, NULL);
+    sigaction(SIGUSR1, &sa, NULL);
+    sigaction(SIGABRT, &sa, NULL);
+    sigaction(SIGKILL, &sa, NULL);
+    sigaction(SIGTERM, &sa, NULL);
+
+    /* ... add any other signal here */
+}
+
+/**
  * Print a message for windows an linux
  */
 static void showErrorMessage(const std::string &msg)
@@ -48,8 +105,6 @@ static void showErrorMessage(const std::string &msg)
 #else
 	debugRED("%s\n", msg.c_str());
 #endif
-
-
 }
 
 /**
@@ -67,7 +122,7 @@ static bool loadSystem(SystemLoader &loader,
 		loader.loadInputSystem();
 //		loader.loadSoundSystem();
 	} catch (SystemLoader::ErrorException &e){
-		showErrorMessage("Error catched!!! " + e.info);
+		showErrorMessage("Error caught!!! " + e.info);
 		return false;
 	}
 
@@ -82,15 +137,19 @@ static bool loadSystem(SystemLoader &loader,
 static bool configureMainStateMachine(MainStateMachine &msm,
 		const std::string &fname, MainTFBuilder &builder)
 {
-	std::auto_ptr<TiXmlDocument> doc(Common::Util::loadXmlDocument(fname.c_str()));
+//	std::auto_ptr<TiXmlDocument> doc(Common::Util::loadXmlDocument(fname.c_str()));
+//
+//	if(!doc.get()){
+//		showErrorMessage("Error trying to parse the xml file " + fname + " "
+//				"to use with the MainStateMAchine");
+//		return true;
+//	}
+//
+//	MainTransitionFunction *mtf = builder.build(doc->RootElement());
 
-	if(!doc.get()){
-		showErrorMessage("Error trying to parse the xml file " + fname + " "
-				"to use with the MainStateMAchine");
-		return true;
-	}
+	debugERROR("We've to load the MainTF configuration from XML file\n");
 
-	MainTransitionFunction *mtf = builder.build(doc->RootElement());
+	MainTransitionFunction *mtf = builder.build(0);
 	ASSERT(mtf);
 	msm.setTransitionFunction(mtf);
 
@@ -144,7 +203,8 @@ static void configureGlobalObjects(SystemLoader &sl)
     	MainTFBuilder		smBuilder;
     	LoaderManager		loaderManager;
 
-
+    	// configure the signals for stack trace
+    	configureSignals();
 
     	debugBLUE("TODO: podemos recibir el nombre de archivos de configuracion "
     			"por los argumentos del main, ahora ta hardcodeado\n");
@@ -156,19 +216,32 @@ static void configureGlobalObjects(SystemLoader &sl)
     	debugRED("TODO: todavia falta setear el LevelManager que es global..\n");
     	configureGlobalObjects(sysLoader);
 
-    	// Configure the main state machine
+    	// load the Loaders to be used
+    	{
+    	    std::vector<Loader*> loaders;
+    	    LoaderBuilder::getLoaders(loaders);
+    	    for(size_t size = loaders.size(), i = 0; i < size; ++i){
+    	        loaderManager.addLoader(loaders[i]);
+    	    }
+    	}
+
+
+    	// Configure the main state machine.
     	smBuilder.setLoaderManager(&loaderManager);
     	if(!configureMainStateMachine(stateMachine, MAINSTATEMACHINE_FNAME,
     			smBuilder)){
     		return -2;
     	}
 
-    	// Now we start the machine state.
+    	// Finally start the machine.
     	debugRED("Configuramos hardcoded el primer main info\n");
     	stateMachine.getInfo().params["LOADING_BACKGROUND"] = "LoadingBackground/Demo";
     	stateMachine.getInfo().params["LOADING_BAR"] = "LoadingBarOverlay/Demo";
+    	stateMachine.getInfo().params["LEVEL_PATH"] = "Levels/Demo/";
     	stateMachine.start();
 
+
+    	loaderManager.deleteAll();
 
         return 0;
     }

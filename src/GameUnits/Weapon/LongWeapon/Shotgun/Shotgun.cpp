@@ -9,6 +9,11 @@
 #include "Shotgun.h"
 #include "GameUnit.h"
 
+
+const float  Shotgun::SHOOT_VELOCITY = 5.0f;
+const float  Shotgun::SPREAD_BULLETS_POWER = 1.0f/NUM_SPREAD_BULLETS;
+
+
 Shotgun::Shotgun()
 {
 	// We configure the magazineSize as 8

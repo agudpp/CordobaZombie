@@ -15,6 +15,8 @@ ZombieQueue			*ZombieUnit::mQueue = 0;
 BillboardBatery		*ZombieUnit::mBloodBatery = 0;
 BillboardManager	*ZombieUnit::mBillboardMngr = 0;
 
+const float  ZombieUnit::MAX_RADIUS_VISIBILITY = ZOMBIE_MAX_VISIBILITY_DIST;
+
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////

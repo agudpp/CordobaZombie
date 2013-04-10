@@ -93,7 +93,8 @@ void SponsorsState::configure(Ogre::Real ft, Ogre::Real st)
 
 ////////////////////////////////////////////////////////////////////////////////
 void
-SponsorsState::getResources(IMainState::ResourcesInfoVec &resourcesList)
+SponsorsState::getResources(IMainState::ResourcesInfoVec &resourcesList,
+                            const MainMachineInfo &info) const
 {
     resourcesList.clear();
 

@@ -1,6 +1,9 @@
 #include "DotSceneLoader.h"
-#include "tinyxml.h"
+
 #include <Ogre.h>
+
+#include "DebugUtil.h"
+#include "tinyxml.h"
 
 using namespace std;
 namespace Ogre {
@@ -946,6 +949,8 @@ String DotSceneLoader::getProperty(const String &ndNm, const String &prop)
 
 void DotSceneLoader::processUserDataReference(TiXmlElement *XMLNode, Entity *pEntity)
 {
+    ASSERT(false); // que es este user any aca???? no lo debeiramos usar
+    // porque puede colisionar con los any que le ponemos nosotros
     String str = XMLNode->Attribute("id");
     pEntity->setUserAny(Any(str));
 }

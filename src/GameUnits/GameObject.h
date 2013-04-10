@@ -19,10 +19,10 @@
 #include "DebugUtil.h"
 #include "CollisionManager.h"
 #include "GameUnitDefines.h"
-
+#include "SelectableObject.h"
 #include "GlobalConstants.h"
 
-class GameObject {
+class GameObject : public selection::SelectableObject {
 public:
 	// We have to set the collision manager used by this classes
 	static CollisionManager *collMng;

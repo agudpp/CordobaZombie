@@ -10,7 +10,7 @@ set(SRCS
 #	${DEV_ROOT_PATH}/InputManager/InputStates/UnitHandlingState.cpp
 #	${DEV_ROOT_PATH}/InputManager/InputStates/InputActionObjState.cpp
 #	${DEV_ROOT_PATH}/InputManager/InputStates/ObjectSelectionState.cpp
-#	${DEV_ROOT_PATH}/InputManager/InputManager.cpp
+	${DEV_ROOT_PATH}/InputManager/InputManager.cpp
 #	${DEV_ROOT_PATH}/InputManager/InputStateMachine.cpp
 #	${DEV_ROOT_PATH}/InputManager/InputTransitionTable.cpp
 #	${DEV_ROOT_PATH}/InputManager/IInputState.cpp
@@ -21,7 +21,7 @@ set(HDRS
 #	${DEV_ROOT_PATH}/InputManager/InputStates/UnitHandlingState.h
 #	${DEV_ROOT_PATH}/InputManager/InputStates/InputActionObjState.h
 #	${DEV_ROOT_PATH}/InputManager/InputStates/ObjectSelectionState.h
-#	${DEV_ROOT_PATH}/InputManager/InputManager.h
+	${DEV_ROOT_PATH}/InputManager/InputManager.h
 #	${DEV_ROOT_PATH}/InputManager/InputActionObject.h
 #	${DEV_ROOT_PATH}/InputManager/InputStateMachine.h
 #	${DEV_ROOT_PATH}/InputManager/IInputState.h

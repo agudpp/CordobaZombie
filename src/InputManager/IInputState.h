@@ -12,6 +12,7 @@
 #include <OgreSceneQuery.h>
 #include <OgreVector3.h>
 
+#include "GlobalObjects.h"
 #include "CollisionTypedefs.h"
 #include "MouseCursor.h"
 #include "LevelManager.h"
@@ -105,7 +106,7 @@ inline Ogre::RaySceneQueryResult &IInputState::performRayQuery(uint32 mask,
 {
 	ASSERT(mLevelManager);
 	ASSERT(mInputManager);
-	MouseCursor *mc = mInputManager->getMouseCursor();
+	MouseCursor *mc = GLOBAL_CURSOR;
 	return mLevelManager->getRaycastManger()->performOgreRay(
 			mc->getXRelativePos(), mc->getYRelativePos(), mask, sort, numR);
 }

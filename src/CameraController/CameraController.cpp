@@ -5,14 +5,66 @@
  *      Author: agustin
  */
 #include <auto_ptr.h>
+#include <boost/bind.hpp>
 
 #include "CameraController.h"
-#include "GlobalObjects.h"
 #include "Util.h"
 
 #include "DebugUtil.h"
 
 
+const Ogre::Real CameraController::COEFF_FACTOR    = 200.0f;
+// the distance from the rotation axis
+const Ogre::Real CameraController::NODE_DISTANCE_Z = 130.0f;
+const Ogre::Real CameraController::NODE_DISTANCE_Y = 130.0f;
+const Ogre::Real CameraController::MIN_ZOOM = 20.0f;
+const Ogre::Real CameraController::MAX_ZOOM = 100.0f;
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+
+void
+CameraController::CameraState::setNodes(Ogre::SceneNode *rootNode,
+                                        Ogre::SceneNode *rotNode,
+                                        Ogre::SceneNode *camNode)
+{
+    ASSERT(rootNode);
+    ASSERT(rotNode);
+    ASSERT(camNode);
+
+    mRootNode = rootNode;
+    mRotationNode = rotNode;
+    mCameraNode = camNode;
+}
+
+void
+CameraController::CameraState::saveState(void)
+{
+    mPositions[Index::RootNode] = mRootNode->getPosition();
+    mOrientations[Index::RootNode] = mRootNode->getOrientation();
+
+    mPositions[Index::RotationNode] = mRotationNode->getPosition();
+    mOrientations[Index::RotationNode] = mRotationNode->getOrientation();
+
+    mPositions[Index::CameraNode] = mCameraNode->getPosition();
+    mOrientations[Index::CameraNode] = mCameraNode->getOrientation();
+}
+void
+CameraController::CameraState::restoreState(void)
+{
+    mRootNode->setPosition(mPositions[Index::RootNode]);
+    mRootNode->setOrientation(mOrientations[Index::RootNode]);
+
+    mRotationNode->setPosition(mPositions[Index::RotationNode]);
+    mRotationNode->setOrientation(mOrientations[Index::RotationNode]);
+
+    mCameraNode->setPosition(mPositions[Index::CameraNode]);
+    mCameraNode->setOrientation(mOrientations[Index::CameraNode]);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 void CameraController::rotateCameraDown(Ogre::Camera *cam)
 {
@@ -20,21 +72,6 @@ void CameraController::rotateCameraDown(Ogre::Camera *cam)
 	cam->setOrientation(Ogre::Quaternion(180,1,0,0));
 
 }
-
-////////////////////////////////////////////////////////////////////////////////
-void CameraController::rotateMaxXCamera(void)
-{
-	const Ogre::Radian rot = mMaxXRotation - mCameraNode->getOrientation().getPitch();
-	rotateCameraX(rot);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-void CameraController::rotateMinXCamera(void)
-{
-//	const Ogre::Radian rot = mCameraNode->getOrientation().getPitch();
-	rotateCameraX(mMinXRotation);
-}
-
 
 ////////////////////////////////////////////////////////////////////////////////
 bool CameraController::loadAnimations(void)
@@ -77,7 +114,14 @@ bool CameraController::loadAnimations(void)
 	return true;
 }
 
-
+////////////////////////////////////////////////////////////////////////////////
+void
+CameraController::animFinishedCb(void)
+{
+    mIsAnimRunning = false;
+    // assuming we are in normal state....
+    mInternalState = State::Normal;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -89,15 +133,20 @@ mCameraNode(0),
 mRootNode(0),
 mRotationNode(0),
 mCamVelocityFactor(1.0f),
-mRotVelocity(0.005f),
-mMinXRotation(-0.67305f),
-mMaxXRotation(0)
+mRotVelocity(0.5f),
+mMinPitchRot(-0.67305f),
+mMaxPitchRot(0.5),
+mZoom(75.0f),                    // start with the 75 % of the zoom,
+mInternalState(State::Normal),
+mExternalAnimation(0),
+mIsAnimRunning(false)
 {
 	// create the scene node
 	mRootNode = GLOBAL_SCN_MNGR->getRootSceneNode()->createChildSceneNode("CameraControllerNode");
 	mRotationNode = mRootNode->createChildSceneNode();
 	mCameraNode = mRotationNode->createChildSceneNode(
-			Ogre::Vector3(0,0,NODE_DISTANCE));
+			Ogre::Vector3(0,NODE_DISTANCE_Y,NODE_DISTANCE_Z));
+	mCameraNode->lookAt(mRootNode->getPosition(),Ogre::Node::TS_WORLD);
 	if(mCamera){
 		if(mCamera->getParentSceneNode()){
 			mCamera->getParentSceneNode()->detachObject(mCamera);
@@ -110,8 +159,17 @@ mMaxXRotation(0)
 		debugRED("Error loading the animations!\n");
 		ASSERT(false);
 	}
-
+	const Ogre::Vector3 distVec = mRootNode->getPosition() - mCameraNode->getPosition();
+	mStartDistance = distVec.length();
+	mCamState.setNodes(mRootNode, mRotationNode, mCameraNode);
 	mUpdater.setSceneNode(mCameraNode);
+
+	// configure the zoom
+	zoomCamera(mZoom);
+
+	// Connect the callback
+	mCbConn = mUpdater.addCallback(boost::bind(&CameraController::animFinishedCb,
+	        this));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -131,7 +189,6 @@ void CameraController::setCamera(Ogre::Camera *c)
 	ASSERT(!c->getParentSceneNode());
 
 	mCamera = c;
-	rotateMaxXCamera();
 	if(mCamera->getParentSceneNode()){
 		mCamera->getParentSceneNode()->detachObject(mCamera);
 	}
@@ -157,24 +214,15 @@ void CameraController::setCameraMoveZone(const Ogre::AxisAlignedBox &zone)
 	}
 }
 
-////////////////////////////////////////////////////////////////////////////////
-void CameraController::setMaxRotateX(const Ogre::Radian &max, const Ogre::Radian &min)
-{
-	mMaxXRotation = max;
-	mMinXRotation = min;
-
-	Ogre::Radian r = mRotationNode->getOrientation().getPitch();
-	if(r >= mMaxXRotation || r <= mMinXRotation){
-		mRotationNode->setOrientation(Ogre::Quaternion(r,
-				Ogre::Vector3::UNIT_X));
-	}
-}
 
 // 				USE THE CAMERA 						//
 
 ////////////////////////////////////////////////////////////////////////////////
 void CameraController::moveCamera(const Ogre::Vector3 &dir)
 {
+    if (mInternalState != State::Normal) {
+        return;
+    }
 	mNextPosition = mRootNode->getPosition() +
 			mRootNode->getOrientation() * (dir *(mCamVelocityFactor *
 					GLOBAL_TIME_FRAME * COEFF_FACTOR));
@@ -191,12 +239,25 @@ void CameraController::moveCamera(const Ogre::Vector3 &dir)
 ////////////////////////////////////////////////////////////////////////////////
 void CameraController::zoomCamera(const Ogre::Real zoom)
 {
-	mNextPosition = mRootNode->getPosition();
-	mNextPosition.y += zoom * mCamVelocityFactor *
-			GLOBAL_TIME_FRAME * COEFF_FACTOR;
-	if(mMoveBox.contains(mNextPosition)){
-		mRootNode->setPosition(mNextPosition);
-	}
+    if (mInternalState != State::Normal) {
+        return;
+    }
+
+    if (zoom > MAX_ZOOM || zoom < MIN_ZOOM || mInternalState != State::Normal) {
+        return;
+    }
+    Ogre::Vector3 posVec = mCameraNode->getPosition();
+    posVec.normalise();
+    const Ogre::Real len = zoom * mStartDistance * 0.01f;
+    mCameraNode->setPosition(posVec * len);
+    mZoom = zoom;
+//
+//	mNextPosition = mRootNode->getPosition();
+//	mNextPosition.y += zoom * mCamVelocityFactor *
+//			GLOBAL_TIME_FRAME * COEFF_FACTOR;
+//	if(mMoveBox.contains(mNextPosition)){
+//		mRootNode->setPosition(mNextPosition);
+//	}
 
 }
 
@@ -209,99 +270,94 @@ void CameraController::setCamPos(const Ogre::Vector3 &pos)
 	return;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-void CameraController::rotateCameraY(const Ogre::Radian &r)
-{
-	mRootNode->rotate(Ogre::Vector3::UNIT_Y, r * GLOBAL_TIME_FRAME *
-			COEFF_FACTOR * mRotVelocity, Ogre::Node::TS_LOCAL);
-//	mCameraNode->yaw(mCameraNode->getOrientation().getYaw() + r);
-}
 
 ////////////////////////////////////////////////////////////////////////////////
-void CameraController::rotateCameraX(const Ogre::Radian &r)
-{
-	const Ogre::Radian pitch = mRotationNode->getOrientation().getPitch();
-	Ogre::Radian newR = (r * GLOBAL_TIME_FRAME *
-			COEFF_FACTOR * mRotVelocity) + pitch;
-
-	if(newR <= mMaxXRotation && newR >= mMinXRotation){
-		newR -= pitch;
-		mRotationNode->rotate(Ogre::Vector3::UNIT_X, newR, Ogre::Node::TS_LOCAL);
-	} else {
-		// do nothing
-		return;
-	}
-
-}
-
-////////////////////////////////////////////////////////////////////////////////
-void CameraController::setRotationX(const Ogre::Radian &r)
-{
-	if(r <= mMaxXRotation && r >= mMinXRotation){
-		mRotationNode->setOrientation(Ogre::Quaternion(r, Ogre::Vector3::UNIT_X));
-	}
-}
-////////////////////////////////////////////////////////////////////////////////
-void CameraController::setRotationY(const Ogre::Radian &r)
-{
-	mRootNode->setOrientation(Ogre::Quaternion(r, Ogre::Vector3::UNIT_Y));
-}
-
-////////////////////////////////////////////////////////////////////////////////
-void CameraController::setCameraOrientation(const Ogre::Quaternion &o)
+void
+CameraController::setCameraOrientation(const Ogre::Quaternion &o)
 {
 	const Ogre::Radian rot = o.getPitch();
-	rotateCameraX(rot);
+//	rotateCameraX(rot);
 	const Ogre::Radian roty = o.getYaw();
-	rotateCameraY(roty);
+//	rotateCameraY(roty);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void CameraController::reproduceAnimation(int anim)
+void
+CameraController::reproduceAnimation(int anim)
 {
 	ASSERT(anim >= 0 && anim < 3);
-	mUpdater.startAnimation(mAnimations[anim]);
+	mIsAnimRunning = mUpdater.startAnimation(mAnimations[anim]);
+}
+
+void
+CameraController::reproduceAnimation(Ogre::AnimationState *anim)
+{
+    if (mExternalAnimation != 0) {
+        debugERROR("Trying to reproduce another animation when we are currently "
+                "reproducing one %s\n",
+                mExternalAnimation->getAnimationName().c_str());
+        return;
+    }
+
+    // reproduce the anim
+    mExternalAnimation = anim;
+    mIsAnimRunning = mUpdater.startAnimation(mExternalAnimation);
+    mInternalState = State::ExternalAnimation;
 }
 ////////////////////////////////////////////////////////////////////////////////
-void CameraController::stopAnimation(void)
+void
+CameraController::stopAnimation(void)
 {
 	mUpdater.stopUpdate();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void CameraController::setSatellitePosition(void)
+void
+CameraController::setSatellitePosition(void)
 {
+    if (mInternalState != State::Normal) {
+        return;
+    }
+
 	debugWARNING("Aca estamos poniendo la mitad de la altura del bounding "
 			"box por el cual nos podemos mover, capaz que convenga algo mas"
 			" alto?\n");
 
-	// backup the position and orientation
-	mBackupPosition = getCamPos();
-	mBackupRotX = getOrientation().getPitch();
-	mBackupRotY = getOrientation().getYaw();
+	if (mInternalState == State::SatelliteMode) {
+	    return;
+	}
+	mInternalState = State::SatelliteMode;
 
-	// get the middle height
+	// backup the position and orientation
+	mCamState.saveState();
+
+	// set the camera position just with the root node
+	mCameraNode->setPosition(Ogre::Vector3::ZERO);
+
+	// get the middle height of the box and move the camera up
 	const Ogre::Real minY = mMoveBox.getHalfSize().y;
 	Ogre::Vector3 npos = getCamPos();
 	npos.y = minY;
 	setCamPos(npos);
 
-	// set the new orientation
-	rotateMinXCamera();
+    // rotate the camera to look down
+    npos.y -= 100.0f;
+    mCameraNode->lookAt(npos, Ogre::Node::TS_WORLD);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void CameraController::restoreBeforeSatellite(void)
 {
-	// update only the y vector;
-	Ogre::Vector3 p = getCamPos();
-	p.y = mBackupPosition.y;
-	setCamPos(p);
+    if (mInternalState == State::Normal) {
+        return;
+    }
+    mInternalState = State::Normal;
 
-	debugERROR("Probablemente esto no sea un error, pero no esta funcionando "
-			"el hecho de volver a poner la camara en el angulo (X-axis) que "
-			"estaba en el backup...\n");
-	setRotationX(mBackupRotX);
-	setRotationY(mBackupRotY);
+    // restore the camera values
+    mCamState.restoreState();
+
+    debugERROR("Probablemente esto no sea un error, pero no esta funcionando "
+        "el hecho de volver a poner la camara en el angulo (X-axis) que "
+        "estaba en el backup...\n");
 }
 

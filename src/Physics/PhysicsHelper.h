@@ -14,11 +14,11 @@
 
 class PhysicsHelper
 {
-	static const float	GRAVITY_FACTOR		=	9.8f;
-	static const float	FLOOR_POSITION_Y	=	.0f;
-	static const float	NEGLIBILE_FORCE		=	0.1f;	// when we have force
-														// lower than this we
-														// avoid it
+	static const float	GRAVITY_FACTOR;
+	static const float	FLOOR_POSITION_Y;
+	static const float	NEGLIBILE_FORCE;	// when we have force
+											// lower than this we
+											// avoid it
 public:
 	/**
 	 * Update the collision and position of the object if we have to. We will

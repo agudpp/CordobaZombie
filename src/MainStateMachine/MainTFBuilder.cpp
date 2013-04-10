@@ -52,7 +52,9 @@ MainTransitionFunction *MainTFBuilder::build(const TiXmlElement  *elem)
 
 
 	loadingState->setLoaderManager(mLoaderManager);
-//	tt->setStartState(loadingState);
+	// TODO: borrar estas dos líneas para que luego siga cargando todo
+	//tt->setStartState(loadingState);
+	//return tt;
 
 	// build the transitions
 	tt->setStartState(firstInformation);
@@ -60,7 +62,7 @@ MainTransitionFunction *MainTFBuilder::build(const TiXmlElement  *elem)
 	tt->addNewEntry(firstInformation, MainMachineEvent::MME_DONE, video);
 	tt->addNewEntry(video, MainMachineEvent::MME_DONE, sponsors);
 	tt->addNewEntry(sponsors, MainMachineEvent::MME_DONE, mainMenu);
-	tt->addNewEntry(mainMenu, MainMachineEvent::MME_DONE, mainMenu);
+	tt->addNewEntry(mainMenu, MainMachineEvent::MME_DONE, loadingState);
 	tt->addNewEntry(mainMenu, MainMachineEvent::MME_EXIT, exitState);
 
 	// TODO: tenemos que agregar newGame -> loading state por ejemplo?

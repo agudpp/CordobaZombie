@@ -8,6 +8,9 @@
 #include "string.h"
 
 
+const float VideoPlayerAPI::NO_VALUE = -1.0f;
+
+
 ////////////////////////////////////////////////////////////////////////////////
 
 VideoPlayerAPI::VideoPlayerAPI(Ogre::Vector4 * screensize):

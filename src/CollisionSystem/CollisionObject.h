@@ -11,25 +11,38 @@
 
 #include <vector>
 
-#include "CollisionTypedefs.h"
 #include <Box2D/Collision/b2Collision.h>
+#include "CollisionTypedefs.h"
 #include <Box2D/Collision/Shapes/b2PolygonShape.h>
 #include <Box2D/Collision/Shapes/b2CircleShape.h>
 
-// TODO: pasar toda la info de box2D a una estructura externa para no tener
-// tantos campos al pedo
 
 struct CollisionObject {
+    struct Box2DData {
+        Box2DData() : realShape(0)
+        {
+        }
+
+        ~Box2DData()
+        {
+            // TODO: si tenemos algun puntero aca entonces lo tenemos
+            // que eliminar como corresponde (llamando alguna funcion de
+            // box 2d probablemente).
+            delete realShape;
+        }
+
+        b2Shape         *realShape; // for an accurate shape if we have one
+        b2Transform     transform;  //Position and rotation of the real shape
+    };
+
 	sm::AABB		bb;	// bounding box
-	b2Shape			*realShape;	// for an accurate shape if we have one
-	b2Transform		*transform;  //Position and rotation of the real shape
 	int				numEdges;	//Numbre of edeges of the real shape. If it is a
 								//circle, numEdges = 0;
 	mask_t			maskFlag;	// the flags of this collision object
 	mask_t			groupMask;	// group mask
 	objectType_t	type;		// identify the object
 	void			*userDefined; // add user info
-
+	Box2DData       *b2dData;
 								// at the same time where:
 								// 0 ************ 1
 								//	 *			*
@@ -40,15 +53,19 @@ struct CollisionObject {
 
 
 
-	CollisionObject() : realShape(0), transform(0), maskFlag(0), groupMask(0),
+	CollisionObject() : b2dData(0), maskFlag(0), groupMask(0),
 			userDefined(0)
 	{}
+	~CollisionObject()
+	{
+	    delete b2dData;
+	}
 
 	inline const sm::Vector2 &getPosition(void) const {return bb.pos;}
 	
 	inline void setPosition(const sm::Vector2 &p)
 	{
-		if(transform) transform->Set(b2Vec2(p.x, p.y),0);
+		if(b2dData) b2dData->transform.Set(b2Vec2(p.x, p.y),0);
 		bb.setPosition(p);
 
 	}

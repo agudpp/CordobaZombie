@@ -21,6 +21,7 @@ MenuButtonEffect::MenuButtonEffect(MenuButton *button, OverlayEffect *effect) :
 
 MenuButtonEffect::~MenuButtonEffect()
 {
+    mConnection.disconnect();
 }
 
 void MenuButtonEffect::operator()(OverlayEffect::EventID id)
@@ -29,9 +30,11 @@ void MenuButtonEffect::operator()(OverlayEffect::EventID id)
 
 	if(id == OverlayEffect::STARTING){
 		// we have to remove the menuButton from the Manager
+		debugBLUE("id == STARTING\n");
 		mMenuButton->setEnable(false);
 	} else if(id == OverlayEffect::ENDING){
 		// activate again
+		debugBLUE("id == ENDING\n");
 		mMenuButton->setEnable(true);
 	}
 #ifdef DEBUG

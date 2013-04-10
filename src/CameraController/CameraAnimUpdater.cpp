@@ -23,34 +23,44 @@ CameraAnimUpdater::~CameraAnimUpdater()
 }
 
 
-void CameraAnimUpdater::setSceneNode(Ogre::SceneNode *n)
+void
+CameraAnimUpdater::setSceneNode(Ogre::SceneNode *n)
 {
 	ASSERT(n);
 	mNode = n;
 }
 
+CameraAnimUpdater::Connection
+CameraAnimUpdater::addCallback(const Signal::slot_type &cb)
+{
+    return mSignal.connect(cb);
+}
+
 /**
  * Set Animation
  */
-void CameraAnimUpdater::startAnimation(Ogre::AnimationState *anim)
+bool
+CameraAnimUpdater::startAnimation(Ogre::AnimationState *anim)
 {
 	ASSERT(anim);
 	if(mAnim){
 		// we are actually reproducing
-		debug("We are already reproducing an animation %s\n",
+		debugWARNING("We are already reproducing an animation %s\n",
 				mAnim->getAnimationName().c_str());
-		return;
+		return false;
 	}
 
 	// else we reproduce this one
 	mAnim = anim;
 	startUpdate();
+	return true;
 }
 
 /**
  * Function called before the object start to bee updated
  */
-void CameraAnimUpdater::beforeUpdate(void)
+void
+CameraAnimUpdater::beforeUpdate(void)
 {
 	ASSERT(mAnim);
 	ASSERT(mNode);
@@ -67,7 +77,8 @@ void CameraAnimUpdater::beforeUpdate(void)
  * Function to be implemented.
  * This function is called every time the Manager is updated (every frame...)
  */
-void CameraAnimUpdater::update(void)
+void
+CameraAnimUpdater::update(void)
 {
 	mAnim->addTime(GLOBAL_TIME_FRAME);
 	if(mAnim->hasEnded()){
@@ -78,11 +89,13 @@ void CameraAnimUpdater::update(void)
 /**
  * Function called when the object stop been updated
  */
-void CameraAnimUpdater::updateStopped(void)
+void
+CameraAnimUpdater::updateStopped(void)
 {
 	mAnim->setEnabled(false);
 	mAnim = 0;
 
 	// reset the position / orientation / etc
 	mNode->resetToInitialState();
+	mSignal();
 }
