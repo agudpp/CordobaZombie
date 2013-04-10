@@ -47,7 +47,7 @@ endif ()
 set(CMAKE_DEBUG_POSTFIX "_d")
  
 set(CMAKE_INSTALL_PREFIX "${CMAKE_CURRENT_BINARY_DIR}/dist")
- 
+
 find_package(OGRE REQUIRED)
  
 #if(NOT "${OGRE_VERSION_NAME}" STREQUAL "Cthugha")
@@ -92,6 +92,8 @@ if (NOT OGRE_BUILD_PLATFORM_IPHONE)
 endif()
 
 set (DEV_ROOT_PATH $ENV{ESTRATEGIA2012_DEV_PATH})
+include(${DEV_ROOT_PATH}/CommonFlags.cmake) # Customized compilation flags
+
  
 set(HDRS		
 
@@ -132,6 +134,7 @@ include_directories( ${OIS_INCLUDE_DIRS}
 	${DEV_ROOT_PATH}/Extras/AppTester
 )
 
+include(${DEV_ROOT_PATH}/CommonFlags.cmake) # Customized compilation flags
 include(${DEV_ROOT_PATH}/PathfindingSystem/AutoGen.cmake)
 #include(${DEV_ROOT_PATH}/CameraController/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/IA/AutoGen.cmake)

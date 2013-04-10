@@ -12,9 +12,15 @@
 #include <OgreAnimationState.h>
 #include <OgreSceneNode.h>
 
+#include <boost/signal.hpp>
+#include <boost/signals/connection.hpp>
+
 #include "UpdatableObject.h"
 
 class CameraAnimUpdater : public UpdatableObject {
+public:
+    typedef boost::signal<void (void)>  Signal;
+    typedef boost::signals::connection  Connection;
 public:
 	CameraAnimUpdater();
 	virtual ~CameraAnimUpdater();
@@ -25,9 +31,14 @@ public:
 	void setSceneNode(Ogre::SceneNode *n);
 
 	/**
+	 * Add a callback for when the object stop being updated
+	 */
+	Connection addCallback(const Signal::slot_type &cb);
+
+	/**
 	 * Set Animation
 	 */
-	void startAnimation(Ogre::AnimationState *anim);
+	bool startAnimation(Ogre::AnimationState *anim);
 
 	/**
 	 * Function called before the object start to bee updated
@@ -48,6 +59,7 @@ public:
 private:
 	Ogre::AnimationState	*mAnim;
 	Ogre::SceneNode			*mNode;
+	Signal mSignal;
 
 };
 

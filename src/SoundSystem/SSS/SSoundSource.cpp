@@ -21,7 +21,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 SSoundSource::SSoundSource() :
 	SoundSource(SSsrctype::SS_SRC_STREAM),
-	mRepeat(false),
 	mFileOffset(0),
 	mIntBuffersSize(SS_SIZE_INT_BUFFERS),
 	mFirstBuffer(0)
@@ -34,6 +33,7 @@ SSoundSource::SSoundSource() :
 		ASSERT(alIsBuffer(mIntBuffers[i]));
 	}
 #endif
+	mRepeat = false;
 
 	ASSERT(alGetError() == AL_NO_ERROR);
 }
@@ -62,6 +62,7 @@ SSoundSource::~SSoundSource()
 ////////////////////////////////////////////////////////////////////////////////
 SSerror
 SSoundSource::play(SoundBuffer* buf,
+				   const Ogre::Real& gain,
 				   const Ogre::Vector3& pos,
 				   bool  repeat)
 {
@@ -74,14 +75,14 @@ SSoundSource::play(SoundBuffer* buf,
 	ASSERT(alIsSource(mSource));
 	alGetSourcei(mSource, AL_SOURCE_STATE, &st);
 
-	/* Void call? */
+	// Void call?
 	if (!buf) {
 		if (!mBuffer) {
 			debug("NULL buffer, cannot start playback.\n");
 			return SSerror::SS_NO_BUFFER;
 
 		} else if (st == AL_PAUSED) {
-			/* Resume paused playback */
+			// Resume paused playback.
 			alSourcePlay(mSource);
 			this->update(pos);  // Use this opportunity to update intBuffers
 			return SSerror::SS_NO_ERROR;
@@ -91,11 +92,11 @@ SSoundSource::play(SoundBuffer* buf,
 			return SSerror::SS_NO_ERROR;
 
 		} else {
-			debugRED("Invalid state, cannot start playback.\n");
+			debugERROR("Invalid state, cannot start playback.\n");
 			return SSerror::SS_INTERNAL_ERROR;
 		}
 
-	/* Resume paused playback? */
+	// Resume paused playback?
 	} else if (buf == mBuffer) {
 		if (st == AL_PAUSED) {
 			alSourcePlay(mSource);
@@ -104,7 +105,7 @@ SSoundSource::play(SoundBuffer* buf,
 		return SSerror::SS_NO_ERROR;
 	}
 
-	/* New buffer passed. Stop any previous playback. */
+	// New buffer passed. Stop any previous playback.
 	if (st == AL_PLAYING || st == AL_PAUSED) {
 		alSourceStop(mSource);
 	}
@@ -115,7 +116,8 @@ SSoundSource::play(SoundBuffer* buf,
 		// Erase buffer data? How?
 	}
 
-	/* Fill internal buffers (according to file type). */
+	// Fill internal buffers (according to file type).
+	buf->restart();  // Start at the beggining of the buffer
 	for (i=0 ; i < SS_NUM_INT_BUFFERS && readSize==mIntBuffersSize ; i++) {
 		readSize = buf->filler(mIntBuffers[i], mIntBuffersSize, repeat);
 	}
@@ -124,7 +126,7 @@ SSoundSource::play(SoundBuffer* buf,
 		return SSerror::SS_INTERNAL_ERROR;
 	}
 
-	/* Queue filled buffers. */
+	// Queue filled buffers.
 	alSourceQueueBuffers(mSource, i, mIntBuffers);
 	mBuffer = buf;
 	mFirstBuffer = 0;
@@ -134,10 +136,11 @@ SSoundSource::play(SoundBuffer* buf,
 	ASSERT(st==AL_STREAMING);
 #endif
 
-	/* Set current position and repeat */
+	// Set current position, gain and repeat.
 	alSource3f(mSource, AL_POSITION, pos.x, pos.y, pos.z);
+	alSourcef(mSource, AL_GAIN, gain);
 	mRepeat = repeat;
-	/* Play modefoke, PLAY! */
+	// Play modefoke, PLAY!
 	alSourcePlay(mSource);
 
 	ASSERT(alGetError() == AL_NO_ERROR);
@@ -160,28 +163,28 @@ SSoundSource::update(const Ogre::Vector3& pos)
 	alGetSourcei(mSource, AL_BUFFERS_PROCESSED, &processed);
 	alGetSourcei(mSource, AL_SOURCE_STATE, &st);
 	if (st == AL_STOPPED && processed) {
-		/* Stopped for lack of buffers. Restart quickly! */
+		// Stopped for lack of buffers. Restart quickly!
 		restart = true;
 	} else if (st == AL_STOPPED) {
-		/* Playback finished. */
+		// Playback finished.
 		goto finish;
 	}
 
-	/* Update position */
+	// Update position
 	alGetSourcei(mSource, AL_SOURCE_RELATIVE, &st);
 	if (!st) {
 		alSource3f(mSource, AL_POSITION, pos.x, pos.y, pos.z);
 	}  // else: source relative to listener, no position update needed
 
-	/* Refresh used internal buffers */
+	// Refresh used internal buffers
 	while (readSize==mIntBuffersSize && processed-- > 0) {
-		/* Unqueue processed buffer. */
+		// Unqueue processed buffer.
 		alSourceUnqueueBuffers(mSource, 1, &mIntBuffers[mFirstBuffer]);
 
-		/* Refill buffer. */
+		// Refill buffer.
 		readSize = mBuffer->filler(mIntBuffers[mFirstBuffer], mIntBuffersSize, mRepeat);
 
-		/* Queue back, if propperly refilled. */
+		// Queue back, if propperly refilled.
 		if (readSize > 0) {
 			alSourceQueueBuffers(mSource, 1, &mIntBuffers[mFirstBuffer]);
 			if (restart) { alSourcePlay(mSource); restart = false; }
@@ -189,12 +192,12 @@ SSoundSource::update(const Ogre::Vector3& pos)
 		}
 	}
 
-	/* Check for errors. */
+	// Check for errors.
 	if (readSize < 0) {
 		debugRED("Error filling internal buffer #%d\n",
 				((mFirstBuffer-1)%SS_NUM_INT_BUFFERS));
 
-		/* Attempt one final buffer refresh before failing. */
+		// Attempt one final buffer refresh before failing.
 		debugYELLOW("Trying to recover.%s", "\n");
 
 		/* mIntBuffers[mFirstBuffer] is the problematic buffer, *
@@ -213,7 +216,7 @@ SSoundSource::update(const Ogre::Vector3& pos)
 	}
 
 	while (processed-- > 0) {
-		/* Playing finished, but there are still buffers to unqueue. */
+		// Playing finished, but there are still buffers to unqueue.
 		alSourceUnqueueBuffers(mSource, 1, &mIntBuffers[mFirstBuffer]);
 		++mFirstBuffer %= SS_NUM_INT_BUFFERS;
 	}
@@ -272,7 +275,7 @@ SSoundSource::stop()
 		alSourceUnqueueBuffers(mSource, 1, &mIntBuffers[mFirstBuffer]);
 		++mFirstBuffer %= SS_NUM_INT_BUFFERS;
 	}
-	mBuffer->restart();
+//	mBuffer->restart();
 #ifdef DEBUG
 	{
 		ALint st(AL_NONE);
@@ -291,14 +294,15 @@ SSoundSource::stop()
 
 ////////////////////////////////////////////////////////////////////////////////
 SSerror
-SSoundSource::restart(const Ogre::Vector3& pos)
+SSoundSource::restart(const Ogre::Real& gain,
+					  const Ogre::Vector3& pos,
+					  const bool repeat)
 {
 	int i(0);
 	ALint st(AL_NONE),
 		  relative(AL_NONE),
 		  processed(0);
 	int readSize(mIntBuffersSize);
-	SSerror result = SSerror::SS_INTERNAL_ERROR;
 
 	ASSERT(alGetError() == AL_NO_ERROR);
 	ASSERT(alIsSource(mSource));
@@ -307,7 +311,7 @@ SSoundSource::restart(const Ogre::Vector3& pos)
 		return SSerror::SS_NO_BUFFER;
 	}
 
-	/* Stop and clean any current playback. */
+	// Stop and clean any current playback.
 	alSourceStop(mSource);
 	alGetSourcei(mSource, AL_BUFFERS_PROCESSED, &processed);
 	while (processed-- > 0) {
@@ -315,7 +319,7 @@ SSoundSource::restart(const Ogre::Vector3& pos)
 		++mFirstBuffer %= SS_NUM_INT_BUFFERS;
 	}
 
-	/* Fill internal buffers (according to file type). */
+	// Fill internal buffers (according to file type).
 	mBuffer->restart();
 	mFirstBuffer = 0;
 	for (i=0 ; i < SS_NUM_INT_BUFFERS && readSize==mIntBuffersSize ; i++) {
@@ -327,7 +331,7 @@ SSoundSource::restart(const Ogre::Vector3& pos)
 		return SSerror::SS_INTERNAL_ERROR;
 	}
 
-	/* Queue filled buffers. */
+	// Queue filled buffers.
 	alSourceQueueBuffers(mSource, i, mIntBuffers);
 	mFirstBuffer = 0;
 #ifdef DEBUG
@@ -336,11 +340,15 @@ SSoundSource::restart(const Ogre::Vector3& pos)
 	ASSERT(st==AL_STREAMING);
 #endif
 
-	/* Set current position and restart the goddamn thing. */
+	// Set current position, gain and repeat
 	alGetSourcei(mSource, AL_SOURCE_RELATIVE, &st);
 	if (!st) {
 		alSource3f(mSource, AL_POSITION, pos.x, pos.y, pos.z);
 	}  // else: source relative to listener, no position update needed
+	alSourcef(mSource, AL_GAIN, gain);
+	mRepeat = repeat;
+
+	// Finally restart the goddamn thing.
 	alSourcePlay(mSource);
 
 	ASSERT(alGetError() == AL_NO_ERROR);

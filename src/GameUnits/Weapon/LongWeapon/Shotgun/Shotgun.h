@@ -15,8 +15,8 @@
 class Shotgun : public LongWeapon
 {
 	static const int 	NUM_SPREAD_BULLETS			=	5;
-	static const float 	SHOOT_VELOCITY				=	5.0f;
-	static const float	SPREAD_BULLETS_POWER		=	1.0f/NUM_SPREAD_BULLETS;
+	static const float 	SHOOT_VELOCITY;
+	static const float	SPREAD_BULLETS_POWER;
 public:
 	Shotgun();
 	virtual ~Shotgun();

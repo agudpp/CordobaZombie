@@ -8,8 +8,6 @@ set(CP /IA)
 set(SRCS
 	${SRCS}
 	${DEV_ROOT_PATH}/IA/FSM/SMTransitionTable.cpp
-	${DEV_ROOT_PATH}/IA/FSM/StateMachine.cpp
-	${DEV_ROOT_PATH}/IA/FSM/IState.cpp
 )
 
 set(HDRS

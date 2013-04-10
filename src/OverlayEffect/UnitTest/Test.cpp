@@ -5,8 +5,6 @@
  *      Author: agustin
  */
 
-#include "Test.h"
-
 #include <OgreSceneNode.h>
 #include <iostream>
 #include <assert.h>
@@ -17,31 +15,32 @@
 #include <OgreMaterialManager.h>
 #include <OgreString.h>
 
+#include "Test.h"
+#include "OverlayEffect.h"
+
 // create overlay uv test
 void Test::createOverlay(void)
 {
+	Ogre::Overlay *mOverlay = 0;
 	// load the fade
-	mOverlayPanel = 0;
 	Ogre::MaterialPtr		mFaderMaterial;
-	Ogre::TextureUnitState 	*mTexture = 0;
-
-	Ogre::OverlayManager& overlayManager = Ogre::OverlayManager::getSingleton();
+	Ogre::TextureUnitState*	mTexture(0);
+	Ogre::OverlayManager&	overlayManager(Ogre::OverlayManager::getSingleton());
 
 	mOverlayPanel = static_cast<Ogre::PanelOverlayElement*>(
 		overlayManager.createOverlayElement("Panel", "Fader"));
 	mOverlayPanel->setMetricsMode(Ogre::GMM_RELATIVE);
-	mOverlayPanel->setPosition(0, 0);
-	mOverlayPanel->setDimensions(0.25f, 0.25f);
+	mOverlayPanel->setPosition(0.05f, 0.1f);
+	mOverlayPanel->setDimensions(0.15f, 0.25f);
 	mOverlayPanel->setMaterialName("BackpackMaterial"); // Optional background material
 
-	// Ensures that the material exists
-	mOverlayPanel->setUV(0,0,0.5,1);
+	// Make sure the panel exists
+	mOverlayPanel->setUV(0.0f, 0.0f, 1.0f, 1.0f);
 
-	// show the fade
+	// Make the panel visible
 	mOverlayPanel->show();
 
-	// Create an overlay, and add the panel
-	Ogre::Overlay			*mOverlay = 0;
+	// Create an overlay, and attach the panel to it
 	mOverlay = overlayManager.create("TestOverlay1");
 	mOverlay->add2D(mOverlayPanel);
 	mOverlay->show();
@@ -53,7 +52,9 @@ Test::Test()
 {
 	mMouseCursor.setVisible(true);
 	mMouseCursor.setWindowDimensions(GLOBAL_WINDOW->getWidth(), GLOBAL_WINDOW->getHeight());
+	testBEGIN("Setting OverlayEffectManager.%s", "\n");
 	OvEff::OverlayEffect::setManager(&mOvEffMngr);
+	testSUCCESS("Test passed.%s", "\n");
 }
 
 Test::~Test()
@@ -61,29 +62,15 @@ Test::~Test()
 	// TODO Auto-generated destructor stub
 }
 
-// handle input
-void Test::handleInput(void)
-{
 
-}
-
-
-/* Load additional info */
-void Test::loadAditionalData(void)
-{
-	createOverlay();
-	mFadeEffect = new OvEff::Fade;
-	mFadeEffect->setTime(2.0f);
-	mFadeEffect->configureFade(mOverlayPanel);
-}
-
-/* function called every frame. Use GlobalObjects::lastTimeFrame */
-void Test::update()
+void
+Test::handleInput()
 {
 	// MOUSE
 	const OIS::MouseState& lMouseState = GLOBAL_MOUSE->getMouseState();
 	mMouseCursor.updatePosition(lMouseState.X.abs, lMouseState.Y.abs);
 
+	// KEYBOARD
 	static bool k1p = false;
 	static bool k2p = false;
 
@@ -91,25 +78,89 @@ void Test::update()
 		if(!k1p){
 			k1p = true;
 			// switch and start the effect
-			mFadeEffect->setType(OvEff::Fade::FADE_IN);
-			mFadeEffect->stop();
-			mFadeEffect->start();
+			mAlphaEffect->setType(OvEff::Alpha::FADE_IN);
+			mAlphaEffect->start();
 		}
 	} else {
 		k1p = false;
 	}
+
 	if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_2)){
 		if(!k2p){
 			k2p = true;
 			// switch and start the effect
-			mFadeEffect->setType(OvEff::Fade::FADE_OUT);
-			mFadeEffect->stop();
-			mFadeEffect->start();
+			mAlphaEffect->setType(OvEff::Alpha::FADE_OUT);
+			mAlphaEffect->start();
 		}
 	} else {
 		k2p = false;
 	}
+}
 
+
+#define  ALPHA_XML	"Tests/OverlayEffectBuilder/alpha_effect.xml"
+#define  SLIDE_XML	"Tests/OverlayEffectBuilder/slide_effect.xml"
+
+
+/* Load additional info */
+void Test::loadAditionalData(void)
+{
+	OvEff::OverlayEffect* ovef(0);
+
+	testBEGIN("Creating overlay.%s", "\n");
+	createOverlay();
+	testSUCCESS("Test passed.%s", "\n");
+
+	testBEGIN("Manually creating an Alpha OverlayEffect.%s", "\n");
+	mAlphaEffect = new OvEff::Alpha;
+	if (mAlphaEffect) {
+		testSUCCESS("Test passed.%s", "\n");
+	} else {
+		testFAIL("Error!%s", "\n");
+		exit(EXIT_FAILURE);
+	}
+
+	testBEGIN("Attaching the alpha effect to the overlay.%s", "\n");
+	mAlphaEffect->setTime(2.0f);
+	mAlphaEffect->configure(mOverlayPanel);
+	testSUCCESS("Test passed.%s", "\n");
+
+	testBEGIN("Testing OverlayEffectBuilder file opening.%s", "\n");
+	ASSERT(!mOvBuilder.hasOpenFile());
+	ASSERT(mOvBuilder.setFilename(ALPHA_XML));
+	ASSERT(mOvBuilder.setFilename(SLIDE_XML));
+	ASSERT(mOvBuilder.hasOpenFile());
+	testSUCCESS("Test passed.%s", "\n");
+
+	testBEGIN("Testing OverlayEffectBuilder effects creation.%s", "\n");
+	ovef = mOvBuilder.createOverlayEffect("Slide");
+	ASSERT(ovef);
+	delete ovef;
+	testSUCCESS("Test passed.%s", "\n");
+
+	testBEGIN("Testing OverlayEffectBuilder effects static creation.%s", "\n");
+	Ogre::String alpha("Alpha");
+	XMLHelper h;
+	h.setFilename(ALPHA_XML);
+	h.openXml();
+	ASSERT(h.hasOpenFile());
+	ovef = mOvBuilder.createOverlayEffect(*h.findElement("Alpha"), &alpha);
+	ASSERT(ovef);
+	ASSERT(static_cast<OvEff::Alpha*>(ovef));
+	delete ovef;
+	h.closeXml();
+	testSUCCESS("Test passed.%s", "\n");
+
+	printf("\n\n\33[01;34mOverlay fading controls:\n\33[22;32m"
+				" ¤\33[01;34m 1\33[22;32m :  fade in.\n"
+				" ¤\33[01;34m 2\33[22;32m :  fade out.\n"
+				"\33[0m\n");
+}
+
+
+/* function called every frame. Use GlobalObjects::lastTimeFrame */
+void Test::update()
+{
 	handleInput();
 	mOvEffMngr.update();
 }

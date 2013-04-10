@@ -1,0 +1,509 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?fileVersion 4.0.0?>
+
+<cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
+	<storageModule moduleId="org.eclipse.cdt.core.settings">
+		<cconfiguration id="cdt.managedbuild.config.gnu.exe.debug.1666725842">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.config.gnu.exe.debug.1666725842" moduleId="org.eclipse.cdt.core.settings" name="Debug">
+				<externalSettings/>
+				<extensions>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
+					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+				</extensions>
+			</storageModule>
+			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+				<configuration artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.exe" buildProperties="org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug,org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.exe" cleanCommand="rm -rf" description="" id="cdt.managedbuild.config.gnu.exe.debug.1666725842" name="Debug" parent="cdt.managedbuild.config.gnu.exe.debug">
+					<folderInfo id="cdt.managedbuild.config.gnu.exe.debug.1666725842." name="/" resourcePath="">
+						<toolChain id="cdt.managedbuild.toolchain.gnu.exe.debug.744250048" name="Linux GCC" superClass="cdt.managedbuild.toolchain.gnu.exe.debug">
+							<targetPlatform id="cdt.managedbuild.target.gnu.platform.exe.debug.1495027479" name="Debug Platform" superClass="cdt.managedbuild.target.gnu.platform.exe.debug"/>
+							<builder buildPath="${workspace_loc:/estrategia2012/Debug}" id="cdt.managedbuild.target.gnu.builder.exe.debug.134922496" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" superClass="cdt.managedbuild.target.gnu.builder.exe.debug"/>
+							<tool id="cdt.managedbuild.tool.gnu.archiver.base.1986641191" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base"/>
+							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.182599208" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug">
+								<option id="gnu.cpp.compiler.exe.debug.option.optimization.level.528823577" name="Optimization Level" superClass="gnu.cpp.compiler.exe.debug.option.optimization.level" value="gnu.cpp.compiler.optimization.level.none" valueType="enumerated"/>
+								<option id="gnu.cpp.compiler.exe.debug.option.debugging.level.1651474463" name="Debug Level" superClass="gnu.cpp.compiler.exe.debug.option.debugging.level" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
+								<option id="gnu.cpp.compiler.option.include.paths.1171061249" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="/usr/include/OIS"/>
+									<listOptionValue builtIn="false" value="&quot;${ESTRATEGIA2012_DEV_PATH}/Common/DebugUtil&quot;"/>
+									<listOptionValue builtIn="false" value="/usr/local/include/OGRE"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/Common/DebugUtil}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/PathfindingSystem/ConvexPolygon}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/PathfindingSystem/NavMesh}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/Common/GlobalObjects}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/Extras/AppTester}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/Extras/PathFindingLevelEditor}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/CameraController}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/Utils/MouseCursor}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/PathfindingSystem/AbstractGraph}&quot;"/>
+									<listOptionValue builtIn="false" value="/usr/local/include/bullet"/>
+									<listOptionValue builtIn="false" value="/usr/local/include/bullet/BulletCollision"/>
+									<listOptionValue builtIn="false" value="/usr/local/include/bullet/BulletDynamics"/>
+									<listOptionValue builtIn="false" value="/usr/local/include/bullet/BulletCollision/CollisionDispatch"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/CollisionSystem}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/GameUnits}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/GameUnits/ZombieUnit}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/IA/FSM}&quot;"/>
+									<listOptionValue builtIn="false" value="/usr/include/OGRE"/>
+									<listOptionValue builtIn="false" value="/usr/include/c++/4.4"/>
+								</option>
+								<option id="gnu.cpp.compiler.option.preprocessor.def.1570417059" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="DEBUG"/>
+								</option>
+								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1111500657" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
+							</tool>
+							<tool id="cdt.managedbuild.tool.gnu.c.compiler.exe.debug.322261559" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.exe.debug">
+								<option defaultValue="gnu.c.optimization.level.none" id="gnu.c.compiler.exe.debug.option.optimization.level.1036748685" name="Optimization Level" superClass="gnu.c.compiler.exe.debug.option.optimization.level" valueType="enumerated"/>
+								<option id="gnu.c.compiler.exe.debug.option.debugging.level.90390340" name="Debug Level" superClass="gnu.c.compiler.exe.debug.option.debugging.level" value="gnu.c.debugging.level.max" valueType="enumerated"/>
+								<option id="gnu.c.compiler.option.include.paths.1257954901" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/usr/local/include/OGRE}&quot;"/>
+									<listOptionValue builtIn="false" value="/usr/include/OIS"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/Common/DebugUtil}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/PathfindingSystem/ConvexPolygon}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/PathfindingSystem/NavMesh}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/Common/GlobalObjects}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/Extras/AppTester}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/Extras/PathFindingLevelEditor}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/CameraController}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/Utils/MouseCursor}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/PathfindingSystem/AbstractGraph}&quot;"/>
+									<listOptionValue builtIn="false" value="/usr/local/include/OgreBullet/Dynamics"/>
+									<listOptionValue builtIn="false" value="/usr/local/include/bullet/BulletCollision/CollisionDispatch"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/CollisionSystem}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/GameUnits}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/GameUnits/ZombieUnit}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/IA/FSM}&quot;"/>
+									<listOptionValue builtIn="false" value="/usr/include/OGRE"/>
+									<listOptionValue builtIn="false" value="/usr/include/c++/4.4"/>
+								</option>
+								<option id="gnu.c.compiler.option.preprocessor.def.symbols.969097811" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="DEBUG"/>
+								</option>
+								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.618162601" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
+							</tool>
+							<tool id="cdt.managedbuild.tool.gnu.c.linker.exe.debug.114899414" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.exe.debug"/>
+							<tool id="cdt.managedbuild.tool.gnu.cpp.linker.exe.debug.1764210112" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.exe.debug">
+								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.2047961928" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
+									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
+									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
+								</inputType>
+							</tool>
+							<tool id="cdt.managedbuild.tool.gnu.assembler.exe.debug.431390986" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.exe.debug">
+								<option id="gnu.both.asm.option.include.paths.998841852" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/usr/local/include/OGRE}&quot;"/>
+									<listOptionValue builtIn="false" value="/usr/include/OIS"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/Common/DebugUtil}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/PathfindingSystem/ConvexPolygon}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/PathfindingSystem/NavMesh}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/Common/GlobalObjects}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/Extras/AppTester}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/Extras/PathFindingLevelEditor}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/CameraController}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/Utils/MouseCursor}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/PathfindingSystem/AbstractGraph}&quot;"/>
+									<listOptionValue builtIn="false" value="/usr/local/include/OgreBullet/Dynamics"/>
+									<listOptionValue builtIn="false" value="/usr/local/include/bullet/BulletCollision/CollisionDispatch"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/CollisionSystem}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/GameUnits}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/GameUnits/ZombieUnit}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/IA/FSM}&quot;"/>
+									<listOptionValue builtIn="false" value="/usr/include/OGRE"/>
+									<listOptionValue builtIn="false" value="/usr/include/c++/4.4"/>
+								</option>
+								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.1317598714" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
+							</tool>
+						</toolChain>
+					</folderInfo>
+					<fileInfo id="cdt.managedbuild.config.gnu.exe.debug.1666725842.639636222" name="autogenCmake" rcbsApplicability="disable" resourcePath="src/SoundSystem/autogenCmake" toolsToInvoke=""/>
+					<fileInfo id="cdt.managedbuild.config.gnu.exe.debug.1666725842.104641576" name="AutoGen.cmake" rcbsApplicability="disable" resourcePath="src/SoundSystem/AutoGen.cmake" toolsToInvoke=""/>
+					<fileInfo id="cdt.managedbuild.config.gnu.exe.debug.1666725842.1736112990" name="CMakeLists.txt" rcbsApplicability="disable" resourcePath="src/SoundSystem/UnitTest/CMakeLists.txt" toolsToInvoke=""/>
+					<sourceEntries>
+						<entry excluding="src/SoundSystem/multiplatform_hashtable.cpp|src/SoundSystem/idea_SoundSystem.cpp|src/PathfindingSystem/UnitTest/triangleTest|src/SoundSystem/hash_test.cpp|src/SoundSystem/UnitTest/CMakeLists.txt|src/Utils/MathIntersection|src/SoundSystem/autogenCmake|src/SoundSystem/AutoGen.cmake" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+					</sourceEntries>
+				</configuration>
+			</storageModule>
+			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+			<storageModule moduleId="org.eclipse.cdt.core.language.mapping"/>
+			<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
+		</cconfiguration>
+		<cconfiguration id="cdt.managedbuild.config.gnu.exe.release.2118988469">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.config.gnu.exe.release.2118988469" moduleId="org.eclipse.cdt.core.settings" name="Release">
+				<externalSettings/>
+				<extensions>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
+					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+				</extensions>
+			</storageModule>
+			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+				<configuration artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.exe" buildProperties="org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.release,org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.exe" cleanCommand="rm -rf" description="" id="cdt.managedbuild.config.gnu.exe.release.2118988469" name="Release" parent="cdt.managedbuild.config.gnu.exe.release">
+					<folderInfo id="cdt.managedbuild.config.gnu.exe.release.2118988469." name="/" resourcePath="">
+						<toolChain id="cdt.managedbuild.toolchain.gnu.exe.release.391767253" name="Linux GCC" superClass="cdt.managedbuild.toolchain.gnu.exe.release">
+							<targetPlatform id="cdt.managedbuild.target.gnu.platform.exe.release.1417395852" name="Debug Platform" superClass="cdt.managedbuild.target.gnu.platform.exe.release"/>
+							<builder buildPath="${workspace_loc:/estrategia2012/Release}" id="cdt.managedbuild.target.gnu.builder.exe.release.299767494" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" superClass="cdt.managedbuild.target.gnu.builder.exe.release"/>
+							<tool id="cdt.managedbuild.tool.gnu.archiver.base.263037533" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base"/>
+							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.2143702228" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release">
+								<option id="gnu.cpp.compiler.exe.release.option.optimization.level.1477401055" name="Optimization Level" superClass="gnu.cpp.compiler.exe.release.option.optimization.level" value="gnu.cpp.compiler.optimization.level.most" valueType="enumerated"/>
+								<option id="gnu.cpp.compiler.exe.release.option.debugging.level.1491793675" name="Debug Level" superClass="gnu.cpp.compiler.exe.release.option.debugging.level" value="gnu.cpp.compiler.debugging.level.none" valueType="enumerated"/>
+								<option id="gnu.cpp.compiler.option.include.paths.615333617" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/usr/local/include/OGRE}&quot;"/>
+									<listOptionValue builtIn="false" value="/usr/include/OIS"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/Common/DebugUtil}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/PathfindingSystem/ConvexPolygon}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/PathfindingSystem/NavMesh}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/Common/GlobalObjects}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/Extras/AppTester}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/Extras/PathFindingLevelEditor}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/CameraController}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/Utils/MouseCursor}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/PathfindingSystem/AbstractGraph}&quot;"/>
+									<listOptionValue builtIn="false" value="/usr/local/include/OgreBullet/Dynamics"/>
+									<listOptionValue builtIn="false" value="/usr/local/include/bullet/BulletCollision/CollisionDispatch"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/CollisionSystem}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/GameUnits}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/GameUnits/ZombieUnit}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/IA/FSM}&quot;"/>
+									<listOptionValue builtIn="false" value="/usr/include/OGRE"/>
+									<listOptionValue builtIn="false" value="/usr/include/c++/4.4"/>
+								</option>
+								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.445865644" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
+							</tool>
+							<tool id="cdt.managedbuild.tool.gnu.c.compiler.exe.release.593209334" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.exe.release">
+								<option defaultValue="gnu.c.optimization.level.most" id="gnu.c.compiler.exe.release.option.optimization.level.586602461" name="Optimization Level" superClass="gnu.c.compiler.exe.release.option.optimization.level" valueType="enumerated"/>
+								<option id="gnu.c.compiler.exe.release.option.debugging.level.1206155484" name="Debug Level" superClass="gnu.c.compiler.exe.release.option.debugging.level" value="gnu.c.debugging.level.none" valueType="enumerated"/>
+								<option id="gnu.c.compiler.option.include.paths.996476840" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/usr/local/include/OGRE}&quot;"/>
+									<listOptionValue builtIn="false" value="/usr/include/OIS"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/Common/DebugUtil}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/PathfindingSystem/ConvexPolygon}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/PathfindingSystem/NavMesh}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/Common/GlobalObjects}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/Extras/AppTester}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/Extras/PathFindingLevelEditor}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/CameraController}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/Utils/MouseCursor}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/PathfindingSystem/AbstractGraph}&quot;"/>
+									<listOptionValue builtIn="false" value="/usr/local/include/OgreBullet/Dynamics"/>
+									<listOptionValue builtIn="false" value="/usr/local/include/bullet/BulletCollision/CollisionDispatch"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/CollisionSystem}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/GameUnits}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/GameUnits/ZombieUnit}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/IA/FSM}&quot;"/>
+									<listOptionValue builtIn="false" value="/usr/include/OGRE"/>
+									<listOptionValue builtIn="false" value="/usr/include/c++/4.4"/>
+								</option>
+								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.2131463687" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
+							</tool>
+							<tool id="cdt.managedbuild.tool.gnu.c.linker.exe.release.415888757" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.exe.release"/>
+							<tool id="cdt.managedbuild.tool.gnu.cpp.linker.exe.release.1392187900" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.exe.release">
+								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.1050524327" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
+									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
+									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
+								</inputType>
+							</tool>
+							<tool id="cdt.managedbuild.tool.gnu.assembler.exe.release.1881381637" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.exe.release">
+								<option id="gnu.both.asm.option.include.paths.1330377949" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/usr/local/include/OGRE}&quot;"/>
+									<listOptionValue builtIn="false" value="/usr/include/OIS"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/Common/DebugUtil}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/PathfindingSystem/ConvexPolygon}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/PathfindingSystem/NavMesh}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/Common/GlobalObjects}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/Extras/AppTester}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/Extras/PathFindingLevelEditor}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/CameraController}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/Utils/MouseCursor}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/PathfindingSystem/AbstractGraph}&quot;"/>
+									<listOptionValue builtIn="false" value="/usr/local/include/OgreBullet/Dynamics"/>
+									<listOptionValue builtIn="false" value="/usr/local/include/bullet/BulletCollision/CollisionDispatch"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/CollisionSystem}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/GameUnits}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/GameUnits/ZombieUnit}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/IA/FSM}&quot;"/>
+									<listOptionValue builtIn="false" value="/usr/include/OGRE"/>
+									<listOptionValue builtIn="false" value="/usr/include/c++/4.4"/>
+								</option>
+								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.243602743" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
+							</tool>
+						</toolChain>
+					</folderInfo>
+					<sourceEntries>
+						<entry excluding="src/PathfindingSystem/UnitTest/triangleTest|src/Utils/MathIntersection|src/PathfindingSystem/UnitTest/NavMeshTest" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+					</sourceEntries>
+				</configuration>
+			</storageModule>
+			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+			<storageModule moduleId="org.eclipse.cdt.core.language.mapping"/>
+			<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
+		</cconfiguration>
+	</storageModule>
+	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+		<project id="estrategia2012.cdt.managedbuild.target.gnu.exe.986581474" name="Executable" projectType="cdt.managedbuild.target.gnu.exe"/>
+	</storageModule>
+	<storageModule moduleId="refreshScope" versionNumber="1">
+		<resource resourceType="PROJECT" workspacePath="/CordobaZombie"/>
+	</storageModule>
+	<storageModule moduleId="scannerConfiguration">
+		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		<profile id="org.eclipse.cdt.make.core.GCCStandardMakePerProjectProfile">
+			<buildOutputProvider>
+				<openAction enabled="true" filePath=""/>
+				<parser enabled="true"/>
+			</buildOutputProvider>
+			<scannerInfoProvider id="specsFile">
+				<runAction arguments="-E -P -v -dD ${plugin_state_location}/${specs_file}" command="gcc" useDefault="true"/>
+				<parser enabled="true"/>
+			</scannerInfoProvider>
+		</profile>
+		<profile id="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfile">
+			<buildOutputProvider>
+				<openAction enabled="true" filePath=""/>
+				<parser enabled="true"/>
+			</buildOutputProvider>
+			<scannerInfoProvider id="specsFile">
+				<runAction arguments="-E -P -v -dD ${plugin_state_location}/${specs_file}" command="gcc" useDefault="true"/>
+				<parser enabled="true"/>
+			</scannerInfoProvider>
+		</profile>
+		<profile id="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP">
+			<buildOutputProvider>
+				<openAction enabled="true" filePath=""/>
+				<parser enabled="true"/>
+			</buildOutputProvider>
+			<scannerInfoProvider id="specsFile">
+				<runAction arguments="-E -P -v -dD ${plugin_state_location}/specs.cpp" command="g++" useDefault="true"/>
+				<parser enabled="true"/>
+			</scannerInfoProvider>
+		</profile>
+		<profile id="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC">
+			<buildOutputProvider>
+				<openAction enabled="true" filePath=""/>
+				<parser enabled="true"/>
+			</buildOutputProvider>
+			<scannerInfoProvider id="specsFile">
+				<runAction arguments="-E -P -v -dD ${plugin_state_location}/specs.c" command="gcc" useDefault="true"/>
+				<parser enabled="true"/>
+			</scannerInfoProvider>
+		</profile>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.release.2118988469;cdt.managedbuild.config.gnu.exe.release.2118988469.;cdt.managedbuild.tool.gnu.c.compiler.exe.release.593209334;cdt.managedbuild.tool.gnu.c.compiler.input.2131463687">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC"/>
+			<profile id="org.eclipse.cdt.make.core.GCCStandardMakePerProjectProfile">
+				<buildOutputProvider>
+					<openAction enabled="true" filePath=""/>
+					<parser enabled="true"/>
+				</buildOutputProvider>
+				<scannerInfoProvider id="specsFile">
+					<runAction arguments="-E -P -v -dD ${plugin_state_location}/${specs_file}" command="gcc" useDefault="true"/>
+					<parser enabled="true"/>
+				</scannerInfoProvider>
+			</profile>
+			<profile id="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfile">
+				<buildOutputProvider>
+					<openAction enabled="true" filePath=""/>
+					<parser enabled="true"/>
+				</buildOutputProvider>
+				<scannerInfoProvider id="specsFile">
+					<runAction arguments="-E -P -v -dD ${plugin_state_location}/${specs_file}" command="gcc" useDefault="true"/>
+					<parser enabled="true"/>
+				</scannerInfoProvider>
+			</profile>
+			<profile id="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP">
+				<buildOutputProvider>
+					<openAction enabled="true" filePath=""/>
+					<parser enabled="true"/>
+				</buildOutputProvider>
+				<scannerInfoProvider id="specsFile">
+					<runAction arguments="-E -P -v -dD ${plugin_state_location}/specs.cpp" command="g++" useDefault="true"/>
+					<parser enabled="true"/>
+				</scannerInfoProvider>
+			</profile>
+			<profile id="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC">
+				<buildOutputProvider>
+					<openAction enabled="true" filePath=""/>
+					<parser enabled="true"/>
+				</buildOutputProvider>
+				<scannerInfoProvider id="specsFile">
+					<runAction arguments="-E -P -v -dD ${plugin_state_location}/specs.c" command="gcc" useDefault="true"/>
+					<parser enabled="true"/>
+				</scannerInfoProvider>
+			</profile>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.debug.1666725842;cdt.managedbuild.config.gnu.exe.debug.1666725842.;cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.182599208;cdt.managedbuild.tool.gnu.cpp.compiler.input.1111500657">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP"/>
+			<profile id="org.eclipse.cdt.make.core.GCCStandardMakePerProjectProfile">
+				<buildOutputProvider>
+					<openAction enabled="true" filePath=""/>
+					<parser enabled="true"/>
+				</buildOutputProvider>
+				<scannerInfoProvider id="specsFile">
+					<runAction arguments="-E -P -v -dD ${plugin_state_location}/${specs_file}" command="gcc" useDefault="true"/>
+					<parser enabled="true"/>
+				</scannerInfoProvider>
+			</profile>
+			<profile id="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfile">
+				<buildOutputProvider>
+					<openAction enabled="true" filePath=""/>
+					<parser enabled="true"/>
+				</buildOutputProvider>
+				<scannerInfoProvider id="specsFile">
+					<runAction arguments="-E -P -v -dD ${plugin_state_location}/${specs_file}" command="gcc" useDefault="true"/>
+					<parser enabled="true"/>
+				</scannerInfoProvider>
+			</profile>
+			<profile id="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP">
+				<buildOutputProvider>
+					<openAction enabled="true" filePath=""/>
+					<parser enabled="true"/>
+				</buildOutputProvider>
+				<scannerInfoProvider id="specsFile">
+					<runAction arguments="-E -P -v -dD ${plugin_state_location}/specs.cpp" command="g++" useDefault="true"/>
+					<parser enabled="true"/>
+				</scannerInfoProvider>
+			</profile>
+			<profile id="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC">
+				<buildOutputProvider>
+					<openAction enabled="true" filePath=""/>
+					<parser enabled="true"/>
+				</buildOutputProvider>
+				<scannerInfoProvider id="specsFile">
+					<runAction arguments="-E -P -v -dD ${plugin_state_location}/specs.c" command="gcc" useDefault="true"/>
+					<parser enabled="true"/>
+				</scannerInfoProvider>
+			</profile>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.debug.1666725842;cdt.managedbuild.config.gnu.exe.debug.1666725842.1026713632;cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.182599208.1702470405;cdt.managedbuild.tool.gnu.cpp.compiler.input.1394814701">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP"/>
+			<profile id="org.eclipse.cdt.make.core.GCCStandardMakePerProjectProfile">
+				<buildOutputProvider>
+					<openAction enabled="true" filePath=""/>
+					<parser enabled="true"/>
+				</buildOutputProvider>
+				<scannerInfoProvider id="specsFile">
+					<runAction arguments="-E -P -v -dD ${plugin_state_location}/${specs_file}" command="gcc" useDefault="true"/>
+					<parser enabled="true"/>
+				</scannerInfoProvider>
+			</profile>
+			<profile id="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfile">
+				<buildOutputProvider>
+					<openAction enabled="true" filePath=""/>
+					<parser enabled="true"/>
+				</buildOutputProvider>
+				<scannerInfoProvider id="specsFile">
+					<runAction arguments="-E -P -v -dD ${plugin_state_location}/${specs_file}" command="gcc" useDefault="true"/>
+					<parser enabled="true"/>
+				</scannerInfoProvider>
+			</profile>
+			<profile id="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP">
+				<buildOutputProvider>
+					<openAction enabled="true" filePath=""/>
+					<parser enabled="true"/>
+				</buildOutputProvider>
+				<scannerInfoProvider id="specsFile">
+					<runAction arguments="-E -P -v -dD ${plugin_state_location}/specs.cpp" command="g++" useDefault="true"/>
+					<parser enabled="true"/>
+				</scannerInfoProvider>
+			</profile>
+			<profile id="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC">
+				<buildOutputProvider>
+					<openAction enabled="true" filePath=""/>
+					<parser enabled="true"/>
+				</buildOutputProvider>
+				<scannerInfoProvider id="specsFile">
+					<runAction arguments="-E -P -v -dD ${plugin_state_location}/specs.c" command="gcc" useDefault="true"/>
+					<parser enabled="true"/>
+				</scannerInfoProvider>
+			</profile>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.debug.1666725842;cdt.managedbuild.config.gnu.exe.debug.1666725842.;cdt.managedbuild.tool.gnu.c.compiler.exe.debug.322261559;cdt.managedbuild.tool.gnu.c.compiler.input.618162601">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC"/>
+			<profile id="org.eclipse.cdt.make.core.GCCStandardMakePerProjectProfile">
+				<buildOutputProvider>
+					<openAction enabled="true" filePath=""/>
+					<parser enabled="true"/>
+				</buildOutputProvider>
+				<scannerInfoProvider id="specsFile">
+					<runAction arguments="-E -P -v -dD ${plugin_state_location}/${specs_file}" command="gcc" useDefault="true"/>
+					<parser enabled="true"/>
+				</scannerInfoProvider>
+			</profile>
+			<profile id="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfile">
+				<buildOutputProvider>
+					<openAction enabled="true" filePath=""/>
+					<parser enabled="true"/>
+				</buildOutputProvider>
+				<scannerInfoProvider id="specsFile">
+					<runAction arguments="-E -P -v -dD ${plugin_state_location}/${specs_file}" command="gcc" useDefault="true"/>
+					<parser enabled="true"/>
+				</scannerInfoProvider>
+			</profile>
+			<profile id="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP">
+				<buildOutputProvider>
+					<openAction enabled="true" filePath=""/>
+					<parser enabled="true"/>
+				</buildOutputProvider>
+				<scannerInfoProvider id="specsFile">
+					<runAction arguments="-E -P -v -dD ${plugin_state_location}/specs.cpp" command="g++" useDefault="true"/>
+					<parser enabled="true"/>
+				</scannerInfoProvider>
+			</profile>
+			<profile id="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC">
+				<buildOutputProvider>
+					<openAction enabled="true" filePath=""/>
+					<parser enabled="true"/>
+				</buildOutputProvider>
+				<scannerInfoProvider id="specsFile">
+					<runAction arguments="-E -P -v -dD ${plugin_state_location}/specs.c" command="gcc" useDefault="true"/>
+					<parser enabled="true"/>
+				</scannerInfoProvider>
+			</profile>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.release.2118988469;cdt.managedbuild.config.gnu.exe.release.2118988469.;cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.2143702228;cdt.managedbuild.tool.gnu.cpp.compiler.input.445865644">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP"/>
+			<profile id="org.eclipse.cdt.make.core.GCCStandardMakePerProjectProfile">
+				<buildOutputProvider>
+					<openAction enabled="true" filePath=""/>
+					<parser enabled="true"/>
+				</buildOutputProvider>
+				<scannerInfoProvider id="specsFile">
+					<runAction arguments="-E -P -v -dD ${plugin_state_location}/${specs_file}" command="gcc" useDefault="true"/>
+					<parser enabled="true"/>
+				</scannerInfoProvider>
+			</profile>
+			<profile id="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfile">
+				<buildOutputProvider>
+					<openAction enabled="true" filePath=""/>
+					<parser enabled="true"/>
+				</buildOutputProvider>
+				<scannerInfoProvider id="specsFile">
+					<runAction arguments="-E -P -v -dD ${plugin_state_location}/${specs_file}" command="gcc" useDefault="true"/>
+					<parser enabled="true"/>
+				</scannerInfoProvider>
+			</profile>
+			<profile id="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP">
+				<buildOutputProvider>
+					<openAction enabled="true" filePath=""/>
+					<parser enabled="true"/>
+				</buildOutputProvider>
+				<scannerInfoProvider id="specsFile">
+					<runAction arguments="-E -P -v -dD ${plugin_state_location}/specs.cpp" command="g++" useDefault="true"/>
+					<parser enabled="true"/>
+				</scannerInfoProvider>
+			</profile>
+			<profile id="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC">
+				<buildOutputProvider>
+					<openAction enabled="true" filePath=""/>
+					<parser enabled="true"/>
+				</buildOutputProvider>
+				<scannerInfoProvider id="specsFile">
+					<runAction arguments="-E -P -v -dD ${plugin_state_location}/specs.c" command="gcc" useDefault="true"/>
+					<parser enabled="true"/>
+				</scannerInfoProvider>
+			</profile>
+		</scannerConfigBuildInfo>
+	</storageModule>
+</cproject>

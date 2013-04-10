@@ -8,11 +8,11 @@
 #ifndef CIVILFOLLOWINGSTATE_H_
 #define CIVILFOLLOWINGSTATE_H_
 
-#include "IState.h"
+#include "FSM/IState.h"
 #include "CivilUnit.h"
 
 
-class CivilFollowingState : public IState<CivilUnit *>
+class CivilFollowingState : public ia::IState<CivilUnit *>
 {
 public:
 	CivilFollowingState();

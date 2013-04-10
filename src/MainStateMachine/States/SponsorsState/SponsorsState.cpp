@@ -92,13 +92,27 @@ void SponsorsState::configure(Ogre::Real ft, Ogre::Real st)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+void
+SponsorsState::getResources(IMainState::ResourcesInfoVec &resourcesList,
+                            const MainMachineInfo &info) const
+{
+    resourcesList.clear();
+
+    IMainState::ResourcesInfo rinfo;
+    rinfo.filePath = "/MainStates/SponsorsState/resources.cfg";
+    rinfo.groupNames.push_back("SponsorsState");
+
+    resourcesList.push_back(rinfo);
+}
+
+////////////////////////////////////////////////////////////////////////////////
 void SponsorsState::enter(const MainMachineInfo &info)
 {
 	// load the fader state
-	ASSERT(!mFader);
+	ASSERT(mFader == 0);
 	Ogre::OverlayManager &om = Ogre::OverlayManager::getSingleton();
 	mFader = om.getByName("FaderOverlay");
-	ASSERT(mFader);
+	ASSERT(mFader != 0);
 	Ogre::PanelOverlayElement *panel = static_cast<Ogre::PanelOverlayElement *>(
 					mFader->getChild("FaderOverlay/Background"));
 	ASSERT(panel);

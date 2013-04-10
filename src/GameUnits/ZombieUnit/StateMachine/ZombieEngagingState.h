@@ -8,11 +8,11 @@
 #ifndef ZOMBIEENGAGINGSTATE_H_
 #define ZOMBIEENGAGINGSTATE_H_
 
-#include "IState.h"
+#include "FSM/IState.h"
 #include "ZombieUnit.h"
 
 
-class ZombieEngagingState : public IState<ZombieUnit *>
+class ZombieEngagingState : public ia::IState<ZombieUnit *>
 {
 public:
 	ZombieEngagingState();

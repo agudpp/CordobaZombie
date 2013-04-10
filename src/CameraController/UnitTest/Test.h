@@ -19,6 +19,7 @@
 
 #include "MouseCursor.h"
 #include "UpdObjsManager.h"
+#include "InputManager.h"
 
 
 class Test : public AppTester
@@ -47,6 +48,7 @@ private:
 	MouseCursor				mMouseCursor;
 
 	UpdObjsManager			mUpdaterManager;
+	InputManager &mInputManager;
 
 };
 

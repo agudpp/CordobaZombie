@@ -9,6 +9,8 @@
 #ifndef ISTATE_H_
 #define ISTATE_H_
 
+namespace ia {
+
 template<typename T>
 class IState {
 	static int STATE_ID;
@@ -35,5 +37,6 @@ private:
 template<typename T>
 int IState<T>::STATE_ID	= 0;
 
+}
 
 #endif /* ISTATE_H_ */

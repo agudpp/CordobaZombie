@@ -12,6 +12,7 @@
 #include <OgreVector2.h>
 
 #include "OverlayEffect.h"
+#include "DebugUtil.h"
 
 namespace OvEff {
 
@@ -23,17 +24,22 @@ public:
 	 * to use to translate the overlays in the windows.
 	 * If we use for example a constant function then we will translate the
 	 * overlayElement at the same velocity all the time
-	 * The function will take a value between [0,1] representing the position
-	 * of all the translation movement (0 mean the Origin point, and 1 means the
-	 * Destiny point).
+	 * The function will take a value between [0,1] representing the percentage
+	 * of accumulated time from the start of the translation.
+	 * It will return a value also between [0,1] representing the percentage of
+	 * translation from the start point corresponding to the curve defined by
+	 * this velocity function.
 	 */
 	class VelFunction {
 	public:
-		virtual float operator()(float x)
+		virtual float operator()(float x) const
 		{
 			return 1.0f;
 		}
 	};
+
+	// Some Useful functions here
+	static const VelFunction *LINEAL_FUNCTION;
 
 public:
 	Slide();
@@ -51,7 +57,23 @@ public:
 	 * Set the velocity (acceleration) function to be used
 	 * @param	f	The function
 	 */
-	inline void setFunction(const VelFunction &f);
+	inline void setFunction(const VelFunction *f);
+
+	/**
+	 * Set the total time that the slide should last
+	 * t must be grater than 0.0f.
+	 */
+	inline void setDuration(float t);
+
+	/**
+	 * @brief
+	 * Turns the effect into its complement
+	 * i.e., the origin and destiny positions are swapped.
+	 *
+	 * @return
+	 * true		the effect was changed into its complement
+	 */
+	inline virtual bool complement();
 
 protected:
 	/**
@@ -70,14 +92,17 @@ protected:
 	 */
 	virtual void exit(void);
 
+
 private:
 	Ogre::Vector2		mOrig;
 	Ogre::Vector2		mDest;
 	Ogre::Vector2		mTransVec;
-	Ogre::Real			mInvTotalSqrLen;
 	Ogre::Vector2		mActualPos;
-	VelFunction			mFun;
-
+	const VelFunction	*mFun;
+	// 1.0f / total time that should last the slide movement:
+	float				mTimeLapse;
+	// Accumulated time lapsed in the slide movement:
+	float				mAccumTime;
 
 };
 
@@ -91,16 +116,31 @@ inline void Slide::setTranslationPositions(const Ogre::Vector2 &orig,
 	mOrig = orig;
 	mDest = dest;
 	mTransVec = dest-orig;
-	const Ogre::Real l = mTransVec.normalise();
-	mInvTotalSqrLen = 1.0f/(l*l);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-inline void Slide::setFunction(const VelFunction &f)
+inline void Slide::setFunction(const VelFunction *f)
 {
 	mFun = f;
 }
 
+
+////////////////////////////////////////////////////////////////////////////////
+inline void Slide::setDuration(float t)
+{
+	ASSERT(t > 0.0f);
+	mTimeLapse = 1.0f/t;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+inline bool Slide::complement()
+{
+	Ogre::Vector2 tmp(mOrig);
+	mOrig = mDest;
+	mDest = tmp;
+	return true;
+}
 
 }
 

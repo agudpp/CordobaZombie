@@ -9,15 +9,29 @@
 #ifndef OVERLAYEFFECT_H_
 #define OVERLAYEFFECT_H_
 
+#include <algorithm>
+#include <vector>
+#include <boost/signal.hpp>
+
 #include <OgreOverlayElement.h>
 
-#include "EffectCb.h"
+#include "DebugUtil.h"
 
 namespace OvEff {
 
 class OverlayEffectManager;
 
 class OverlayEffect {
+public:
+    enum EventID {
+        STARTING,       // when the effect will start
+        ENDING          // when the effect is ending
+    };
+
+
+    typedef boost::signal<void (OverlayEffect::EventID)>   OverlayEffectSignal;
+    typedef boost::signals::connection       Connection;
+
 public:
 	OverlayEffect();
 	virtual ~OverlayEffect();
@@ -32,15 +46,16 @@ public:
 	 * Set/Get the OverlayElement to be used
 	 * @param	e	The overlay element
 	 */
-	inline void setElement(Ogre::OverlayElement *e);
+	virtual void setElement(Ogre::OverlayElement *e);
 	inline Ogre::OverlayElement *getElement(void);
 
 	/**
-	 * Set the callback to be used to call when the effect will start to be
+	 * Add the callback to be used to call when the effect will start to be
 	 * executed or when its ending
 	 * @param	cb	The callback
 	 */
-	inline void setCallback(EffectCb *cb);
+	inline Connection addCallback(const OverlayEffectSignal::slot_type &cb);
+	inline void removeCallback(const Connection &cb);
 
 	/**
 	 * Stops the effect (if is actually reproducing it
@@ -53,6 +68,22 @@ public:
 	 * @note	Put the effect in the Manager
 	 */
 	void start(void);
+
+	/**
+	 * Check if the effect is active
+	 */
+	inline bool isActive(void) const;
+
+	/**
+	 * @brief
+	 * Turns the effect into its complement.
+	 * v.gr. a FADE_IN fade effect is changed into a FADE_OUT fade effect
+	 *
+	 * @return
+	 * true		the effect was changed into its complement
+	 * false	the effect has no complement, and was not changed
+	 */
+	virtual bool complement() = 0;
 
 protected:
 
@@ -86,8 +117,8 @@ protected:
 
 protected:
 	Ogre::OverlayElement			*mElement;
-	EffectCb						*mCb;
-
+	bool                            mActive;
+	OverlayEffectSignal             mCallbacks;
 	// pointer (index) used by the Manager
 	int								mIndex;
 
@@ -96,14 +127,6 @@ protected:
 
 
 
-/**
- * Set/Get the OverlayElement to be used
- * @param	e	The overlay element
- */
-inline void OverlayEffect::setElement(Ogre::OverlayElement *e)
-{
-	mElement = e;
-}
 inline Ogre::OverlayElement *OverlayEffect::getElement(void)
 {
 	return mElement;
@@ -114,9 +137,14 @@ inline Ogre::OverlayElement *OverlayEffect::getElement(void)
  * executed or when its ending
  * @param	cb	The callback
  */
-inline void OverlayEffect::setCallback(EffectCb *cb)
+inline OverlayEffect::Connection
+OverlayEffect::addCallback(const OverlayEffectSignal::slot_type &cb)
 {
-	mCb = cb;
+    return mCallbacks.connect(cb);
+}
+inline void OverlayEffect::removeCallback(const Connection &cb)
+{
+   mCallbacks.disconnect(cb);
 }
 
 /**
@@ -124,13 +152,15 @@ inline void OverlayEffect::setCallback(EffectCb *cb)
  */
 inline void OverlayEffect::begin(void)
 {
-	if(mCb) {(*mCb)(EffectCb::STARTING);}
+	mCallbacks(OverlayEffect::STARTING);
 	enter();
+	mActive = true;
 }
 inline void OverlayEffect::end(void)
 {
-	if(mCb) {(*mCb)(EffectCb::ENDING);}
+    mCallbacks(OverlayEffect::ENDING);
 	exit();
+	mActive = false;
 }
 inline void OverlayEffect::setIndex(int i)
 {
@@ -140,7 +170,11 @@ inline int OverlayEffect::getIndex(void) const
 {
 	return mIndex;
 }
-
+inline bool
+OverlayEffect::isActive(void) const
+{
+    return mActive;
+}
 
 
 }

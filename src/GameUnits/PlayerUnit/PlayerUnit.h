@@ -9,7 +9,7 @@
 #define PLAYERUNIT_H_
 
 
-#include "StateMachine.h"
+#include "FSM/StateMachine.h"
 #include "GameUnit.h"
 #include "PlayerDefs.h"
 #include "Weapon.h"
@@ -32,15 +32,15 @@
 class PlayerUnit;
 
 // zombie state machine
-typedef	StateMachine<PlayerUnit *> PlayerStateMachine;
-typedef SMTransitionTable<PlayerUnit *> PlayerSMTTable;
+typedef	ia::StateMachine<PlayerUnit *> PlayerStateMachine;
+typedef ia::SMTransitionTable<PlayerUnit *> PlayerSMTTable;
 
 typedef GenericFunctor<void, int>		PlayerCallback;
 
 class PlayerUnit : public GameUnit
 {
 	// The time that have to pass to update the path in engaging state
-	static const float	UPDATE_PATH_TIME		=	0.5f;
+	static const float	UPDATE_PATH_TIME;
 
 public:
 	typedef std::vector<GameUnit *>	ZombieUnitVec;

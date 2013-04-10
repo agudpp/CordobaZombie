@@ -47,6 +47,12 @@ const double EPS = 10e-12;
  *
  *	14. Quitar los parametros tslf de todas los metodos que no los necesitan
  *
+ *	15. Limpiar los buffers de sonido para que no haga ruido de basura al
+ *	darle play a un nuevo video.
+ *
+ *	16. Buscar una mejor solucion para no usar viejos audio packets al hacer
+ *	get_playing_time luego de un seek. Usar la variable apnvfts es muy McCaco.
+ *
  * TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
  */
 
@@ -90,7 +96,7 @@ const double EPS = 10e-12;
  *
  */
 
-
+////////////////////////////////////////////////////////////////////////////////
 
 VideoPlayer::VideoPlayer(Ogre::Real left, Ogre::Real top,
 						 Ogre::Real right, Ogre::Real bottom):
@@ -128,7 +134,9 @@ VideoPlayer::VideoPlayer(Ogre::Real left, Ogre::Real top,
 	decoding_pkt_size(0),
 	decoding_pkt_data(0),
 	synchroPTS(0),
-	buffLenInSec(0)
+	buffLenInSec(0),
+	lastPts(0),
+	apnvfts(0)
 {
 
 #if OGRE_ENDIAN == OGRE_ENDIAN_BIG
@@ -148,26 +156,39 @@ VideoPlayer::VideoPlayer(Ogre::Real left, Ogre::Real top,
     mMiniScreen->setBoundingBox(Ogre::AxisAlignedBox(
     		-100000.0f * Ogre::Vector3::UNIT_SCALE,
     		100000.0f * Ogre::Vector3::UNIT_SCALE));
-    miniScreenNode = GLOBAL_SCN_MNGR->getRootSceneNode()->createChildSceneNode(
-    		"MiniScreenNode");
+
+    ASSERT(GLOBAL_SCN_MNGR);
+	miniScreenNode = GLOBAL_SCN_MNGR->getRootSceneNode()->createChildSceneNode();
+
+//	GLOBAL_SCN_MNGR->getRootSceneNode()->setVisible(true, true);
+
     miniScreenNode->attachObject(mMiniScreen);
 
     // Material for the screen
-    renderMaterial =
+
+    static Ogre::MaterialPtr rendmat =
     		Ogre::MaterialManager::getSingleton().create("RttMat",
     		Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+
+    renderMaterial = rendmat;
+    ASSERT(renderMaterial.get());
+
     Ogre::Technique* matTechnique = renderMaterial->createTechnique();
     matTechnique->createPass();
-    renderMaterial->getTechnique(0)->getPass(0)->setLightingEnabled(false);
+    renderMaterial->getTechnique(0)->getPass(0)->setLightingEnabled(true);
 
     //A temporary texture for the screen before something is loaded
-	rtt_texture =
-			Ogre::TextureManager::getSingleton().createManual("RttTex",
+    static Ogre::TexturePtr rtttex =
+    		Ogre::TextureManager::getSingleton().createManual("RttTex",
 			Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
 			Ogre::TEX_TYPE_2D, defaultwidth,
 			defaultheight, 0,
 			Ogre::PF_X8R8G8B8, Ogre::TU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
-	//set material texture
+
+    rtt_texture = rtttex;
+    ASSERT(rtt_texture.get());
+
+    //set material texture
 	renderMaterial->getTechnique(0)->getPass(0)->removeAllTextureUnitStates();
     renderMaterial->getTechnique(0)->getPass(0)->createTextureUnitState(
     		"RttTex");
@@ -177,75 +198,74 @@ VideoPlayer::VideoPlayer(Ogre::Real left, Ogre::Real top,
     // Register all formats and codecs
     av_register_all();
 
+    // remove all the logs
+    av_log_set_level(AV_LOG_QUIET);
+
+
 }
 
 
-
-
+////////////////////////////////////////////////////////////////////////////////
 
 VideoPlayer::~VideoPlayer(){
 	//close and free some stuff
-	if(isLoaded){
-		unload();
-	}
+	if(isLoaded){ unload(); }
 
     // Free frames
-    av_free(pFrame);
-    av_free(audio_decoded_frame);
+	if(pFrame){	av_free(pFrame); pFrame = 0; }
 
     // Free conversion context
-    sws_freeContext(pImgConvertCtx);
-
+	if(pImgConvertCtx){	sws_freeContext(pImgConvertCtx); pImgConvertCtx = 0; }
 
     // Free the codec contexts (should be closed to free them)
-    avcodec_close(pCodecCtx);
-    avcodec_close(aCodecCtx);
+	if(pCodecCtx){ avcodec_close(pCodecCtx); pCodecCtx = 0;	}
 
+    if(audioStream != -1){
+    	if(audio_decoded_frame){
+    		av_free(audio_decoded_frame); audio_decoded_frame = 0;
+    	}
+    	if(aCodecCtx){ avcodec_close(aCodecCtx); aCodecCtx = 0;	}
 
-	// In case there is a packet in audio_decoding_pkt
-	if(audio_decoding_pkt){
-		av_free_packet(audio_decoding_pkt);
-		delete audio_decoding_pkt;
-		audio_decoding_pkt = 0;
-	}
+		// In case there is a packet in audio_decoding_pkt
+		if(audio_decoding_pkt){
+			av_free_packet(audio_decoding_pkt);
+			delete audio_decoding_pkt;
+			audio_decoding_pkt = 0;
+		}
 
+    }
     //
-    delete mMiniScreen;
+    if(mMiniScreen){ delete mMiniScreen; mMiniScreen = 0; }
 }
 
 
+////////////////////////////////////////////////////////////////////////////////
 
+void VideoPlayer::play(void)
+{
+	if(isLoaded){
+		if(isPlaying){
+			debugWARNING("Warning: attempting to play video while already "
+					"playing\n");
+		}else{
 
-int VideoPlayer::unload(void){
-	if(!isLoaded){
-		debugWARNING("Attempt to unload when nothing was loaded\n");
-		return VIDEO_OK;
+			//fetch some packets before start
+			while(get_more_data() != VIDEO_ENDED and
+					vDataQue.size() < VIDEO_QUEUE_MAX_SIZE and
+					aDataDque.size() < AUDIO_QUEUE_MAX_SIZE)
+			{
+			}
+
+			mplayingtime = 0;
+			isPlaying = true;
+		}
+	}else{
+		debugWARNING("Warning: attempting to play video while not loaded\n");
 	}
-
-	isPlaying = false;
-
-    // Free the RGB image
-    delete [] buffer;
-    av_free(pFrameRGB);
-
-    // Close the codecsvideoStream (but not free them)
-    avcodec_close(pCodecCtx);
-    avcodec_close(aCodecCtx);
-
-    // Close the video file
-    avformat_close_input(&pFormatCtx);
-    isLoaded = false;
-
-    // Clear the packet queues
-    empty_data_queues();
-
-    // destroy contexts and devices from the audio player
-    alcCloseDevice(dev);
-    alcDestroyContext(ctx);
-    alcCloseDevice(dev);
-
 }
 
+
+////////////////////////////////////////////////////////////////////////////////
 
 int VideoPlayer::load(const char *fileName){
 
@@ -255,15 +275,7 @@ int VideoPlayer::load(const char *fileName){
 	}
 
     // Allocation (if first time)
-    pFormatCtx 	= avformat_alloc_context();
-
-    // Allocate audio frame
-    if(!audio_decoded_frame){
-    	audio_decoded_frame = avcodec_alloc_frame();
-    }
-    if(audio_decoded_frame==0){
-    	debugERROR("Could not alloc Audio frame\n"); return VIDEO_ERROR;
-    }
+    pFormatCtx = avformat_alloc_context();
 
     // Allocate video frame
     if(!pFrame){
@@ -272,7 +284,6 @@ int VideoPlayer::load(const char *fileName){
     if(pFrame==0){
     	debugERROR("Could not alloc video frame\n"); return VIDEO_ERROR;
     }
-
 
     // Open video file
     if(avformat_open_input(&pFormatCtx, fileName, NULL, 0)!=0){
@@ -310,27 +321,15 @@ int VideoPlayer::load(const char *fileName){
     }else{
     	debugGREEN("Video Stream Number %d\n", videoStream);
     }
-    if(audioStream==-1){
-    	debugERROR("Didn't find an audio stream\n"); return VIDEO_ERROR;
-    }else{
-    	debugGREEN("Audio Stream Number %d\n", audioStream);
-    }
 
     // Get a pointer to the codec context for the video stream
     pCodecCtx = pFormatCtx->streams[videoStream]->codec;
-    // Same for the audio
-    aCodecCtx = pFormatCtx->streams[audioStream]->codec;
 
     // Find the decoder for the video stream
     pCodec=avcodec_find_decoder(pCodecCtx->codec_id);
     if(pCodec==NULL){
     	debugERROR("Video codec not found\n"); return VIDEO_ERROR;
     }
-    aCodec=avcodec_find_decoder(aCodecCtx->codec_id);
-    if(aCodec==NULL){
-    	debugERROR("Audio codec not found\n"); return VIDEO_ERROR;
-    }
-
 
     // Inform the codec that we can handle truncated bitstreams -- i.e.,
     // bitstreams where frame boundaries can fall in the middle of packets
@@ -340,9 +339,6 @@ int VideoPlayer::load(const char *fileName){
     // Open codec
     if(avcodec_open2(pCodecCtx, pCodec, 0)<0){
     	debugERROR("Could not open video codec"); return VIDEO_ERROR;
-    }
-    if(avcodec_open2(aCodecCtx, aCodec, 0)<0){
-        debugERROR("Could not open audio codec"); return VIDEO_ERROR;
     }
 
     // Allocate an AVFrame structure for converted frame
@@ -379,35 +375,100 @@ int VideoPlayer::load(const char *fileName){
     //set some values
 	vtbasenum = pFormatCtx->streams[videoStream]->time_base.num;
 	vtbaseden = pFormatCtx->streams[videoStream]->time_base.den;
-	atbasenum = pFormatCtx->streams[audioStream]->time_base.num;
-	atbaseden = pFormatCtx->streams[audioStream]->time_base.den;
 
 	mVideoLength = static_cast<double>(pFormatCtx->duration)/
 				   static_cast<double>(AV_TIME_BASE);
-    isPlaying = false;
+
+	isPlaying = false;
     isLoaded = true;
     mplayingtime = 0;
 
 
-    print_video_info();
+    //For audio:
+    if(audioStream==-1){
 
-    if(aCodecCtx->sample_fmt != AV_SAMPLE_FMT_S16){
-    	debugERROR("Unsuported audio format :s\n");
-    	return VIDEO_ERROR;
+    	debugGREEN("Didn't find an audio stream. Playing only video.\n");
+
     }else{
-    	create_al_audio_player();
+    	debugGREEN("Audio Stream Number %d\n", audioStream);
+
+        // Allocate audio frame
+        if(!audio_decoded_frame){
+        	audio_decoded_frame = avcodec_alloc_frame();
+        }
+
+        if(audio_decoded_frame==0){
+        	debugERROR("Could not alloc Audio frame\n"); return VIDEO_ERROR;
+        }
+
+    	aCodecCtx = pFormatCtx->streams[audioStream]->codec;
+
+    	aCodec=avcodec_find_decoder(aCodecCtx->codec_id);
+		if(aCodec==NULL){
+			debugERROR("Audio codec not found\n"); return VIDEO_ERROR;
+		}
+
+	    if(avcodec_open2(aCodecCtx, aCodec, 0)<0){
+	        debugERROR("Could not open audio codec"); return VIDEO_ERROR;
+	    }
+
+		atbasenum = pFormatCtx->streams[audioStream]->time_base.num;
+		atbaseden = pFormatCtx->streams[audioStream]->time_base.den;
+
+	    if(aCodecCtx->sample_fmt != AV_SAMPLE_FMT_S16){
+	    	debugERROR("Unsuported audio format :s\n");
+	    	return VIDEO_ERROR;
+	    }else{
+	    	create_al_audio_player();
+	    }
+
+	    if(preload_audio() == VIDEO_ERROR){
+	    	debugERROR("Couldn't pre-load audio :s\n");
+	    	return VIDEO_ERROR;
+	    }
+
     }
 
-    if(preload_audio() == VIDEO_ERROR){
-    	debugERROR("Couldn't pre-load audio :s\n");
-    	return VIDEO_ERROR;
-    }
+    //print_video_info();
 
     return VIDEO_OK;
 }
 
 
+////////////////////////////////////////////////////////////////////////////////
 
+int VideoPlayer::unload(void){
+	if(!isLoaded){
+		debugWARNING("Attempt to unload when nothing was loaded\n");
+		return VIDEO_OK;
+	}
+
+	isPlaying = false;
+
+    // Free the RGB image
+    delete [] buffer;
+    av_free(pFrameRGB);
+
+    // Close the codecsvideoStream (but not free them)
+    avcodec_close(pCodecCtx);
+
+    // Clear the packet queues
+    empty_data_queues();
+
+    // destroy contexts and devices from the audio player
+    if(audioStream != -1){
+		avcodec_close(aCodecCtx);
+		alcCloseDevice(dev);
+		alcDestroyContext(ctx);
+		alcCloseDevice(dev);
+    }
+
+    // Close the video file
+    avformat_close_input(&pFormatCtx);
+    isLoaded = false;
+
+    return VIDEO_OK;
+}
 
 
 
@@ -424,8 +485,7 @@ int VideoPlayer::seek_time_stamp(double ts){
 		return VIDEO_ERROR;
 	}
 
-	double t = 0;
-	get_playing_time(t);
+	double t = static_cast<double>(lastPts)/static_cast<double>(AV_TIME_BASE);
 	int flag = ts < t ? AVSEEK_FLAG_BACKWARD : 0;
 
 	int stream_index= -1;
@@ -442,19 +502,28 @@ int VideoPlayer::seek_time_stamp(double ts){
 	                  	  pFormatCtx->streams[stream_index]->time_base);
 	}
 
+//	debugGREEN("Seeking in %s target %ld\n",
+//					pFormatCtx->filename, seek_target);
 	if(av_seek_frame(pFormatCtx, stream_index, seek_target, flag) < 0) {
+		flag = 0 ? AVSEEK_FLAG_BACKWARD : 0;
+		if(av_seek_frame(pFormatCtx, stream_index, seek_target, flag) < 0){
+			debugERROR("Error while seeking in %s target %ld\n",
+				pFormatCtx->filename, seek_target);
+			return VIDEO_ERROR;
 
-		debugERROR("Error while seeking in %s\n",pFormatCtx->filename);
-	    return VIDEO_ERROR;
-
-	}else{
-
-		//clear queues to prepare for new data
-		empty_data_queues();
+		}
 	}
+
+	mplayingtime = ts;
+
+	//clear queues to prepare for new data
+	empty_data_queues();
+
+	apnvfts = true;
 
 	return VIDEO_OK;
 }
+
 
 
 int VideoPlayer::empty_data_queues(void){
@@ -645,7 +714,12 @@ int VideoPlayer::update(double timesincelastframe){
 		get_more_data();
 	}
 
-	audio_ret = update_audio(timesincelastframe);
+	//if we have audio
+	if(audioStream != -1){
+		audio_ret = update_audio(timesincelastframe);
+	}else{
+		audio_ret = VIDEO_ENDED;
+	}
 
 	video_ret = update_video(timesincelastframe);
 
@@ -655,7 +729,8 @@ int VideoPlayer::update(double timesincelastframe){
 		return VIDEO_ERROR;
 	}
 
-	if(audio_ret == VIDEO_ENDED and video_ret == VIDEO_ENDED)
+	if( (audioStream == -1 || audio_ret == VIDEO_ENDED)  &&
+	    video_ret == VIDEO_ENDED )
 	{
 		ASSERT(vDataQue.empty());
 		ASSERT(aDataDque.empty());
@@ -669,7 +744,7 @@ int VideoPlayer::update(double timesincelastframe){
 }
 
 
-
+////////////////////////////////////////////////////////////////////////////////
 
 /**
  * Update the video texture (the screen where the video is being played) if
@@ -746,6 +821,8 @@ int VideoPlayer::update_video(double tslf){ // FIXME al dope el tslf
 			img += 3;
 		}
 
+		//SaveFrame(pFrameRGB, pCodecCtx->width, pCodecCtx->height, 1);
+
 		PixelBuffer->unlock();
 	}
 
@@ -753,7 +830,7 @@ int VideoPlayer::update_video(double tslf){ // FIXME al dope el tslf
 }
 
 
-
+////////////////////////////////////////////////////////////////////////////////
 
 /**
  * Update the video player audio. It checks if al player needs data in its
@@ -826,8 +903,7 @@ int VideoPlayer::update_audio(double tslf){ // FIXME tslf esta al dope
 }
 
 
-
-
+////////////////////////////////////////////////////////////////////////////////
 
 /**
  *	When called assures to fill stream with len bytes of audio data.
@@ -1021,6 +1097,9 @@ int VideoPlayer::audio_decode_frame(uint8_t **buffer, int buffer_size){
 		}
 
 		if(aDataDque.size() > 0){
+
+			apnvfts = false;
+
 			audio_decoding_pkt = aDataDque.front();
 			if(audio_decoding_pkt->pts != AV_NOPTS_VALUE){
 				synchroPTS = static_cast<double>(audio_decoding_pkt->pts);
@@ -1047,14 +1126,15 @@ int VideoPlayer::audio_decode_frame(uint8_t **buffer, int buffer_size){
 
 int VideoPlayer::get_playing_time(double & t){
 
+	if(!audio_decoding_pkt || apnvfts || audioStream == -1){
+		// we can't get the synchronized time so we return the real time
+		t = mplayingtime;
+		return VIDEO_OK;
+	}
+
 	ALint val = 0;
 	alGetSourcei(source, AL_BUFFERS_PROCESSED, &val);
 	int nloadedbuffs = NUM_BUFFERS - val;
-
-	if(!audio_decoding_pkt){
-		// we don't know the time
-		return VIDEO_ERROR;
-	}
 
 	ASSERT(static_cast<double>(aCodecCtx->sample_rate) > 0);
 
@@ -1123,6 +1203,8 @@ int VideoPlayer::get_more_data(void){
 
 		}else{
 
+			lastPts = mPacket->pts;
+
 			if(mPacket->stream_index == videoStream){
 
 				vDataQue.push(mPacket);
@@ -1177,15 +1259,17 @@ void VideoPlayer::print_video_info(void){
 
 	    cyanPrint("VIDEO DEBUG\n");
 	    lightGreenPrint("Video nb of streams %d\n", pFormatCtx->nb_streams);
-	    cyanPrint("AUDIO DEBUG\n");
-	    const char *format = av_get_sample_fmt_name(aCodecCtx->sample_fmt);
-	    if(format){
-	    	lightGreenPrint("Audio sample format %s\n",format );
+	    if(audioStream != -1){
+			cyanPrint("AUDIO DEBUG\n");
+			const char *format = av_get_sample_fmt_name(aCodecCtx->sample_fmt);
+			if(format){
+				lightGreenPrint("Audio sample format %s\n",format );
+			}
+			lightGreenPrint("Audio nb of channels %d\n",aCodecCtx->channels);
+			lightGreenPrint("Audio nb of bits per sample %d\n",
+					av_get_bytes_per_sample(aCodecCtx->sample_fmt)*8);
+			lightGreenPrint("Audio frequency %dHz\n",aCodecCtx->sample_rate);
 	    }
-	    lightGreenPrint("Audio nb of channels %d\n",aCodecCtx->channels);
-	    lightGreenPrint("Audio nb of bits per sample %d\n",
-	    		av_get_bytes_per_sample(aCodecCtx->sample_fmt)*8);
-	    lightGreenPrint("Audio frequency %dHz\n",aCodecCtx->sample_rate);
 	    cyanPrint("OTHER DEBUGS\n");
 	    lightGreenPrint("AVCODEC_MAX_AUDIO_FRAME_SIZE: %d\n",
 	    		AVCODEC_MAX_AUDIO_FRAME_SIZE);
@@ -1208,8 +1292,6 @@ void VideoPlayer::print_video_info(void){
  */
 int VideoPlayer::paint_screen(unsigned char R, unsigned char G, unsigned char B)
 {
-
-	debugRAUL("Painting color %d %d %d\n", (int)R, (int)G, (int)B);
 
 	if(!rtt_texture.get()){
 		return VIDEO_ERROR;
@@ -1256,7 +1338,7 @@ void VideoPlayer::SaveFrame(AVFrame *pFrame, int width, int height, int iFrame)
     int  y;
 
     // Open file
-    sprintf(szFilename, "../Frames/frame%d.ppm", iFrame);
+    sprintf(szFilename, "./Frames/frame%d.ppm", iFrame);
     pFile=fopen(szFilename, "wb");
     if(pFile==NULL)
         return;

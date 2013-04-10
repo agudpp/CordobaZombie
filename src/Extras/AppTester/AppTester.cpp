@@ -7,9 +7,63 @@
 
 #include <OgreWindowEventUtilities.h>
 
+// For stack trace print and signal handling
+#include <ucontext.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/wait.h>
+#include <unistd.h>
+
 #include "GlobalObjects.h"
 #include "Util.h"
 #include "AppTester.h"
+#include "MouseCursor.h"
+
+
+
+/**
+ * Function used to handle the sigsevs and all that signals and print the
+ * stack trace automatically
+ */
+void
+bt_sighandler(int sig, siginfo_t *info, void *secret)
+{
+
+    char pid_buf[30];
+    sprintf(pid_buf, "%d", getpid());
+    char name_buf[512];
+    name_buf[readlink("/proc/self/exe", name_buf, 511)]=0;
+    int child_pid = fork();
+    if (!child_pid) {
+        dup2(2,1); // redirect output to stderr
+        fprintf(stdout,"stack trace for %s pid=%s\n",name_buf,pid_buf);
+        execlp("gdb", "gdb", "--batch", "-n", "-ex", "thread", "-ex", "bt", name_buf, pid_buf, NULL);
+        abort(); /* If gdb failed to start */
+    } else {
+        waitpid(child_pid,NULL,0);
+    }
+    exit(0);
+}
+/**
+ * Configure signals
+ */
+static void
+configureSignals(void)
+{
+    /* Install our signal handler */
+    struct sigaction sa;
+
+    sa.sa_sigaction = bt_sighandler;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = SA_RESTART | SA_SIGINFO;
+    sigaction(SIGSEGV, &sa, NULL);
+    sigaction(SIGUSR1, &sa, NULL);
+    sigaction(SIGABRT, &sa, NULL);
+    sigaction(SIGKILL, &sa, NULL);
+    sigaction(SIGTERM, &sa, NULL);
+
+    /* ... add any other signal here */
+}
 
 /******************************************************************************/
 void AppTester::handleKeyboardInputCamera(void)
@@ -174,19 +228,20 @@ bool AppTester::loadInitialConfig(void)
 	mWindow->getCustomAttribute("WINDOW", &windowHnd);
 	windowHndStr << windowHnd;
 	pl.insert(std::make_pair(std::string("WINDOW"), windowHndStr.str()));
-	#if defined OIS_WIN32_PLATFORM
-	pl.insert(std::make_pair(std::string("w32_mouse"), std::string("DISCL_FOREGROUND" )));
-	pl.insert(std::make_pair(std::string("w32_mouse"), std::string("DISCL_NONEXCLUSIVE")));
-	pl.insert(std::make_pair(std::string("w32_keyboard"), std::string("DISCL_FOREGROUND")));
-	pl.insert(std::make_pair(std::string("w32_keyboard"), std::string("DISCL_NONEXCLUSIVE")));
-	#elif defined OIS_LINUX_PLATFORM
-	pl.insert(std::make_pair(std::string("x11_mouse_grab"), std::string("false")));
-	pl.insert(std::make_pair(std::string("x11_mouse_hide"), std::string("false")));
-	pl.insert(std::make_pair(std::string("x11_keyboard_grab"), std::string("false")));
-	pl.insert(std::make_pair(std::string("XAutoRepeatOn"), std::string("true")));
-	#endif
-	// end override OIS construction to avoid grabbing mouse
-
+	if (mDisableInputGrabbing){
+        #if defined OIS_WIN32_PLATFORM
+        pl.insert(std::make_pair(std::string("w32_mouse"), std::string("DISCL_FOREGROUND" )));
+        pl.insert(std::make_pair(std::string("w32_mouse"), std::string("DISCL_NONEXCLUSIVE")));
+        pl.insert(std::make_pair(std::string("w32_keyboard"), std::string("DISCL_FOREGROUND")));
+        pl.insert(std::make_pair(std::string("w32_keyboard"), std::string("DISCL_NONEXCLUSIVE")));
+        #elif defined OIS_LINUX_PLATFORM
+        pl.insert(std::make_pair(std::string("x11_mouse_grab"), std::string("false")));
+        pl.insert(std::make_pair(std::string("x11_mouse_hide"), std::string("false")));
+        pl.insert(std::make_pair(std::string("x11_keyboard_grab"), std::string("false")));
+        pl.insert(std::make_pair(std::string("XAutoRepeatOn"), std::string("true")));
+        #endif
+        // end override OIS construction to avoid grabbing mouse
+        }
 	mWindow->getCustomAttribute("WINDOW", &hWnd);
 	//mInputManager = OIS::InputManager::createInputSystem(hWnd);
 	mInputManager = OIS::InputManager::createInputSystem(pl);
@@ -248,10 +303,8 @@ bool AppTester::loadInitialConfig(void)
 	mCamera->setAspectRatio(
 			Ogre::Real(vp->getActualWidth()) / Ogre::Real(vp->getActualHeight()));
 
-
 	////////////////////////////////////////////////////////////////////////////
 	Ogre::ResourceGroupManager::getSingleton().initialiseAllResourceGroups();
-
 
 	// here we are ready to run the editor
 	mReadyToRun = true;
@@ -355,12 +408,15 @@ void AppTester::loadAditionalResourcesFromFile(const Ogre::String &file,
 }
 
 /******************************************************************************/
-AppTester::AppTester() :
+AppTester::AppTester(bool disableInputGrabbing) :
 		mCamera(0), mCameraScnNode(0), mInputManager(0),
 		mKeyboard(0), mMouse(0), mRoot(0), mSceneMgr(0),
 		mWindow(0), mAnimCamera(false),mDefaultInput(true),
-		mReadyToRun(false),	 mStopRunning(false)
+		mReadyToRun(false),	 mStopRunning(false),
+		mDisableInputGrabbing(disableInputGrabbing)
 {
+    configureSignals();
+
 	// TODO Auto-generated constructor stub
 	loadInitialConfig();
 
@@ -387,6 +443,12 @@ AppTester::AppTester() :
 	std::string fname = path + "resources.cfg";
 	debugGREEN("Trying to parse the resource file %s\n", fname.c_str());
 	loadAditionalResourcesFromFile(fname, path);
+
+    // Create the mouseCursor
+    GLOBAL_CURSOR = new MouseCursor;
+    GLOBAL_CURSOR->setVisible(true);
+    GLOBAL_CURSOR->setWindowDimensions(GLOBAL_WINDOW->getWidth(),
+            GLOBAL_WINDOW->getHeight());
 
 	loadScene();
 }

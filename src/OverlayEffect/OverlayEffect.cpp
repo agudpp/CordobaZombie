@@ -8,11 +8,19 @@
 
 #include "OverlayEffect.h"
 #include "OverlayEffectManager.h"
-#include "DebugUtil.h"
 
 namespace OvEff {
 
 OverlayEffectManager		*OverlayEffect::mMngr = 0;
+
+/**
+ * Set the OverlayElement to be used
+ * @param	e	The overlay element
+ */
+void OverlayEffect::setElement(Ogre::OverlayElement *e)
+{
+	mElement = e;
+}
 
 /**
  * Set the Overlay effect manager to be used
@@ -21,12 +29,17 @@ OverlayEffectManager		*OverlayEffect::mMngr = 0;
 void OverlayEffect::setManager(OverlayEffectManager *em)
 {
 	ASSERT(em);
+#ifdef DEBUG
+	if (mMngr != 0) {
+	    debugWARNING("We are setting another Mngr to the OverlayEffects\n");
+	}
+#endif
 	mMngr = em;
 }
 
 OverlayEffect::OverlayEffect() :
 mElement(0),
-mCb(0)
+mActive(false)
 {
 	ASSERT(mMngr);
 
@@ -40,7 +53,7 @@ OverlayEffect::~OverlayEffect()
 
 /**
  * Stops the effect (if is actually reproducing it
- * @note Removes the effect automatically from the manager
+ * @note	Removes the effect automatically from the manager
  */
 void OverlayEffect::stop(void)
 {

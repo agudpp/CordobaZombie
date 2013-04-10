@@ -8,15 +8,26 @@
 
 #include "StatesFactory.h"
 
+#include "DebugUtil.h"
+
+#include "CreditsState.h"
+#include "HistoryState.h"
+#include "MainState.h"
+#include "ConfigState.h"
+
 namespace mm_states {
 
-StatesFactory::StatesFactory() {
-	// TODO Auto-generated constructor stub
+bool StatesFactory::buildStates(std::vector<IState *> &result)
+{
+    result.clear();
+    result.push_back(new MainState);
+//    ASSERT(false && "descomentar las lineas de abajo");
+    result.push_back(new HistoryState);
+    result.push_back(new ConfigState);
+    result.push_back(new CreditsState);
 
+    return true;
 }
 
-StatesFactory::~StatesFactory() {
-	// TODO Auto-generated destructor stub
-}
 
 }

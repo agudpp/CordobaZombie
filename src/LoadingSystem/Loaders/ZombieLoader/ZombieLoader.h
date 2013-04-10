@@ -17,8 +17,12 @@
 #include "ZombieFactory.h"
 #include "ZombieBuilder.h"
 
-class ZombieFactoryManager;
 
+namespace Ogre {
+class Entity;
+}
+
+class ZombieFactoryManager;
 class TiXmlElement;
 
 class ZombieLoader : public Loader

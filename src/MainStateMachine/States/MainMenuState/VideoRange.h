@@ -11,9 +11,13 @@
 
 namespace mm_states {
 
-struct VideRange {
+struct VideoRange {
 	float	start;
 	float	end;
+
+	bool operator==(const VideoRange &other){
+		return start == other.start && end == other.end;
+	}
 };
 
 }

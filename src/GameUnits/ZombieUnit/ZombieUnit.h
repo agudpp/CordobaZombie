@@ -12,7 +12,7 @@
 #include <set>
 
 #include "ZombieDefs.h"
-#include "StateMachine.h"
+#include "FSM/StateMachine.h"
 #include "GameUnit.h"
 #include "ZombieFactory.h"
 #include "BillboardBatery.h"
@@ -20,8 +20,8 @@
 
 
 // zombie state machine
-typedef	StateMachine<ZombieUnit *> ZombieStateMachine;
-typedef SMTransitionTable<ZombieUnit *> ZombieSMTTable;
+typedef	ia::StateMachine<ZombieUnit *> ZombieStateMachine;
+typedef ia::SMTransitionTable<ZombieUnit *> ZombieSMTTable;
 
 
 class ZombieUnit : public GameUnit
@@ -76,7 +76,7 @@ public:
 	////////////////////////////////////////////////////////////////////////////
 
 	// Visibility radius (for targets)
-	static const float	MAX_RADIUS_VISIBILITY			=	ZOMBIE_MAX_VISIBILITY_DIST;
+	static const float	MAX_RADIUS_VISIBILITY;
 
 	typedef std::vector<ZombieUnit *>	ZombieUnitVec;
 	typedef std::set<GameUnit *>		TargetList;
@@ -318,7 +318,7 @@ inline float ZombieUnit::getSqrAttackRange(void) const
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-inline StateMachine<ZombieUnit *> &ZombieUnit::getFSM(void)
+inline ia::StateMachine<ZombieUnit *> &ZombieUnit::getFSM(void)
 {
 	return mFSM;
 }

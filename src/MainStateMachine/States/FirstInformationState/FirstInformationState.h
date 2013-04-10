@@ -17,8 +17,8 @@
 
 class FirstInformationState : public IMainState
 {
-	static const float	SHOWING_TIME		=	3.65f;
-	static const float	FADING_TIME			=	1.0f;
+	static const float	SHOWING_TIME;
+	static const float	FADING_TIME;
 
 	enum {
 		STATE_FADE_IN = 0,
@@ -26,6 +26,8 @@ class FirstInformationState : public IMainState
 		STATE_FADE_OUT,
 		STATE_END,
 	};
+
+
 public:
 	FirstInformationState();
 	virtual ~FirstInformationState();
@@ -36,6 +38,14 @@ public:
 	 * @param	st		The Sponsors showing time
 	 */
 	void configure(Ogre::Real ft, Ogre::Real st);
+
+	/**
+     * Function used to get the resources files used by the state.
+     * The list returned is the list of the resources used by and only by this
+     * state.
+     */
+    virtual void getResources(IMainState::ResourcesInfoVec &resourcesList,
+                              const MainMachineInfo &info) const;
 
 	/**
 	 * Entering the state with additional info

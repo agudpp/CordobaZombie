@@ -30,7 +30,7 @@
 class GameUnit : public GameObject {
 	// set the distance that determine if we are in the pathpoint or not
 	// squared distance)
-	static const float SQRD_PATHPOINT_DIST	=	30.0f;
+	static const float SQRD_PATHPOINT_DIST;
 
 public:
 	GameUnit();
@@ -408,8 +408,8 @@ protected:
 	float						mTimer;
 
 public:
-	/* FIXME  Es al pedo hacer una intefaz para manipular los sonidos.     *
-	 *        No añade nada, e interpone otra capa de llamada a funciones. */
+	/* XXX	Es al pedo hacer una intefaz para manipular los sonidos.     *
+	 *		No añade nada, e interpone otra capa de llamada a funciones. */
 	SoundAPI					mSAPI;
 	SoundFamilyTable			mSounds;
 };

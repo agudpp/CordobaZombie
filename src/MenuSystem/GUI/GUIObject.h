@@ -65,17 +65,17 @@ protected:
 	/**
 	 * Function called when the mouse is inside of this menu
 	 */
-	virtual void mouseInside(const MenuMouse *) = 0;
+	virtual void mouseInside(void) = 0;
 
 	/**
 	 * Function called when the mouse goes outside from the menu
 	 */
-	virtual void mouseOutside(const MenuMouse *) = 0;
+	virtual void mouseOutside(void) = 0;
 
 	/**
 	 * Function called when the mouse is moving inside of this menu
 	 */
-	virtual void mouseMoving(const MenuMouse *) = 0;
+	virtual void mouseMoving(void) = 0;
 
 
 

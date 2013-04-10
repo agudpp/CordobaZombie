@@ -108,6 +108,10 @@ private:
     double						buffLenInSec;
     double						fxcxb;  // audio frequency*channel*bits
 
+    //
+    int64_t						lastPts;
+    // audio packet not valid for time stamp
+    bool						apnvfts;
 
 public:
 
@@ -122,7 +126,7 @@ public:
 
 	int 			update(double timesincelastframe);
 
-	inline void 	play(void);
+	void		 	play(void);
 
 	inline bool 	is_playing(void);
 
@@ -179,29 +183,6 @@ protected:
 };
 
 
-inline void VideoPlayer::play(void)
-{
-	if(isLoaded){
-		if(isPlaying){
-			debugWARNING("Warning: attempting to play video while already "
-					"playing\n");
-		}else{
-
-			//fetch some packets before start
-			while(get_more_data() != VIDEO_ENDED and
-					vDataQue.size() < VIDEO_QUEUE_MAX_SIZE and
-					aDataDque.size() < AUDIO_QUEUE_MAX_SIZE)
-			{
-			}
-
-			mplayingtime = 0;
-			isPlaying = true;
-		}
-	}else{
-		debugWARNING("Warning: attempting to play video while not loaded\n");
-	}
-}
-
 
 inline bool VideoPlayer::is_playing(void)
 {
@@ -237,12 +218,8 @@ inline int VideoPlayer::get_playing_time_in_secs(double & s){
 }
 
 
-
+//TODO Revisar esta mierda de codigo!!!!
 inline const char *	VideoPlayer::get_video_name(void){
-
-	debugRAUL(" como hago para devolver codigo de error y referenciar "
-			"pFormatCtx->filename  sin que lo puedan modificar de afuera?.");
-
 
 	if(isLoaded){
 		return pFormatCtx->filename;
@@ -263,6 +240,7 @@ inline int VideoPlayer::paint_white_screen(void){
 
 inline void VideoPlayer::set_visible(bool b){
 	mMiniScreen->setVisible(b);
+	miniScreenNode->setVisible(b);
 }
 
 inline bool VideoPlayer::is_visible(void){

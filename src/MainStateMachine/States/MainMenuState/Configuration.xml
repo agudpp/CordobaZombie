@@ -1,0 +1,81 @@
+<States>
+	<Video name="MenuVideo" path="/home/raul/Dropbox/CordobaZombie/menu/Menu_animacion/menu_ar3:2.ogg"/>
+	<State name="Credits">
+	<VideoRanges>
+		<Entering start=0 end=1 />
+		<Looping start=0 end=1 />
+		<Exiting start=0 end=1 />
+	</VideoRanges>
+	<CbMenuButtons>
+		<Button
+			name="exitButton"
+			OverlayName="ov1"
+			>
+			<OverlayEffect name="alpha" type="FADE_OUT" time="2.0"
+			/>    <!-- ... info para el OvEff::EffectBuilder -->
+		</Button>
+	</CbMenuButtons>
+	<Credits>
+	<!--  Aca tenemos que poner el formato tal cual querramos que se muestre  -->
+Staff:
+Desarrolladores:           
+                           Dr. Ruleman.
+                           Dr. Carlox.
+                           Desaparecido Santy
+                           Pleveyo Agustin.
+                           Brian
+Graficos:
+                           Gustavo Ordoñez
+                           Alvaro
+                           Rodrigo
+                           Etc...
+	</Credits>
+	
+	
+	</State>
+	<State name="MainState">
+    <VideoRanges>
+        <Entering start=0 end=1 />
+        <Looping start=0 end=1 />
+        <Exiting start=0 end=1 />
+    </VideoRanges>
+    <CbMenuButtons>
+        <Button
+            name="NewGameButton"
+            OverlayName="MainState/NewGameButton"
+            >
+            <OverlayEffect name="alpha" type="FADE_OUT" time="2.0"
+            />    <!-- ... info para el OvEff::EffectBuilder -->
+        </Button>
+        <Button
+            name="HistoryButton"
+            OverlayName="MainState/HistoryButton"
+            >
+            <OverlayEffect name="alpha" type="FADE_OUT" time="2.0"
+            />    <!-- ... info para el OvEff::EffectBuilder -->
+        </Button>
+        <Button
+            name="CreditsButton"
+            OverlayName="MainState/CreditsButton"
+            >
+            <OverlayEffect name="alpha" type="FADE_OUT" time="2.0"
+            />    <!-- ... info para el OvEff::EffectBuilder -->
+        </Button>
+        <Button
+            name="ConfigButton"
+            OverlayName="MainState/ConfigButton"
+            >
+            <OverlayEffect name="alpha" type="FADE_OUT" time="2.0"
+            />    <!-- ... info para el OvEff::EffectBuilder -->
+        </Button>
+        <Button
+            name="ExitButton"
+            OverlayName="MainState/ExitButton"
+            >
+            <OverlayEffect name="alpha" type="FADE_OUT" time="2.0"
+            />    <!-- ... info para el OvEff::EffectBuilder -->
+        </Button>
+    </CbMenuButtons>
+    
+    </State>
+</States>

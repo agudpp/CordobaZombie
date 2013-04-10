@@ -13,7 +13,9 @@
 
 #include "CollisionTypedefs.h"
 
-class Ogre::Vector3;
+namespace Ogre {
+class Vector3;
+}
 class GameObject;
 
 // Define the InputSystem Action interface

@@ -7,9 +7,26 @@
 
 #include <algorithm>
 
-#include "GlobalObjects.h"
-#include "MenuManager.h"
 
+#include "MenuManager.h"
+#include "InputMouse.h"
+
+
+namespace {
+inline int getIndex(const std::vector<IMenu *> &vec, const IMenu *elem)
+{
+    for(size_t size = vec.size(), i = 0; i < size; ++i)
+        if (vec[i] == elem) return i;
+    return -1;
+}
+
+inline void removeElement(std::vector<IMenu *> &vec, const size_t index)
+{
+    ASSERT(index < vec.size());
+    vec[index] = vec[vec.size()-1];
+    vec.pop_back();
+}
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 void MenuManager::getCellsFromAABB(const sm::AABB &aabb,
@@ -82,7 +99,7 @@ void MenuManager::addMenu(IMenu *menu)
 	std::vector<MenuCell *> cells;
 	getCellsFromAABB(menu->getAABB(), cells);
 
-	for(int i = cells.size()-1; i >= 0; --i){
+	for(size_t i = 0; i < cells.size(); ++i){
 		// check that the menu doesnt exists
 #ifdef DEBUG
 		std::vector<IMenu *>::iterator it = std::find(cells[i]->begin(), cells[i]->end(), menu);
@@ -95,22 +112,32 @@ void MenuManager::addMenu(IMenu *menu)
 ////////////////////////////////////////////////////////////////////////////////
 void MenuManager::removeMenu(IMenu *menu)
 {
+	size_t j(0);
 	ASSERT(menu);
 
 	// get all the cells that we have to put the menu
 	std::vector<MenuCell *> cells;
 	getCellsFromAABB(menu->getAABB(), cells);
 
-	for(int i = cells.size()-1; i >= 0; --i){
+	for (size_t i = 0 ; i < cells.size() ; ++i){
 		// find the menu and remove it
 		MenuCell *v = cells[i];
-		for(int j = v->size()-1; j >= 0; --j ){
+		for (j = 0 ; j < v->size() ; ++j){
 			if((*v)[j] == menu){
 				// remove and continue to the next cell
 				swapValue(*v, j);
 				break;
 			}
 		}
+		if (j >= v->size()) {
+			debugRED("IMenu not found!!!\n");
+		}
+	}
+
+	// remove it from the the vec
+	int index = getIndex(mLastInside, menu);
+	if (index > 0) {
+	    removeElement(mLastInside, index);
 	}
 }
 ////////////////////////////////////////////////////////////////////////////////
@@ -138,29 +165,27 @@ bool MenuManager::update(void)
 {
 	ASSERT(!mMatrix.empty());
 
-	static MenuSet::iterator it, eIt;
 	static sm::Point p;
 	static bool lastStepClicked = false;
 	static bool acatualStepClicked = false;
 
-	const OIS::MouseState &ms = GLOBAL_MOUSE->getMouseState();
-
-	p.x = ms.X.abs; p.y = ms.Y.abs;
-	eIt = mLastInside.end();
+	p.x = input::InputMouse::absX();
+	p.y = input::InputMouse::absY();
 
 	// if the mouse move then we do all the logic
 	if(mLastPoint == p){
 		// the mouse doesn't move, then we only update all the actual menues
 		// for only check the mouse state
-		for(it = mLastInside.begin(); it != eIt; ++it){
-			(*it)->mouseMoving(&ms);
+		for(size_t i = 0; i < mLastInside.size(); ++i){
+			(mLastInside[i])->mouseMoving();
 		}
 
 		return !mLastInside.empty();
 	}
 
 	// now check for all the menus that the mouse is inside of
-	int x = getXPosition(ms.X.abs), y = getYPosition(ms.Y.abs);
+	int x = getXPosition(input::InputMouse::absX()),
+	        y = getYPosition(input::InputMouse::absY());
 
 	MenuCell &cell = mMatrix[x][y];
 	IMenu *m;
@@ -168,27 +193,27 @@ bool MenuManager::update(void)
 //	debug("MousePos:%f\t%f\n", p.x, p.y);
 
 	// check for menus that are older
-	for(it = mLastInside.begin(); it != eIt; ++it){
-		if(!(*it)->pointInside(p)){
+	for(size_t i = 0; i < mLastInside.size(); ++i){
+		if(!(mLastInside[i])->pointInside(p)){
 			// is and old one
-			m = *it;
-			mLastInside.erase(it);
-			m->mouseOutside(&ms);
+			m = mLastInside[i];
+			removeElement(mLastInside, i);
+			m->mouseOutside();
 		}
 	}
 
-	for(int i = cell.size()-1; i >= 0; --i){
+	for(size_t size = cell.size(), i = 0; i < size; ++i){
 		m = cell[i];
 		if(m->pointInside(p)){
 			// check if is already in the lastInside
-			it = mLastInside.find(m);
-			if(it == mLastInside.end()){
+		    const int index = getIndex(mLastInside, m);
+			if(index < 0){
 				// is not in the last inside, so is a new one
-				m->mouseInside(&ms);
-				mLastInside.insert(m);
+				m->mouseInside();
+				mLastInside.push_back(m);
 			} else {
 				// is in the last inside, so we only have to update it
-				m->mouseMoving(&ms);
+				m->mouseMoving();
 			}
 		}
 	}

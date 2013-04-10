@@ -20,7 +20,8 @@
 #include "DebugUtil.h"
 #include "MouseCursor.h"
 #include "OverlayEffectManager.h"
-#include "Fade.h"
+#include "OverlayEffectBuilder.h"
+#include "Alpha.h"
 
 
 class Test : public AppTester
@@ -46,10 +47,11 @@ private:
 	void handleInput(void);
 
 private:
-	MouseCursor				mMouseCursor;
-	OvEff::OverlayEffectManager	mOvEffMngr;
-	Ogre::PanelOverlayElement	*mOverlayPanel;
-	OvEff::Fade					*mFadeEffect;
+	MouseCursor						mMouseCursor;
+	Ogre::PanelOverlayElement*		mOverlayPanel;
+	OvEff::OverlayEffectManager		mOvEffMngr;
+	OvEff::OverlayEffectBuilder 	mOvBuilder;
+	OvEff::Alpha*					mAlphaEffect;
 };
 
 #endif /* TEST_H_ */

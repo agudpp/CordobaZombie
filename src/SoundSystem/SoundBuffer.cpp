@@ -27,7 +27,7 @@ StreamWAVSoundBuffer::filler(ALBuffer& buf, size_t size, bool repeat)
 	/* Try to read 'size' bytes into temp. array */
 	if (file->eof()) {
 		if (repeat) {
-			file->seekg(dataStart);
+			file->seekg((long)dataStart, std::ifstream::beg);
 			ASSERT(file->good() && !file->eof());
 		} else {
 			return 0ll;
@@ -40,7 +40,7 @@ StreamWAVSoundBuffer::filler(ALBuffer& buf, size_t size, bool repeat)
 	if (readSize >= 0 && readSize < size && repeat) {
 
 		/* Must repeat: continue loading from the beginning. */
-		file->seekg(dataStart);
+		file->seekg((long)dataStart, std::ifstream::beg);
 		ASSERT(file->good() && !file->eof());
 
 		file->read(&pcmData[readSize], size-readSize);

@@ -8,10 +8,10 @@
 #ifndef CIVILIDLESTATE_H_
 #define CIVILIDLESTATE_H_
 
-#include "IState.h"
+#include "FSM/IState.h"
 #include "CivilUnit.h"
 
-class CivilIdleState : public IState<CivilUnit *>
+class CivilIdleState : public ia::IState<CivilUnit *>
 {
 public:
 	CivilIdleState();

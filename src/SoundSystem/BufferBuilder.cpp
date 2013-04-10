@@ -11,9 +11,10 @@
 #include <map>
 #include <vector>
 #include <fstream>
-#include <cstdio>   // FILE* family
-#include <cstring>  // strcmp
-#include <strings.h>  // strcasecmp
+#include <sys/stat.h>	// stat()
+#include <cstdio>		// FILE* family
+#include <cstring>		// strcmp
+#include <strings.h>	// strcasecmp
 #include <vorbis/vorbisfile.h>  // OGG-vorbis parsing
 #include "DebugUtil.h"
 #include "SoundEnums.h"
@@ -46,8 +47,8 @@ BufferBuilder::bufferFromFile(const std::string& sName,
 		delete *buffer;
 	}
 
-	if (format == SSformat::SS_NONE) {
-		/* Filetype not specified, checking file extension. */
+	if (format == SSformat::SS_NOTHING) {
+		// Filetype not specified, checking file extension.
 		size_t ext_idx = sName.find_last_of(".") + 1;
 		std::string ext = sName.substr(ext_idx, sName.size()-ext_idx);
 		if (strcasecmp(ext.c_str(),"WAV") == 0) {
@@ -83,7 +84,7 @@ BufferBuilder::bufferFromFile(const std::string& sName,
 		break;
 
 	case SSformat::SS_OGG:
-		/* Fucking OGG library can't handle std::ifstream */
+		// Fucking OGG library can't handle std::ifstream
 		if (type==SSbuftype::SS_BUF_LOADED) {
 			*buffer = new SoundBuffer();
 			filep = fopen(sName.c_str(), "rb");
@@ -123,6 +124,61 @@ BufferBuilder::bufferFromFile(const std::string& sName,
 		return SSerror::SS_FILE_NOT_FOUND;
 }
 
+
+////////////////////////////////////////////////////////////////////////////////
+SSbuftype
+BufferBuilder::bestBufferType(const std::string& sName)
+{
+	SSbuftype type(SSbuftype::SS_BUF_NONE);
+	SSformat format(SSformat::SS_NOTHING);
+	struct stat fileStat;
+	int err;
+
+	// Checking file extension.
+	size_t ext_idx = sName.find_last_of(".") + 1;
+	std::string ext = sName.substr(ext_idx, sName.size()-ext_idx);
+	if (strcasecmp(ext.c_str(),"WAV") == 0) {
+		format = SSformat::SS_WAV;
+	} else if (strcasecmp(ext.c_str(),"OGG") == 0) {
+		format = SSformat::SS_OGG;
+	}
+
+	// Reading file information.
+	err = stat(sName.c_str(), &fileStat);
+	if (err < 0) {
+		debugERROR("Failed reading file \"%s\" information.\n", sName.c_str());
+		return type;
+	}
+
+	// Deciding best buffer type.
+	switch (format) {
+	case SSformat::SS_WAV:
+		if (fileStat.st_size < MAX_WAV_FILE_SIZE) {
+			type = SSbuftype::SS_BUF_LOADED;
+		} else {
+			type = SSbuftype::SS_BUF_STREAM_WAV;
+		}
+		break;
+
+	case SSformat::SS_OGG:
+		if (fileStat.st_size < MAX_OGG_FILE_SIZE) {
+			type = SSbuftype::SS_BUF_LOADED;
+		} else {
+			type = SSbuftype::SS_BUF_STREAM_OGG;
+		}
+		break;
+
+	case SSformat::SS_NOTHING:
+		debugERROR("File \"%s\": unsupported sound encoding.\n", sName.c_str());
+		break;
+
+	default:
+		debugERROR("WTF just happened?\n");
+		break;
+	}
+
+	return type;
+}
 
 
 #ifdef _MSC_VER

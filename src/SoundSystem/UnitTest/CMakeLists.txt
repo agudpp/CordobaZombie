@@ -27,8 +27,6 @@ endif(WIN32)
  
 if(UNIX)
 	#set(CMAKE_BUILD_TYPE "debug")
-	add_definitions(-DDEBUG)
-	#add_definitions(-std=c++0x)
 	set(CMAKE_MODULE_PATH "/usr/local/lib/OGRE/cmake/;${CMAKE_MODULE_PATH}")
 	set(OGRE_SAMPLES_INCLUDEPATH
 		/usr/local/share/OGRE/samples/Common/include/
@@ -91,7 +89,10 @@ endif()
 
 set (DEV_ROOT_PATH $ENV{ESTRATEGIA2012_DEV_PATH})
 
- 
+# Customized compilation flags and link libraries
+include(${DEV_ROOT_PATH}/CommonFlags.cmake)
+target_link_libraries(OgreApp ${COMMON_FLAGS})
+
 set(HDRS		
 	${DEV_ROOT_PATH}/Extras/AppTester/AppTester.h
 	./Test.h
@@ -126,6 +127,7 @@ include(${DEV_ROOT_PATH}/LevelManager/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/BillboardManager/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/UpdatableObjects/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/MenuSystem/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/InputManager/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/Common/Math/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/Common/Util/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/Common/DebugUtil/AutoGen.cmake)

@@ -63,6 +63,11 @@ public:
 	bool configure(int atlasSize);
 
 	/**
+	 * Reset the atlas to the main state
+	 */
+	inline void resetAtlas(void);
+
+	/**
 	 * This function is called when the material has change and we need to
 	 * recalculate the TextureWidth and the atlas size.
 	 */
@@ -94,17 +99,17 @@ protected:
 	/**
 	 * Function called when the mouse is inside of this menu
 	 */
-	virtual void mouseInside(const MenuMouse *);
+	virtual void mouseInside(void);
 
 	/**
 	 * Function called when the mouse goes outside from the menu
 	 */
-	virtual void mouseOutside(const MenuMouse *);
+	virtual void mouseOutside(void);
 
 	/**
 	 * Function called when the mouse is moving inside of this menu
 	 */
-	virtual void mouseMoving(const MenuMouse *);
+	virtual void mouseMoving(void);
 
 	////////////////////////////////////////////////////////////////////////////
 	////						CALLBACKS TO MPLEMENT						////
@@ -146,6 +151,10 @@ inline bool MenuButton::isActive(void) const
 	return mActive;
 }
 
+inline void MenuButton::resetAtlas(void)
+{
+    configureAtlas(S_ACTIVE);
+}
 
 inline void MenuButton::setActionType(MenuButton::ActionType t)
 {

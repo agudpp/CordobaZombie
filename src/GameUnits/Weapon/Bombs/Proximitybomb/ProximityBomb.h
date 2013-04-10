@@ -16,7 +16,7 @@
 class ProximityBomb : public Bomb
 {
 	static const int 	PROXIMITY_MASK = COL_FLAG_UNIT_ZOMBIE;
-	static const float	CHECK_TIME		=	0.5f;
+	static const float	CHECK_TIME;
 public:
 	ProximityBomb();
 	virtual ~ProximityBomb();

@@ -26,10 +26,15 @@
 /* Static's array size for OGG files parsing. Usually 4096 */
 #define  OGG_BUFF_SIZE  (1<<12)  // 4 K
 
+/* Default gain values (i.e. sound volume) for environmental and unit sounds. */
+#define  DEFAULT_ENV_GAIN	(0.07f)
+#define  DEFAULT_UNIT_GAIN	(1.0) // (10.0f*DEFAULT_ENV_GAIN)
+
+
 
 /* Supported audio compression formats */
 typedef enum {
-	SS_NONE,
+	SS_NOTHING,
 	SS_WAV,
 	SS_OGG
 } SSformat;
@@ -39,7 +44,8 @@ typedef enum {
 typedef enum {
 	SS_BUF_LOADED,  	// Buffer loaded entirely into memory.
 	SS_BUF_STREAM_WAV,	// Buffer for streaming WAV files.
-	SS_BUF_STREAM_OGG	// Buffer for streaming OGG files.
+	SS_BUF_STREAM_OGG,	// Buffer for streaming OGG files.
+	SS_BUF_NONE			// Error
 } SSbuftype;
 
 
@@ -52,7 +58,7 @@ typedef enum {
 
 /* SoundSystem error codes */
 typedef enum {
-	SS_NO_ERROR,
+	SS_NO_ERROR = 0,
 	SS_NO_MEMORY,
 	SS_NO_SOURCES,			/* No free sources */
 	SS_NO_BUFFER,           /* NULL or invalid buffer parameter */
@@ -65,11 +71,15 @@ typedef enum {
 } SSerror;
 
 
-/* SoundSource playback state */
+/* SoundSource playback state (don't alter order!) */
 typedef enum {
-	SS_PLAYING,
-	SS_PAUSED,
-	SS_FINISHED
+	SS_NONE			= 0,
+	SS_PLAYING		= 1,
+	SS_PAUSED		= 2,
+	SS_FADING_OUT_AND_PAUSE = 4,
+	SS_FADING_OUT	= 8,
+	SS_FADING_IN	= 16,
+	SS_FINISHED		= 32
 } SSplayback;
 
 

@@ -9,11 +9,11 @@
 #define PLAYERIDLESTATE_H_
 
 
-#include "IState.h"
+#include "FSM/IState.h"
 #include "PlayerUnit.h"
 
 
-class PlayerIdleState : public IState<PlayerUnit *>
+class PlayerIdleState : public ia::IState<PlayerUnit *>
 {
 public:
 	PlayerIdleState();

@@ -73,9 +73,10 @@ void CameraLimitsLoader::configureController(){
 	box->setMaximum(maxX, maxY, maxZ);
 	box->setMinimum(minX, minY, minZ);
 
-	mController->setCameraMoveZone(*box);
-	mController->setMaxRotateX(Ogre::Radian(0), Ogre::Radian((-Ogre::Math::PI-0.1f)/2.0f));
-	mController->setCamPos(Ogre::Vector3(500,500,500));
-	mController->setRotationX(Ogre::Radian(-Ogre::Math::PI/2.0f));
-	mController->setCameraVelocity(5.0f);
+	ASSERT(false); // TODO
+//	mController->setCameraMoveZone(*box);
+//	mController->setMaxRotateX(Ogre::Radian(0), Ogre::Radian((-Ogre::Math::PI-0.1f)/2.0f));
+//	mController->setCamPos(Ogre::Vector3(500,500,500));
+//	mController->setRotationX(Ogre::Radian(-Ogre::Math::PI/2.0f));
+//	mController->setCameraVelocity(5.0f);
 }

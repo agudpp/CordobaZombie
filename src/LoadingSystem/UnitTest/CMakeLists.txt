@@ -132,7 +132,7 @@ include_directories( ${OIS_INCLUDE_DIRS}
 )
 
 include(${DEV_ROOT_PATH}/AllModules.cmake)
-
+include(${DEV_ROOT_PATH}/CommonFlags.cmake)
 
 
 
@@ -146,7 +146,8 @@ add_library(tinyxml STATIC IMPORTED)
 set_property(TARGET tinyxml PROPERTY
                 IMPORTED_LOCATION ${DEV_ROOT_PATH}/Common/tinyxml/tinyxmlpath.a)
 
-target_link_libraries(OgreApp ${OGRE_LIBRARIES} ${OIS_LIBRARIES} tinyxml box2D)
+target_link_libraries(OgreApp ${OGRE_LIBRARIES} ${OIS_LIBRARIES}
+	${COMMON_LIBRARIES} tinyxml box2D )
  
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/dist/bin)
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/dist/media)

@@ -1,0 +1,93 @@
+/*
+ * Test.cpp
+ *
+ *  Created on: 15/08/2011
+ *      Author: agustin
+ */
+
+#include <OgreSceneNode.h>
+#include <iostream>
+#include <assert.h>
+#include <OgreSceneQuery.h>
+#include <OgreRay.h>
+#include <OgreManualObject.h>
+#include <OgreMaterial.h>
+#include <OgreMaterialManager.h>
+#include <OgreString.h>
+
+#include <auto_ptr.h>
+
+#include "GlobalObjects.h"
+#include "Test.h"
+#include "Util.h"
+#include "IMenu.h"
+#include "OverlayEffect.h"
+
+Test::Test() :
+mTimer(0)
+{
+	mMouseCursor.setVisible(true);
+	mMouseCursor.setWindowDimensions(GLOBAL_WINDOW->getWidth(), GLOBAL_WINDOW->getHeight());
+
+}
+
+Test::~Test()
+{
+	// TODO Auto-generated destructor stub
+}
+
+
+
+// handle input
+void Test::handleInput(void)
+{
+
+}
+
+void Test::simulateMainMenuStateRun(void)
+{
+    MainMachineInfo info; // empty info, no needed right now
+
+    debugGREEN("Creating MainMenuState\n");
+    MainMenuState *mms = new MainMenuState;
+
+    debugGREEN("Entering to MainMenuState\n");
+    mms->enter(info);
+
+    debugGREEN("Updating MainMenuState\n");
+    mms->update(info);
+
+    debugGREEN("Exiting MainMenuState\n");
+    mms->exit();
+
+    debugGREEN("Deleting MainMenuState\n");
+    delete mms;
+}
+
+
+/* Load additional info */
+void Test::loadAditionalData(void)
+{
+    simulateMainMenuStateRun();
+    return;
+
+
+	mMenuManager.build(GLOBAL_WINDOW->getWidth(),GLOBAL_WINDOW->getHeight(),
+				5,5);
+	IMenu::setMenuManager(&mMenuManager);
+
+}
+
+/* function called every frame. Use GlobalObjects::lastTimeFrame */
+void Test::update()
+{
+	// MOUSE
+	const OIS::MouseState& lMouseState = GLOBAL_MOUSE->getMouseState();
+	mMouseCursor.updatePosition(lMouseState.X.abs, lMouseState.Y.abs);
+
+	handleInput();
+
+
+	mMenuManager.update();
+
+}

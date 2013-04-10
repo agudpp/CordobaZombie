@@ -10,11 +10,11 @@
 
 
 
-#include "IState.h"
+#include "FSM/IState.h"
 #include "PlayerUnit.h"
 
 
-class PlayerMovingState : public IState<PlayerUnit *>
+class PlayerMovingState : public ia::IState<PlayerUnit *>
 {
 public:
 	PlayerMovingState();

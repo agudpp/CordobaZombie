@@ -11,11 +11,11 @@
 
 #include <cstdlib>
 
-#include "IState.h"
+#include "FSM/IState.h"
 #include "ZombieDefs.h"
 #include "ZombieUnit.h"
 
-class ZombieIdleState : public IState<ZombieUnit *>
+class ZombieIdleState : public ia::IState<ZombieUnit *>
 {
 	static const int RND_NUM_NODES_MIN 	=	4;
 	static const int RND_NUM_NODES_MAX 	=	14;

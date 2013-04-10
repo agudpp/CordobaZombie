@@ -4,11 +4,23 @@
  *  Created on: 27/09/2011
  *      Author: agustin
  */
+#include "LoaderManager.h"
 #include "tinyxml.h"
 #include "Util.h"
-#include "LoaderManager.h"
+#include "Loader.h"
 
 
+
+////////////////////////////////////////////////////////////////////////////////
+void LoaderManager::Updater::operator()(float w, const std::string& msg)
+{
+	/* The weight parameter 'w' is a percentage,
+	 * representing the chunk of data the current Loader has just loaded. */
+	debugBLUE("Loader callback called with %.1f%% of its total weight, "
+			"and message: %s\n", w*100.0f, msg.c_str());
+	ASSERT(mCallback);
+	(*mCallback)(mCurrentLoaderWeight*w, msg);
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 TiXmlDocument *LoaderManager::getTiXmlElement(const char *fname)
@@ -31,8 +43,7 @@ bool LoaderManager::getLoader(const std::string &name, Loader *&loader)
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-LoaderManager::LoaderManager() :
-		mCallback(0)
+LoaderManager::LoaderManager()
 {
 
 }
@@ -48,8 +59,9 @@ LoaderManager::~LoaderManager()
 void LoaderManager::addLoader(Loader *l)
 {
 	ASSERT(l);
-	std::vector<Loader *>::iterator it = std::find(mLoaders.begin(), mLoaders.end(),l);
+	std::vector<Loader *>::iterator it = std::find(mLoaders.begin(), mLoaders.end(), l);
 	ASSERT(it == mLoaders.end());
+	l->setCallback(&mUpdater);
 	mLoaders.push_back(l);
 }
 
@@ -77,16 +89,21 @@ void LoaderManager::removeLoader(const std::string &name)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void LoaderManager::removeAll(void)
+void
+LoaderManager::removeAll(void)
 {
 	mLoaders.clear();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void LoaderManager::setCallback(LoaderCallback *callback)
+void
+LoaderManager::deleteAll(void)
 {
-	ASSERT(callback);
-	mCallback = callback;
+    for(size_t size = mLoaders.size(), i = 0; i < size; ++i){
+        mLoaders[i]->unload();
+        delete mLoaders[i];
+    }
+    mLoaders.clear();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -129,6 +146,14 @@ void LoaderManager::removeElement(const TiXmlElement *e)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+void
+LoaderManager::removeAllElements()
+{
+    mXmlElements.clear();
+    mStrElements.clear();
+}
+
+////////////////////////////////////////////////////////////////////////////////
 void LoaderManager::removeElement(const Ogre::String &e)
 {
 	std::vector<Ogre::String>::iterator it = std::find(mStrElements.begin(),
@@ -143,7 +168,7 @@ int LoaderManager::load(void)
 	Loader *l = 0;
 	const char *name = 0;
 
-	// Load the xmlelements
+	// Load the XML elements
 	for(int i = mXmlElements.size()-1; i >= 0; --i){
 		const TiXmlElement *elem = mXmlElements[i];
 		if(Ogre::String(elem->Value()) != "LoadingSystem"){
@@ -173,9 +198,12 @@ int LoaderManager::load(void)
 			if(!filename){
 				debug("No filename set in %s\n", name);
 				ASSERT(false);
-				continue;
 				elem = elem->NextSiblingElement();
+				continue;
 			}
+
+			// Set current Loader's weight in the Updater callback
+			mUpdater.mCurrentLoaderWeight = l->getWeight();
 
 			// we have to read the TiXmlElement
 			TiXmlDocument *doc = getTiXmlElement(filename);
@@ -190,7 +218,6 @@ int LoaderManager::load(void)
 				ASSERT(false);
 				elem = elem->NextSiblingElement();
 			}
-			if(mCallback) (*mCallback)(l);
 
 			// removes the doc
 			delete doc;

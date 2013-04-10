@@ -27,8 +27,7 @@ endif(WIN32)
  
 if(UNIX)
 	#set(CMAKE_BUILD_TYPE "debug")
-	add_definitions(-DDEBUG)
-	add_definitions(-DVIDEODEBUG)
+
 	set(CMAKE_MODULE_PATH 
 		"/usr/lib/OGRE/cmake/;${CMAKE_MODULE_PATH}"
 		"/usr/local/lib/OGRE/cmake/;${CMAKE_MODULE_PATH}"	
@@ -93,6 +92,8 @@ if (NOT OGRE_BUILD_PLATFORM_IPHONE)
 endif()
 
 set (DEV_ROOT_PATH $ENV{ESTRATEGIA2012_DEV_PATH})
+ 
+include(${DEV_ROOT_PATH}/CommonFlags.cmake) # Customized compilation flags
  
 set(HDRS		
 
@@ -185,7 +186,8 @@ if(WIN32)
 	install(DIRECTORY ${CMAKE_SOURCE_DIR}/dist/Media
 		DESTINATION ./
 		CONFIGURATIONS Release RelWithDebInfo Debug
-	)
+	)		//TODO Rulo cambiar de video aca
+
  
 	install(FILES ${CMAKE_SOURCE_DIR}/dist/bin/plugins.cfg
 		${CMAKE_SOURCE_DIR}/dist/bin/resources.cfg

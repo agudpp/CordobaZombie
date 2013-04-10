@@ -66,7 +66,8 @@
 //int video = 0;
 
 
-#define myvideo "/home/raul/Dropbox/201Z-proyecto/Videos/caligaris.flv"
+#define myvideo2 "/home/carlos/Dropbox/CordobaZombie/menu/Menu_animacion/menu_ar3:2.ogg"
+#define myvideo "/home/carlos/Dropbox/201Z-proyecto/Videos/caligaris.flv"
 
 
 static double gettimestamp(void)
@@ -116,160 +117,50 @@ void Test::createLevelManager(void)
 	mLevelManager.showTriangles();
 }
 
-// create game objects
-void Test::createPlayer(void)
+
+
+// create overlay uv test
+void Test::createOverlay(void)
 {
-	GameObject::collMng = mLevelManager.getCollisionManager();
-	Ogre::Real	MAX_VEL = 180.0f;
-	PlayerSMTTable *tt = PlayerFSMBuilder::build();
-	PlayerUnit::setSMTransitionTable(tt);
+	// load the fade
+	Ogre::PanelOverlayElement	*mOverlayPanel = 0;
+	Ogre::MaterialPtr			mFaderMaterial;
+	Ogre::TextureUnitState 		*mTexture = 0;
 
-	// Create the player group
-	PlayerGroup::setLevelManager(&mLevelManager);
-	mPlayerGroup = new PlayerGroup;
+	Ogre::OverlayManager& overlayManager = Ogre::OverlayManager::getSingleton();
 
+	mOverlayPanel = static_cast<Ogre::PanelOverlayElement*>(
+		overlayManager.createOverlayElement("Panel", "Fader"));
+	mOverlayPanel->setMetricsMode(Ogre::GMM_RELATIVE);
+	mOverlayPanel->setPosition(0, 0);
+	mOverlayPanel->setDimensions(0.1f, 0.1f);
+	mOverlayPanel->setMaterialName("BackpackMaterial"); // Optional background material
 
-	for(int i = 0; i < 1; i++){
-		Ogre::Entity * ent = GLOBAL_SCN_MNGR->createEntity("coral.mesh");
-		Ogre::SceneNode *node = GLOBAL_SCN_MNGR->getRootSceneNode()->createChildSceneNode();
+	// Ensures that the material exists
+	mOverlayPanel->setUV(0,0,0.5,1);
 
-		PlayerUnit *zu = new PlayerUnit;
-		zu->setEntity(ent);
-		zu->setSceneNode(node);
-		zu->setHeight(5);
-		zu->build();
-		zu->setLife(9);
-		node->showBoundingBox(true);
-		zu->setMaxVelocity(MAX_VEL*2.0f);
-		zu->setVelocity(MAX_VEL);
+	// show the fade
+	mOverlayPanel->show();
 
-		sm::Vector2 p;
-		p.x = 507 + 5*i;
-		p.y = 788 + 30*i;
-		zu->setPosition(p);
-
-		mPlayers.push_back(zu);
-		mPlayerGroup->addUnit(zu);
-	}
-
-	CircularFormation *formation = new CircularFormation;
-	mPlayerGroup->setCreator(mPlayers[0]);
-	mPlayerGroup->setFormation(formation);
-	mPlayerGroup->build();
-
-
-	static ShootContainer sc;
-	Shoot::setCollisionManager(mLevelManager.getCollisionManager());
-	Shoot::setContainer(&sc);
-	Shoot::setUpdObjsManager(&mUpdMngr);
-	for(int i = 0; i < 10; ++i){
-		Shoot *s = new Shoot;
-		s->build(Ogre::Math::RangeRandom(8,16));
-	}
-	Weapon::setShootContainer(&sc);
-	Gun9mm *w = new Gun9mm;
-	w->setOwner(mPlayers.back());
-	w->setPower(1);
-	w->setSqrRange(90000.0);
-	w->setEntity(GLOBAL_SCN_MNGR->createEntity("9mm.mesh"));
-	Weapon::Ammunition ammo;
-	ammo.ammo = 25;
-	w->setAmmunition(ammo);
-	mPlayers.back()->addNewWeapon(w);
-}
-
-void Test::createZombies(void)
-{
-	// set the collision system
-	Ogre::Real	MAX_VEL = 50.0f;
-	ZombieSMTTable *tt = ZombieFSMBuilder::build();
-	ZombieUnit::setSMTransitionTable(tt);
-
-	// create the batery for the zombies
-	static BillboardBatery bbb;
-	bbb.createSet(20, "Billboard/ZombieBlood", 10);
-	ZombieUnit::setBillboardBBlood(&bbb);
-
-	static ZombieQueue q;
-	ZombieUnit::setQueue(&q);
-
-	sm::Vector2 p;
-	for(int i = 0; i < 1; ++i){
-		Ogre::Entity * ent = GLOBAL_SCN_MNGR->createEntity("zombie01.mesh");
-		Ogre::SceneNode *node = GLOBAL_SCN_MNGR->getRootSceneNode()->createChildSceneNode();
-
-		ZombieUnit *zu = new ZombieUnit;
-		zu->setEntity(ent);
-		zu->setSceneNode(node);
-		zu->setHeight(5);
-		zu->setAttackPower(1);
-		zu->build();
-		zu->setLife(19);
-		node->showBoundingBox(true);
-
-		zu->setWalkVelocity(MAX_VEL);
-		zu->setAttackVelocity(MAX_VEL*2.0f);
-		zu->setVelocity(MAX_VEL);
-
-		p.x = 1107;
-		p.y = 1030;
-		zu->setPosition(p);
-		mZombies.push_back(zu);
-	}
-}
-
-void Test::createBombs(void)
-{
-	Bomb::setCollisionManager(mLevelManager.getCollisionManager());
-	Bomb::setUpdObjsManager(&mUpdMngr);
-
-	Ogre::Entity *ent = GLOBAL_SCN_MNGR->createEntity("granada.mesh");
-	mBomb = new ProximityBomb;
-	mBomb->setEntity(ent);
-	mBomb->hide();
-	mBomb->setPower(99);
-	mBomb->setRadius(50);
-	static_cast<ProximityBomb *>(mBomb)->setActivationTime(5.0f);
-	mPlayers.back()->addBomb(mBomb);
-
-}
-
-// create billboardset
-void Test::createBillboardSet(void)
-{
-	mBillboardSet = GLOBAL_SCN_MNGR->createBillboardSet("testbb", 3);
-	mBillboardSet->createBillboard(Ogre::Vector3::ZERO + Ogre::Vector3(0,0,0),Ogre::ColourValue::Green);
-	mBillboardSet->createBillboard(Ogre::Vector3::ZERO + Ogre::Vector3(0,0,0),Ogre::ColourValue::Green);
-	mBillboardSet->createBillboard(Ogre::Vector3::ZERO + Ogre::Vector3(0,0,0),Ogre::ColourValue::Green);
-//	mBillboardSet->createBillboard(Ogre::Vector3::ZERO + Ogre::Vector3(0,0,0),Ogre::ColourValue::Green);
-//	mBillboardSet->createBillboard(Ogre::Vector3::ZERO + Ogre::Vector3(0,0,0),Ogre::ColourValue::Green);
-	mBillboardSet->setDefaultDimensions(50,50);
-	mBillboardSet->setBillboardType(Ogre::BBT_PERPENDICULAR_COMMON);
-	mBillboardSet->setCommonDirection(Ogre::Vector3::UNIT_Y);
-	mBillboardSet->setCommonUpVector(Ogre::Vector3::UNIT_Z);
-	mBillboardSet->setMaterialName("Billboard/GreenCircle");
-	mBillboardSet->setVisible(true);
-	mBillboardSet->setBounds(Ogre::AxisAlignedBox(
-			Ogre::Vector3(0,0,0), Ogre::Vector3(25000,25000,25000)),25000*0.5f);
-
-	debug("Number of billboards: %d\n", mBillboardSet->getNumBillboards());
-//	mZombies[0]->getSceneNode()->attachObject(mBillboardSet);
-
-	Ogre::SceneNode *node = GLOBAL_SCN_MNGR->getRootSceneNode()->createChildSceneNode();
-	node->attachObject(mBillboardSet);
-//	mBillboardSet->setCullIndividually(true);
-
+	// Create an overlay, and add the panel
+	Ogre::Overlay			*mOverlay = 0;
+	mOverlay = overlayManager.create("TestOverlay1");
+	mOverlay->add2D(mOverlayPanel);
+	mOverlay->show();
 }
 
 
-void Test::createCollectable(void)
-{
-}
+
 
 Test::Test():
 		VPAPI(0)
 {
-	//mMouseCursor.setImage("cursor.png");
+	createOverlay();
+
+	VPAPI = new VideoPlayerAPI();
+	VPAPI->setRepeat(true);
+	//VPAPI->setVisible(false);
+
 	mMouseCursor.setVisible(true);
 	mMouseCursor.setWindowDimensions(GLOBAL_WINDOW->getWidth(),
 			GLOBAL_WINDOW->getHeight());
@@ -387,24 +278,9 @@ void Test::handleInput(void)
 				pu->objectSelected();
 			} else {
 				if(pu){
-//					pu->moveUnitTo(sm::Vector2(v.x, v.z));
-
 					pu->plantBomb(mBomb, sm::Vector2(v.x,v.z));
 				}
 			}
-
-//			Ogre::Billboard *b = mBillboardSet->getBillboard(0);
-//			b->setPosition(v);
-
-//			Ogre::SceneNode *n = mBillboardSet->getParentSceneNode();
-//			v.y += 1.0f;
-//			n->setPosition(v);
-//			mBillboardSet->_updateBounds();
-
-
-
-//			mPlayerGroup->moveGroupTo(sm::Vector2(v.x, v.z));
-//			mPlayers[0]->moveUnitTo(sm::Vector2(v.x, v.z));
 		}
 	} else {
 		mousePressed = false;
@@ -483,18 +359,6 @@ void Test::loadAditionalData(void)
 {
 
 	createLevelManager();
-	//testCollisionRaycast();
-	//createPlayer();
-	//createBombs();
-	//createZombies();
-	//createBillboardSet();
-	//createCollectable();
-
-
-	//VIDEOPLAYER
-	//mVideoPlayer = new VideoPlayer();
-	//mUpdMngr.addObject((UpdatableObject*)mVideoPlayer);
-	//ENDVIDEOPLAYER
 
 	Ogre::DotSceneLoader dsl;
 //	dsl.parseDotScene("metros.scene", "Popular", GLOBAL_SCN_MNGR);
@@ -552,55 +416,50 @@ void Test::update()
 //	b->setPosition(Ogre::Vector3(zp.x, 1, zp.y));
 
 	t2 = gettimestamp();
-	if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_N)){
+	if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_1)){
 		if (!keyPres) {
 			keyPres = true;
-			VPAPI->next();
-//			double len = 0;
-//			mVideoPlayer->get_video_length(len);
-//			len /= 3.0f;
-//			mVideoPlayer->seek_time_stamp(len);
+			VPAPI->load(myvideo);
 		}
-	}else if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_S)){
+	}else if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_2)){
 		if (!keyPres) {
 			keyPres = true;
-			if(VPAPI){
-				VPAPI->set_visible(!VPAPI->is_visible());
-			}
+			VPAPI->load(myvideo2);
 		}
-	}else if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_J)){
+	}else if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_3)){
 		if (!keyPres) {
 			keyPres = true;
-			if(VPAPI){
-				VPAPI->play(1);
-			}
+			VPAPI->load(myvideo,5.0f,10.0f);
+		}
+	}else if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_4)){
+		if (!keyPres) {
+			keyPres = true;
+			ASSERT(VideoPlayerAPI::VIDEO_ERROR == VPAPI->load(myvideo2,15.0f,10.0f));
+		}
+	}else if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_G)){
+		if (!keyPres) {
+			keyPres = true;
+			VPAPI->play();
 		}
 	}else if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_P)){
 		if (!keyPres) {
 			keyPres = true;
-			if(VPAPI){
-				if(VPAPI->is_playing()){
-					VPAPI->pause();
-				}else{
-					VPAPI->play();
-				}
-			}
+			VPAPI->pause();
 		}
 	}else if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_V)){
 		if (!keyPres) {
 			keyPres = true;
-			if(!VPAPI){
-				//VPAPI = new VideoPlayerAPI(&Ogre::Vector4(-0.5f,0.5f,0.5f,-0.5f));
-				VPAPI = new VideoPlayerAPI();
-				//VPAPI->queue_video("../Videos/TrailerdejuegoCordobaZombie.wmv");
-				//VPAPI->queue_video("../Videos/MartinSolveig_Dragonette-Hello.mp4", 20.0f, 25.0f);
-				VPAPI->queue_video(myvideo);
-				VPAPI->queue_video(myvideo, 5.0f, 10.0f);
-				VPAPI->queue_video(myvideo);
-				VPAPI->queue_video(myvideo, 5.0f, 10.0f);
-				VPAPI->set_repeat(true);
-				VPAPI->play();
-			}
+			VPAPI->setVisible(!VPAPI->isVisible());
+		}
+	}else if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_5)){
+		if (!keyPres) {
+			keyPres = true;
+			VPAPI->load(0,4.4f,7.9f);
+		}
+	}else if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_6)){
+		if (!keyPres) {
+			keyPres = true;
+			VPAPI->load();
 		}
 	}else {
 		keyPres = false;

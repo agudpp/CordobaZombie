@@ -10,11 +10,11 @@
 #define ZOMBIEFOLLOWSOUNDSTATE_H
 
 
-#include "IState.h"
+#include "FSM/IState.h"
 #include "ZombieUnit.h"
 
 
-class ZombieFollowSoundState  : public IState<ZombieUnit *> {
+class ZombieFollowSoundState  : public ia::IState<ZombieUnit *> {
 public:
 	ZombieFollowSoundState();
 	virtual ~ZombieFollowSoundState();

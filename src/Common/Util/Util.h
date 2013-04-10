@@ -45,6 +45,17 @@ public:
 			TiXmlElement *elem,
 			std::list<Ogre::AnimationState *> &animList);
 
+	/**
+	 * Get an animation from an xml document.
+	 *  @scnManager     the SceneManager
+     *  @node           The SceneNode to load the AnimationStates
+     *  @xmlFileName    The xml filename, where we will parse the <animation>
+     *                  node (if more than one then we will parse the first one).
+	 */
+	static Ogre::AnimationState *getAnimationFromFile(Ogre::SceneManager *scnManager,
+	                                                  Ogre::SceneNode *node,
+	                                                  const char *xmlFilename);
+
 
 	/* Loads an XmlDocument from a filename.
 	 * Requires:
@@ -85,6 +96,13 @@ public:
 	 */
 	static bool readEnvVar(const std::string &var, std::string &result);
 
+	/**
+	 * Get the resource absolute path
+	 */
+	static int getResourcePath( Ogre::String resourceGroup
+							  , Ogre::String resourceName
+							  , Ogre::String &resourcePath
+							  );
 
 private:
 	static Ogre::Quaternion parseQuaternion(TiXmlElement *XMLNode);
@@ -102,6 +120,8 @@ private:
 	// Find a vertex from a vector
 	static sm::Vertex *findVertex(const std::vector<sm::Vertex *> &vertexs,
 			const Ogre::Vector3 &ve);
+
+
 
 
 };

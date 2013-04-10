@@ -12,7 +12,7 @@
 
 class Gun9mm : public ShortWeapon
 {
-	static const float SHOOT_VELOCITY	=	10.0f;
+	static const float SHOOT_VELOCITY;
 public:
 	Gun9mm();
 	virtual ~Gun9mm();
