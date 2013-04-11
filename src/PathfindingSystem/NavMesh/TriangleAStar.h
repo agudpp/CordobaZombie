@@ -15,14 +15,13 @@
 
 class TriangleAStar
 {
-private:
-	// this will be used to the bitset size
-	static const int MAX_PATH_SIZE	=	150;
-	static const int CACHE_SIZE		=	50;
 public:
-	typedef const GNode *		NodePtr;
-	typedef NodePtr *			Path;
+
+	typedef const GNode *       NodePtr;
+	typedef NodePtr *           Path;
+
 public:
+
 	TriangleAStar(const TriangleNavMesh *tnm, int maxPathSize = 50);
 	~TriangleAStar();
 
@@ -37,86 +36,12 @@ public:
 	 * Requires:
 	 * 	@radius	The radius of the unit
 	 */
-	const Path getshortestPath(const sm::Point &start, const sm::Point &end, size_t &size,
-			float radius, float &min);
-
-private:
-
-	// We will define a priority node struct used to compare the distance from
-	// 2 nodes
-	struct PriorityNode {
-		PriorityNode(){};
-		inline PriorityNode(NodePtr n, float h_value, float g_value) :
-			node(n),
-			hValue(h_value),
-			gValue(g_value)
-		{
-		}
-
-		inline float getFValue(void) const
-		{
-			return gValue + hValue;
-		}
-
-//		inline bool operator<(const PriorityNode &other) const
-//		{
-//			return getFValue() > other.getFValue();
-//		}
-
-		float 		gValue;
-		float		hValue;
-		NodePtr 	node;
-	};
-	class priorityNodeCompare
-	{
-	public:
-		bool operator()(const PriorityNode *lpn, const PriorityNode *rpn)
-		{
-			return lpn->getFValue() > rpn->getFValue();
-		}
-	};
-
-
-	// Auxiliar class used to retrieve elements
-	template<class T, size_t N = MAX_PATH_SIZE>
-	class AuxContainer {
-	public:
-		AuxContainer():ptr(0){};
-		~AuxContainer(){};
-
-		inline T *getFreshObjt(void)
-		{
-			ASSERT(ptr < N);
-			return &objs[ptr++];
-		}
-
-		inline T *getFreshObjt(size_t &id)
-		{
-			ASSERT(ptr < N);
-			id = ptr;
-			return &objs[ptr++];
-		}
-
-		inline T *operator[](size_t i)
-		{
-			ASSERT(i < ptr);
-			return &objs[i];
-		}
-
-		inline bool isIDValid(size_t id) const {return id < ptr;}
-
-		inline void restart(void) {ptr = 0;}
-
-		inline size_t getID(const T *elem) const
-		{
-			return static_cast<size_t>(elem - &objs[0]);
-		}
-
-
-	private:
-		size_t 	ptr;
-		T		objs[N];
-	};
+	const Path
+	getshortestPath(const sm::Point &start,
+	                const sm::Point &end,
+	                size_t &size,
+	                float radius,
+	                float &min);
 
 private:
 	// Returns a path if exists a path in the cache or 0 if not
@@ -131,14 +56,17 @@ private:
 	void findPath(size_t &size, NodePtr n1, NodePtr n2,
 			const sm::Point &p1, const sm::Point &p2, float radius, float &min);
 
-
-
-
 private:
-	const TriangleNavMesh		*mNavMesh;
-	mutable Path				mPath;
-	int							mMaxPathSize;
+	const TriangleNavMesh *mNavMesh;
+	mutable Path mPath;
+	int mMaxPathSize;
 	mutable TriangleCache mCache;
+
+	// Used for the A* algorithm
+	std::vector<NodePtr> mMapCameFrom;
+	std::vector<unsigned short> mClosedSetChecker;
+	std::vector<unsigned short> mOpenSetChecker;
+	unsigned short mCurrentCall;
 };
 
 #endif /* TRIANGLEASTAR_H_ */
