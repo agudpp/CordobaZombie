@@ -30,7 +30,7 @@ Graph::setNodesAndEdges(const std::vector<GNode *> &nodes,
     mEdges = edges;
 
     // set the ids for the nodes
-    for (size_t i = 0, size = mNodes.size(); i < size; +i) {
+    for (size_t i = 0, size = mNodes.size(); i < size; ++i) {
         mNodes[i]->mID = i;
     }
 }

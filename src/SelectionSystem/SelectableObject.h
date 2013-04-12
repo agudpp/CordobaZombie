@@ -28,8 +28,10 @@ public:
      * Function that needs to be called just to configure the entity with this
      * object (entity->setUserAny(this), and set the associated flags)
      */
-    void configureEntity(Ogre::MovableObject *ent, unsigned int queryFlags,
-            unsigned int visibilityFlags = Ogre::MovableObject::getDefaultVisibilityFlags());
+    void configureEntity(Ogre::MovableObject *ent,
+                         unsigned int queryFlags,
+                         unsigned int visibilityFlags =
+                             Ogre::MovableObject::getDefaultVisibilityFlags());
 
     /**
      * Set / get the type of the object. This is really ugly but we can avoid

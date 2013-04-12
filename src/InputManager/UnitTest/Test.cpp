@@ -20,9 +20,11 @@
 #include <GameUnits/PlayerUnit/StateMachine/PlayerFSMBuilder.h>
 #include <GameUnits/PlayerUnit/PlayerUnitBuilder.h>
 #include <GameUnits/PlayerUnit/PlayerDefs.h>
+#include <GameUnits/CollectableObject/CollectableObject.h>
 #include <InputManager/IInputState.h>
 #include <SelectionSystem/SelectionManager.h>
 #include <BillboardManager/BMBuilder.h>
+
 
 
 // Add corners to a box
@@ -116,6 +118,14 @@ void Test::loadAditionalData(void)
 //	dsl.parseDotScene("cuidad01.scene", "Popular", GLOBAL_SCN_MNGR);
 	createPlayers();
 
+	// create a new Collectable object (mem leak xD)
+    CollectableObject *co = new CollectableObject();
+    Ogre::Entity *entity = GLOBAL_SCN_MNGR->createEntity("tulian.mesh");
+    Ogre::SceneNode *node = GLOBAL_SCN_MNGR->getRootSceneNode()->createChildSceneNode();
+    node->showBoundingBox(true);
+    co->build(entity, node);
+    co->setCollectableType(CollectableType::COT_BACKPACK_WEAPON);
+    co->setPosition(sm::Vector2(1249.335327, 1395.213867));
 }
 
 /* function called every frame. Use GlobalObjects::lastTimeFrame */

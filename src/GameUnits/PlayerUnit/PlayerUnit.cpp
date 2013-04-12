@@ -500,8 +500,7 @@ void
 PlayerUnit::collectObject(CollectableObject *co){
 	ASSERT(co);
 	mTargetColObject = co;
-	const Ogre::Vector3 & pos3 = co->getNode()->getPosition();
-	sm::Vector2 pos2(pos3.x , pos3.z);
+	const sm::Vector2 &pos2 = co->getPosition();
 #ifdef DEBUG
 	debugRED("Yendo a levantar el objeto en x = %f y = %f\n", pos2.x, pos2.y);
 #endif
@@ -521,7 +520,7 @@ PlayerUnit::addCollectObeject(CollectableObject *c)
 {
 	ASSERT(c);
 	// check the type of the object and
-	int cot = c->getType();
+	int cot = c->collectableType();
 	switch(cot){
 	case COT_BACKPACK_WEAPON:
 	{

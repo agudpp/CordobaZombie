@@ -600,7 +600,7 @@ Test::createCollectable(void)
 	mCollectable = new CollectableObject();
 	mCollectable->setEntity(ent);
 	mCollectable->setObject((void *)item1);
-	mCollectable->setType(COT_BACKPACK_WEAPON);
+	mCollectable->setCollectableType(COT_BACKPACK_WEAPON);
 	mCollectable->setPosition(Ogre::Vector3(1024,0,1024));
 	mCollectable->getNode()->showBoundingBox(true);
 }
