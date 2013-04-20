@@ -19,7 +19,7 @@ namespace billboard {
 //
 class BillboardWrapper {
 public:
-    BillboardWrapper(Ogre::Billboard *b, unsigned int id) :
+    BillboardWrapper(Ogre::Billboard *b = 0, unsigned int id = 0) :
         mBillboard(b)
     ,   mID(id)
     {}

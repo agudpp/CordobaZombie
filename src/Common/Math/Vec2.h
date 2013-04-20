@@ -22,6 +22,8 @@ static inline float InvSqrt(float x){
 	return x;
 }
 
+// Define the unit of conversions from degress to radians
+#define DEG_TO_RAD_FAC  0.0174532925f /* PI / 180 */
 
 namespace sm {
 
@@ -153,6 +155,17 @@ struct Point {
 	inline Point rotaitXDegrees (float rotM[][2]){
 		return Point( x * rotM[0][0] + y * rotM[1][0],
 					  x * rotM[0][1] + y * rotM[1][1]);
+	}
+
+	inline Point rotateRadians(float rads) {
+	    const float cos = std::cos(rads);
+	    const float sin = std::sin(rads);
+	    return Point(x * cos + y * sin,
+	                 x * -sin + y * cos);
+	}
+
+	inline Point rotateDegrees(float degrees) {
+	    return rotateRadians(DEG_TO_RAD_FAC * degrees);
 	}
 };
 
