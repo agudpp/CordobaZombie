@@ -17,6 +17,7 @@
 
 #include "InputManager/RaycastStates/EmptySelection.h"
 #include "RaycastStates/SinglePlayerSel.h"
+#include "RaycastStates/MultiPlayerSel.h"
 #include "InputManager.h"
 
 
@@ -28,12 +29,39 @@ InputStateMachine::createStates(void)
     // TODO: complete this
     mStates[IS_EMPTY_SEL].reset(new EmptySelection());
     mStates[IS_SINGLE_PLAYER_SEL].reset(new SinglePlayerSel());
+    mStates[IS_MULTI_PLAYER_SEL].reset(new MultiPlayerSel());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 bool
 InputStateMachine::tryToShowOverlaysOnMap(void)
 {
+
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void
+InputStateMachine::calculateOffsets(void)
+{
+    ASSERT(mAuxVec.size() == mPlayerOffsets.size());
+    ASSERT(!mAuxVec.empty());
+    ASSERT(mAuxVec[0]->type() == selection::Type::SEL_TYPE_PLAYER);
+
+    // get the player size
+    float width, height;
+    static_cast<PlayerUnit *>(mAuxVec[0])->getAABBFromEntity(width, height);
+    const float max = (width > height) ? ISM_SEPARATION_FACTOR * width :
+                                         ISM_SEPARATION_FACTOR * height;
+
+    // now we need to generate the N new offsets, where N = num of players.
+    const float deltaAngle = 360.0f / static_cast<float>(mAuxVec.size());
+    mPlayerOffsets[0].x = 0.f;
+    mPlayerOffsets[0].y = max;
+
+    for (size_t i = 1, size = mAuxVec.size(); i < size; ++i) {
+        // save the offset
+        mPlayerOffsets[i] = mPlayerOffsets[i-1].rotateDegrees(deltaAngle);
+    }
 
 }
 
@@ -48,8 +76,6 @@ InputStateMachine::InputStateMachine(selection::SelectionManager &selManager,
 ,   mLevelManager(lvlManager)
 ,   mInputManager(inputManager)
 ,   mState(State::IS_EMPTY_SEL)
-,   mMoveSingleBillboard(0, 0)
-,   mMoveBillbardVisible(false)
 {
     ASSERT(lvlManager != 0);
 
@@ -59,8 +85,11 @@ InputStateMachine::InputStateMachine(selection::SelectionManager &selManager,
     mActualState = mStates[IS_EMPTY_SEL].get();
 
     debugWARNING("TODO: Change this using the new interface of billboards...\n");
-    mMoveSingleBillboard =
-        billboard::BillboardManager::instance().getNewBillboard(0);
+    mMoveBillboards.resize(3);
+    mMoveBillbardVisible.resize(3, false);
+    for (size_t i = 0, size = mMoveBillbardVisible.size(); i < size; ++i) {
+        mMoveBillboards[i] = billboard::BillboardManager::instance().getNewBillboard(0);
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -79,9 +108,11 @@ InputStateMachine::selectionChanged(const selection::SelectionData &selData)
         mc.setCursor(MouseCursor::Cursor::NORMAL_CURSOR);
     }
 
-    // hide move billboard
-    mMoveSingleBillboard->setPosition(0.0f, -9999.0f, 0.f);
-
+    // hide move billboards (all of them just in case)
+    for (size_t i = 0, size = mMoveBillboards.size(); i < size; ++i){
+        mMoveBillboards[i]->setPosition(0.0f, -9999.0f, 0.f);
+        mMoveBillbardVisible[i] = false;
+    }
 
     // TODO: here we should perform all the logic to set the correct state
     if (selData.selected.empty()){
@@ -98,12 +129,41 @@ InputStateMachine::selectionChanged(const selection::SelectionData &selData)
     mSelManager.getObjects(selection::Type::SEL_TYPE_PLAYER, mAuxVec);
     if (!mAuxVec.empty()) {
         // players selected..
-        if (mAuxVec.size() == 1) {
+        const size_t numPlayersSel = mAuxVec.size();
+        if (numPlayersSel == 1) {
             mState = State::IS_SINGLE_PLAYER_SEL;
             mActualState = mStates[IS_SINGLE_PLAYER_SEL].get();
         } else {
             mState = State::IS_MULTI_PLAYER_SEL;
             mActualState = mStates[IS_MULTI_PLAYER_SEL].get();
+
+            // reserve the space needed for the last location saved
+            mSavedPositions.resize(numPlayersSel);
+            mPlayerOffsets.resize(numPlayersSel);
+
+            // re-calculate the offsets (TODO: probably we can avoid recalculating
+            // this each time we change selection, since we can pre-define it
+            // but just in the future we want to select more than 3 players)
+            calculateOffsets();
+
+            // check if we need to reallocate new billboards
+            if (numPlayersSel > mMoveBillboards.size()) {
+                debugOPTIMIZATION("If we know the size of the max number of GameUnits "
+                    "that we will be able to select at the same time then we"
+                    " can avoid this calculations\n");
+
+                size_t numBillboards = mMoveBillboards.size();
+                const size_t remainingBillboards = numPlayersSel - numBillboards;
+                mMoveBillbardVisible.resize(numPlayersSel);
+                mMoveBillboards.resize(numPlayersSel);
+                for (; numBillboards < numPlayersSel; ++numBillboards) {
+                    mMoveBillbardVisible[numBillboards] = false;
+                    // TODO: check if we have to change this way to get the
+                    // billboards?
+                    mMoveBillboards[numBillboards] =
+                        billboard::BillboardManager::instance().getNewBillboard(0);
+                }
+            }
         }
 
         mActualState->configure(selData);
@@ -212,7 +272,100 @@ InputStateMachine::update(void)
         break;
     ////////////////////////////////////////////////////////////////////////////
     case State::IS_MULTI_PLAYER_SEL:
+    {
+        // We have more than one player selected.... we have to:
+        // 1) If we are not pressing the right button:
+        //      a) We are over a Zombie (since objects we cannot select) we
+        //         have to change the mouse icon (attack icon). Probably if we
+        //         are over an object we want to show a "INVALID_ACTION" icon?
+        //      b) If we are over a free space (in the world) we need to show
+        //         the possible new locations for the selected players. These
+        //         new locations should be always inside the level (for example
+        //         if sudently we put the mouse outside the pathfinding, then
+        //         a good approach is to show the last saved "good" location).
+        //
+        // 2) We are pressing the right button:
+        //      a) If we are over a free area in the world we need to move the
+        //         players to the new location (inside the pathfinding area)
+        //      b) If we are over a Zombie then we need to send all the units
+        //         to kill him
+        //
 
+        Ogre::Vector3 pointInPlane;
+        mActualState->performRayAgainstPlane(pointInPlane);
+        const bool isPointInPath = mActualState->isPointInPath(pointInPlane);
+
+        if (!rightButtonReleased) {
+            // check if we are over an object
+            if (raycastedObj != 0) {
+                // we are over an object... then we have to handle the mouse
+                // icon depending of the object
+                showCursorMultiPlayer(raycastedObj->type());
+
+                // and hide the current billboards
+                hideCurrentBillboards();
+            } else {
+                // we have not raycasted any object, check if we have to show
+                // the billboard of movement in the map
+                if (isPointInPath) {
+                    // check if the point is the same than the last frame
+                    if (pointInPlane != mLastPointInPlane) {
+                        // it is a new point, we need to recalculate everything
+
+                        // show the billboard and the cursor.. We need to calculate
+                        // the new locations of the players in the map and then
+                        // show the billboards
+                        mc.setCursor(MouseCursor::Cursor::MOVE_CRUSOR);
+                        calculateLocations(pointInPlane);
+
+                        ASSERT(mMoveBillboards.size() >= mSavedPositions.size());
+                        for (size_t i = 0, size = mSavedPositions.size(); i < size;
+                             ++i) {
+                            mMoveBillboards[i]->setPosition(mSavedPositions[i]);
+                            mMoveBillbardVisible[i] = true;
+                        }
+                    }
+                    // else, the mouse didn't move, so we do nothing
+
+                } else {
+                    // we have nothing to show nor do...
+                    mc.setCursor(MouseCursor::Cursor::NORMAL_CURSOR);
+                    if (mMoveBillbardVisible[0]) {
+                        hideCurrentBillboards();
+                    }
+                }
+            }
+        } else {
+            // we just release the button
+            if (raycastedObj != 0) {
+                // we just click over an object...
+                handleRaycastedObjMulti(raycastedObj);
+            } else {
+                // no object raycasted... check if we have to move the player
+                // to that position
+                if (isPointInPath) {
+                    // move the players
+                    ASSERT(mAuxVec.size() == mSavedPositions.size());
+
+                    for (size_t i = 0, size = mAuxVec.size(); i < size; ++i) {
+                        ASSERT(dynamic_cast<PlayerUnit *>(mAuxVec[i]));
+                        PlayerUnit *player = static_cast<PlayerUnit *>(mAuxVec[i]);
+                        const Ogre::Vector3& destPos = mSavedPositions[i];
+                        player->moveUnitTo(sm::Vector2(destPos.x, destPos.z));
+                    }
+                } else {
+                    // emit sound that the player couldn't move over there?
+                    // TODO:
+                }
+            }
+        }
+
+        // if we are pressing the button then we probably want to show
+        // other mouse cursor (to give an idea of animation)
+        // TODO
+        mLastPointInPlane = pointInPlane;
+
+    }
         break;
     ////////////////////////////////////////////////////////////////////////////
     case State::IS_OBJECT_SEL:
@@ -242,20 +395,31 @@ InputStateMachine::update(void)
                 // we are over an object... then we have to handle the mouse
                 // icon depending of the object
                 showCursorSinglePlayer(raycastedObj->type());
+
+                // hide the current billboard if we need
+                if (mMoveBillbardVisible[0]) {
+                    hideCurrentBillboards();
+                }
             } else {
                 // we have not raycasted any object, check if we have to show
                 // the billboard of movement in the map
                 if (isPointInPath) {
-                    // show the billboard and the cursor
-                    mc.setCursor(MouseCursor::Cursor::MOVE_CRUSOR);
-                    mMoveSingleBillboard->setPosition(pointInPlane);
-                    mMoveBillbardVisible = true;
+                    // check if the mouse was moved from the last frame
+                    if (pointInPlane != mLastPointInPlane) {
+                        // the mouse was moved, do the logic
+                        // show the billboard and the cursor
+                        mc.setCursor(MouseCursor::Cursor::MOVE_CRUSOR);
+                        mMoveBillboards[0]->setPosition(pointInPlane);
+                        mMoveBillbardVisible[0] = true;
+                    }
+                    // else, the mouse is in the same place, do nothing
+
                 } else {
                     // we have nothing to show nor do...
                     mc.setCursor(MouseCursor::Cursor::NORMAL_CURSOR);
-                    if (mMoveBillbardVisible) {
-                        mMoveBillbardVisible = false;
-                        mMoveSingleBillboard->setPosition(0.0f, -9999.0f, 0.f);
+                    if (mMoveBillbardVisible[0]) {
+                        mMoveBillbardVisible[0] = false;
+                        mMoveBillboards[0]->setPosition(0.0f, -9999.0f, 0.f);
                     }
                 }
             }
@@ -282,6 +446,7 @@ InputStateMachine::update(void)
         // if we are pressing the button then we probably want to show
         // other mouse cursor (to give an idea of animation)
         // TODO
+        mLastPointInPlane = pointInPlane;
     }
         break;
     ////////////////////////////////////////////////////////////////////////////

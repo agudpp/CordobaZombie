@@ -23,10 +23,15 @@
 #include <SelectionSystem/SelectionManager.h>
 #include <Common/GlobalObjects/GlobalObjects.h>
 #include <Common/DebugUtil/DebugUtil.h>
+#include <Common/Math/CommonMath.h>
 #include <Utils/MouseCursor/MouseCursor.h>
 
 #include "IInputState.h"
 
+
+// UGLY define of how much distance (factor) we want to separate the players
+// once they are selected and need to be moved
+#define ISM_SEPARATION_FACTOR       0.5f
 
 // Forward decl
 //
@@ -102,13 +107,43 @@ private:
     //
     inline void
     showCursorSinglePlayer(selection::Type selType);
+    inline void
+    showCursorMultiPlayer(selection::Type selType);
 
     // Helper functions to handle the current object with the raycasted object
     //
     inline void
     handleRaycastedObjSingle(const selection::SelectableObject *raycastedObj);
+    inline void
+    handleRaycastedObjMulti(const selection::SelectableObject *raycastedObj);
+
+    // Helper method to calculate the offsets to be applied to the "destination
+    // position" to obtain the 3 different players movement positions.
+    //
+    void
+    calculateOffsets(void);
+
+    // Helper method to calculate the destination locations for the selected
+    // players given a pointInPath and using the mSavedPositions.
+    // After calling this method, the mSavedPositions will contain the destination
+    // positions of the selected players in the same order they are in the
+    // mAuxVec
+    //
+    inline void
+    calculateLocations(const Ogre::Vector3 &pointInPath);
+
+    // Helper method to hide all the current billboards using the mAuxVec size
+    // to iterate over them
+    //
+    inline void
+    hideCurrentBillboards(void);
 
 private:
+
+    // Helper typedefs
+    typedef std::vector<billboard::BillboardWrapper> BillboardVec;
+
+
 	IInputState *mActualState;
 	IInputStatePtr mStates[SIZE];
 	selection::SelectionManager &mSelManager;
@@ -116,8 +151,15 @@ private:
 	LevelManager *mLevelManager;
 	InputManager &mInputManager;
     State mState;
-    billboard::BillboardWrapper mMoveSingleBillboard;
-    bool mMoveBillbardVisible;
+    BillboardVec mMoveBillboards;
+    std::vector<bool> mMoveBillbardVisible;
+    Ogre::Vector3 mLastPointInPlane;
+
+    // last saved "location" points for multi player selection
+    std::vector<Ogre::Vector3> mSavedPositions;
+    // and the PlayerOffsets used to separate the destination locations of the
+    // players
+    std::vector<sm::Vector2> mPlayerOffsets;
 
 };
 
@@ -151,6 +193,29 @@ InputStateMachine::showCursorSinglePlayer(selection::Type selType)
     }
 }
 
+inline void
+InputStateMachine::showCursorMultiPlayer(selection::Type selType)
+{
+    ASSERT(!mAuxVec.empty());
+
+    MouseCursor &mc = *GLOBAL_CURSOR;
+
+    switch (selType) {
+    case selection::Type::SEL_TYPE_PLAYER:
+    case selection::Type::SEL_TYPE_NONE:
+    case selection::Type::SEL_TYPE_CIVIL:
+    case selection::Type::SEL_TYPE_LVL_OBJECT: // NOTE we cannot pick objects?
+        // normal cursor
+        mc.setCursor(MouseCursor::Cursor::NORMAL_CURSOR);
+        break;
+    case selection::Type::SEL_TYPE_ZOMBIE:
+        mc.setCursor(MouseCursor::Cursor::ATTACK_CURSOR);
+        break;
+    default:
+        ASSERT(false);
+    }
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 inline void
 InputStateMachine::handleRaycastedObjSingle(const selection::SelectableObject *raycastedObj)
@@ -173,6 +238,64 @@ InputStateMachine::handleRaycastedObjSingle(const selection::SelectableObject *r
         break;
     default:
         ASSERT(false);
+    }
+}
+
+inline void
+InputStateMachine::handleRaycastedObjMulti(const selection::SelectableObject *raycastedObj)
+{
+    ASSERT(raycastedObj);
+
+    switch (raycastedObj->type()) {
+    case selection::Type::SEL_TYPE_PLAYER:
+    case selection::Type::SEL_TYPE_NONE:
+    case selection::Type::SEL_TYPE_CIVIL:
+    case selection::Type::SEL_TYPE_LVL_OBJECT: // We don't want to pick nothing
+        // Do nothing...
+        break;
+    case selection::Type::SEL_TYPE_ZOMBIE:
+        // attack the zombie
+        debugBLUE("ATTACKKKKKKK!!\n");
+        break;
+    default:
+        ASSERT(false);
+    }
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+inline void
+InputStateMachine::calculateLocations(const Ogre::Vector3 &pointInPath)
+{
+    ASSERT(mAuxVec.size() == mSavedPositions.size());
+    ASSERT(mAuxVec.size() == mPlayerOffsets.size());
+    ASSERT(!mAuxVec.empty());
+
+    for (size_t i = 0, size = mAuxVec.size(); i < size; ++i) {
+        // calculate the new possible position of the player
+        const sm::Vector2 newPos(pointInPath.x + mPlayerOffsets[i].x,
+                                 pointInPath.z + mPlayerOffsets[i].y);
+        if (mActualState->isPointInPath(newPos)) {
+            // we have to update the mSavedPositions
+            mSavedPositions[i].x = newPos.x;
+            mSavedPositions[i].z = newPos.y;
+        } // else we have 2 options:
+          // 1) Let the last mSavedPosition like it is, and assume that was the
+          //    the last "good" position we want.
+          // 2) Put in the same place that pointInPath points to (note that this
+          //    will implies that more than one player will be moving to the
+          //    same place....)
+          // For now we will let the last saved position and see whats happens
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+inline void
+InputStateMachine::hideCurrentBillboards(void)
+{
+    for (size_t i = 0, size = mAuxVec.size(); i < size; ++i) {
+        mMoveBillboards[i]->setPosition(0.f, -9999.f, 0.f);
+        mMoveBillbardVisible[i] = false;
     }
 }
 

@@ -117,6 +117,8 @@ public:
      */
     inline bool
     isPointInPath(const Ogre::Vector3 &pos) const;
+    inline bool
+    isPointInPath(const sm::Vector2 &pos) const;
 
     /**
      * Returns the bit map of types of unit selected
@@ -198,6 +200,12 @@ IInputState::isPointInPath(const Ogre::Vector3 &pos) const
 {
 	return sLevelManager->getPathfinderManager()->getNodeFromPoint(
 			sm::Vector2(pos.x, pos.z)) != 0;
+}
+////////////////////////////////////////////////////////////////////////////////
+inline bool
+IInputState::isPointInPath(const sm::Vector2 &pos) const
+{
+	return sLevelManager->getPathfinderManager()->getNodeFromPoint(pos) != 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
