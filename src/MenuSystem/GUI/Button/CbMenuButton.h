@@ -9,6 +9,10 @@
 #ifndef CBMENUBUTTON_H_
 #define CBMENUBUTTON_H_
 
+#include <boost/shared_ptr.hpp>
+#include <boost/signal.hpp>
+#include <boost/signals/slot.hpp>
+
 #include "MenuButton.h"
 
 class CbMenuButton : public MenuButton {
@@ -55,6 +59,16 @@ private:
 	Cb		*mCb;
 
 };
+
+
+
+// typedef for shared ptr
+//
+typedef boost::shared_ptr<CbMenuButton> CbMenuButtonPtr;
+
+
+// Inline Impl
+//
 
 inline void CbMenuButton::setCallback(Cb *cb)
 {

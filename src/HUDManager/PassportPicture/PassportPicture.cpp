@@ -14,6 +14,10 @@
 #include "GUIHelper.h"
 #include "PassportPicture.h"
 
+
+namespace hud {
+
+
 PassportPicture::PassportPicture() :
 mPanel(0)
 {
@@ -101,3 +105,4 @@ PassportPicture::changeAtlasPicture(const Ogre::String &textName,
     mAtlas.setNumberImages(numRows, numColumn);
 }
 
+}

@@ -8,14 +8,8 @@ set(CP /GameUnits)
 set(SRCS
 	${SRCS}
 	${DEV_ROOT_PATH}/GameUnits/PlayerUnit/WorldContext/PlayerWorldContext.cpp
-	${DEV_ROOT_PATH}/GameUnits/PlayerUnit/Backpack/BackpackItems/WeaponBackpackItem/WeaponBackpackItem.cpp
-	${DEV_ROOT_PATH}/GameUnits/PlayerUnit/Backpack/BackpackItems/BombBackpackItem/BombBackpackItem.cpp
-	${DEV_ROOT_PATH}/GameUnits/PlayerUnit/Backpack/Builder/BackpackBuilder.cpp
 	${DEV_ROOT_PATH}/GameUnits/PlayerUnit/Backpack/BackpackItemBuilder.cpp
-	${DEV_ROOT_PATH}/GameUnits/PlayerUnit/Backpack/BackpackItemAssociator.cpp
-	${DEV_ROOT_PATH}/GameUnits/PlayerUnit/Backpack/BpItemAdditionalInfo.cpp
 	${DEV_ROOT_PATH}/GameUnits/PlayerUnit/Backpack/Backpack.cpp
-	${DEV_ROOT_PATH}/GameUnits/PlayerUnit/Backpack/BackpackItem.cpp
 	${DEV_ROOT_PATH}/GameUnits/PlayerUnit/PlayerGroup/PlayerGroup.cpp
 	${DEV_ROOT_PATH}/GameUnits/PlayerUnit/StateMachine/PlayerFSMBuilder.cpp
 	${DEV_ROOT_PATH}/GameUnits/PlayerUnit/StateMachine/PlayerEngagingState.cpp
@@ -75,16 +69,10 @@ set(SRCS
 set(HDRS
 	${HDRS}
 	${DEV_ROOT_PATH}/GameUnits/PlayerUnit/WorldContext/PlayerWorldContext.h
-	${DEV_ROOT_PATH}/GameUnits/PlayerUnit/Backpack/BackpackItems/WeaponBackpackItem/WeaponBackpackItem.h
-	${DEV_ROOT_PATH}/GameUnits/PlayerUnit/Backpack/BackpackItems/BombBackpackItem/BombBackpackItem.h
-	${DEV_ROOT_PATH}/GameUnits/PlayerUnit/Backpack/BackpackItems/BombBackpackItem/BombBPItemAction.h
-	${DEV_ROOT_PATH}/GameUnits/PlayerUnit/Backpack/Builder/BackpackBuilder.h
 	${DEV_ROOT_PATH}/GameUnits/PlayerUnit/Backpack/Backpack.h
 	${DEV_ROOT_PATH}/GameUnits/PlayerUnit/Backpack/BackpackDefines.h
 	${DEV_ROOT_PATH}/GameUnits/PlayerUnit/Backpack/BackpackItemBuilder.h
 	${DEV_ROOT_PATH}/GameUnits/PlayerUnit/Backpack/BackpackItem.h
-	${DEV_ROOT_PATH}/GameUnits/PlayerUnit/Backpack/BpItemAdditionalInfo.h
-	${DEV_ROOT_PATH}/GameUnits/PlayerUnit/Backpack/BackpackItemAssociator.h
 	${DEV_ROOT_PATH}/GameUnits/PlayerUnit/PlayerGroup/PlayerGroup.h
 	${DEV_ROOT_PATH}/GameUnits/PlayerUnit/StateMachine/PlayerPickObjectState.h
 	${DEV_ROOT_PATH}/GameUnits/PlayerUnit/StateMachine/PlayerMovingState.h
@@ -181,12 +169,6 @@ set(ACTUAL_DIRS
 	${DEV_ROOT_PATH}/GameUnits/PlayerUnit/StateMachine
 	${DEV_ROOT_PATH}/GameUnits/PlayerUnit/PlayerGroup
 	${DEV_ROOT_PATH}/GameUnits/PlayerUnit/Backpack
-	${DEV_ROOT_PATH}/GameUnits/PlayerUnit/Backpack/Builder
-	${DEV_ROOT_PATH}/GameUnits/PlayerUnit/Backpack/BackpackItems
-	${DEV_ROOT_PATH}/GameUnits/PlayerUnit/Backpack/BackpackItems/BombBackpackItem
-	${DEV_ROOT_PATH}/GameUnits/PlayerUnit/Backpack/BackpackItems/WeaponBackpackItem
-	${DEV_ROOT_PATH}/GameUnits/PlayerUnit/Backpack/BackpackItems/ItemBackpackItem
-	${DEV_ROOT_PATH}/GameUnits/PlayerUnit/Backpack/BackpackItems/ActionBackpackItem
 	${DEV_ROOT_PATH}/GameUnits/PlayerUnit/WorldContext
 )
 

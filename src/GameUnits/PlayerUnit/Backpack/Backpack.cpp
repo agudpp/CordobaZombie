@@ -16,177 +16,122 @@
 #include "Backpack.h"
 #include "Util.h"
 
-Ogre::OverlayContainer	*Backpack::mBackpack = 0;
-int	Backpack::mCountReference = 0;
 
+// Auxiliary methods
+//
+namespace {
 
-
-////////////////////////////////////////////////////////////////////////////////
-void Backpack::loadBackpackOverlayElement(void)
+// swap and remove an element
+//
+template<typename T>
+inline T
+swapAndRemove(std::vector<T>& vec, const T& elem)
 {
-	// load the background
-	if(!mBackpack){
-		Ogre::OverlayManager &om = Ogre::OverlayManager::getSingleton();
-		Ogre::Overlay *overlay = om.getByName(BACKPACK_OVERLAY_NAME);
-		ASSERT(overlay);
-		overlay->show();
+    for (size_t i = 0, size = vec.size(); i < size; ++i) {
+        if (vec[i] == elem) {
+            T tmp = vec[i];
+            vec[i] = vec.back();
+            vec.pop_back();
+            return tmp;
+        }
+    }
 
-		// now get the container
-		mBackpack = overlay->getChild(BACKPACK_OVERLAY_CONTAINTER_NAME);
-		if(!mBackpack){
-			debugRED("Error loading the %s backpack overlay container\n",
-					BACKPACK_OVERLAY_CONTAINTER_NAME);
-			ASSERT(false);
-		}
-		mBackpack->show();
-
-		debugBLUE("BackpackCreated\n");
-		showAndHideObjects();
-	}
+    return T();
 }
 
-////////////////////////////////////////////////////////////////////////////////
-void Backpack::showAndHideObjects(void)
-{
-	Ogre::OverlayManager &om = Ogre::OverlayManager::getSingleton();
-	std::vector<Ogre::OverlayContainer *> items;
-	Ogre::Overlay *itemOverlay = om.getByName(BACKPACK_ITEMS_OVERLAY);
-
-	ASSERT(itemOverlay);
-	GUIHelper::getChildrens(itemOverlay, items);
-	// show overlay
-	itemOverlay->show();
-	// hide items
-	for(int i = items.size()-1; i >= 0; --i){
-		items[i]->hide();
-	}
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-Backpack::Backpack()
+void
+Backpack::addBackpackItem(BackpackItemPtr& bi)
 {
-	loadBackpackOverlayElement();
-	mCountReference++;
+    ASSERT(!hasBackpackItem(bi));
+    ASSERT(bi->type < BackpackDef::ItemType::COUNT);
+    mItems[bi->type].push_back(bi);
+
+    // trigger the signal
+    mSignal(this, bi, Event::ITEM_ADDED);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-Backpack::~Backpack()
+void
+Backpack::removeBackpackItem(const BackpackItemPtr& bi)
 {
-	Ogre::OverlayManager &om = Ogre::OverlayManager::getSingleton();
-	Ogre::Overlay *overlay = om.getByName(BACKPACK_OVERLAY_NAME);
-	if(overlay){
-		GUIHelper::fullDestroyOverlay(overlay);
-	}
-	mCountReference--;
-	if(mCountReference == 0){
-		// destroy the backpack
-		GUIHelper::fullDestroyOverlayElement(mBackpack);
-		mBackpack = 0;
-	}
-	for(int i = mItems.size() - 1; i >= 0; --i){
-		delete mItems[i];
-	}
+    ASSERT(hasBackpackItem(bi));
+    ASSERT(bi->type < BackpackDef::ItemType::COUNT);
+
+    const BackpackItemPtr tmp = swapAndRemove(mItems[bi->type], bi);
+
+    // trigger the signal
+    mSignal(this, tmp, Event::ITEM_REMOVED);
+}
+
+void
+Backpack::removeBackpackItemUserDef(void *bi)
+{
+    // we need to search for that element
+    for (size_t i = 0; i < BackpackDef::ItemType::COUNT; ++i) {
+        ItemVec& vec = mItems[i];
+        for (size_t j = 0, size = vec.size(); j < size; ++j) {
+            ASSERT(vec[j].get());
+            if (vec[j]->userDef == bi) {
+                // we need to remove this element
+                const BackpackItemPtr tmp = vec[j];
+                vec[j] = vec.back();
+                vec.pop_back();
+
+                // emmit the event
+                mSignal(this, tmp, Event::ITEM_REMOVED);
+                return;
+            }
+        }
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void Backpack::addBackpackItem(BackpackItem *bi)
+bool
+Backpack::hasBackpackItem(const BackpackItemPtr& bi) const
 {
-	ASSERT(bi);
-	ASSERT(!hasBackpackItem(bi));
+    if (bi.get() == 0 || bi->type >= BackpackDef::ItemType::COUNT) {
+        return false;
+    }
 
-	bi->show();
-	bi->updated();
-	mItems.push_back(bi);
+    // check if the element is in the corresponding vector
+    const ItemVec& vec = mItems[bi->type];
+    for (size_t i = 0, size = vec.size(); i < size; ++i) {
+        if (vec[i] == bi) {
+            return true;
+        }
+    }
+    return false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void Backpack::removeBackpackItem(BackpackItem *bi)
+BackpackItemPtr
+Backpack::hasBackpackItemUserDef(void *ud) const
 {
-	ASSERT(bi);
-	ASSERT(hasBackpackItem(bi));
+    // we need to search for that element
+    for (size_t i = 0; i < BackpackDef::ItemType::COUNT; ++i) {
+        const ItemVec& vec = mItems[i];
+        for (size_t j = 0, size = vec.size(); j < size; ++j) {
+            ASSERT(vec[j].get());
+            if (vec[j]->userDef == ud) {
+                return vec[j];
+            }
+        }
+    }
 
-	// remove from the overlay from the backpack
-	int i = mItems.size()-1;
-	for(; i >= 0; --i){
-		if(mItems[i] == bi){
-			break;
-		}
-	}
-	removeItem(i);
+    // nothing found
+    return BackpackItemPtr();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void Backpack::removeBackpackItemUserDef(void *bi)
+Backpack::Connection
+Backpack::addCallback(const Signal::slot_type& subscriber)
 {
-	ASSERT(bi);
-	int i = mItems.size()-1;
-	for(; i >= 0; --i){
-		if(mItems[i]->getUserDef() == bi){
-			break;
-		}
-	}
-	removeItem(i);
+    return mSignal.connect(subscriber);
 }
 
-////////////////////////////////////////////////////////////////////////////////
-bool Backpack::hasBackpackItem(BackpackItem *bi) const
-{
-	ASSERT(bi);
-	for(int i = mItems.size()-1; i >= 0; --i){
-		if(mItems[i] == bi){
-			return true;
-		}
-	}
-
-	return false;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-BackpackItem *Backpack::hasBackpackItemUserDef(void *ud)
-{
-	for(int i = mItems.size()-1; i >= 0; --i){
-		if(mItems[i]->getUserDef() == ud){
-			return mItems[i];
-		}
-	}
-	return 0;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-void Backpack::show(void)
-{
-	for(int i = mItems.size() -1; i >= 0; --i){
-		mItems[i]->show();
-	}
-
-}
-////////////////////////////////////////////////////////////////////////////////
-void Backpack::hide(void)
-{
-	for(int i = mItems.size() -1; i >= 0; --i){
-		mItems[i]->hide();
-	}
-}
-
-////////////////////////////////////////////////////////////////////////////////
-void Backpack::showBackpack(void)
-{
-	mBackpack->show();
-}
-////////////////////////////////////////////////////////////////////////////////
-void Backpack::hideBackpack(void)
-{
-	mBackpack->hide();
-}
-
-////////////////////////////////////////////////////////////////////////////////
-void Backpack::update(void)
-{
-	debugRED("TODO: por ahora estamos actualizando todos los objetos, "
-			"probablemente no sea necesario...\n");
-	for(int i = mItems.size()-1 ; i >= 0; --i) mItems[i]->updated();
-}
 
 

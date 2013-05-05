@@ -10,12 +10,12 @@
 
 namespace BackpackDef {
 
-enum {
-	SECTION_NONE = 0,
-	SECTION_WEAPON,
-	SECTION_BOMB,
-	SECTION_ITEM,
-	SECTION_ACTION,
+enum ItemType {
+	WEAPON = 0,
+	BOMB,
+	ITEM,
+
+	COUNT,  // this should be always in the bottom
 };
 
 }

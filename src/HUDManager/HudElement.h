@@ -8,6 +8,9 @@
 #ifndef HUDELEMENT_H_
 #define HUDELEMENT_H_
 
+
+namespace hud {
+
 class HudElement
 {
 public:
@@ -35,4 +38,5 @@ public:
 
 };
 
+}
 #endif /* HUDELEMENT_H_ */

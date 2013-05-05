@@ -9,37 +9,29 @@
 #ifndef BACKPACKITEMBUILDER_H_
 #define BACKPACKITEMBUILDER_H_
 
-#include <OgreString.h>
+#include "BackpackItem.h"
 
-#include "XMLHelper.h"
-#include "tinyxml.h"
 
-class BackpackItem;
-class TiXmlElement;
+// Forwards
+//
+class Weapon;
+class Bomb;
+class GameItem;
 
-#define BPIBUILDER_DEFAULT_FNAME	"BackpackItems.xml"
 
-class BackpackItemBuilder {
-public:
-	BackpackItemBuilder(const Ogre::String &fname = BPIBUILDER_DEFAULT_FNAME);
-	~BackpackItemBuilder();
+namespace BackpackItemBuilder {
 
 	/**
-	 * Set the filename to be used
+	 * @brief Create a BackPackItem from an object
+	 * @returns The allocated backpackitem
 	 */
-	void setFilename(const Ogre::String &fname);
+	BackpackItemPtr
+	createBackpackItem(Weapon*);
+	BackpackItemPtr
+	createBackpackItem(Bomb*);
+	BackpackItemPtr
+	createBackpackItem(GameItem*);
 
-	/**
-	 * Create a BackPackItem from an ID
-	 */
-	BackpackItem *createBackpackItem(const Ogre::String &ID);
-
-private:
-	BackpackItem *createWeaponBpItem(const TiXmlElement *elem);
-	BackpackItem *createBombBpItem(const TiXmlElement *elem);
-
-private:
-	XMLHelper		mHelper;
-};
+}
 
 #endif /* BACKPACKITEMBUILDER_H_ */

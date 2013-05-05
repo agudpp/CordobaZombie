@@ -179,14 +179,21 @@ InputStateMachine::showCursorSinglePlayer(selection::Type selType)
     case selection::Type::SEL_TYPE_PLAYER:
     case selection::Type::SEL_TYPE_NONE:
     case selection::Type::SEL_TYPE_CIVIL:
+    case selection::Type::SEL_TYPE_LVL_OBJECT:
         // normal cursor
         mc.setCursor(MouseCursor::Cursor::NORMAL_CURSOR);
         break;
     case selection::Type::SEL_TYPE_ZOMBIE:
         mc.setCursor(MouseCursor::Cursor::ATTACK_CURSOR);
         break;
-    case selection::Type::SEL_TYPE_LVL_OBJECT:
+    case selection::Type::SEL_TYPE_COL_OBJECT:
         mc.setCursor(MouseCursor::Cursor::PICK_OBJECT_CURSOR);
+        break;
+    case selection::Type::SEL_TYPE_SPECIAL_ACTION:
+        debugERROR("NOT IMPLEMENTED!! NEED TO PUT THE CURSOR HERE\n");
+        break;
+    case selection::Type::SEL_TYPE_BOMB:
+        debugERROR("NOT IMPLEMENTED!! NEED TO PUT THE CURSOR HERE\n");
         break;
     default:
         ASSERT(false);
@@ -204,7 +211,9 @@ InputStateMachine::showCursorMultiPlayer(selection::Type selType)
     case selection::Type::SEL_TYPE_PLAYER:
     case selection::Type::SEL_TYPE_NONE:
     case selection::Type::SEL_TYPE_CIVIL:
-    case selection::Type::SEL_TYPE_LVL_OBJECT: // NOTE we cannot pick objects?
+    case selection::Type::SEL_TYPE_LVL_OBJECT:
+    case selection::Type::SEL_TYPE_COL_OBJECT: // NOTE we cannot pick objects?
+    case selection::Type::SEL_TYPE_SPECIAL_ACTION: // NOTE we cannot do actions?
         // normal cursor
         mc.setCursor(MouseCursor::Cursor::NORMAL_CURSOR);
         break;
@@ -226,13 +235,14 @@ InputStateMachine::handleRaycastedObjSingle(const selection::SelectableObject *r
     case selection::Type::SEL_TYPE_PLAYER:
     case selection::Type::SEL_TYPE_NONE:
     case selection::Type::SEL_TYPE_CIVIL:
+    case selection::Type::SEL_TYPE_LVL_OBJECT:
         // Do nothing...
         break;
     case selection::Type::SEL_TYPE_ZOMBIE:
         // attack the zombie
         debugBLUE("ATTACKKKKKKK!!\n");
         break;
-    case selection::Type::SEL_TYPE_LVL_OBJECT:
+    case selection::Type::SEL_TYPE_COL_OBJECT:
         // pick object!
         debugBLUE("PICKKKKINGGG object!\n");
         break;
@@ -250,7 +260,8 @@ InputStateMachine::handleRaycastedObjMulti(const selection::SelectableObject *ra
     case selection::Type::SEL_TYPE_PLAYER:
     case selection::Type::SEL_TYPE_NONE:
     case selection::Type::SEL_TYPE_CIVIL:
-    case selection::Type::SEL_TYPE_LVL_OBJECT: // We don't want to pick nothing
+    case selection::Type::SEL_TYPE_LVL_OBJECT:
+    case selection::Type::SEL_TYPE_COL_OBJECT: // We don't want to pick nothing
         // Do nothing...
         break;
     case selection::Type::SEL_TYPE_ZOMBIE:

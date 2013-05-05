@@ -9,6 +9,8 @@
 #ifndef MENUBUTTON_H_
 #define MENUBUTTON_H_
 
+#include <boost/shared_ptr.hpp>
+
 #include <OgreString.h>
 #include <OgrePanelOverlayElement.h>
 
@@ -144,6 +146,10 @@ private:
 	int							mTextureWidth;
 	ActionType					mActionType;
 };
+
+// typedef the shared ptr here
+//
+typedef boost::shared_ptr<MenuButton> MenuButtonPtr;
 
 
 inline bool MenuButton::isActive(void) const

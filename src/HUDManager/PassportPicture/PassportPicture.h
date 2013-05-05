@@ -20,6 +20,8 @@
 #define PASSPORT_PICTURE_CONT		"HUD/PSP/Passport"
 #define PASSPORT_PICTURE_OVERLAY	"HUD/PassportPicture"
 
+namespace hud {
+
 class PassportPicture : public HudElement
 {
 public:
@@ -96,4 +98,5 @@ PassportPicture::selectPicture(size_t index)
     mAtlas.changeAtlas(index);
 }
 
+}
 #endif /* PASSPORTPICTURE_H_ */

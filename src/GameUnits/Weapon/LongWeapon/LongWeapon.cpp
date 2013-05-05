@@ -51,6 +51,9 @@ bool LongWeapon::shoot(const sm::Vector2 &p)
 	}
 	--mActualMagazine;
 
+	// trigger the signal
+	mSignal(this);
+
 	// configure the shoot
 	const sm::Vector2 &pos = mOwner->getPosition();
 	shoot->setStartPos(Ogre::Vector3(pos.x, mOwner->getPosYAxis(),
@@ -85,6 +88,9 @@ void LongWeapon::reload(void)
 	int diff = (mAmmunition.ammo < mMagazineSize) ? mAmmunition.ammo : mMagazineSize;
 	mActualMagazine = diff;
 	mAmmunition.ammo -= diff;
+
+	// trigger the signal
+	mSignal(this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -93,6 +99,9 @@ void LongWeapon::setAmmunition(Ammunition &ammo)
 	mAmmunition = ammo;
 	mActualMagazine = (ammo.ammo < mMagazineSize)?ammo.ammo : mMagazineSize;
 	mAmmunition.ammo -= mMagazineSize;
+
+	// trigger the signal
+	mSignal(this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

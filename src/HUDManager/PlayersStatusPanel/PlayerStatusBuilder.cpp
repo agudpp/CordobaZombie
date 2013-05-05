@@ -12,6 +12,8 @@
 #include "PlayerUnit.h"
 #include "DebugUtil.h"
 
+namespace hud {
+
 
 /**
  * Build the Player status associated
@@ -24,4 +26,7 @@ PlayerStatus *PlayerStatusBuilder::create(PlayerStatusID id, PlayerUnit *unit)
 	// TODO
 	ASSERT(false);
 	return 0;
+}
+
+
 }

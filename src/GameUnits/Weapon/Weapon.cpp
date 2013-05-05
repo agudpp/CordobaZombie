@@ -48,7 +48,8 @@ Weapon::~Weapon()
 /**
  * Second shoot always can be performed
  */
-void Weapon::secondShoot(const sm::Vector2 &p)
+void
+Weapon::secondShoot(const sm::Vector2 &p)
 {
 	ASSERT(mOwner);
 
@@ -86,4 +87,9 @@ void Weapon::secondShoot(const sm::Vector2 &p)
 	return;
 }
 
+Weapon::Connection
+Weapon::addCallback(const Signal::slot_type& subscriber)
+{
+    return mSignal.connect(subscriber);
+}
 

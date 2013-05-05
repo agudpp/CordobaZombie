@@ -8,112 +8,248 @@
 #ifndef BACKPACK_H_
 #define BACKPACK_H_
 
-#include <OgreOverlay.h>
-#include <OgreOverlayContainer.h>
-#include <OgreString.h>
-
 #include <vector>
+
+#include <boost/signal.hpp>
+#include <boost/signals/slot.hpp>
 
 #include "tinyxml.h"
 #include "BackpackDefines.h"
 #include "BackpackItem.h"
 
 
-class TinyXmlElement;
-
-#define BACKPACK_OVERLAY_NAME				"BackpackOverlay"
-#define BACKPACK_OVERLAY_CONTAINTER_NAME	"BackpackOverlayCont"
-#define BACKPACK_ITEMS_OVERLAY				"BackpackItemsOverlay"
-
-
 class Backpack
 {
 public:
 
-	typedef std::vector<BackpackItem *>		ItemVec;
+    // define the differents types of events
+    //
+    enum Event {
+        ITEM_ADDED = 0,
+        ITEM_REMOVED,
+    };
+
+    // Define the connection and signals type
+    //
+    typedef boost::signal<void (Backpack*, const BackpackItemPtr&, Event)> Signal;
+    typedef boost::signals::scoped_connection Connection;
 
 public:
-	Backpack();
-	~Backpack();
+    Backpack(){};
+    ~Backpack(){};
 
-	/**
-	 * Add a BackpackItem
-	 * @param bi	The backpack item to add
-	 * @note This class WILL handle the memory
-	 */
-	void addBackpackItem(BackpackItem *bi);
+    /**
+     * @brief Add a BackpackItem. We have to ensure that the item is not
+     *        already in the backpack
+     * @param bi	The backpack item to add
+     */
+    void
+    addBackpackItem(BackpackItemPtr& bi);
 
-	/**
-	 * Remove a backPackItem
-	 * It will remove the memory of the BackpackItem too
-	 */
-	void removeBackpackItem(BackpackItem *bi);
-	void removeBackpackItemUserDef(void *bi);
+    /**
+     * @brief Remove a backPackItem from a item or the user define element
+     * @note That removeBackpackItemUserDef is slow
+     */
+    void
+    removeBackpackItem(const BackpackItemPtr& bi);
+    void
+    removeBackpackItemUserDef(void *bi);
 
-	/**
-	 * Check if the backpack have some item
-	 */
-	bool hasBackpackItem(BackpackItem *bi) const;
+    /**
+     * @brief Check if the backpack have some item
+     */
+    bool
+    hasBackpackItem(const BackpackItemPtr& bi) const;
 
-	/**
-	 * Check if we have the backPack item associated with a userDef type
-	 */
-	BackpackItem *hasBackpackItemUserDef(void *ud);
+    /**
+     * @brief Check if we have the backPack item associated with a userDef type
+     * @note That this method is slower than the above one
+     */
+    BackpackItemPtr
+    hasBackpackItemUserDef(void *ud) const;
 
-	/**
-	 * Show/Hide the backpack items
-	 */
-	void show(void);
-	void hide(void);
+    /**
+     * @brief Especial methods for checking different kind of elements
+     */
+    inline bool
+    hasWeapon(void* weapon) const;
+    inline bool
+    hasBomb(void* bomb) const;
+    inline bool
+    hasItem(void* item) const;
 
-	/**
-	 * Show/Hide the HUD Backpack element (this is the Backpack)
-	 */
-	void showBackpack(void);
-	void hideBackpack(void);
+    /**
+     * @brief Especial remove methods for different user defined types
+     */
+    inline void
+    removeWeapon(void* weapon);
+    inline void
+    removeBomb(void* bomb);
+    inline void
+    removeItem(void* item);
 
-	/**
-	 * Update the elements of the backpack (if some change occur, for example,
-	 * if we had fired?)
-	 */
-	void update(void);
+    /**
+     * @brief Especial methods to get the associated BackpackItemPtr from a
+     *        given user defined object
+     */
+    inline BackpackItemPtr
+    getWeapon(void* ud);
+    inline BackpackItemPtr
+    getBomb(void* ud);
+    inline BackpackItemPtr
+    getItem(void* ud);
+
+    /**
+     * @brief Add the callback to get events everytime this backpack changes
+     * @param subscriber    The one who want to receive the events
+     * @returns conn        The associated connection
+     */
+    Connection
+    addCallback(const Signal::slot_type& subscriber);
 
 private:
-	/**
-	 * Load backpack Overlay element (to retrieve the position and the size)
-	 */
-	void loadBackpackOverlayElement(void);
 
-	/**
-	 * Ugly way to be available to show the objects later
-	 */
-	void showAndHideObjects(void);
+    // Avoid copy constructor and copying assigning this class
+    //
+    Backpack(const Backpack&);
+    Backpack& operator=(const Backpack&);
 
-	/**
-	 * Remove an element (item)
-	 */
-	inline void removeItem(int index);
+    /**
+     * @brief Check for the existence of a particular element searching in a vec
+     *        and a user define value
+     */
+    inline bool
+    existsUserDefine(const std::vector<BackpackItemPtr>& vec,
+                     void* ud) const;
 
+    /**
+     * @brief Return the index of the element for a given vector and the user
+     *        defined object
+     */
+    inline bool
+    getIndex(const std::vector<BackpackItemPtr>& vec, void* ud, size_t& index) const;
+
+    /**
+     * @brief Remove an element from the user define object and a given vector
+     * @param vec   The vector from where we want to remove the element
+     * @param ud    The user define value we want to match for
+     */
+    inline void
+    removeElementFromUserDef(std::vector<BackpackItemPtr>& vec,
+                             void* ud);
 
 private:
-	ItemVec					mItems;
+    typedef std::vector<BackpackItemPtr> ItemVec;
 
-	static Ogre::OverlayContainer	*mBackpack;
-	static int						mCountReference;
+
+    ItemVec mItems[BackpackDef::ItemType::COUNT];
+    Signal mSignal;
 };
 
 
 
-////////////////////////////////////////////////////////////////////////////////
-inline void Backpack::removeItem(int index)
-{
-	ASSERT(index >= 0 && index < mItems.size());
 
-	BackpackItem *bi = mItems[index];
-	bi->hide();
-	mItems[index] = mItems.back();
-	mItems.pop_back();
-	delete bi;
+// Inline impl
+//
+
+inline bool
+Backpack::existsUserDefine(const std::vector<BackpackItemPtr>& vec,
+                           void* ud) const
+{
+    for (size_t i = 0, size = vec.size(); i < size; ++i) {
+        if (vec[i]->userDef == ud) {
+            return true;
+        }
+    }
+    return false;
+}
+
+inline bool
+Backpack::getIndex(const std::vector<BackpackItemPtr>& vec, void* ud, size_t& index) const
+{
+    for (size_t i = 0, size = vec.size(); i < size; ++i) {
+        if (vec[i]->userDef == ud) {
+            index = i;
+            return true;
+        }
+    }
+    return false;
+}
+
+inline bool
+Backpack::hasWeapon(void *weapon) const
+{
+    return existsUserDefine(mItems[BackpackDef::ItemType::WEAPON], weapon);
+}
+inline bool
+Backpack::hasBomb(void *bomb) const
+{
+    return existsUserDefine(mItems[BackpackDef::ItemType::BOMB], bomb);
+}
+inline bool
+Backpack::hasItem(void* item) const
+{
+    return existsUserDefine(mItems[BackpackDef::ItemType::ITEM], item);
+}
+
+inline void
+Backpack::removeElementFromUserDef(std::vector<BackpackItemPtr>& vec,
+                                   void* ud)
+{
+    for (size_t i = 0, size = vec.size(); i < size; ++i) {
+        if (vec[i]->userDef == ud) {
+            vec[i] = vec.back();
+            vec.pop_back();
+            return;
+        }
+    }
+}
+
+void
+Backpack::removeWeapon(void* weapon)
+{
+    ASSERT(hasWeapon(weapon));
+    removeElementFromUserDef(mItems[BackpackDef::ItemType::WEAPON], weapon);
+}
+void
+Backpack::removeBomb(void* bomb)
+{
+    ASSERT(hasBomb(bomb));
+    removeElementFromUserDef(mItems[BackpackDef::ItemType::BOMB], bomb);
+}
+void
+Backpack::removeItem(void* item)
+{
+    ASSERT(hasItem(item));
+    removeElementFromUserDef(mItems[BackpackDef::ItemType::ITEM], item);
+}
+
+inline BackpackItemPtr
+Backpack::getWeapon(void* ud)
+{
+    size_t index;
+    if (!getIndex(mItems[BackpackDef::ItemType::WEAPON], ud, index)) {
+        return BackpackItemPtr();
+    }
+    return (mItems[BackpackDef::ItemType::WEAPON])[index];
+}
+inline BackpackItemPtr
+Backpack::getBomb(void* ud)
+{
+    size_t index;
+    if (!getIndex(mItems[BackpackDef::ItemType::BOMB], ud, index)) {
+        return BackpackItemPtr();
+    }
+    return (mItems[BackpackDef::ItemType::BOMB])[index];
+}
+inline BackpackItemPtr
+Backpack::getItem(void* ud)
+{
+    size_t index;
+    if (!getIndex(mItems[BackpackDef::ItemType::ITEM], ud, index)) {
+        return BackpackItemPtr();
+    }
+    return (mItems[BackpackDef::ItemType::ITEM])[index];
 }
 
 #endif /* BACKPACK_H_ */
