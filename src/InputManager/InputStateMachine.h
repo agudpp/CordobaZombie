@@ -112,10 +112,10 @@ private:
 
     // Helper functions to handle the current object with the raycasted object
     //
-    inline void
-    handleRaycastedObjSingle(const selection::SelectableObject *raycastedObj);
-    inline void
-    handleRaycastedObjMulti(const selection::SelectableObject *raycastedObj);
+    void
+    handleRaycastedObjSingle(selection::SelectableObject *raycastedObj);
+    void
+    handleRaycastedObjMulti(selection::SelectableObject *raycastedObj);
 
     // Helper method to calculate the offsets to be applied to the "destination
     // position" to obtain the 3 different players movement positions.
@@ -224,55 +224,6 @@ InputStateMachine::showCursorMultiPlayer(selection::Type selType)
         ASSERT(false);
     }
 }
-
-////////////////////////////////////////////////////////////////////////////////
-inline void
-InputStateMachine::handleRaycastedObjSingle(const selection::SelectableObject *raycastedObj)
-{
-    ASSERT(raycastedObj);
-
-    switch (raycastedObj->type()) {
-    case selection::Type::SEL_TYPE_PLAYER:
-    case selection::Type::SEL_TYPE_NONE:
-    case selection::Type::SEL_TYPE_CIVIL:
-    case selection::Type::SEL_TYPE_LVL_OBJECT:
-        // Do nothing...
-        break;
-    case selection::Type::SEL_TYPE_ZOMBIE:
-        // attack the zombie
-        debugBLUE("ATTACKKKKKKK!!\n");
-        break;
-    case selection::Type::SEL_TYPE_COL_OBJECT:
-        // pick object!
-        debugBLUE("PICKKKKINGGG object!\n");
-        break;
-    default:
-        ASSERT(false);
-    }
-}
-
-inline void
-InputStateMachine::handleRaycastedObjMulti(const selection::SelectableObject *raycastedObj)
-{
-    ASSERT(raycastedObj);
-
-    switch (raycastedObj->type()) {
-    case selection::Type::SEL_TYPE_PLAYER:
-    case selection::Type::SEL_TYPE_NONE:
-    case selection::Type::SEL_TYPE_CIVIL:
-    case selection::Type::SEL_TYPE_LVL_OBJECT:
-    case selection::Type::SEL_TYPE_COL_OBJECT: // We don't want to pick nothing
-        // Do nothing...
-        break;
-    case selection::Type::SEL_TYPE_ZOMBIE:
-        // attack the zombie
-        debugBLUE("ATTACKKKKKKK!!\n");
-        break;
-    default:
-        ASSERT(false);
-    }
-}
-
 
 ////////////////////////////////////////////////////////////////////////////////
 inline void

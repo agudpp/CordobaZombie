@@ -58,6 +58,7 @@ private:
 
 	std::vector<PlayerUnitPtr> mPlayers;
 	LevelManager mLevelManager;
+	std::vector<BackpackItemPtr> mItems;
 };
 
 #endif /* TEST_H_ */

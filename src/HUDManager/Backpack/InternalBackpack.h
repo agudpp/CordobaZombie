@@ -14,6 +14,8 @@
 
 #include <GameUnits/PlayerUnit/Backpack/Backpack.h>
 
+#include "BackpackElement.h"
+
 // Forward
 //
 class PlayerUnit;
@@ -23,7 +25,7 @@ namespace hud {
 class InternalBackpack
 {
 
-    typedef std::vector<BackpackElement*> ElementVec;
+    typedef std::vector<BackpackElementPtr> ElementVec;
 public:
     InternalBackpack(PlayerUnit *pu);
     ~InternalBackpack();
@@ -53,6 +55,14 @@ public:
     void
     backpackChange(Backpack*, const BackpackItemPtr&, Backpack::Event);
 
+private:
+
+    /**
+     * @brief Generate all the needed elements from a player backpack using
+     *        the current player
+     */
+    void
+    loadElements(void);
 
 private:
     PlayerUnit *mPlayer;

@@ -279,9 +279,9 @@ PlayerUnit::update(void)
 
 ////////////////////////////////////////////////////////////////////////////////
 void
-PlayerUnit::addBackpackItem(BackpackItemPtr& item)
+PlayerUnit::addBackpackItem(BackpackItem* item)
 {
-    ASSERT(item.get());
+    ASSERT(item);
     if (mBackPack.hasBackpackItem(item)) {
         debugWARNING("We are trying to add the same element twice!\n");
         return;
@@ -325,9 +325,9 @@ PlayerUnit::addBackpackItem(BackpackItemPtr& item)
 
 ////////////////////////////////////////////////////////////////////////////////
 void
-PlayerUnit::removeBackpackItem(BackpackItemPtr& item)
+PlayerUnit::removeBackpackItem(BackpackItem* item)
 {
-    ASSERT(item.get());
+    ASSERT(item);
     if (!mBackPack.hasBackpackItem(item)) {
         debugWARNING("We are trying to remove an element that was never added!\n");
         return;
@@ -501,30 +501,13 @@ void
 PlayerUnit::addCollectObeject(CollectableObject *c)
 {
     ASSERT(c);
-    ASSERT(false); // TODO implement this with the new design using backpack item
+    ASSERT(c->collectableType() == CollectableType::COT_BACKPACK_ITEM);
 
-    // check the type of the object and
-    /*int cot = c->collectableType();
-    switch(cot){
-    case COT_BACKPACK_WEAPON:
-    {
-        // TODO: notar que deberiamos SI O SI poder aceptar este objeto
-        // ASSERT(canPickObject(c));
-        addNewWeapon(static_cast<Weapon *>(c->getObject()));
-    }
-    break;
-    case COT_BACKPACK_BOMB:
-    {
-        addBomb(static_cast<Bomb *>(c->getObject()));
-    }
-    break;
-    case COT_BACKPACK_ITEM:
-    {
-        addItem(static_cast<GameItem *>(c->getObject()));
-    }
-    break;
+    // get the item
+    BackpackItem* item = static_cast<BackpackItem*>(c->getObject());
 
-    }*/
+    // add this item to the player
+    addBackpackItem(item);
 }
 
 

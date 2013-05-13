@@ -8,6 +8,8 @@
 #ifndef BACKPACKELEMENT_H_
 #define BACKPACKELEMENT_H_
 
+#include <boost/shared_ptr.hpp>
+
 #include <GameUnits/PlayerUnit/Backpack/BackpackItem.h>
 #include <MenuSystem/GUI/Button/CallbackMenuButton.h>
 #include <Common/DebugUtil/DebugUtil.h>
@@ -85,6 +87,10 @@ private:
     CallbackMenuButtonPtr mButton;
 
 };
+
+// typedef for shared ptr
+//
+typedef boost::shared_ptr<BackpackElement> BackpackElementPtr;
 
 
 // Inline impl

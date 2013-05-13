@@ -67,6 +67,63 @@ InputStateMachine::calculateOffsets(void)
 
 
 ////////////////////////////////////////////////////////////////////////////////
+void
+InputStateMachine::handleRaycastedObjSingle(selection::SelectableObject *raycastedObj)
+{
+    ASSERT(raycastedObj);
+
+    switch (raycastedObj->type()) {
+    case selection::Type::SEL_TYPE_PLAYER:
+    case selection::Type::SEL_TYPE_NONE:
+    case selection::Type::SEL_TYPE_CIVIL:
+    case selection::Type::SEL_TYPE_LVL_OBJECT:
+        // Do nothing...
+        break;
+    case selection::Type::SEL_TYPE_ZOMBIE:
+        // attack the zombie
+        debugBLUE("ATTACKKKKKKK!!\n");
+        break;
+    case selection::Type::SEL_TYPE_COL_OBJECT:
+    {
+        // pick object!
+        // get the player first
+        ASSERT(mAuxVec.size() == 1);
+        ASSERT(dynamic_cast<PlayerUnit*>(mAuxVec.back()));
+        PlayerUnit* player = static_cast<PlayerUnit*>(mAuxVec.back());
+
+        ASSERT(dynamic_cast<CollectableObject*>(raycastedObj));
+        player->collectObject(static_cast<CollectableObject*>(raycastedObj));
+    }
+        break;
+    default:
+        ASSERT(false);
+    }
+}
+
+void
+InputStateMachine::handleRaycastedObjMulti(selection::SelectableObject *raycastedObj)
+{
+    ASSERT(raycastedObj);
+
+    switch (raycastedObj->type()) {
+    case selection::Type::SEL_TYPE_PLAYER:
+    case selection::Type::SEL_TYPE_NONE:
+    case selection::Type::SEL_TYPE_CIVIL:
+    case selection::Type::SEL_TYPE_LVL_OBJECT:
+    case selection::Type::SEL_TYPE_COL_OBJECT: // We don't want to pick nothing
+        // Do nothing...
+        break;
+    case selection::Type::SEL_TYPE_ZOMBIE:
+        // attack the zombie
+        debugBLUE("ATTACKKKKKKK!!\n");
+        break;
+    default:
+        ASSERT(false);
+    }
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 InputStateMachine::InputStateMachine(selection::SelectionManager &selManager,
                                      LevelManager *lvlManager,

@@ -23,9 +23,9 @@ namespace {
 
 // swap and remove an element
 //
-template<typename T>
+template<typename VecType, typename T>
 inline T
-swapAndRemove(std::vector<T>& vec, const T& elem)
+swapAndRemove(VecType& vec, const T elem)
 {
     for (size_t i = 0, size = vec.size(); i < size; ++i) {
         if (vec[i] == elem) {
@@ -36,7 +36,7 @@ swapAndRemove(std::vector<T>& vec, const T& elem)
         }
     }
 
-    return T();
+    return 0;
 }
 
 }
@@ -44,7 +44,7 @@ swapAndRemove(std::vector<T>& vec, const T& elem)
 
 ////////////////////////////////////////////////////////////////////////////////
 void
-Backpack::addBackpackItem(BackpackItemPtr& bi)
+Backpack::addBackpackItem(BackpackItem* bi)
 {
     ASSERT(!hasBackpackItem(bi));
     ASSERT(bi->type < BackpackDef::ItemType::COUNT);
@@ -56,12 +56,12 @@ Backpack::addBackpackItem(BackpackItemPtr& bi)
 
 ////////////////////////////////////////////////////////////////////////////////
 void
-Backpack::removeBackpackItem(const BackpackItemPtr& bi)
+Backpack::removeBackpackItem(const BackpackItem* bi)
 {
     ASSERT(hasBackpackItem(bi));
     ASSERT(bi->type < BackpackDef::ItemType::COUNT);
 
-    const BackpackItemPtr tmp = swapAndRemove(mItems[bi->type], bi);
+    const BackpackItem* tmp = swapAndRemove(mItems[bi->type], bi);
 
     // trigger the signal
     mSignal(this, tmp, Event::ITEM_REMOVED);
@@ -74,10 +74,10 @@ Backpack::removeBackpackItemUserDef(void *bi)
     for (size_t i = 0; i < BackpackDef::ItemType::COUNT; ++i) {
         ItemVec& vec = mItems[i];
         for (size_t j = 0, size = vec.size(); j < size; ++j) {
-            ASSERT(vec[j].get());
+            ASSERT(vec[j]);
             if (vec[j]->userDef == bi) {
                 // we need to remove this element
-                const BackpackItemPtr tmp = vec[j];
+                const BackpackItem* tmp = vec[j];
                 vec[j] = vec.back();
                 vec.pop_back();
 
@@ -91,9 +91,9 @@ Backpack::removeBackpackItemUserDef(void *bi)
 
 ////////////////////////////////////////////////////////////////////////////////
 bool
-Backpack::hasBackpackItem(const BackpackItemPtr& bi) const
+Backpack::hasBackpackItem(const BackpackItem* bi) const
 {
-    if (bi.get() == 0 || bi->type >= BackpackDef::ItemType::COUNT) {
+    if (bi == 0 || bi->type >= BackpackDef::ItemType::COUNT) {
         return false;
     }
 
@@ -108,14 +108,14 @@ Backpack::hasBackpackItem(const BackpackItemPtr& bi) const
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-BackpackItemPtr
+BackpackItem*
 Backpack::hasBackpackItemUserDef(void *ud) const
 {
     // we need to search for that element
     for (size_t i = 0; i < BackpackDef::ItemType::COUNT; ++i) {
         const ItemVec& vec = mItems[i];
         for (size_t j = 0, size = vec.size(); j < size; ++j) {
-            ASSERT(vec[j].get());
+            ASSERT(vec[j]);
             if (vec[j]->userDef == ud) {
                 return vec[j];
             }
@@ -123,7 +123,7 @@ Backpack::hasBackpackItemUserDef(void *ud) const
     }
 
     // nothing found
-    return BackpackItemPtr();
+    return 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -131,6 +131,21 @@ Backpack::Connection
 Backpack::addCallback(const Signal::slot_type& subscriber)
 {
     return mSignal.connect(subscriber);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void
+Backpack::getAllItems(std::vector<BackpackItem*>& items)
+{
+    size_t accum = 1;
+    for (size_t i = 0; i < BackpackDef::ItemType::COUNT; ++i) {
+        accum += mItems[i].size();
+    }
+    items.clear();
+    items.reserve(accum);
+    for (size_t i = 0; i < BackpackDef::ItemType::COUNT; ++i) {
+        items.insert(items.end(), mItems[i].begin(), mItems[i].end());
+    }
 }
 
 

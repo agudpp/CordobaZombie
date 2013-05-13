@@ -29,7 +29,7 @@ public:
      * @brief Callback for when the button is pressed
      */
     virtual void
-    buttonPressed(CallbackMenuButton::ButtonID) = 0;
+    buttonPressed(CallbackMenuButton::ButtonID);
 
     /**
      * @brief Virtual method that will be called everytime we need to update

@@ -24,6 +24,8 @@
 #include <InputManager/IInputState.h>
 #include <SelectionSystem/SelectionManager.h>
 #include <BillboardManager/BMBuilder.h>
+#include <GameUnits/Weapon/WeaponBuilder.h>
+#include <GameUnits/PlayerUnit/Backpack/BackpackItemBuilder.h>
 
 
 
@@ -119,13 +121,22 @@ void Test::loadAditionalData(void)
 	createPlayers();
 
 	// create a new Collectable object (mem leak xD)
+	PlayerUnitBuilder &playerBuilder = PlayerUnitBuilder::instance();
+	WeaponBuilder& wb = playerBuilder.getWeaponBuilder();
+	wb.configureShoots(100, mLevelManager.getCollisionManager(), &mUpdaterManager);
+	wb.setFilename("Weapons.xml");
+    Weapon *w = wb.createWeapon("shotgun");
+	BackpackItemPtr item = BackpackItemBuilder::createBackpackItem(w);
+	mItems.push_back(item);
+
     CollectableObject *co = new CollectableObject();
     Ogre::Entity *entity = GLOBAL_SCN_MNGR->createEntity("tulian.mesh");
     Ogre::SceneNode *node = GLOBAL_SCN_MNGR->getRootSceneNode()->createChildSceneNode();
     node->showBoundingBox(true);
     co->build(entity, node);
-    co->setCollectableType(CollectableType::COT_BACKPACK_WEAPON);
+    co->setCollectableType(CollectableType::COT_BACKPACK_ITEM);
     co->setPosition(sm::Vector2(1249.335327, 1395.213867));
+    co->setObject(item.get());
 }
 
 /* function called every frame. Use GlobalObjects::lastTimeFrame */

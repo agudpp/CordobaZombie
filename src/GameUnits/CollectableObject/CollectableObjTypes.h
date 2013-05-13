@@ -11,8 +11,6 @@
 // Define all the type of CollectableObjects
 enum CollectableType {
 	// weapons are all the weapons and grenades
-	COT_BACKPACK_WEAPON,
-	COT_BACKPACK_BOMB,
 	COT_BACKPACK_ITEM,
 	COT_OTHER,
 	COT_INVALID

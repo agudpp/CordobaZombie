@@ -202,20 +202,20 @@ public:
      * @param item  The item we want to add
      */
     void
-    addBackpackItem(BackpackItemPtr& item);
+    addBackpackItem(BackpackItem* item);
 
     /**
      * @brief Remove a backpack item from this player.
      */
     void
-    removeBackpackItem(BackpackItemPtr& item);
+    removeBackpackItem(BackpackItem* item);
 
     /**
      * @brief Check for the existence of a particular backpackItem
      * @param item The item we want to check if exists or not
      */
     inline bool
-    checkBackpackItem(const BackpackItemPtr& item) const;
+    checkBackpackItem(const BackpackItem* item) const;
 
     /**
      * Returns the actual weapon, or 0 if has not got
@@ -364,9 +364,9 @@ public:
      * Function used to add a CollectableObject to the Player (for example, once
      * the object is picked, this function must be called with the object
      * itself).
-     * This function will create the Backpack representation and put the object
-     * into the Backpack
-     * @note	This function will not change the state of the CollectableObject
+     * This function will put the object in the backpack of the player and do the
+     * same logic as in the addBackpackItem() method.
+     * @note This method will NOT change the state of the CollectableObject c.
      */
     void
     addCollectObeject(CollectableObject *c);
@@ -478,7 +478,7 @@ inline void PlayerUnit::clearLifeCallback(void)
 
 ////////////////////////////////////////////////////////////////////////////////
 inline bool
-PlayerUnit::checkBackpackItem(const BackpackItemPtr& item) const
+PlayerUnit::checkBackpackItem(const BackpackItem* item) const
 {
     return mBackPack.hasBackpackItem(item);
 }
@@ -499,8 +499,8 @@ PlayerUnit::hasWeapon(Weapon* w) const
 inline void
 PlayerUnit::removeWeapon(Weapon* w)
 {
-    BackpackItemPtr item = mBackPack.getWeapon(w);
-    if (item.get() == 0) {
+    BackpackItem* item = mBackPack.getWeapon(w);
+    if (item == 0) {
         // do nothing
         return;
     }
@@ -523,8 +523,8 @@ PlayerUnit::hasBomb(Bomb *b) const
 inline void
 PlayerUnit::removeBomb(Bomb *b)
 {
-    BackpackItemPtr item = mBackPack.getBomb(b);
-    if (item.get() == 0) {
+    BackpackItem* item = mBackPack.getBomb(b);
+    if (item == 0) {
         // do nothing
         return;
     }
@@ -540,8 +540,8 @@ PlayerUnit::hasItem(GameItem *it)
 inline void
 PlayerUnit::removeItem(GameItem *i)
 {
-    BackpackItemPtr item = mBackPack.getItem(i);
-    if (item.get() == 0) {
+    BackpackItem* item = mBackPack.getItem(i);
+    if (item == 0) {
         // do nothing
         return;
     }

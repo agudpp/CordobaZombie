@@ -31,7 +31,7 @@ public:
 
     // Define the connection and signals type
     //
-    typedef boost::signal<void (Backpack*, const BackpackItemPtr&, Event)> Signal;
+    typedef boost::signal<void (Backpack*, const BackpackItem*, Event)> Signal;
     typedef boost::signals::scoped_connection Connection;
 
 public:
@@ -44,14 +44,14 @@ public:
      * @param bi	The backpack item to add
      */
     void
-    addBackpackItem(BackpackItemPtr& bi);
+    addBackpackItem(BackpackItem* bi);
 
     /**
      * @brief Remove a backPackItem from a item or the user define element
      * @note That removeBackpackItemUserDef is slow
      */
     void
-    removeBackpackItem(const BackpackItemPtr& bi);
+    removeBackpackItem(const BackpackItem* bi);
     void
     removeBackpackItemUserDef(void *bi);
 
@@ -59,13 +59,13 @@ public:
      * @brief Check if the backpack have some item
      */
     bool
-    hasBackpackItem(const BackpackItemPtr& bi) const;
+    hasBackpackItem(const BackpackItem* bi) const;
 
     /**
      * @brief Check if we have the backPack item associated with a userDef type
      * @note That this method is slower than the above one
      */
-    BackpackItemPtr
+    BackpackItem*
     hasBackpackItemUserDef(void *ud) const;
 
     /**
@@ -92,11 +92,11 @@ public:
      * @brief Especial methods to get the associated BackpackItemPtr from a
      *        given user defined object
      */
-    inline BackpackItemPtr
+    inline BackpackItem*
     getWeapon(void* ud);
-    inline BackpackItemPtr
+    inline BackpackItem*
     getBomb(void* ud);
-    inline BackpackItemPtr
+    inline BackpackItem*
     getItem(void* ud);
 
     /**
@@ -106,6 +106,14 @@ public:
      */
     Connection
     addCallback(const Signal::slot_type& subscriber);
+
+    /**
+     * @brief Returns all the elements this backpack has.
+     * @param items     The vector to be filled with all the elements of this
+     *                  backpack.
+     */
+    void
+    getAllItems(std::vector<BackpackItem*>& items);
 
 private:
 
@@ -119,7 +127,7 @@ private:
      *        and a user define value
      */
     inline bool
-    existsUserDefine(const std::vector<BackpackItemPtr>& vec,
+    existsUserDefine(const std::vector<BackpackItem*>& vec,
                      void* ud) const;
 
     /**
@@ -127,7 +135,7 @@ private:
      *        defined object
      */
     inline bool
-    getIndex(const std::vector<BackpackItemPtr>& vec, void* ud, size_t& index) const;
+    getIndex(const std::vector<BackpackItem*>& vec, void* ud, size_t& index) const;
 
     /**
      * @brief Remove an element from the user define object and a given vector
@@ -135,11 +143,11 @@ private:
      * @param ud    The user define value we want to match for
      */
     inline void
-    removeElementFromUserDef(std::vector<BackpackItemPtr>& vec,
+    removeElementFromUserDef(std::vector<BackpackItem*>& vec,
                              void* ud);
 
 private:
-    typedef std::vector<BackpackItemPtr> ItemVec;
+    typedef std::vector<BackpackItem*> ItemVec;
 
 
     ItemVec mItems[BackpackDef::ItemType::COUNT];
@@ -153,7 +161,7 @@ private:
 //
 
 inline bool
-Backpack::existsUserDefine(const std::vector<BackpackItemPtr>& vec,
+Backpack::existsUserDefine(const std::vector<BackpackItem*>& vec,
                            void* ud) const
 {
     for (size_t i = 0, size = vec.size(); i < size; ++i) {
@@ -165,7 +173,7 @@ Backpack::existsUserDefine(const std::vector<BackpackItemPtr>& vec,
 }
 
 inline bool
-Backpack::getIndex(const std::vector<BackpackItemPtr>& vec, void* ud, size_t& index) const
+Backpack::getIndex(const std::vector<BackpackItem*>& vec, void* ud, size_t& index) const
 {
     for (size_t i = 0, size = vec.size(); i < size; ++i) {
         if (vec[i]->userDef == ud) {
@@ -193,7 +201,7 @@ Backpack::hasItem(void* item) const
 }
 
 inline void
-Backpack::removeElementFromUserDef(std::vector<BackpackItemPtr>& vec,
+Backpack::removeElementFromUserDef(std::vector<BackpackItem*>& vec,
                                    void* ud)
 {
     for (size_t i = 0, size = vec.size(); i < size; ++i) {
@@ -224,30 +232,30 @@ Backpack::removeItem(void* item)
     removeElementFromUserDef(mItems[BackpackDef::ItemType::ITEM], item);
 }
 
-inline BackpackItemPtr
+inline BackpackItem*
 Backpack::getWeapon(void* ud)
 {
     size_t index;
     if (!getIndex(mItems[BackpackDef::ItemType::WEAPON], ud, index)) {
-        return BackpackItemPtr();
+        return 0;
     }
     return (mItems[BackpackDef::ItemType::WEAPON])[index];
 }
-inline BackpackItemPtr
+inline BackpackItem*
 Backpack::getBomb(void* ud)
 {
     size_t index;
     if (!getIndex(mItems[BackpackDef::ItemType::BOMB], ud, index)) {
-        return BackpackItemPtr();
+        return 0;
     }
     return (mItems[BackpackDef::ItemType::BOMB])[index];
 }
-inline BackpackItemPtr
+inline BackpackItem*
 Backpack::getItem(void* ud)
 {
     size_t index;
     if (!getIndex(mItems[BackpackDef::ItemType::ITEM], ud, index)) {
-        return BackpackItemPtr();
+        return 0;
     }
     return (mItems[BackpackDef::ItemType::ITEM])[index];
 }
