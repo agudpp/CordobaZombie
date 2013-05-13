@@ -34,8 +34,9 @@ InternalBackpack::loadElements(void)
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-InternalBackpack::InternalBackpack(PlayerUnit *pu) :
+InternalBackpack::InternalBackpack(PlayerUnit *pu, BackpackElementBuilder& builder) :
     mPlayer(pu)
+,   mBuilder(builder)
 {
     ASSERT(pu);
 }

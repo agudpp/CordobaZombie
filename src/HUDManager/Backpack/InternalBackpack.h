@@ -22,12 +22,17 @@ class PlayerUnit;
 
 namespace hud {
 
+// forward
+//
+class BackpackElementBuilder;
+
 class InternalBackpack
 {
 
     typedef std::vector<BackpackElementPtr> ElementVec;
+
 public:
-    InternalBackpack(PlayerUnit *pu);
+    InternalBackpack(PlayerUnit *pu, BackpackElementBuilder& builder);
     ~InternalBackpack();
 
     /**
@@ -53,7 +58,7 @@ public:
      * @brief This method is a callback for when the backpack changes
      */
     void
-    backpackChange(Backpack*, const BackpackItemPtr&, Backpack::Event);
+    backpackChange(Backpack*, const BackpackItem*, Backpack::Event);
 
 private:
 
@@ -69,6 +74,7 @@ private:
     Backpack &mPlayerBackpack;
     Backpack::Connection mBackpackUpdates;
     ElementVec mElements;
+    BackpackElementBuilder& mBuilder;
 };
 
 

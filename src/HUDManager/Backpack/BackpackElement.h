@@ -24,16 +24,16 @@ namespace hud {
 class BackpackElement
 {
 public:
-    BackpackElement(BackpackItemPtr& item, CallbackMenuButtonPtr& button);
+    BackpackElement(BackpackItem* item, CallbackMenuButtonPtr& button);
     virtual
     ~BackpackElement() {};
 
     /**
      * @brief Returns the backpackitem ptr
      */
-    inline const BackpackItemPtr&
+    inline const BackpackItem*
     getBackpackItemPtr(void) const;
-    inline BackpackItemPtr&
+    inline BackpackItem*
     getBackpackItemPtr(void);
 
     /**
@@ -83,7 +83,7 @@ protected:
     bool mIsDirty;
     PlayerUnit *mPlayer;
 private:
-    BackpackItemPtr mItem;
+    BackpackItem* mItem;
     CallbackMenuButtonPtr mButton;
 
 };
@@ -95,19 +95,19 @@ typedef boost::shared_ptr<BackpackElement> BackpackElementPtr;
 
 // Inline impl
 //
-BackpackElement::BackpackElement(BackpackItemPtr& item, CallbackMenuButtonPtr& button) :
+BackpackElement::BackpackElement(BackpackItem* item, CallbackMenuButtonPtr& button) :
     mIsDirty(true)
 ,   mPlayer(0)
 ,   mItem(item)
 ,   mButton(button)
 {}
 
-inline const BackpackItemPtr&
+inline const BackpackItem*
 BackpackElement::getBackpackItemPtr(void) const
 {
     return mItem;
 }
-inline BackpackItemPtr&
+inline BackpackItem*
 BackpackElement::getBackpackItemPtr(void)
 {
     return mItem;
