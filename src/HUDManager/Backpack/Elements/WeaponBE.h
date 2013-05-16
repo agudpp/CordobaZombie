@@ -21,7 +21,7 @@ namespace hud {
 class WeaponBE : public BackpackElement
 {
 public:
-    WeaponBE(BackpackItemPtr& item, CallbackMenuButtonPtr& button);
+    WeaponBE(BackpackItem* item, CallbackMenuButtonPtr& button);
     virtual
     ~WeaponBE();
 

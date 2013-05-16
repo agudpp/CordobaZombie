@@ -69,6 +69,18 @@ private:
     void
     loadElements(void);
 
+    /**
+     * @brief Returns the index associated to a BackpackItem (where is the
+     *        BackpackElementPtr wrapping that BackpackItem)
+     * @param item  The item we want to look for
+     * @param index Where we will return the associated index
+     * @returns true if success and index pointing to the element who
+     *          element->getBackpackItem() == item;
+     *          false otherwise
+     */
+    bool
+    getElementIndexFromItem(const BackpackItem* item, size_t& index) const;
+
 private:
     PlayerUnit *mPlayer;
     Backpack &mPlayerBackpack;

@@ -71,13 +71,20 @@ public:
     buttonPressed(CallbackMenuButton::ButtonID) = 0;
 
     /**
-     * @brief Virtual method that will be called everytime we need to update
+     * @brief Virtual method that will be called every time we need to update
      *        the element (when is dirty for example).
      *        In this method we should put all the logic for update the visual
      *        information
      */
     virtual void
     update(void) = 0;
+
+    /**
+     * @brief Method called every time the selection has changed
+     * @param selData   The new selectionData (the current selection)
+     */
+    virtual void
+    selectionChanged(const selection::SelectionData &selData) = 0;
 
 protected:
     bool mIsDirty;
