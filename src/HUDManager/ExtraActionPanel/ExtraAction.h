@@ -13,6 +13,9 @@
 
 #include "MenuButton.h"
 
+
+namespace hud {
+
 class ExtraAction : public MenuButton
 {
 public:
@@ -72,6 +75,8 @@ private:
 inline ExtraAction::Callback *ExtraAction::getCallback(void)
 {
 	return mCallback;
+}
+
 }
 
 #endif /* EXTRAACTION_H_ */

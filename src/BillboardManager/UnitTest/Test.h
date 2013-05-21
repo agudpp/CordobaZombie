@@ -15,6 +15,7 @@
 
 #include "BillboardBatery.h"
 #include "BillboardManager.h"
+#include "BillboardWrapper.h"
 #include "AppTester.h"
 #include "DebugUtil.h"
 
@@ -43,8 +44,8 @@ private:
 
 private:
 	MouseCursor				mMouseCursor;
-	BillboardBatery			mBbBatery;
-	BillboardManager		mBbManager;
+	billboard::BillboardBatery			mBbBatery;
+	billboard::BillboardManager mBbManager;
 
 };
 

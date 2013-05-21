@@ -347,37 +347,20 @@ TriangleNavMesh::getNodeFromPoint(const sm::Point &p) const
 	int r = MATRIX_GET_ROW(p.y);
 	int c = MATRIX_GET_COLUMN(p.x);
 
-	if(c < 0 || c >= mColumnCount || r < 0 || r >= mRowCount) return 0;
+	if(c < 0 || c >= mColumnCount || r < 0 || r >= mRowCount) {
+	    return 0;
+	}
 
 	// check if there are some Node checking the triangles
-	NodeVec &vec = mMatrix[r][c];
-//
-//	debug("Getting node from point(%f,%f): matrix pos:(%d,%d)\n"
-//			"vecSize: %d\n", p.x, p.y,
-//			MATRIX_GET_ROW(p.y),MATRIX_GET_COLUMN(p.x),
-//			vec.size());
-//#ifdef DEBUG
-//	AlignedBox b;
-//	getCellBoundingBox(b, MATRIX_GET_ROW(p.y), MATRIX_GET_COLUMN(p.x));
-//	debug("\n\nBOUNDINGBOX: tl:(%f,%f), br:(%f,%f)\n", b.tl.x, b.tl.y,
-//			b.br.x, b.br.y);
-//#endif
+	const NodeVec &vec = mMatrix[r][c];
 
-	for(int i = vec.size()-1; i >= 0; --i){
+	for(size_t i = 0, size = vec.size(); i < size; ++i){
 		// check if the point is inside the triangle
 		ASSERT(vec[i]->getTriangle());
-//		debug("sm::Point:(%f,%f) inside of: (%f,%f), (%f,%f), (%f,%f)\n",
-//				p.x, p.y,
-//				vec[i]->getTriangle()->v1->x,vec[i]->getTriangle()->v1->y,
-//				vec[i]->getTriangle()->v2->x,vec[i]->getTriangle()->v2->y,
-//				vec[i]->getTriangle()->v3->x,vec[i]->getTriangle()->v3->y);
 		if(vec[i]->getTriangle()->containsPoint(p)){
 			return vec[i];
 		}
 	}
-
-	debug("NO NODE FOUND IN point(%f,%f): matrix pos:(%d,%d), vecSize: %zd\n", p.x, p.y,
-			MATRIX_GET_ROW(p.y),MATRIX_GET_COLUMN(p.x), vec.size());
 
 	// there are no node intersecting the point
 	return 0;

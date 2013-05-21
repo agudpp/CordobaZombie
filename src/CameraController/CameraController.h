@@ -94,7 +94,7 @@ public:
 	void setPitchRange(const Ogre::Radian min, const Ogre::Radian max);
 
 	// Set/Get the velocity factor of the camera movement
-	void setCameraVelocity(Ogre::Real v) {mCamVelocityFactor = v;}
+	void setCameraVelocity(Ogre::Real v) {mCamVelocityFactor = (v < 0.f) ? 0.f : v;}
 	Ogre::Real getCameraVelocity(void) const {return mCamVelocityFactor;}
 
 	// Set/Get RotationVelocity

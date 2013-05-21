@@ -9,6 +9,8 @@
 #ifndef MENUBUTTON_H_
 #define MENUBUTTON_H_
 
+#include <boost/shared_ptr.hpp>
+
 #include <OgreString.h>
 #include <OgrePanelOverlayElement.h>
 
@@ -66,6 +68,11 @@ public:
 	 * Reset the atlas to the main state
 	 */
 	inline void resetAtlas(void);
+
+	/**
+	 * @brief Set the last state that has this button (reconfigure the atlas)
+	 */
+	inline void restoreLastAtlasState(void);
 
 	/**
 	 * This function is called when the material has change and we need to
@@ -138,12 +145,17 @@ private:
 
 
 private:
-	int							mFlags;
-	bool						mActive;
-	int 						mAtlasSize;
-	int							mTextureWidth;
-	ActionType					mActionType;
+	int mFlags;
+	bool mActive;
+	int mAtlasSize;
+	int mTextureWidth;
+	int mCurrentState;
+	ActionType mActionType;
 };
+
+// typedef the shared ptr here
+//
+typedef boost::shared_ptr<MenuButton> MenuButtonPtr;
 
 
 inline bool MenuButton::isActive(void) const
@@ -154,6 +166,11 @@ inline bool MenuButton::isActive(void) const
 inline void MenuButton::resetAtlas(void)
 {
     configureAtlas(S_ACTIVE);
+}
+
+inline void MenuButton::restoreLastAtlasState(void)
+{
+    configureAtlas(mCurrentState);
 }
 
 inline void MenuButton::setActionType(MenuButton::ActionType t)

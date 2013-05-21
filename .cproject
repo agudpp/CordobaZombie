@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?fileVersion 4.0.0?>
-
-<cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
+<?fileVersion 4.0.0?><cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
 	<storageModule moduleId="org.eclipse.cdt.core.settings">
 		<cconfiguration id="cdt.managedbuild.config.gnu.exe.debug.1666725842">
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.config.gnu.exe.debug.1666725842" moduleId="org.eclipse.cdt.core.settings" name="Debug">
@@ -50,11 +48,14 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/IA/FSM}&quot;"/>
 									<listOptionValue builtIn="false" value="/usr/include/OGRE"/>
 									<listOptionValue builtIn="false" value="/usr/include/c++/4.4"/>
+<<<<<<< HEAD
 									<listOptionValue builtIn="false" value="/usr/include/"/>
 									<listOptionValue builtIn="false" value="/usr/include/c++/4.4/backward"/>
 									<listOptionValue builtIn="false" value="/usr/include/linux"/>
 									<listOptionValue builtIn="false" value="/usr/lib/gcc/x86_64-linux-gnu/4.4/include/"/>
 									<listOptionValue builtIn="false" value="/usr/include/gnu"/>
+=======
+>>>>>>> PlayerMovement
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CordobaZombie/src}&quot;"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.preprocessor.def.1570417059" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
@@ -63,8 +64,12 @@
 									<listOptionValue builtIn="false" value="__linux__"/>
 									<listOptionValue builtIn="false" value="__GXX_EXPERIMENTAL_CXX0X__"/>
 								</option>
+<<<<<<< HEAD
 								<option id="gnu.cpp.compiler.option.warnings.extrawarn.256334572" name="Extra warnings (-Wextra)" superClass="gnu.cpp.compiler.option.warnings.extrawarn" value="true" valueType="boolean"/>
 								<option id="gnu.cpp.compiler.option.other.other.1827200796" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0 -std=c++0x" valueType="string"/>
+=======
+								<option id="gnu.cpp.compiler.option.other.other.1751087811" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0 -std=c++11" valueType="string"/>
+>>>>>>> PlayerMovement
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1111500657" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.compiler.exe.debug.322261559" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.exe.debug">
@@ -90,9 +95,12 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/IA/FSM}&quot;"/>
 									<listOptionValue builtIn="false" value="/usr/include/OGRE"/>
 									<listOptionValue builtIn="false" value="/usr/include/c++/4.4"/>
+<<<<<<< HEAD
 									<listOptionValue builtIn="false" value="/usr/include/"/>
 									<listOptionValue builtIn="false" value="/usr/lib/gcc/x86_64-linux-gnu/4.4/include/"/>
 									<listOptionValue builtIn="false" value="/usr/include/gnu"/>
+=======
+>>>>>>> PlayerMovement
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CordobaZombie/src}&quot;"/>
 								</option>
 								<option id="gnu.c.compiler.option.preprocessor.def.symbols.969097811" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" valueType="definedSymbols">
@@ -103,7 +111,11 @@
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.linker.exe.debug.114899414" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.exe.debug"/>
 							<tool id="cdt.managedbuild.tool.gnu.cpp.linker.exe.debug.1764210112" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.exe.debug">
+<<<<<<< HEAD
 								<option id="gnu.cpp.link.option.flags.1891196557" name="Linker flags" superClass="gnu.cpp.link.option.flags" value="-std=c++0x" valueType="string"/>
+=======
+								<option id="gnu.cpp.link.option.flags.196472447" name="Linker flags" superClass="gnu.cpp.link.option.flags" value="-std=c++11 " valueType="string"/>
+>>>>>>> PlayerMovement
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.2047961928" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
@@ -130,9 +142,12 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/IA/FSM}&quot;"/>
 									<listOptionValue builtIn="false" value="/usr/include/OGRE"/>
 									<listOptionValue builtIn="false" value="/usr/include/c++/4.4"/>
+<<<<<<< HEAD
 									<listOptionValue builtIn="false" value="/usr/include/"/>
 									<listOptionValue builtIn="false" value="/usr/lib/gcc/x86_64-linux-gnu/4.4/include/"/>
 									<listOptionValue builtIn="false" value="/usr/include/gnu"/>
+=======
+>>>>>>> PlayerMovement
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CordobaZombie/src}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.1317598714" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
@@ -143,7 +158,7 @@
 					<fileInfo id="cdt.managedbuild.config.gnu.exe.debug.1666725842.104641576" name="AutoGen.cmake" rcbsApplicability="disable" resourcePath="src/SoundSystem/AutoGen.cmake" toolsToInvoke=""/>
 					<fileInfo id="cdt.managedbuild.config.gnu.exe.debug.1666725842.1736112990" name="CMakeLists.txt" rcbsApplicability="disable" resourcePath="src/SoundSystem/UnitTest/CMakeLists.txt" toolsToInvoke=""/>
 					<sourceEntries>
-						<entry excluding="src/SoundSystem/multiplatform_hashtable.cpp|src/SoundSystem/idea_SoundSystem.cpp|src/PathfindingSystem/UnitTest/triangleTest|src/SoundSystem/hash_test.cpp|src/SoundSystem/UnitTest/CMakeLists.txt|src/Utils/MathIntersection|src/SoundSystem/autogenCmake|src/SoundSystem/AutoGen.cmake" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="src/SoundSystem/multiplatform_hashtable.cpp|src/SoundSystem/idea_SoundSystem.cpp|src/SoundSystem/UnitTest/CMakeLists.txt|src/SoundSystem/hash_test.cpp|src/PathfindingSystem/UnitTest/triangleTest|src/Utils/MathIntersection|src/SoundSystem/autogenCmake|src/SoundSystem/AutoGen.cmake" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -193,6 +208,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/IA/FSM}&quot;"/>
 									<listOptionValue builtIn="false" value="/usr/include/OGRE"/>
 									<listOptionValue builtIn="false" value="/usr/include/c++/4.4"/>
+<<<<<<< HEAD
 									<listOptionValue builtIn="false" value="/usr/include/"/>
 									<listOptionValue builtIn="false" value="/usr/lib/gcc/x86_64-linux-gnu/4.4/include/"/>
 									<listOptionValue builtIn="false" value="/usr/include/gnu"/>
@@ -200,6 +216,9 @@
 								</option>
 								<option id="gnu.cpp.compiler.option.preprocessor.def.1216377349" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__GXX_EXPERIMENTAL_CXX0X__"/>
+=======
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CordobaZombie/src}&quot;"/>
+>>>>>>> PlayerMovement
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.445865644" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
@@ -226,9 +245,12 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/IA/FSM}&quot;"/>
 									<listOptionValue builtIn="false" value="/usr/include/OGRE"/>
 									<listOptionValue builtIn="false" value="/usr/include/c++/4.4"/>
+<<<<<<< HEAD
 									<listOptionValue builtIn="false" value="/usr/include/"/>
 									<listOptionValue builtIn="false" value="/usr/lib/gcc/x86_64-linux-gnu/4.4/include/"/>
 									<listOptionValue builtIn="false" value="/usr/include/gnu"/>
+=======
+>>>>>>> PlayerMovement
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CordobaZombie/src}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.2131463687" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
@@ -261,9 +283,12 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/estrategia2012/src/IA/FSM}&quot;"/>
 									<listOptionValue builtIn="false" value="/usr/include/OGRE"/>
 									<listOptionValue builtIn="false" value="/usr/include/c++/4.4"/>
+<<<<<<< HEAD
 									<listOptionValue builtIn="false" value="/usr/include/"/>
 									<listOptionValue builtIn="false" value="/usr/lib/gcc/x86_64-linux-gnu/4.4/include/"/>
 									<listOptionValue builtIn="false" value="/usr/include/gnu"/>
+=======
+>>>>>>> PlayerMovement
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CordobaZombie/src}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.243602743" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
@@ -286,7 +311,11 @@
 	<storageModule moduleId="refreshScope" versionNumber="1">
 		<resource resourceType="PROJECT" workspacePath="/CordobaZombie"/>
 	</storageModule>
+<<<<<<< HEAD
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
+=======
+	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
+>>>>>>> PlayerMovement
 	<storageModule moduleId="scannerConfiguration">
 		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		<profile id="org.eclipse.cdt.make.core.GCCStandardMakePerProjectProfile">
@@ -329,8 +358,8 @@
 				<parser enabled="true"/>
 			</scannerInfoProvider>
 		</profile>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.release.2118988469;cdt.managedbuild.config.gnu.exe.release.2118988469.;cdt.managedbuild.tool.gnu.c.compiler.exe.release.593209334;cdt.managedbuild.tool.gnu.c.compiler.input.2131463687">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC"/>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.debug.1666725842;cdt.managedbuild.config.gnu.exe.debug.1666725842.;cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.182599208;cdt.managedbuild.tool.gnu.cpp.compiler.input.1111500657">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP"/>
 			<profile id="org.eclipse.cdt.make.core.GCCStandardMakePerProjectProfile">
 				<buildOutputProvider>
 					<openAction enabled="true" filePath=""/>
@@ -357,7 +386,7 @@
 					<parser enabled="true"/>
 				</buildOutputProvider>
 				<scannerInfoProvider id="specsFile">
-					<runAction arguments="-E -P -v -dD ${plugin_state_location}/specs.cpp" command="g++" useDefault="true"/>
+					<runAction arguments="-E -P -v -dD ${plugin_state_location}/specs.cpp -std=c++11" command="g++" useDefault="true"/>
 					<parser enabled="true"/>
 				</scannerInfoProvider>
 			</profile>
@@ -372,8 +401,8 @@
 				</scannerInfoProvider>
 			</profile>
 		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.debug.1666725842;cdt.managedbuild.config.gnu.exe.debug.1666725842.;cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.182599208;cdt.managedbuild.tool.gnu.cpp.compiler.input.1111500657">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP"/>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.release.2118988469;cdt.managedbuild.config.gnu.exe.release.2118988469.;cdt.managedbuild.tool.gnu.c.compiler.exe.release.593209334;cdt.managedbuild.tool.gnu.c.compiler.input.2131463687">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC"/>
 			<profile id="org.eclipse.cdt.make.core.GCCStandardMakePerProjectProfile">
 				<buildOutputProvider>
 					<openAction enabled="true" filePath=""/>
@@ -415,8 +444,8 @@
 				</scannerInfoProvider>
 			</profile>
 		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.debug.1666725842;cdt.managedbuild.config.gnu.exe.debug.1666725842.1026713632;cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.182599208.1702470405;cdt.managedbuild.tool.gnu.cpp.compiler.input.1394814701">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP"/>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.debug.1666725842;cdt.managedbuild.config.gnu.exe.debug.1666725842.;cdt.managedbuild.tool.gnu.c.compiler.exe.debug.322261559;cdt.managedbuild.tool.gnu.c.compiler.input.618162601">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC"/>
 			<profile id="org.eclipse.cdt.make.core.GCCStandardMakePerProjectProfile">
 				<buildOutputProvider>
 					<openAction enabled="true" filePath=""/>
@@ -458,8 +487,8 @@
 				</scannerInfoProvider>
 			</profile>
 		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.debug.1666725842;cdt.managedbuild.config.gnu.exe.debug.1666725842.;cdt.managedbuild.tool.gnu.c.compiler.exe.debug.322261559;cdt.managedbuild.tool.gnu.c.compiler.input.618162601">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC"/>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.debug.1666725842;cdt.managedbuild.config.gnu.exe.debug.1666725842.1026713632;cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.182599208.1702470405;cdt.managedbuild.tool.gnu.cpp.compiler.input.1394814701">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP"/>
 			<profile id="org.eclipse.cdt.make.core.GCCStandardMakePerProjectProfile">
 				<buildOutputProvider>
 					<openAction enabled="true" filePath=""/>

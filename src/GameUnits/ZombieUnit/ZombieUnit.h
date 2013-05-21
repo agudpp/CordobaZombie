@@ -11,12 +11,16 @@
 #include <vector>
 #include <set>
 
+#include <BillboardManager/BillboardManager.h>
+#include <BillboardManager/BillboardBatery.h>
+#include <BillboardManager/BillboardWrapper.h>
+
 #include "ZombieDefs.h"
 #include "FSM/StateMachine.h"
 #include "GameUnit.h"
 #include "ZombieFactory.h"
-#include "BillboardBatery.h"
-#include "BillboardManager.h"
+
+
 
 
 // zombie state machine
@@ -155,7 +159,7 @@ public:
 	/**
 	 * Set the Blood BillboardBatery
 	 */
-	static void setBillboardBBlood(BillboardBatery *bbb);
+	static void setBillboardBBlood(billboard::BillboardBatery *bbb);
 
 	/**
 	 * Set the ZombieQueue
@@ -246,12 +250,6 @@ public:
 	inline void setSpreader(GameUnit *starget);
 	inline GameUnit * getSpreader(void);
 
-private:
-	/**
-	 * Load the Billboard associated to the zombies
-	 */
-	void loadBillboards(void);
-
 
 private:
 	ZombieStateMachine				mFSM;
@@ -260,13 +258,13 @@ private:
 	TargetList						mTargets;
 	const Ogre::SceneNode			*mSoundTarget;
 	GameUnit						*mSpreader;
-	Ogre::Billboard 				*mSelBillboard;
+	billboard::BillboardWrapper		mSelBillboard;
 
 	// The transition table used by all the zombies
 	static ZombieSMTTable		*mSMTT;
 	static ZombieQueue			*mQueue;
-	static BillboardBatery		*mBloodBatery;
-	static	BillboardManager	*mBillboardMngr;
+	static billboard::BillboardBatery		*mBloodBatery;
+	static billboard::BillboardManager &mBillboardMngr;
 };
 
 

@@ -1,0 +1,26 @@
+<!-- Esto es una muestra de como deberia ser el xml que configura el Billboard
+     Manager (que es el que usa el atlas y maneja todos los billboards).
+     Basicamente cada billboard tiene un ID unico (numerico) que determina 
+     que porcion de textura (atlas) usa (por medio de las uv's especificadas)
+     y ademas el tamanio del billboard (con el que se va a ver en el nivel), esto
+     es ancho y alto.
+     Esta informacion esta en los AtlasInfoItem donde id es el ID (unico) 
+     asociado a ese billboard y donde en AtlasInfo contiene el ancho (width)
+     alto (height) y la cantidad de billboards de este tipo que vamos a tener.
+     A su vez UVCoords determina las uvs asociado a ese AtlasInfoItem.
+-->
+<BillboardManagerInfo materialName="nameOfMaterial">
+      <AtlasInfoItems>
+          <AtlasInfoItem id="0">
+              <AtlasInfo width="x" height="x" count="x">
+                <UVCoords u0="0" v0="0" u1="1" v1="1" />
+              </AtlasInfo>
+          </AtlasInfoItem>
+          ....
+          <AtlasInfoItem id="22">
+              <AtlasInfo width="x" height="x" count="x">
+                <UVCoords u0="0" v0="0" u1="1" v1="1" />
+              </AtlasInfo>
+          </AtlasInfoItem>
+      </AtlasInfoItems>
+</BillboardManagerInfo>

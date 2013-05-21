@@ -4,16 +4,19 @@
  *  Created on: 13/02/2012
  *      Author: agustin
  */
-#include "GlobalObjects.h"
-#include "ZombieDefs.h"
+
 #include "ZombieUnit.h"
+#include "ZombieDefs.h"
 #include "SoundFamilyTable.h"
 
+#include <SelectionSystem/SelectionType.h>
+#include <Common/GlobalObjects/GlobalObjects.h>
 
 ZombieSMTTable		*ZombieUnit::mSMTT = 0;
 ZombieQueue			*ZombieUnit::mQueue = 0;
-BillboardBatery		*ZombieUnit::mBloodBatery = 0;
-BillboardManager	*ZombieUnit::mBillboardMngr = 0;
+billboard::BillboardBatery *ZombieUnit::mBloodBatery = 0;
+billboard::BillboardManager &ZombieUnit::mBillboardMngr =
+    billboard::BillboardManager::instance();
 
 const float  ZombieUnit::MAX_RADIUS_VISIBILITY = ZOMBIE_MAX_VISIBILITY_DIST;
 
@@ -22,34 +25,11 @@ const float  ZombieUnit::MAX_RADIUS_VISIBILITY = ZOMBIE_MAX_VISIBILITY_DIST;
 ////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////
-void ZombieUnit::loadBillboards(void)
-{
-	if(mBillboardMngr && mBillboardMngr->isCreated()){
-		return;
-	}
-
-	mBillboardMngr = new BillboardManager;
-
-	// create the billboard manager
-	// ONLY 1 zombie at the same time we can select
-	mBillboardMngr->createSet(getRadius(), ZOMBIE_BB_SEL_NAME, 2,
-			ZOMBIE_BB_SEL_NUM);
-
-	// set the size of the level (all the possible size...)
-	// TODO: change this..?
-	mBillboardMngr->setBounds(Ogre::AxisAlignedBox(
-			Ogre::Vector3(-9999.9f,-9999.9f,-9999.9f),
-			Ogre::Vector3(999999.9f,999999.9f,999999.9f)),999999.9f);
-}
-
-
-
-////////////////////////////////////////////////////////////////////////////////
 ZombieUnit::ZombieUnit() :
 		mFSM(this),
 		mSoundTarget(0),
 		mSpreader(0),
-		mSelBillboard(0)
+		mSelBillboard(0,0)
 {
 	ASSERT(mBloodBatery);
 	ASSERT(mQueue);
@@ -77,77 +57,80 @@ ZombieUnit::ZombieUnit() :
 	 ** TODO  ¡Quitar ese hardcodeo de acá!
 	 ************************************************************************/
 
-
 	mQueue->addNewObject(this);
+
+	// Set the Selectable Type of this object
+	setType(selection::Type::SEL_TYPE_ZOMBIE);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 ZombieUnit::~ZombieUnit()
 {
-	if(mBillboardMngr){
-		if(mSelBillboard){
-			mBillboardMngr->letAvailable(mSelBillboard);
-			mSelBillboard = 0;
-		}
-		delete mBillboardMngr;
-		mBillboardMngr = 0;
-	}
+    if(mSelBillboard){
+        mBillboardMngr.letAvailable(mSelBillboard);
+        mSelBillboard.reset();
+    }
 }
 
 
 //////			FUNCTION INHERITED				///////
 
 ////////////////////////////////////////////////////////////////////////////////
-void ZombieUnit::objectSelected(void)
+void
+ZombieUnit::objectSelected(void)
 {
 	if(mSelBillboard){
 		// actually selected, change the atlas
-		mBillboardMngr->changeAtlas(mSelBillboard, ZOMBIE_BB_SELECTION);
+		mBillboardMngr.changeAtlas(mSelBillboard, ZOMBIE_BB_SELECTION);
 		return;
 	}
 
 	// get new billboard
-	mSelBillboard = mBillboardMngr->getNewBillboard(ZOMBIE_BB_SELECTION);
+	mSelBillboard = mBillboardMngr.getNewBillboard(ZOMBIE_BB_SELECTION);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void ZombieUnit::objectUnselected(void)
+void
+ZombieUnit::objectUnselected(void)
 {
 	if(mSelBillboard){
-		mBillboardMngr->letAvailable(mSelBillboard);
-		mSelBillboard = 0;
+		mBillboardMngr.letAvailable(mSelBillboard);
+		mSelBillboard.reset();
 	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void ZombieUnit::mouseOverObject(void)
+void
+ZombieUnit::mouseOverObject(void)
 {
 	// if is actually selected, we do nothing?
 	if(mSelBillboard) return;
 	// else we get new billboard and use it
-	mSelBillboard = mBillboardMngr->getNewBillboard(ZOMBIE_BB_MOUSE_OVER);
+	mSelBillboard = mBillboardMngr.getNewBillboard(ZOMBIE_BB_MOUSE_OVER);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void ZombieUnit::mouseExitObject(void)
+void
+ZombieUnit::mouseExitObject(void)
 {
 	// if we are already selected then we do nothing
 	if(!mSelBillboard){
 		return;
 	}
-	if(mBillboardMngr->getAtlas(mSelBillboard) == ZOMBIE_BB_SELECTION){
+	if(mBillboardMngr.getAtlas(mSelBillboard) == ZOMBIE_BB_SELECTION){
 		// do nothing
 		return;
 	} else {
 		// we are in "mouse over".. so we clear this billboard
-		mBillboardMngr->letAvailable(mSelBillboard);
-		mSelBillboard = 0;
+		mBillboardMngr.letAvailable(mSelBillboard);
+		mSelBillboard.reset();
 	}
 
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void ZombieUnit::beenHit(const Hit_t &hit)
+void
+ZombieUnit::beenHit(const Hit_t &hit)
 {
 	mLastHit = hit;
 	// decrease the life
@@ -165,14 +148,16 @@ void ZombieUnit::beenHit(const Hit_t &hit)
 /* Function called when the unit is getting alive. This function
  * automatically reset the StateMachine
  */
-void ZombieUnit::borning(void)
+void
+ZombieUnit::borning(void)
 {
 	// TODO:
 	setActiveCollision(true);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void ZombieUnit::dead(void)
+void
+ZombieUnit::dead(void)
 {
 	// TODO: aca deberiamos limpiar la unidad, volverla algun contenedor..
 
@@ -190,7 +175,8 @@ void ZombieUnit::dead(void)
  * Function used to build the GameUnit, this will load all the animations
  * and all the necessary things to get work property the class
  */
-bool ZombieUnit::build(void)
+bool
+ZombieUnit::build(void)
 {
 	// load the animations of the entity
 	std::vector<Ogre::String> anims;
@@ -225,9 +211,6 @@ bool ZombieUnit::build(void)
 	// configure the unit path
 	configureUnitPath();
 
-	// create the billboards for every unit
-	loadBillboards();
-
 	// Start the FSM
 	mFSM.start();
 
@@ -237,7 +220,8 @@ bool ZombieUnit::build(void)
 /**
  * Function used to advise the unit for a certain new event
  */
-void ZombieUnit::newExternalEvent(SMEvent e)
+void
+ZombieUnit::newExternalEvent(SMEvent e)
 {
 	// TODO:
 }
@@ -246,7 +230,8 @@ void ZombieUnit::newExternalEvent(SMEvent e)
 // TODO: probablemente no haga falta hacerla virtual a esta funcion si no
 // que simplemente haciendo mActualAnim->addTime(GLOBAL_TIME); y
 // mStateMachine.update(); alcance.... nos ahorramos una virtual call.
-void ZombieUnit::update(void)
+void
+ZombieUnit::update(void)
 {
 	mActualAnim->addTime(GLOBAL_TIME_FRAME * mAnimAccelCoef);
 	mFSM.update();
@@ -260,7 +245,8 @@ void ZombieUnit::update(void)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void ZombieUnit::unitClose(GameUnit *unit)
+void
+ZombieUnit::unitClose(GameUnit *unit)
 {
 	// check that the unit that is close is a player or a civil
 	ASSERT(unit);
@@ -272,12 +258,14 @@ void ZombieUnit::unitClose(GameUnit *unit)
 
 ///////						Function of this class					//////
 ////////////////////////////////////////////////////////////////////////////////
-void ZombieUnit::setSMTransitionTable(ZombieSMTTable *tt)
+void
+ZombieUnit::setSMTransitionTable(ZombieSMTTable *tt)
 {
 	ASSERT(tt);
 	mSMTT = tt;
 }
-ZombieSMTTable *ZombieUnit::getSMTransitionTable(void)
+ZombieSMTTable
+*ZombieUnit::getSMTransitionTable(void)
 {
 	return mSMTT;
 }
@@ -285,14 +273,16 @@ ZombieSMTTable *ZombieUnit::getSMTransitionTable(void)
 
 
 ////////////////////////////////////////////////////////////////////////////////
-void ZombieUnit::setBillboardBBlood(BillboardBatery *bbb)
+void
+ZombieUnit::setBillboardBBlood(billboard::BillboardBatery *bbb)
 {
 	ASSERT(bbb);
 	mBloodBatery = bbb;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void ZombieUnit::setQueue(ZombieQueue *q)
+void
+ZombieUnit::setQueue(ZombieQueue *q)
 {
 	ASSERT(q);
 	mQueue = q;
@@ -307,7 +297,8 @@ void ZombieUnit::setQueue(ZombieQueue *q)
  * The second funcion (getNearbyZombies) do not perform any operation,
  * only returns the last result obtained in findNearbyZombies()
  */
-ZombieUnit::ZombieUnitVec &ZombieUnit::findNearbyZombies(float range)
+ZombieUnit::ZombieUnitVec &
+ZombieUnit::findNearbyZombies(float range)
 {
 	mNearbyZombies.clear();
 	getNearbyObjects(range, range, static_cast<mask_t>(COL_FLAG_UNIT_ZOMBIE),
@@ -317,7 +308,8 @@ ZombieUnit::ZombieUnitVec &ZombieUnit::findNearbyZombies(float range)
 
 
 ////////////////////////////////////////////////////////////////////////////////
-bool ZombieUnit::seeTarges(std::vector<GameUnit *> &targets)
+bool
+ZombieUnit::seeTarges(std::vector<GameUnit *> &targets)
 {
 	if(mTargets.empty()) return false;
 
@@ -341,7 +333,8 @@ bool ZombieUnit::seeTarges(std::vector<GameUnit *> &targets)
 
 
 ////////////////////////////////////////////////////////////////////////////////
-void ZombieUnit::followSound(const Ogre::SceneNode * target)
+void
+ZombieUnit::followSound(const Ogre::SceneNode * target)
 {
 	mSoundTarget = target;
 	mFSM.newEvent(ZombieUnit::E_FOLLOW_SOUND);

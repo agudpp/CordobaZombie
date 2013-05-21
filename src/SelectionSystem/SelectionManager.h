@@ -12,6 +12,8 @@
 #include <set>
 #include <boost/signals.hpp>
 
+#include <DebugUtil.h>
+
 #include "SelectableObject.h"
 #include "SelectionType.h"
 #include "SelectionData.h"
@@ -41,26 +43,28 @@ public:
     ~SelectionManager();
 
     /**
-     * Add/Remove a selectable object
+     * Add/Unselect a selectable object
      * These functions will call the objectSelected / Unselected functions
+     * If the object is already selected (unselected) then this function does
+     * nothing. Otherwise it will call also the callbacks
      * @Note: This class is not the owner of the memory
      */
-    void addObject(SelectableObject *obj);
-    void addObjects(const std::vector<SelectableObject *> &objects);
-    void removeObject(SelectableObject *obj);
-    void removeObjects(const std::vector<SelectableObject *> &objects);
+    void select(SelectableObject *obj);
+    void select(const std::vector<SelectableObject *> &objects);
+    void unselect(SelectableObject *obj);
+    void unselect(const std::vector<SelectableObject *> &objects);
 
     /**
      * Check if an object already exists
      */
-    bool exists(SelectableObject *obj);
+    inline bool isSelected(SelectableObject *obj);
 
     /**
-     * Remove by Type (removes all the objects with a certain type)
+     * Unselect by Type (removes all the objects with a certain type)
      * @Note: This class is not the owner of the memory
      */
-    void removeAll(Type t);
-    void removeAll(void);
+    void unselectAll(Type t);
+    void unselectAll(void);
 
     /**
      * Get all the objects associated with a type
@@ -78,6 +82,13 @@ public:
     inline Connection addCallback(const SelectionSignal::slot_type &cb);
     inline void removeCallback(const Connection &cb);
 
+    /**
+     * @brief This function needs to be called every frame to call all the
+     *        callbacks we have associated to this class. This way we can
+     *        package the events all in one
+     */
+    inline void executeCallbacks(void);
+
 
 private:
     // Avoid construction / copying the class
@@ -89,7 +100,21 @@ private:
 private:
     SelectionSignal mSignal;
     ObjectsVec mSelectedObjects;
+    ObjectsVec mUnselected;
+    ObjectsVec mLastSelection;
+    bool mDirty;
 };
+
+
+// Inline implementations
+//
+
+inline bool
+SelectionManager::isSelected(SelectableObject *obj)
+{
+    return (obj != 0 ) && (obj->mIndex < mSelectedObjects.size()) && (
+            mSelectedObjects[obj->mIndex] == obj);
+}
 
 inline SelectionManager::Connection
 SelectionManager::addCallback(const SelectionSignal::slot_type &cb)
@@ -107,6 +132,19 @@ const SelectionManager::ObjectsVec &
 SelectionManager::getObjects(void) const
 {
     return mSelectedObjects;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+inline void
+SelectionManager::executeCallbacks(void)
+{
+    if (!mDirty){
+        return;
+    }
+    mDirty = false;
+    mSignal(SelectionData(mSelectedObjects, mLastSelection, mUnselected));
+    mLastSelection.clear();
+    mUnselected.clear();
 }
 
 }

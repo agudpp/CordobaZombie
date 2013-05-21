@@ -7,16 +7,36 @@
 
 #include "Graph.h"
 
+<<<<<<< HEAD
 Graph::Graph()
 {
 
 }
+=======
+#include "GEdge.h"
+#include "GNode.h"
+>>>>>>> PlayerMovement
 
-Graph::~Graph()
+// builds the graph from a list of nodes and edges
+void
+Graph::setNodesAndEdges(const std::vector<GNode *> &nodes,
+                        const std::vector<GEdge *> &edges)
 {
-}
+    if (!mNodes.empty()) {
+        debug("Warning: the graph already have nodes\n");
+        ASSERT(false);
+        removeNodes();
+    }
+    if (!mEdges.empty()) {
+        debug("Warning: the graph already have edges\n");
+        ASSERT(false);
+        removeEdges();
+    }
 
+    mNodes = nodes;
+    mEdges = edges;
 
+<<<<<<< HEAD
 // builds the graph from a list of nodes and edges
 void
 Graph::setNodesAndEdges(const std::vector<GNode *> &nodes,
@@ -35,34 +55,46 @@ Graph::setNodesAndEdges(const std::vector<GNode *> &nodes,
 
 	mNodes = nodes;
 	mEdges = edges;
+=======
+    // set the ids for the nodes
+    for (size_t i = 0, size = mNodes.size(); i < size; ++i) {
+        mNodes[i]->mID = i;
+    }
+>>>>>>> PlayerMovement
 }
 
 // Remove all nodes
 void
 Graph::removeNodes(void)
 {
-	mNodes.clear();
+    mNodes.clear();
 }
 void
 Graph::removeAndDestroyNodes(void)
 {
-	for(int i = mNodes.size()-1; i >= 0; --i) delete mNodes[i];
-	mNodes.clear();
+    for (size_t i = 0, size = mNodes.size(); i < size; +i) {
+        delete mNodes[i];
+    }
+
+    mNodes.clear();
 }
 
 // Remove all edges
 void
 Graph::removeEdges(void)
 {
-	mEdges.clear();
+    mEdges.clear();
 }
 void
 Graph::removeAndDestroyEdeges(void)
 {
-	for(int i = mEdges.size()-1; i >= 0; --i) delete mEdges[i];
-	mEdges.clear();
+    for (size_t i = 0, size = mEdges.size(); i < size; +i) {
+        delete mEdges[i];
+    }
+    mEdges.clear();
 }
 
+<<<<<<< HEAD
 // Verify if two Graphs are equal
 //
 bool
@@ -99,3 +131,5 @@ Graph::operator==(const Graph &other) const
 }
 
 
+=======
+>>>>>>> PlayerMovement

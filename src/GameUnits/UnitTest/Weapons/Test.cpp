@@ -155,7 +155,7 @@ void Test::createZombies(void)
 	ZombieUnit::setSMTransitionTable(tt);
 
 	// create the batery for the zombies
-	static BillboardBatery bbb;
+	staticbillboard:: BillboardBatery bbb;
 	bbb.createSet(20, "Billboard/ZombieBlood", 10);
 	ZombieUnit::setBillboardBBlood(&bbb);
 
@@ -214,7 +214,6 @@ void Test::createLine(void)
 
 void Test::createShoots(void)
 {
-	Shoot::setContainer(&mShootContainer);
 	Shoot::setCollisionManager(mLevelManager.getCollisionManager());
 	Shoot::setUpdObjsManager(&mUpdMngr);
 

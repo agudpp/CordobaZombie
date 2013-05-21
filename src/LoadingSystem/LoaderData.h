@@ -22,7 +22,11 @@ class UpdObjsManager;
 class MenuManager;
 class LevelManager;
 class PathfindingManager;
+
+namespace billboard {
 class BillboardBatery;
+}
+
 class ZombieFactoryManager;
 class CollisionManager;
 
@@ -41,7 +45,7 @@ struct LoaderData {
 	ZombieUnitVec				*zombieUnits;
 	PlayerUnitVec				*playerUnits;
 	PathfindingManager			*pathfindingManager;
-	BillboardBatery				*bloodBatery;
+	billboard::BillboardBatery  *bloodBatery;
 	ZombieFactoryManager		*zombieFactoryManager;
 	CollisionManager			*collisionManager;
 

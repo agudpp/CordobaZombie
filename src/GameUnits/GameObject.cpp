@@ -14,7 +14,8 @@ CollisionManager *GameObject::collMng = 0;
 
 
 ////////////////////////////////////////////////////////////////////////////////
-void GameObject::configCollObj(float w, float h, float mF, float mG)
+void
+GameObject::configCollObj(float w, float h, uint32 mF, uint32 mG)
 {
 	mCollObject.bb.setSize(w, h);
 	mCollObject.maskFlag = mF;
@@ -59,8 +60,6 @@ GameObject::GameObject() :
 		mNode(0),
 		mCollisionActive(false)
 {
-	// initialize the position of the object
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -88,7 +87,9 @@ void GameObject::setSceneNode(Ogre::SceneNode *node)
 		// attach it
 		mNode->attachObject(mEntity);
 	}
-
+	// initialize the position of the object in height 5
+	const Ogre::Vector3& pos = mNode->getPosition();
+	mNode->setPosition(pos.x, 5, pos.z);
 
 //	// set the node to the object position
 //	const sm::Vector2 &p = mCollObject.getPosition();

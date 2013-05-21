@@ -88,7 +88,9 @@ if (NOT OGRE_BUILD_PLATFORM_IPHONE)
 endif()
 
 
+
 set (DEV_ROOT_PATH $ENV{ESTRATEGIA2012_DEV_PATH})
+include(${DEV_ROOT_PATH}/CommonFlags.cmake)  # Customized compilation flags
  
 set(HDRS		
 
@@ -97,6 +99,9 @@ set(HDRS
 	${DEV_ROOT_PATH}/Common/DebugUtil/DebugUtil.h
 	${DEV_ROOT_PATH}/Extras/AppTester/AppTester.h
 	${DEV_ROOT_PATH}/Utils/MouseCursor/MouseCursor.h
+
+	
+	./Test.h
 )
  
 set(SRCS
@@ -106,7 +111,8 @@ set(SRCS
 
 	${DEV_ROOT_PATH}/Extras/AppTester/AppTester.cpp
 
-	./test.cpp
+	./Test.cpp
+	./main.cpp
 	
 )
  
@@ -114,36 +120,21 @@ include_directories( ${OIS_INCLUDE_DIRS}
 	${OGRE_INCLUDE_DIRS}
 	${OGRE_SAMPLES_INCLUDEPATH}
 	${DEV_ROOT_PATH}/Common/DebugUtil
-    ${DEV_ROOT_PATH}/Common
-    ${DEV_ROOT_PATH}/Common/tinyxml
-    ${DEV_ROOT_PATH}/Common/GlobalObjects
-    ${DEV_ROOT_PATH}/Utils/MouseCursor
+	${DEV_ROOT_PATH}/Common
+	${DEV_ROOT_PATH}/Common/GlobalObjects
+	${DEV_ROOT_PATH}/Utils/MouseCursor
 	
 	${DEV_ROOT_PATH}/Extras/AppTester
-	
-	/usr/include
 )
 
 include(${DEV_ROOT_PATH}/PathfindingSystem/AutoGen.cmake)
-include(${DEV_ROOT_PATH}/Common/Math/AutoGen.cmake)
-include(${DEV_ROOT_PATH}/Common/Util/AutoGen.cmake)
-include(${DEV_ROOT_PATH}/Common/DebugUtil/AutoGen.cmake)
-
-include(${DEV_ROOT_PATH}/CommonFlags.cmake)  # Customized compilation flags
 
 
 add_executable(OgreApp WIN32 ${HDRS} ${SRCS})
  
 set_target_properties(OgreApp PROPERTIES DEBUG_POSTFIX _d)
  
-# add imported target
-add_library(tinyxml STATIC IMPORTED)
-# point the imported target at the real file
-set_property(TARGET tinyxml PROPERTY
-                IMPORTED_LOCATION ${DEV_ROOT_PATH}/Common/tinyxml/tinyxmlpath.a)
-
-target_link_libraries(OgreApp ${OGRE_LIBRARIES} ${OIS_LIBRARIES} tinyxml 
-    ${OPENAL_LIBRARIES} ${COMMON_LIBRARIES} UnitTest++)
+target_link_libraries(OgreApp ${OGRE_LIBRARIES} ${OIS_LIBRARIES})
  
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/dist/bin)
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/dist/media)

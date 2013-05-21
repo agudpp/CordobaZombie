@@ -27,10 +27,8 @@ void WeaponBuilder::configureShoots(int n, CollisionManager *cm,
 {
 	ASSERT(n > 0);
 
-	Shoot::setContainer(&mShoots);
 	Shoot::setCollisionManager(cm);
 	Shoot::setUpdObjsManager(uom);
-	Weapon::setShootContainer(&mShoots);
 	mShoots.freeAll();
 
 	for(int i = 0; i < n; ++i){

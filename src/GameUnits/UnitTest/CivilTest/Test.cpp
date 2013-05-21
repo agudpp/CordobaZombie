@@ -146,13 +146,11 @@ void Test::createPlayer(void)
 
 	static ShootContainer sc;
 	Shoot::setCollisionManager(mLevelManager.getCollisionManager());
-	Shoot::setContainer(&sc);
 	Shoot::setUpdObjsManager(&mUpdMngr);
 	for(int i = 0; i < 10; ++i){
 		Shoot *s = new Shoot;
 		s->build(Ogre::Math::RangeRandom(8,16));
 	}
-	Weapon::setShootContainer(&sc);
 	Gun9mm *w = new Gun9mm;
 	w->setOwner(mPlayers.back());
 	w->setPower(1);
@@ -200,7 +198,7 @@ void Test::createZombies(void)
 	ZombieUnit::setSMTransitionTable(tt);
 
 	// create the batery for the zombies
-	static BillboardBatery bbb;
+	static billboard::BillboardBatery bbb;
 	bbb.createSet(20, "Billboard/ZombieBlood", 10);
 	ZombieUnit::setBillboardBBlood(&bbb);
 
@@ -300,7 +298,7 @@ void Test::createCollectable(void)
 	mCollectable = new CollectableObject();
 	mCollectable->setEntity(ent);
 	mCollectable->setObject((void *)item1);
-	mCollectable->setType(COT_BACKPACK);
+	mCollectable->setCollectableType(COT_BACKPACK);
 	mCollectable->setPosition(Ogre::Vector3(1024,0,1024));
 	mCollectable->getNode()->showBoundingBox(true);
 }

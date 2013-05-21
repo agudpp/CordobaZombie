@@ -19,23 +19,6 @@
 
 class MouseCursor
 {
-private:
-	Ogre::Overlay* mGuiOverlay;
-	Ogre::OverlayContainer* mCursorContainer;
-	Ogre::TexturePtr mTexture;
-	Ogre::MaterialPtr mMaterial;
-
-	Ogre::Real mWindowWidth;
-	Ogre::Real mWindowHeight;
-	Ogre::Real mXRelPos;
-	Ogre::Real mYRelPos;
-
-	int mSavedXPos;
-	int mSavedYPos;
-
-	Ogre::Real	mAtlasSize;
-	int			mTextureSize;
-
 public:
 	enum Cursor {
 		NORMAL_CURSOR = 0,
@@ -52,6 +35,7 @@ public:
     inline virtual ~MouseCursor(void);
 
     inline void setCursor(Cursor c);
+    inline Cursor getCursor(void) const;
 
     inline void setWindowDimensions(unsigned int width, unsigned int height);
 
@@ -75,6 +59,24 @@ private:
 private:
    inline void
    setImage(const Ogre::String& filename, const Ogre::String &group = "General");
+
+private:
+    Ogre::Overlay* mGuiOverlay;
+    Ogre::OverlayContainer* mCursorContainer;
+    Ogre::TexturePtr mTexture;
+    Ogre::MaterialPtr mMaterial;
+
+    Ogre::Real mWindowWidth;
+    Ogre::Real mWindowHeight;
+    Ogre::Real mXRelPos;
+    Ogre::Real mYRelPos;
+
+    int mSavedXPos;
+    int mSavedYPos;
+
+    Ogre::Real  mAtlasSize;
+    int         mTextureSize;
+    Cursor mCursor;
 };
 
 
@@ -160,12 +162,22 @@ inline void
 MouseCursor::setCursor(Cursor c)
 {
 	ASSERT(c < NUM_CURSORS);
-	// get the %
-	Ogre::Real x1,x2;
-	x1 = (mAtlasSize * c) / static_cast<float>(mTextureSize);
-	x2 = static_cast<float>(mAtlasSize * (c+1)) / static_cast<float>(mTextureSize);
-	static_cast<Ogre::PanelOverlayElement *>(mCursorContainer)->setUV(
-			x1, 0.0f, x2, 1.0f);
+	if (c!= mCursor) {
+        // get the %
+        Ogre::Real x1,x2;
+        x1 = (mAtlasSize * c) / static_cast<float>(mTextureSize);
+        x2 = static_cast<float>(mAtlasSize * (c+1)) / static_cast<float>(mTextureSize);
+        static_cast<Ogre::PanelOverlayElement *>(mCursorContainer)->setUV(
+                x1, 0.0f, x2, 1.0f);
+        mCursor = c;
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+inline MouseCursor::Cursor
+MouseCursor::getCursor(void) const
+{
+    return mCursor;
 }
 
 

@@ -19,13 +19,13 @@ namespace selection {
 void
 SelectableObject::selectThisOne(void)
 {
-    SelectionManager::getInstance().addObject(this);
+    SelectionManager::getInstance().select(this);
 }
 
 void
 SelectableObject::unselectThisOne(void)
 {
-    SelectionManager::getInstance().removeObject(this);
+    SelectionManager::getInstance().unselect(this);
 }
 
 void

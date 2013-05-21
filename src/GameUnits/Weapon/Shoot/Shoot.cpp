@@ -12,7 +12,7 @@
 #include "Shoot.h"
 
 CollisionManager	*Shoot::mCollMngr = 0;
-ShootContainer		*Shoot::mContainer = 0;
+ShootContainer Shoot::sContainer;
 CollisionResult		Shoot::mCollResult;
 Hit_t				Shoot::mHit;
 const Ogre::Real Shoot::COEFF_FACTOR    = 200.0f;
@@ -55,21 +55,12 @@ void Shoot::setCollisionManager(CollisionManager *cm)
 	mCollMngr = cm;
 }
 
-/**
- * Set the Shootcontainer to use
- */
-void Shoot::setContainer(ShootContainer *sc)
-{
-	ASSERT(sc);
-	mContainer = sc;
-}
 
 Shoot::Shoot() :
 mNode(0),
 mObj(0)
 {
-	ASSERT(mContainer);
-	mContainer->addNewObject(this);
+	sContainer.addNewObject(this);
 }
 
 Shoot::~Shoot()
@@ -199,5 +190,5 @@ void Shoot::updateStopped(void)
 {
 	// detach it from root scene node
 	mNode->getParentSceneNode()->removeChild(mNode);
-	mContainer->addNewObject(this);
+	sContainer.addNewObject(this);
 }

@@ -11,6 +11,10 @@
 #include "GUIHelper.h"
 #include "LoadingBar.h"
 
+
+namespace hud {
+
+
 ////////////////////////////////////////////////////////////////////////////////
 PlayerStatus::BarUpdater::BarUpdater() :
 unit(0),
@@ -127,3 +131,4 @@ void PlayerStatus::useMainLifeBar(void)
 	mBarUpdater.bigBar->setActualValue(mBarUpdater.unit->getLife());
 }
 
+}

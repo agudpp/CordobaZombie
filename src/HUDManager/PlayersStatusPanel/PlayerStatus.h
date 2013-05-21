@@ -17,6 +17,8 @@
 
 class PlayerUnit;
 
+namespace hud {
+
 class PlayerStatus : public MenuButton
 {
 public:
@@ -116,5 +118,5 @@ inline void PlayerStatus::setSelected(bool sel)
 }
 
 
-
+}
 #endif /* PLAYERSTATUS_H_ */

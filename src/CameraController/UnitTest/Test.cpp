@@ -137,12 +137,15 @@ void Test::handleInput(void)
 }
 
 Test::Test() :
-        AppTester(false),
-        mInputManager(InputManager::getInstance())
+        AppTester(false)
 {
 	setUseDefaultInput(false);
 
-	mInputManager.setCameraController(&mCamController);
+	// set first the level manager to the IInputSate
+	input::IInputState::setLevelManager(&mLevelManager);
+
+	mInputManager = &input::InputManager::getInstance();
+	mInputManager->setCameraController(&mCamController);
 }
 
 Test::~Test()
@@ -154,29 +157,6 @@ Test::~Test()
 /* Load additional info */
 void Test::loadAditionalData(void)
 {
-
-//	std::auto_ptr<TiXmlDocument> doc(Common::Util::loadXmlDocument("CameraLimits.xml"));
-//
-//	if(!doc.get()){
-//		debug("Error loading camera Limits\n");
-//		ASSERT(false);
-//	}
-//
-//	GLOBAL_CAMERA->getParentSceneNode()->detachAllObjects();
-//	mCamController.setCamera(GLOBAL_CAMERA);
-
-	//We load the limits of the camera and the loader configures de CameraController
-//	CameraLimitsLoader* eloader = new CameraLimitsLoader(&mCamController);
-//	eloader->load(doc->RootElement());
-
-
-//	Ogre::AxisAlignedBox* box = eloader->getCameraBox();
-//	showCorners(*box);
-
-//	Ogre::DotSceneLoader loader;
-//	loader.parseDotScene("demo.scene", Ogre::ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME, GLOBAL_SCN_MNGR, GLOBAL_SCN_MNGR->getRootSceneNode(),"");
-
-
 	GLOBAL_CAMERA->getParentSceneNode()->detachAllObjects();
 	mCamController.setCamera(GLOBAL_CAMERA);
 
@@ -280,7 +260,7 @@ void Test::update()
         // we have to exit
         mStopRunning = true;
     }
-	mInputManager.update();
+	mInputManager->update();
 
 	mUpdaterManager.updateAllObjects();
 }

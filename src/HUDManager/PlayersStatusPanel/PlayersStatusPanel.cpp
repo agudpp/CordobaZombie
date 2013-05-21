@@ -17,6 +17,7 @@
 #include "PlayerStatusBuilder.h"
 #include "PlayerUnitManager.h"
 
+namespace hud {
 
 #ifdef DEBUG
 bool PlayersStatusPanel::checkUnitInList(PlayerUnit *u)
@@ -228,5 +229,7 @@ bool PlayersStatusPanel::isUnitSelected(PlayerUnit *unit)
 		if(mPlayerSelected[i]->getPlayerUnit() == unit) return true;
 
 	return false;
+}
+
 }
 

@@ -8,6 +8,10 @@
 
 #include "InputTransitionTable.h"
 
+
+namespace input {
+
+
 InputTransitionTable::InputTransitionTable() {
 	// TODO Auto-generated constructor stub
 
@@ -15,4 +19,7 @@ InputTransitionTable::InputTransitionTable() {
 
 InputTransitionTable::~InputTransitionTable() {
 	// TODO Auto-generated destructor stub
+}
+
+
 }

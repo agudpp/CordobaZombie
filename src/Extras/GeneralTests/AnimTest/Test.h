@@ -22,7 +22,7 @@
 
 class Test : public AppTester
 {
-	const static Ogre::Real	RANDOM_POSITION		= 2000.0f;
+	static const Ogre::Real	RANDOM_POSITION;
 public:
 	Test();
 
@@ -53,6 +53,7 @@ private:
 	Ogre::SceneNode *node;
 	Ogre::Entity *ent;
 	std::vector<Ogre::AnimationState *> mAnims;
+	size_t mCurrentIndex;
 	Ogre::AnimationState *mActualAnim;
 	std::vector<Ogre::AnimationState *> mCamina;
 

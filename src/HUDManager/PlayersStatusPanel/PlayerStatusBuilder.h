@@ -12,6 +12,9 @@
 class PlayerUnit;
 class PlayerStatus;
 
+namespace hud {
+
+
 class PlayerStatusBuilder {
 public:
 	enum PlayerStatusID {
@@ -31,4 +34,5 @@ public:
 
 };
 
+}
 #endif /* PLAYERSTATUSBUILDER_H_ */

@@ -27,22 +27,28 @@ void MenuButton::configureAtlas(int pos)
 
 	// get the %
 	Ogre::Real x1,x2;
-	x1 = (mAtlasSize * pos) / static_cast<float>(mTextureWidth);
-	x2 = static_cast<float>(mAtlasSize * (pos+1)) / static_cast<float>(mTextureWidth);
+	const Ogre::Real size = static_cast<float>(mAtlasSize) /
+	    static_cast<float>(mTextureWidth);
+	x1 = size * static_cast<float>(pos);
+	x2 = x1 + size;
 
 	debug("Configuring atlas: AtlasSize: %d, textureW: %d, x1: %f, x2: %f, pos: %d\n",
 			mAtlasSize, mTextureWidth, x1, x2, pos);
 	static_cast<Ogre::PanelOverlayElement *>(mCont)->setUV(x1, 0.0f, x2, 1.0f);
+
+	// update the state
+	mCurrentState = pos;
 }
 
 
 
 ////////////////////////////////////////////////////////////////////////////////
 MenuButton::MenuButton() :
-		mFlags(FLAG_NONE),
-		mActive(true),
-		mAtlasSize(-1),
-		mActionType(ACTION_NORMAL)
+    mFlags(FLAG_NONE),
+    mActive(true),
+    mAtlasSize(-1),
+    mActionType(ACTION_NORMAL),
+    mCurrentState(S_ACTIVE)
 {
 
 }

@@ -80,7 +80,7 @@ public:
 	/**
 	 * Set the Shootcontainer to use
 	 */
-	static void setContainer(ShootContainer *sc);
+	static inline ShootContainer *getContainer(void);
 
 
 protected:
@@ -99,19 +99,27 @@ protected:
 
 	static CollisionResult	mCollResult;
 	static CollisionManager	*mCollMngr;
-	static ShootContainer	*mContainer;
+	static ShootContainer sContainer;
 	static Hit_t			mHit;
 };
 
 
-inline void Shoot::setHitPower(float p)
+inline void
+Shoot::setHitPower(float p)
 {
 	mHitPower = p;
 }
 
-inline const Ogre::Vector3 &Shoot::getTranslateVec(void) const
+inline const Ogre::Vector3 &
+Shoot::getTranslateVec(void) const
 {
 	return mTranslateVec;
+}
+
+inline ShootContainer *
+Shoot::getContainer(void)
+{
+    return &sContainer;
 }
 
 #endif /* SHOOT_H_ */

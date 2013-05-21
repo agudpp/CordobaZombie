@@ -11,19 +11,27 @@
 #include <OgreMovableObject.h>
 
 #include "SelectionType.h"
+#include "SelectionData.h"
 
 namespace selection {
 
+
+// forward declaration
+class SelectionManager;
+
 class SelectableObject {
 public:
+    SelectableObject() : mIndex(-1) {};
     virtual ~SelectableObject(){};
 
     /**
      * Function that needs to be called just to configure the entity with this
      * object (entity->setUserAny(this), and set the associated flags)
      */
-    void configureEntity(Ogre::MovableObject *ent, unsigned int queryFlags,
-            unsigned int visibilityFlags = Ogre::MovableObject::getDefaultVisibilityFlags());
+    void configureEntity(Ogre::MovableObject *ent,
+                         unsigned int queryFlags,
+                         unsigned int visibilityFlags =
+                             Ogre::MovableObject::getDefaultVisibilityFlags());
 
     /**
      * Set / get the type of the object. This is really ugly but we can avoid
@@ -31,6 +39,14 @@ public:
      */
     inline void setType(Type t);
     inline Type type(void) const;
+
+    /**
+     * @brief Returns the aditional info of this object
+     * @returns The additional info associated to this object
+     */
+    inline const Info &additionalInfo(void) const;
+    inline Info &additionalInfo(void);
+    inline void setAdditionalInfo(Info &af);
 
     /**
      * This function have to be implemented that reproduce the effects when
@@ -63,18 +79,43 @@ protected:
 
 protected:
     Type mType;
+
+private:
+    // Let Selection manager to be friend of this class to improve the
+    // search using the index right here
+    friend class SelectionManager;
+    int mIndex;
+    Info mAdditionalInfo;
 };
 
 
 
-inline void SelectableObject::setType(Type t)
+inline void
+SelectableObject::setType(Type t)
 {
     mType = t;
 }
-inline Type SelectableObject::type(void) const
+inline Type
+SelectableObject::type(void) const
 {
     return mType;
 }
+inline const Info &
+SelectableObject::additionalInfo(void) const
+{
+    return mAdditionalInfo;
+}
+inline Info &
+SelectableObject::additionalInfo(void)
+{
+    return mAdditionalInfo;
+}
+inline void
+SelectableObject::setAdditionalInfo(Info &af)
+{
+    mAdditionalInfo = af;
+}
+
 
 }
 

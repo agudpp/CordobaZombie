@@ -65,6 +65,9 @@ void ShortWeapon::reload(void)
 	int diff = (mAmmunition.ammo < mMagazineSize) ? mAmmunition.ammo : mMagazineSize;
 	mActualMagazine = diff;
 	mAmmunition.ammo -= diff;
+
+	// trigger the signal
+	mSignal(this);
 }
 
 /**
@@ -75,6 +78,9 @@ void ShortWeapon::setAmmunition(Ammunition &ammo)
 	mAmmunition = ammo;
 	mActualMagazine = (ammo.ammo < mMagazineSize)?ammo.ammo : mMagazineSize;
 	mAmmunition.ammo -= mMagazineSize;
+
+    // trigger the signal
+    mSignal(this);
 }
 
 /**

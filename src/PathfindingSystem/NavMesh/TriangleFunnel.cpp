@@ -43,8 +43,11 @@ static inline float triarea2(const sm::Vertex &a, const sm::Vertex &b, const sm:
 
 
 // get all the right and left vertices
-void TriangleFunnel::getSortedVertices(TriangleAStar::Path p,
-		const sm::Point &start, const sm::Point &goal, int size)
+void
+TriangleFunnel::getSortedVertices(TriangleAStar::Path p,
+                                  const sm::Point &start,
+                                  const sm::Point &goal,
+                                  int size) const
 {
 
 	int count = size - 1;
@@ -115,8 +118,10 @@ void TriangleFunnel::getSortedVertices(TriangleAStar::Path p,
 
 
 // PostProcess the path to create the new path using a radius
-void TriangleFunnel::processRadius(std::vector<sm::Vertex> &resultPath,
-		float radius, float delta)
+void
+TriangleFunnel::processRadius(std::vector<sm::Vertex> &resultPath,
+                              float radius,
+                              float delta) const
 {
 	ASSERT(radius > 0.0f);
 
@@ -156,9 +161,14 @@ TriangleFunnel::~TriangleFunnel()
 }
 
 // Process and get the list of pathsm::Points
-bool TriangleFunnel::getShortestPath(TriangleAStar::Path p, std::vector<sm::Vertex> &resultPath,
-		int size, const sm::Point &start, const sm::Point &goal, float radius,
-		float delta)
+bool
+TriangleFunnel::getShortestPath(TriangleAStar::Path p,
+                                std::vector<sm::Vertex> &resultPath,
+                                int size,
+                                const sm::Point &start,
+                                const sm::Point &goal,
+                                float radius,
+                                float delta) const
 {
 	if(size < 2){
 		debug("Funnel with 1 nodes, no sense\n");

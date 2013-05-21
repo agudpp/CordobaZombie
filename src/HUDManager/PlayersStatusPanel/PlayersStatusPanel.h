@@ -23,6 +23,8 @@ class PlayerUnit;
 #define PLAYERSP_OVERLAY		"HUD/PlayersStatusPanel"
 #define PLAYERSP_LOADINGBAR		"HUD/PSP/MainBar"
 
+namespace hud {
+
 class PlayersStatusPanel : public HudElement
 {
 	typedef std::vector<PlayerStatus *>		StatusVec;
@@ -91,4 +93,5 @@ private:
 	Ogre::Overlay		*mOverlay;
 };
 
+}
 #endif /* PLAYERSSTATUSPANEL_H_ */
