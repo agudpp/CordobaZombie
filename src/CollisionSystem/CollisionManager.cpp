@@ -44,7 +44,8 @@ CollisionManager::~CollisionManager() {
  * @param cnX	The number of cells used in X
  * @param cnY	The number of cells used in Y
  */
-bool CollisionManager::build(cScalar ssX, cScalar ssY, int cnX, int cnY)
+bool
+CollisionManager::build(cScalar ssX, cScalar ssY, int cnX, int cnY)
 {
 	// create the number of rows
 	mMatrix.resize(cnX);
@@ -69,13 +70,16 @@ bool CollisionManager::build(cScalar ssX, cScalar ssY, int cnX, int cnY)
 
 	debug("CollisionManager Build: cellSizeX: %f\t cellSizeY: %f\n",
 			mCellSizeX, mCellSizeY);
+
+	return true;
 }
 
 /**
  * Adds a new static object. By the now we are not implementing this function
  * TODO: notar que estamos agregando como si fuese movableObject
  */
-void CollisionManager::addStaticObject(const CollisionObject *mo)
+void
+CollisionManager::addStaticObject(const CollisionObject *mo)
 {
 	// TODO: no se si vale la pena diferenciar, estamos agregando un vector
 	// mas por celda y haciendo 2 ciclos al pedo, perdemos cache... por eso
@@ -87,7 +91,8 @@ void CollisionManager::addStaticObject(const CollisionObject *mo)
  * Remove a static object.
  * @param	so	Static object to be removed.
  */
-void CollisionManager::removeStaticObject(const CollisionObject *mo)
+void
+CollisionManager::removeStaticObject(const CollisionObject *mo)
 {
 	// TODO: no se si vale la pena diferenciar, estamos agregando un vector
 	// mas por celda y haciendo 2 ciclos al pedo, perdemos cache... por eso
@@ -98,7 +103,8 @@ void CollisionManager::removeStaticObject(const CollisionObject *mo)
 /**
  * Add a movable object (the object wasn't added before)
  */
-void CollisionManager::addMovableObject(const CollisionObject *mo)
+void
+CollisionManager::addMovableObject(const CollisionObject *mo)
 {
 	ASSERT(mo);
 	ASSERT(mo->bb.getHeight() <= mCellSizeY);
@@ -117,7 +123,8 @@ void CollisionManager::addMovableObject(const CollisionObject *mo)
 /**
  * Removes a movable object to stop the detection.
  */
-void CollisionManager::removeMovableObject(const CollisionObject *mo)
+void
+CollisionManager::removeMovableObject(const CollisionObject *mo)
 {
 	ASSERT(mo);
 	ASSERT(mo->bb.getHeight() <= 2.0f*mCellSizeY);
@@ -134,7 +141,8 @@ void CollisionManager::removeMovableObject(const CollisionObject *mo)
 /**
  * Remove all the objects
  */
-void CollisionManager::removeAllObjects(void)
+void
+CollisionManager::removeAllObjects(void)
 {
 	for(int i = mMatrix.size()-1; i >= 0; --i){
 		for(int j = mMatrix[i].size()-1; j >= 0; --j){
@@ -146,7 +154,8 @@ void CollisionManager::removeAllObjects(void)
 /**
  * Translate a object from the actual position using the vector t
  */
-void CollisionManager::translateObject(CollisionObject *mo, const sm::Vector2 &t)
+void
+CollisionManager::translateObject(CollisionObject *mo, const sm::Vector2 &t)
 {
 	ASSERT(mo);
 
@@ -178,7 +187,9 @@ void CollisionManager::translateObject(CollisionObject *mo, const sm::Vector2 &t
 /**
  * Get all the collision of an object
  */
-void CollisionManager::getCollision(const CollisionObject *mo, CollisionResult &objs)
+void
+CollisionManager::getCollision(const CollisionObject *mo,
+                               CollisionResult &objs) const
 {
 	ASSERT(mo);
 
@@ -201,8 +212,10 @@ void CollisionManager::getCollision(const CollisionObject *mo, CollisionResult &
 
 
 ////////////////////////////////////////////////////////////////////////////////
-void CollisionManager::getCollisionObjects(const sm::AABB &aabb, mask_t mask,
-		CollisionResult &objs)
+void
+CollisionManager::getCollisionObjects(const sm::AABB &aabb,
+                                      mask_t mask,
+                                      CollisionResult &objs) const
 {
 	if((aabb.tl.x < 0.0f) || (aabb.br.x < 0.0f) ||
 			(aabb.tl.y < 0.0f) || (aabb.br.y < 0.0f)){
@@ -224,8 +237,10 @@ void CollisionManager::getCollisionObjects(const sm::AABB &aabb, mask_t mask,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void CollisionManager::getCollisionObjects(const sm::Vector2 &point, mask_t mask,
-		CollisionResult &result)
+void
+CollisionManager::getCollisionObjects(const sm::Vector2 &point,
+                                      mask_t mask,
+                                      CollisionResult &result) const
 {
 	if((point.x < 0.0f) || (point.y < 0.0f)){
 		return;
@@ -237,8 +252,11 @@ void CollisionManager::getCollisionObjects(const sm::Vector2 &point, mask_t mask
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void CollisionManager::getCollisionObjects(const sm::Vector2 &p1, const sm::Vector2 &p2,
-		mask_t mask, CollisionResult &result)
+void
+CollisionManager::getCollisionObjects(const sm::Vector2 &p1,
+                                      const sm::Vector2 &p2,
+                                      mask_t mask,
+                                      CollisionResult &result) const
 {
 	if((p1.x < 0.0f) || (p2.x < 0.0f) ||
 			(p1.y < 0.0f) || (p2.y < 0.0f)){

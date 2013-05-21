@@ -8,11 +8,15 @@
 #ifndef HUDMANAGER_H_
 #define HUDMANAGER_H_
 
+namespace hud {
+
 class HUDManager
 {
 public:
 	HUDManager();
 	~HUDManager();
 };
+
+}
 
 #endif /* HUDMANAGER_H_ */

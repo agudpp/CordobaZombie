@@ -19,12 +19,12 @@ mPathfindingManager(0)
 
 LevelPathfindLoader::~LevelPathfindLoader()
 {
-	// TODO Auto-generated destructor stub
 }
 
 
 // Functoin used to load something
-int LevelPathfindLoader::load(TiXmlElement*elem, LoaderData *data)
+int
+LevelPathfindLoader::load(TiXmlElement*elem, LoaderData *data)
 {
 	ASSERT(data);
 	ASSERT(elem);
@@ -64,9 +64,8 @@ int LevelPathfindLoader::load(TiXmlElement*elem, LoaderData *data)
 // Unload the information?
 int LevelPathfindLoader::unload()
 {
-	ASSERT(false);
 	ASSERT(mPathfindingManager);
 	mPathfindingManager->unloadActualLevel();
-	debugGREEN("Pathfinding level loaded ok\n");
+	debugGREEN("Pathfinding unloaded ok\n");
 	return 0;
 }

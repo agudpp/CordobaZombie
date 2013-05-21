@@ -36,12 +36,18 @@ public:
 
 	// Adds a new triangle to be used when build the graph
 	void addTriangle(const Triangle *t);
+	void addTriangles(const std::vector<Triangle *> &triangles);
 
 	/* Builds the level with all the information we have. In case of error,
 	 * a negative number is returned.
 	 * This is a slow function that will build the Graph
 	 */
 	int build(void);
+
+	/**
+	 * Destroy the actual graph
+	 */
+	void destroy(void);
 
 	/* Builds the level from a list of Edges and a list of nodes */
 	int buildFromGraph(const Graph &g);

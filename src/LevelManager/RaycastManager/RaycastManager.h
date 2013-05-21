@@ -48,7 +48,7 @@ public:
 	 * @param	result	The result
 	 */
 	template<typename T>
-	void rayCast(float xrm, float yrm, mask_t mask, std::vector<T> &result);
+	void rayCast(float xrm, float yrm, mask_t mask, std::vector<T> &result) const;
 
 	/**
 	 * Perform a raycast using the actual relative position of the mouse.
@@ -61,7 +61,7 @@ public:
 	 * @return	The object picked or 0 if no object was found
 	 */
 	template<typename T>
-	T rayCast(float xrm, float yrm, mask_t mask);
+	T rayCast(float xrm, float yrm, mask_t mask) const;
 
 	/**
 	 * Perform a raycast using the actual relative position of the mouse.
@@ -69,8 +69,8 @@ public:
 	 * @param	yrm		Y relative mouse position
 	 * @param	result	The point associated to that position
 	 */
-	void getPoint(float xrm, float yrm, sm::Vector2 &result);
-	void getPoint(float xrm, float yrm, Ogre::Vector3 &result);
+	inline void getPoint(float xrm, float yrm, sm::Vector2 &result) const;
+	inline void getPoint(float xrm, float yrm, Ogre::Vector3 &result) const;
 
 	/**
 	 * Performs a Ogre Raycast from a position of the mouse and the camera.
@@ -81,33 +81,37 @@ public:
 	 * @param	numR	Number of results we want to obtain
 	 * @return	All the objects obtained
 	 */
-	Ogre::RaySceneQueryResult &performOgreRay(float xrm, float yrm, uint32 mask,
-			bool sort = true, int numR = 1);
+	Ogre::RaySceneQueryResult &performOgreRay(float xrm,
+	                                          float yrm,
+	                                          uint32 mask,
+	                                          bool sort = true,
+	                                          int numR = 1) const;
 
 
 private:
 	/**
 	 * Returns the point associated to the plane
 	 */
-	inline void getPlanePoint(float xrm, float yrm, sm::Vector2 &result);
+	inline void getPlanePoint(float xrm, float yrm, sm::Vector2 &result) const;
 
 
 private:
-	Ogre::Plane					mPlane;
-	Ogre::Ray					mMouseRay;
-	CollisionManager 			*mCollMngr;
-	CollisionResult				mResult;
-	Ogre::RaySceneQuery			*mRaySceneQuery;
+	Ogre::Plane mPlane;
+	CollisionManager *mCollMngr;
+	mutable Ogre::Ray mMouseRay;
+	mutable CollisionResult mResult; // cache
+	Ogre::RaySceneQuery *mRaySceneQuery;
 
 };
 
 
 
 
-inline void RaycastManager::getPlanePoint(float xrm, float yrm, sm::Vector2 &r)
+inline void
+RaycastManager::getPlanePoint(float xrm, float yrm, sm::Vector2 &r) const
 {
 	// set up the ray
-	mMouseRay = GLOBAL_CAMERA->getCameraToViewportRay(xrm, yrm);
+    mMouseRay = GLOBAL_CAMERA->getCameraToViewportRay(xrm, yrm);
 
 	// check if the ray intersects our plane
 	// intersects() will return whether it intersects or not (the bool value) and
@@ -127,6 +131,35 @@ inline void RaycastManager::getPlanePoint(float xrm, float yrm, sm::Vector2 &r)
 		r.x = v.x;
 		r.y = v.z;
 	}
+}
+
+inline void
+RaycastManager::getPoint(float xrm, float yrm, sm::Vector2 &result) const
+{
+    return getPoint(xrm, yrm, result);
+}
+inline void
+RaycastManager::getPoint(float xrm, float yrm, Ogre::Vector3 &r) const
+{
+    // set up the ray
+    mMouseRay = GLOBAL_CAMERA->getCameraToViewportRay(xrm, yrm);
+
+    // check if the ray intersects our plane
+    // intersects() will return whether it intersects or not (the bool value) and
+    // what distance (the Real value) along the ray the intersection is
+    std::pair<bool, Ogre::Real> result = mMouseRay.intersects(mPlane);
+
+    if (result.first)
+    {
+        // if the ray intersect the plane, we have a distance value
+        // telling us how far from the ray origin the intersection occurred.
+        // the last thing we need is the point of the intersection.
+        // Ray provides us getPoint() function which returns a point
+        // along the ray, supplying it with a distance value.
+
+        // get the point where the intersection is
+        r = mMouseRay.getPoint(result.second);
+    }
 }
 
 

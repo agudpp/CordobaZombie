@@ -41,7 +41,7 @@ public:
 	 * @note This function will create the transition table associated to the
 	 * normal zombies and all the other zombies.
 	 */
-	void configure(CollisionManager *cm, BillboardBatery *bbb, ZombieQueue *q);
+	void configure(CollisionManager *cm, billboard::BillboardBatery *bbb, ZombieQueue *q);
 
 	/**
 	 * Create a new zombie from a NAME

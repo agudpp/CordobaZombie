@@ -48,6 +48,13 @@ public:
 	// Returns the vertexs that the nodes share (array of size 2)
 	inline const sm::Vertex *const *getSharedVertex(void) const {return mSharedVertexs;}
 
+	// compare operator
+	bool operator==(const GEdge &other) const
+    {
+	    // we will only compare the weight, instead of the connections,
+	    // we need to do this check later
+	    return mWeight == other.mWeight;
+    }
 
 private:
 	// Sets the 2 vertexs that the nodes shares by this edge

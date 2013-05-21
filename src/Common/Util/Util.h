@@ -24,6 +24,7 @@
 #include "tinyxml.h"
 
 class TiXmlElement;
+class TiXmlDocument;
 
 namespace Common
 {
@@ -79,14 +80,16 @@ public:
 	 * Requires:
 	 * 	@cont		The Vertex container where it will been put the vertexs
 	 * 	@triangles	The Triangles container
-	 * 	@mesh		The mesh to extract the triangles
+	 * 	@mesh		The mesh to extract the triangles from
+	 * 	@trmatrix	The mesh's parent SceneNode transformation matrix
 	 * Returns:
 	 * 	true		on success
 	 * 	false		otherwise
 	 */
 	static bool getTrianglesFromMesh(PolyStructsContainer<sm::Vertex *> &cont,
 			PolyStructsContainer<Triangle *> &triangles,
-			Ogre::MeshPtr mesh);
+			Ogre::MeshPtr mesh,
+			const Ogre::Matrix4 &trmatrix = Ogre::Matrix4::IDENTITY);
 
 	/**
 	 * Read a environment variable

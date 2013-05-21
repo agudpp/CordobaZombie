@@ -37,14 +37,15 @@ public:
 
 	/**
 	 * Returns the PathFindingMngrInstance
-	 * TODO: transformarlo a const const
 	 */
 	inline PathfindingManager *getPathfinderManager();
+	inline const PathfindingManager *getPathfinderManager() const;
 
 	/**
 	 * Returns the CollisionManager instance
 	 */
 	inline CollisionManager *getCollisionManager();
+	inline const CollisionManager *getCollisionManager() const;
 
 	/**
 	 * Returns the LineOfSightManager...
@@ -56,6 +57,7 @@ public:
 	 * Returns the RaycastManager
 	 */
 	inline RaycastManager *getRaycastManger(void);
+	inline const RaycastManager *getRaycastManger(void) const;
 
 	/**
 	 * Get the level size (collision level size or the x,z plane level size)
@@ -112,29 +114,50 @@ private:
 
 
 ////////////////////////////////////////////////////////////////////////////////
-inline PathfindingManager *LevelManager::getPathfinderManager()
+inline PathfindingManager *
+LevelManager::getPathfinderManager()
+{
+	return mPathfindingMngr;
+}
+inline const PathfindingManager *
+LevelManager::getPathfinderManager() const
 {
 	return mPathfindingMngr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-inline CollisionManager *LevelManager::getCollisionManager()
+inline CollisionManager *
+LevelManager::getCollisionManager()
+{
+	return mCollMngr;
+}
+inline const CollisionManager *
+LevelManager::getCollisionManager() const
 {
 	return mCollMngr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-inline LOSManager *LevelManager::getLOSManager(void)
+inline LOSManager *
+LevelManager::getLOSManager(void)
 {
 	return &mLOSManager;
 }
-inline const LOSManager *LevelManager::getLOSManager(void) const
+inline const LOSManager *
+LevelManager::getLOSManager(void) const
 {
 	return &mLOSManager;
 }
 
+
 ////////////////////////////////////////////////////////////////////////////////
-inline RaycastManager *LevelManager::getRaycastManger(void)
+inline RaycastManager *
+LevelManager::getRaycastManger(void)
+{
+	return &mRaycastManager;
+}
+inline const RaycastManager *
+LevelManager::getRaycastManger(void) const
 {
 	return &mRaycastManager;
 }

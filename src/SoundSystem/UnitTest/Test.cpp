@@ -504,7 +504,6 @@ Test::createPlayer(void)
 
 	static ShootContainer sc;
 	Shoot::setCollisionManager(mLevelManager.getCollisionManager());
-	Shoot::setContainer(&sc);
 	Shoot::setUpdObjsManager(&mUpdMngr);
 	for(int i = 0; i < 10; ++i){
 		Shoot *s = new Shoot;
@@ -533,7 +532,7 @@ Test::createZombies(void)
 	ZombieUnit::setSMTransitionTable(tt);
 
 	// create the batery for the zombies
-	static BillboardBatery bbb;
+	static billboard::BillboardBatery bbb;
 	bbb.createSet(20, "Billboard/ZombieBlood", 10);
 	ZombieUnit::setBillboardBBlood(&bbb);
 
@@ -659,7 +658,7 @@ Test::createCollectable(void)
 	mCollectable = new CollectableObject();
 	mCollectable->setEntity(ent);
 	mCollectable->setObject((void *)item1);
-	mCollectable->setType(COT_BACKPACK_WEAPON);
+	mCollectable->setCollectableType(COT_BACKPACK_WEAPON);
 	mCollectable->setPosition(Ogre::Vector3(1024,0,1024));
 	mCollectable->getNode()->showBoundingBox(true);
 }

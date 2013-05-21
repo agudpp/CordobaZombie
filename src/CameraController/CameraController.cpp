@@ -17,8 +17,8 @@ const Ogre::Real CameraController::COEFF_FACTOR    = 200.0f;
 // the distance from the rotation axis
 const Ogre::Real CameraController::NODE_DISTANCE_Z = 130.0f;
 const Ogre::Real CameraController::NODE_DISTANCE_Y = 130.0f;
-const Ogre::Real CameraController::MIN_ZOOM = 20.0f;
-const Ogre::Real CameraController::MAX_ZOOM = 100.0f;
+const Ogre::Real CameraController::MIN_ZOOM = 1.0f;
+const Ogre::Real CameraController::MAX_ZOOM = 300.0f;
 
 
 
@@ -186,7 +186,10 @@ CameraController::~CameraController()
 void CameraController::setCamera(Ogre::Camera *c)
 {
 	ASSERT(c);
-	ASSERT(!c->getParentSceneNode());
+
+	if (c->getParentSceneNode()) {
+        c->getParentSceneNode()->detachAllObjects();
+    }
 
 	mCamera = c;
 	if(mCamera->getParentSceneNode()){

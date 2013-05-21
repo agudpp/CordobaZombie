@@ -7,37 +7,43 @@
  */
 #include "IInputState.h"
 
-InputManager		*IInputState::mInputManager = 0;
-LevelManager		*IInputState::mLevelManager = 0;
-CollisionResult		IInputState::mCollObjs;
+#include <SelectionSystem/SelectionManager.h>
+
+namespace input {
+
+selection::SelectionManager *IInputState::sSelectionMngr =
+    &selection::SelectionManager::getInstance();
+LevelManager *IInputState::sLevelManager = 0;
+CollisionResult IInputState::mCollObjs;
+selection::SelectableObject *IInputState::sOnMouseOverObj = 0;
 
 ////////////////////////////////////////////////////////////////////////////////
-void IInputState::setInpuManager(InputManager *im)
+void
+IInputState::setLevelManager(LevelManager *lm)
 {
-	ASSERT(im);
-	mInputManager = im;
-}
-void IInputState::setLevelManager(RaycastManager *im)
-{
-	ASSERT(im);
-	mLevelManager = im;
+	ASSERT(lm);
+	sLevelManager = lm;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 IInputState::IInputState()
 {
-	ASSERT(mInputManager);
-	ASSERT(mLevelManager);
+	ASSERT(sLevelManager);
+	ASSERT(sSelectionMngr);
 }
-virtual ~IInputState()
+
+IInputState::~IInputState()
 {
 
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////
-IInputState::UnitType IInputState::getUnitSelectedType(void)
+IInputState::UnitType
+IInputState::getUnitSelectedType(void)
 {
 	ASSERT(false);
 	// TODO
+}
+
 }

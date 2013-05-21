@@ -7,6 +7,10 @@
 
 #include "HUDManager.h"
 
+
+namespace hud {
+
+
 HUDManager::HUDManager()
 {
 	// TODO Auto-generated constructor stub
@@ -16,4 +20,7 @@ HUDManager::HUDManager()
 HUDManager::~HUDManager()
 {
 	// TODO Auto-generated destructor stub
+}
+
+
 }

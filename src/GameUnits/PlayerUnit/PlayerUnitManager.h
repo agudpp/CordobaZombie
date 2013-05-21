@@ -9,15 +9,17 @@
 #ifndef PLAYERUNITMANAGER_H_
 #define PLAYERUNITMANAGER_H_
 
+#include "PlayerDefs.h"
+
 class PlayerUnit;
 
 class PlayerUnitManager {
 public:
 	enum PlayerID {
-		PLAYER_TULIAN,
-		PLAYER_CORAL,
-		PLAYER_CARDENAL,
-		NUM_PLAYERS,
+		PLAYER_TULIAN = ::PlayerID::PLAYER_TULIAN,
+		PLAYER_CORAL = ::PlayerID::PLAYER_CORAL,
+		PLAYER_CARDENAL = ::PlayerID::PLAYER_CARDENAL,
+		NUM_PLAYERS = ::PlayerID::NUM_PLAYERS,
 	};
 public:
 
@@ -28,37 +30,63 @@ public:
 	}
 
 	/**
-	 * Add a player
+	 * @brief Add a player to be tracked there (memory track)
+	 * @param  unit  The unit (Player) to be tracked.
 	 */
-	inline void addPlayer(PlayerID id, PlayerUnit *unit);
+	inline void
+	addPlayer(PlayerUnitPtr &unit);
 
 	/**
-	 * Get Player
+	 * @brief Get Player directly.
 	 */
-	inline PlayerUnit *getPlayer(PlayerID id);
+	inline PlayerUnit *
+	getPlayer(PlayerID id) const;
+
+	inline PlayerUnitPtr
+	getPlayerPtr(PlayerID id) const;
+
+	/**
+	 * @brief Clear all the players
+	 */
+	inline void
+	clear(void);
 
 private:
-	PlayerUnitManager() : mPlayers({0}) {};
+	PlayerUnitManager(){};
 	~PlayerUnitManager(){};
 
 private:
-	PlayerUnit	*mPlayers[NUM_PLAYERS];
+	PlayerUnitPtr	mPlayers[NUM_PLAYERS];
 };
 
-/**
- * Add a player
- */
-inline void PlayerUnitManager::addPlayer(PlayerID id, PlayerUnit *unit)
+
+
+
+inline void
+PlayerUnitManager::addPlayer(PlayerUnitPtr &unit)
 {
-	mPlayers[id] = unit;
+    ASSERT(unit.get());
+    mPlayers[unit->playerID()] = unit;
 }
 
-/**
- * Get Player
- */
-inline PlayerUnit *PlayerUnitManager::getPlayer(PlayerID id)
+
+inline PlayerUnit *
+PlayerUnitManager::getPlayer(PlayerID id) const
 {
-	return mPlayers[id];
+    return mPlayers[id].get();
+}
+inline PlayerUnitPtr
+PlayerUnitManager::getPlayerPtr(PlayerID id) const
+{
+    return mPlayers[id];
+}
+
+inline void
+PlayerUnitManager::clear(void)
+{
+    for (size_t i = 0; i < NUM_PLAYERS; ++i) {
+        mPlayers[i].reset();
+    }
 }
 
 

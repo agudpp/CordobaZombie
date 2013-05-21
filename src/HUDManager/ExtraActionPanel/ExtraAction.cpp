@@ -13,7 +13,7 @@
 #include "ExtraAction.h"
 
 
-
+namespace hud {
 
 ExtraAction::ExtraAction() :
 mCallback(0)
@@ -92,3 +92,4 @@ void ExtraAction::leftPressed(void)
 	if(mCallback) {(*mCallback)(0);}
 }
 
+}

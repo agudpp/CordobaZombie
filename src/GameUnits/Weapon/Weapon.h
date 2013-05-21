@@ -9,159 +9,175 @@
 #define WEAPON_H_
 
 #include <OgreEntity.h>
-#include "DebugUtil.h"
-#include "CommonMath.h"
-#include "GameUnitDefines.h"
-#include "Shoot.h"
-#include "SoundAPI.h"
+
+#include <boost/signal.hpp>
+#include <boost/signals/slot.hpp>
+
+#include <Common/DebugUtil/DebugUtil.h>
+#include <Common/Math/CommonMath.h>
+#include <GameUnits/GameUnitDefines.h>
+#include <SoundSystem/SoundAPI.h>
+#include <CollisionSystem/CollisionManager.h>
+
+#include "Shoot/Shoot.h"
 #include "WeaponIDs.h"
-#include "CollisionManager.h"
 
 
 class Weapon
 {
 public:
-	// Ammunition struct
-	struct Ammunition {
-		int		ammo;
-		Ammunition (int am=0) {ammo=am;}
-	};
 
-	// Weapons sound codes
-	enum {
-		SS_EQUIP_WEAPON_CODE	// Grab from back-pack for use as current weapon
-	};
-
-	// type of the weapon
-	enum {
-		W_BODY = 0,
-		W_SHORT,
-		W_LONG,
-		W_GRANADE,
-		W_NONE,
-	};
+    // Define signals types
+    //
+    typedef boost::signal<void (Weapon*)> Signal;
+    typedef boost::signals::scoped_connection Connection;
 
 public:
-	Weapon(int wtype = W_NONE, unsigned short id = WP_ID_NONE);
-	virtual ~Weapon();
+    // Ammunition struct
+    struct Ammunition {
+        int		ammo;
+        Ammunition (int am=0) {ammo=am;}
+    };
 
-	/**
-	 * Set the shoot container to be used
-	 */
-	static void setShootContainer(ShootContainer *sc);
+    // Weapons sound codes
+    enum {
+        SS_EQUIP_WEAPON_CODE	// Grab from back-pack for use as current weapon
+    };
 
-	/**
-	 * Set/Get weapon ID
-	 */
-	inline unsigned short getID(void) const;
-	inline void setID(unsigned short id);
+    // type of the weapon
+    enum {
+        W_BODY = 0,
+        W_SHORT,
+        W_LONG,
+        W_GRANADE,
+        W_NONE,
+    };
 
-	/**
-	 * Get/Set the entity
-	 */
-	inline Ogre::Entity *getEntity(void);
-	inline void setEntity(Ogre::Entity *ent);
+public:
+    Weapon(int wtype = W_NONE, unsigned short id = WP_ID_NONE);
+    virtual ~Weapon();
 
-	/**
-	 * Set/Get Owner
-	 */
-	void setOwner(GameUnit *u);
-	inline GameUnit *getOwner(void);
+    /**
+     * Set/Get weapon ID
+     */
+    inline unsigned short getID(void) const;
+    inline void setID(unsigned short id);
 
-	/**
-	 * Set/Get the weapon type
-	 */
-	inline int getType(void) const;
-	inline void setType(int t);
+    /**
+     * Get/Set the entity
+     */
+    inline Ogre::Entity *getEntity(void);
+    inline void setEntity(Ogre::Entity *ent);
 
-	/**
-	 * Get/Set the range of the weapon
-	 */
-	inline float getSqrRange(void) const;
-	inline void setSqrRange(float r);
+    /**
+     * Set/Get Owner
+     */
+    void setOwner(GameUnit *u);
+    inline GameUnit *getOwner(void);
 
-	/**
-	 * Get/Set the animation velocity factor (this will be used to incrase the
-	 * player's animation velocity).
-	 * @param	velFactor		Animation Velocity Factor
-	 * @note	By default the value for this is 1.0f, so the velocity will
-	 * 			be the same as the gameunit skeleton has.
-	 */
-	inline float getAnimVelFactor(void) const;
-	inline void setAnimVelFactor(float velFactor);
+    /**
+     * Set/Get the weapon type
+     */
+    inline int getType(void) const;
+    inline void setType(int t);
 
-	/**
-	 * Set/Get the power of the weapon
-	 */
-	inline float getPower(void) const;
-	inline void setPower(float p);
+    /**
+     * Get/Set the range of the weapon
+     */
+    inline float getSqrRange(void) const;
+    inline void setSqrRange(float r);
 
-	/**
-	 * Has effect or not (TODO)
-	 */
-	inline bool hasEffect(void) const;
+    /**
+     * Get/Set the animation velocity factor (this will be used to incrase the
+     * player's animation velocity).
+     * @param	velFactor		Animation Velocity Factor
+     * @note	By default the value for this is 1.0f, so the velocity will
+     * 			be the same as the gameunit skeleton has.
+     */
+    inline float getAnimVelFactor(void) const;
+    inline void setAnimVelFactor(float velFactor);
 
-	/**
-	 * Get/Set the effect (TODO)
-	 */
-	//inline Effect* getEffect(void) const;
-	//inline void setEffect(Effect *e);
+    /**
+     * Set/Get the power of the weapon
+     */
+    inline float getPower(void) const;
+    inline void setPower(float p);
 
-	////////////////////////////////////////////////////////////////////////////
-	//						ACTIONS OF THE WEAPON							////
-	////////////////////////////////////////////////////////////////////////////
+    /**
+     * Has effect or not (TODO)
+     */
+    inline bool hasEffect(void) const;
 
-	/**
-	 * Function called when we perform a shoot
-	 * Returns true if we can perform the shoot or false otherwise.
-	 * If false is returned then we have to check ammunition, if ammunition == 0
-	 * no more bullets to fire, otherwise, we have to perform a reload
-	 * We although can check this by calling "canShoot"
-	 *
-	 * @param	p	The target position to shoot
-	 */
-	virtual bool shoot(const sm::Vector2 &p) = 0;
+    /**
+     * Get/Set the effect (TODO)
+     */
+    //inline Effect* getEffect(void) const;
+    //inline void setEffect(Effect *e);
 
-	/**
-	 * Second shoot always can be performed
-	 */
-	virtual void secondShoot(const sm::Vector2 &p);
+    ////////////////////////////////////////////////////////////////////////////
+    //						ACTIONS OF THE WEAPON							////
+    ////////////////////////////////////////////////////////////////////////////
 
-	/**
-	 * Check if we can shoot the weapon or not, if we cannot shoot then
-	 * probably have to do a reload, if ammo == 0, then we cannot shoot
-	 */
-	virtual bool canShoot(void) = 0;
+    /**
+     * Function called when we perform a shoot
+     * Returns true if we can perform the shoot or false otherwise.
+     * If false is returned then we have to check ammunition, if ammunition == 0
+     * no more bullets to fire, otherwise, we have to perform a reload
+     * We although can check this by calling "canShoot"
+     *
+     * @param	p	The target position to shoot
+     */
+    virtual bool shoot(const sm::Vector2 &p) = 0;
 
-	/**
-	 * Function called when we perform the reload action
-	 */
-	virtual void reload(void) = 0;
+    /**
+     * Second shoot always can be performed
+     */
+    virtual void secondShoot(const sm::Vector2 &p);
 
-	/**
-	 * Function called when we add ammunition to the weapon
-	 */
-	virtual void setAmmunition(Ammunition &ammo) = 0;
+    /**
+     * Check if we can shoot the weapon or not, if we cannot shoot then
+     * probably have to do a reload, if ammo == 0, then we cannot shoot
+     */
+    virtual bool canShoot(void) = 0;
 
-	/**
-	 * Get the ammunition of the weapon or -1 if have infinite
-	 */
-	virtual int getAmmunition(void) = 0;
+    /**
+     * Function called when we perform the reload action
+     */
+    virtual void reload(void) = 0;
+
+    /**
+     * Function called when we add ammunition to the weapon
+     */
+    virtual void setAmmunition(Ammunition &ammo) = 0;
+
+    /**
+     * Get the ammunition of the weapon or -1 if have infinite
+     */
+    virtual int getAmmunition(void) = 0;
+
+    /**
+     * @brief Subscribe to this weapon to get events when the weapon has changed
+     * @param subscriber    The one who want to receive the events
+     * @returns conn        The associated connection
+     */
+    Connection
+    addCallback(const Signal::slot_type& subscriber);
 
 protected:
-	unsigned short	mID;
-	float			mPower;
-	float			mRange;
-	Ogre::Entity 	*mEntity;
-	int				mType;
-	Hit_t			mHit;
-	GameUnit		*mOwner;
-	SoundAPI		mSAPI;
-	float			mAnimVelocityFactor;
-	// TODO: Effect		*mEffect;
+    unsigned short  mID;
+    float           mPower;
+    float           mRange;
+    Ogre::Entity    *mEntity;
+    int             mType;
+    Hit_t           mHit;
+    GameUnit        *mOwner;
+    SoundAPI        mSAPI;
+    float           mAnimVelocityFactor;
+    Signal          mSignal;
+    // TODO: Effect		*mEffect;
 
-	static ShootContainer	*mShootCont;
-	static CollisionResult	mCollResult;
+    static ShootContainer	*mShootCont;
+    static CollisionResult	mCollResult;
 };
 
 
@@ -175,77 +191,77 @@ protected:
 
 inline unsigned short Weapon::getID(void) const
 {
-	return mID;
+    return mID;
 }
 inline void Weapon::setID(unsigned short id)
 {
-	mID = id;
+    mID = id;
 }
 ////////////////////////////////////////////////////////////////////////////////
 inline Ogre::Entity *Weapon::getEntity(void)
 {
-	return mEntity;
+    return mEntity;
 }
 inline void Weapon::setEntity(Ogre::Entity *ent)
 {
-	ASSERT(ent);
-	ASSERT(!mEntity);
-	mEntity = ent;
+    ASSERT(ent);
+    ASSERT(!mEntity);
+    mEntity = ent;
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////
 inline GameUnit *Weapon::getOwner(void)
 {
-	return mOwner;
+    return mOwner;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 inline int Weapon::getType(void) const
 {
-	return mType;
+    return mType;
 }
 inline void Weapon::setType(int t)
 {
-	mType = t;
+    mType = t;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 inline float Weapon::getSqrRange(void) const
 {
-	return mRange;
+    return mRange;
 }
 inline void Weapon::setSqrRange(float r)
 {
-	ASSERT(r > 0.0f);
-	mRange = r;
+    ASSERT(r > 0.0f);
+    mRange = r;
 }
 ////////////////////////////////////////////////////////////////////////////////
 inline float Weapon::getAnimVelFactor(void) const
 {
-	return mAnimVelocityFactor;
+    return mAnimVelocityFactor;
 }
 inline void Weapon::setAnimVelFactor(float velFactor)
 {
-	ASSERT(velFactor > 0);
-	mAnimVelocityFactor = velFactor;
+    ASSERT(velFactor > 0);
+    mAnimVelocityFactor = velFactor;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 inline float Weapon::getPower(void) const
 {
-	return mPower;
+    return mPower;
 }
 inline void Weapon::setPower(float p)
 {
-	ASSERT(p > 0.0f);
-	mPower = p;
+    ASSERT(p > 0.0f);
+    mPower = p;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 inline bool Weapon::hasEffect(void) const
 {
-	ASSERT(false); // TODO: implementar
+    ASSERT(false); // TODO: implementar
 }
 
 #endif /* WEAPON_H_ */

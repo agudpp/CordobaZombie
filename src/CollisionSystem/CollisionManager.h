@@ -29,7 +29,7 @@ typedef std::vector<CollRslt>	CollRsltPoints;
 
 class CollisionManager {
 
-	typedef std::set<CollisionCell *>	CellPtrSet;
+	typedef std::set<const CollisionCell *>	CellPtrSet;
 	typedef std::vector<CollisionCell>	CellVec;
 	typedef std::vector<CellVec>		CellMatrix;
 public:
@@ -96,13 +96,14 @@ public:
 	/**
 	 * Get all the collision of an object
 	 */
-	void getCollision(const CollisionObject *mo, CollisionResult &objs);
+	void getCollision(const CollisionObject *mo, CollisionResult &objs) const;
 
 	/**
 	 * Get all the collision using the masks associated
 	 * TODO: implementar esta
 	 */
-	void getCollisionUsingMask(const CollisionObject *mo, CollisionResult &objs)
+	void getCollisionUsingMask(const CollisionObject *mo,
+                               CollisionResult &objs) const
 	{ /* TODO: implementar*/}
 
 	/**
@@ -111,8 +112,9 @@ public:
 	 * @param	mask	MaskGroup used to filter all the objects
 	 * @param	result	The Objects that are in the AABB
 	 */
-	void getCollisionObjects(const sm::AABB &aabb, mask_t mask,
-			CollisionResult &result);
+	void getCollisionObjects(const sm::AABB &aabb,
+	                         mask_t mask,
+	                         CollisionResult &result) const;
 
 	/**
 	 * Get all the objects that intersect a certain point with a certain mask
@@ -120,8 +122,9 @@ public:
 	 * @param mask		The mask to be used
 	 * @param result	The result of the check
 	 */
-	void getCollisionObjects(const sm::Vector2 &point, mask_t mask,
-			CollisionResult &result);
+	void getCollisionObjects(const sm::Vector2 &point,
+	                         mask_t mask,
+	                         CollisionResult &result) const;
 
 	/**
 	 * Get all the objects that intersect a certain line segment with a certain
@@ -131,8 +134,10 @@ public:
 	 * @param mask		The mask to be used
 	 * @param result	The result of the check
 	 */
-	void getCollisionObjects(const sm::Vector2 &p1, const sm::Vector2 &p2,
-			mask_t mask, CollisionResult &result);
+	void getCollisionObjects(const sm::Vector2 &p1,
+	                         const sm::Vector2 &p2,
+	                         mask_t mask,
+	                         CollisionResult &result) const;
 
 	/**
 	 * Function used to check if a point is inside the level
@@ -140,7 +145,7 @@ public:
 	 * @return	True	if p is inside the level
 	 * 			False	otherwise
 	 */
-	inline bool isPointInside(const sm::Vector2 &p);
+	inline bool isPointInside(const sm::Vector2 &p) const;
 
 
 private:
@@ -148,89 +153,27 @@ private:
 	/**
 	 * Returns the corresponding values from a vector to the matrix
 	 */
-	inline int getXPosition(const cScalar &x) const
-	{
-		ASSERT(x >= 0);
-		int r = int(x*mFactorX);
-		// TODO: evitar esto usando assert? nos ahorramos un paso
-		ASSERT(r < mNumCellX);
-		return (r >= mNumCellX) ? mNumCellX-1 : r;
-	}
-	inline int getYPosition(const cScalar &y) const
-	{
-		ASSERT(y >= 0);
-		int r = int(y*mFactorY);
-		// TODO: evitar esto usando assert? nos ahorramos un paso
-		ASSERT(r < mNumCellY);
-		return (r >= mNumCellY) ? mNumCellY-1 : r;
-	}
+	inline int getXPosition(const cScalar &x) const;
+	inline int getYPosition(const cScalar &y) const;
 
 	/**
 	 * Add a new object into the matrix to all the places that corresponds
 	 */
 	inline void addObjectToMatrix(const CollisionObject *mo,
-			int tlx, int tly, int brx, int bry)
-	{
-//		debug("tl(%d,%d), br(%d,%d)\n", tlx, tly, brx, bry);
-		ASSERT(tlx == brx || tlx+1 == brx);
-		ASSERT(tly == bry || tly == bry+1);
-
-
-		// add to all the cells the object
-		(mMatrix[tlx])[tly].addObject(mo);
-		if(brx != tlx){
-			// add to the tly cell to
-			(mMatrix[brx])[tly].addObject(mo);
-		}
-		// check if we have to other rows
-		if(bry != tly){
-			(mMatrix[tlx])[bry].addObject(mo);
-			// check again if we have to add to the other column
-			if(brx != tlx){
-				// add to the tly cell to
-				(mMatrix[brx])[bry].addObject(mo);
-			}
-		}
-	}
+	                              int tlx, int tly,
+	                              int brx, int bry);
 
 	/**
 	 * Remove object from matrix
 	 */
 	inline void removeObjectFromMatrix(const CollisionObject *mo,
-			int tlx, int tly, int brx, int bry)
-	{
-		ASSERT(tlx == brx || tlx+1 == brx);
-		ASSERT(tly == bry || tly == bry+1);
-
-		// add to all the cells the object
-		(mMatrix[tlx])[tly].removeObject(mo);
-		if(brx != tlx){
-			// add to the tly cell to
-			(mMatrix[brx])[tly].removeObject(mo);
-		}
-		// check if we have to other rows
-		if(bry != tly){
-			(mMatrix[tlx])[bry].removeObject(mo);
-			// check again if we have to add to the other column
-			if(brx != tlx){
-				// add to the tly cell to
-				(mMatrix[brx])[bry].removeObject(mo);
-			}
-		}
-	}
+			                           int tlx, int tly,
+			                           int brx, int bry);
 
 	/**
 	 * Get the AABB associated to a cell
 	 */
-	inline void getAABBFromCell(sm::AABB &result, int x, int y)
-	{
-		result.tl.x = x * mCellSizeX;
-		result.tl.y = (y+1) * mCellSizeY;
-		result.br.x = (x+1) * mCellSizeX;
-		result.br.y = y * mCellSizeY;
-
-	}
-
+	inline void getAABBFromCell(sm::AABB &result, int x, int y) const;
 
 
 
@@ -244,8 +187,8 @@ private:
 	CellMatrix	mMatrix;
 	int			mNumCellX;
 	int			mNumCellY;
-	std::set<const CollisionObject*>	mAuxCont;
-	CellPtrSet	mCells;
+	mutable std::set<const CollisionObject*>	mAuxCont; // cache
+	mutable CellPtrSet	mCells; // auxiliar container
 };
 
 
@@ -263,7 +206,8 @@ inline int CollisionManager::getNumCellsX(void) const {return mNumCellX;}
 inline int CollisionManager::getNumCellsy(void) const {return mNumCellY;}
 
 ////////////////////////////////////////////////////////////////////////////////
-inline bool CollisionManager::isPointInside(const sm::Vector2 &p)
+inline bool
+CollisionManager::isPointInside(const sm::Vector2 &p) const
 {
 	if((p.x < 0.0f || p.x > mXBounds) ||
 			(p.y < 0.0f || p.y > mYBounds)) return false;
@@ -271,7 +215,94 @@ inline bool CollisionManager::isPointInside(const sm::Vector2 &p)
 	return true;
 }
 
+inline void
+CollisionManager::getAABBFromCell(sm::AABB &result, int x, int y) const
+{
+    result.tl.x = x * mCellSizeX;
+    result.tl.y = (y+1) * mCellSizeY;
+    result.br.x = (x+1) * mCellSizeX;
+    result.br.y = y * mCellSizeY;
+
+}
+
+/**
+ * Returns the corresponding values from a vector to the matrix
+ */
+inline int
+CollisionManager::getXPosition(const cScalar &x) const
+{
+    ASSERT(x >= 0);
+    int r = int(x*mFactorX);
+    // TODO: evitar esto usando assert? nos ahorramos un paso
+    ASSERT(r < mNumCellX);
+    return (r >= mNumCellX) ? mNumCellX-1 : r;
+}
+inline int
+CollisionManager::getYPosition(const cScalar &y) const
+{
+    ASSERT(y >= 0);
+    int r = int(y*mFactorY);
+    // TODO: evitar esto usando assert? nos ahorramos un paso
+    ASSERT(r < mNumCellY);
+    return (r >= mNumCellY) ? mNumCellY-1 : r;
+}
+
+/**
+ * Add a new object into the matrix to all the places that corresponds
+ */
+inline void
+CollisionManager::addObjectToMatrix(const CollisionObject *mo,
+                                    int tlx, int tly,
+                                    int brx, int bry)
+{
+//      debug("tl(%d,%d), br(%d,%d)\n", tlx, tly, brx, bry);
+    ASSERT(tlx == brx || tlx+1 == brx);
+    ASSERT(tly == bry || tly == bry+1);
 
 
+    // add to all the cells the object
+    (mMatrix[tlx])[tly].addObject(mo);
+    if(brx != tlx){
+        // add to the tly cell to
+        (mMatrix[brx])[tly].addObject(mo);
+    }
+    // check if we have to other rows
+    if(bry != tly){
+        (mMatrix[tlx])[bry].addObject(mo);
+        // check again if we have to add to the other column
+        if(brx != tlx){
+            // add to the tly cell to
+            (mMatrix[brx])[bry].addObject(mo);
+        }
+    }
+}
+
+/**
+ * Remove object from matrix
+ */
+inline void
+CollisionManager::removeObjectFromMatrix(const CollisionObject *mo,
+                                         int tlx, int tly,
+                                         int brx, int bry)
+{
+    ASSERT(tlx == brx || tlx+1 == brx);
+    ASSERT(tly == bry || tly == bry+1);
+
+    // add to all the cells the object
+    (mMatrix[tlx])[tly].removeObject(mo);
+    if(brx != tlx){
+        // add to the tly cell to
+        (mMatrix[brx])[tly].removeObject(mo);
+    }
+    // check if we have to other rows
+    if(bry != tly){
+        (mMatrix[tlx])[bry].removeObject(mo);
+        // check again if we have to add to the other column
+        if(brx != tlx){
+            // add to the tly cell to
+            (mMatrix[brx])[bry].removeObject(mo);
+        }
+    }
+}
 
 #endif /* COLLISIONMANAGER_H_ */

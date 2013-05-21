@@ -11,34 +11,25 @@
 #include <OgreEntity.h>
 #include <OgreSceneNode.h>
 #include <OgreVector3.h>
+#include <OgreMaterial.h>
 
-#include "DebugUtil.h"
-#include "CollectableObject.h"
+#include <Common/DebugUtil/DebugUtil.h>
+
+#include "GameUnits/GameObject.h"
+#include "CollectableObjTypes.h"
 
 
-class CollectableObject
+class CollectableObject : public GameObject
 {
 public:
-	CollectableObject(int type = -1);
+	CollectableObject(CollectableType type = CollectableType::COT_INVALID);
 	~CollectableObject();
-
-	/**
-	 * Set the entity
-	 */
-	void setEntity(Ogre::Entity *ent);
-
-	/**
-	 * Get the SceneNode/Entity
-	 */
-	inline Ogre::SceneNode *getNode(void);
-	inline Ogre::Entity *getEntity(void);
-	inline void setPosition(const Ogre::Vector3 &pos);
 
 	/**
 	 * Get/set the type
 	 */
-	inline void setType(int t);
-	inline int getType(void) const;
+	inline void setCollectableType(CollectableType t);
+	inline CollectableType collectableType(void) const;
 
 	/**
 	 * Set/get specified type object
@@ -54,52 +45,80 @@ public:
 	void objectPicked(void);
 	void objectThrown(void);
 
+	/**
+	 * @brief Build the object with all the information we need
+	 * @param entity    If we haven't set an entity we can set it here (if
+	 *                  entity == 0, then we will use the current entity)
+	 * @param node      If the node wasn't already set, we will use this one,
+	 *                  if not, we will use the one that was set.
+	 */
+	void build(Ogre::Entity *entity = 0, Ogre::SceneNode *node = 0);
+
+	//
+	// Inherited methods
+	//
+
+    /**
+     * This function have to be implemented that reproduce the effects when
+     * the object is selected
+     */
+    virtual void objectSelected(void);
+
+    /**
+     * Function called when the object is not anymore selected
+     */
+    virtual void objectUnselected(void);
+
+    /**
+     * Function called when the mouse is over the object / unit
+     */
+    virtual void mouseOverObject(void);
+
+    /**
+     * Function called when the mouse is exit of the unit
+     */
+    virtual void mouseExitObject(void);
+
+    /**
+     * Object been hit by some other object
+     * Shouldn't be called this method for this kind of objects for now
+     */
+    virtual void beenHit(const Hit_t &hit);
+
 
 private:
-	Ogre::SceneNode		*mNode;
-	Ogre::Entity		*mEnt;
-	int					mType;
-	void				*mObj;
+	CollectableType mType;
+	void *mObj;
+	Ogre::MaterialPtr mMaterial;
+
+
+	// we will use a pre-set material for those selected objects
+	static Ogre::MaterialPtr sSelMaterial;
 };
 
 
 
-
-
-/**
- * Get the SceneNode/Entity
- */
-inline Ogre::SceneNode *CollectableObject::getNode(void)
+inline void
+CollectableObject::setCollectableType(CollectableType t)
 {
-	return mNode;
+    mType = t;
 }
-inline Ogre::Entity *CollectableObject::getEntity(void)
+inline CollectableType
+CollectableObject::collectableType(void) const
 {
-	return mEnt;
-}
-inline void CollectableObject::setPosition(const Ogre::Vector3 &pos)
-{
-	ASSERT(mNode);
-	mNode->setPosition(pos);
+    return mType;
 }
 
-inline void CollectableObject::setType(int t)
+inline void
+CollectableObject::setObject(void *obj)
 {
-	mType = t;
+    ASSERT(obj);
+    mObj = obj;
 }
-inline int CollectableObject::getType(void) const
+inline void *
+CollectableObject::getObject(void) const
 {
-	return mType;
-}
-
-inline void CollectableObject::setObject(void *obj)
-{
-	ASSERT(obj);
-	mObj = obj;
-}
-inline void *CollectableObject::getObject(void) const
-{
-	return mObj;
+    return mObj;
 }
 
 #endif /* COLLECTABLEOBJECT_H_ */

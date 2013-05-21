@@ -164,7 +164,7 @@ bool AppTester::loadResources(void)
 }
 
 /******************************************************************************/
-bool AppTester::loadInitialConfig(void)
+bool AppTester::loadInitialConfig(bool showConfig)
 {
 
 	mRoot = new Ogre::Root(PLUGINS_CONF_FILE);
@@ -177,18 +177,25 @@ bool AppTester::loadInitialConfig(void)
 
 	Common::GlobalObjects::ogreRoot = mRoot;
 
-	// config the window
-	if(mRoot->showConfigDialog())
-	{
-	 std::cout << "Dialog open\n";
-	// If returned true, user clicked OK so initialise
-	// Here we choose to let the system create a default rendering window by passing 'true'
-	mWindow = mRoot->initialise(true, "AppTester Window");
+	if (!showConfig) {
+	    // we will try to load everything from the .cfg file directly
+	    if (!mRoot->restoreConfig()) {
+	        debugERROR("Error restoring the configuration file, probably not "
+	                "ogre.cfg is in the binary folder\n");
+	        return false;
+	    }
 	} else {
-	 return false;
+        // configure using the window
+        if (!mRoot->showConfigDialog()){
+            // The user cancelled the configuration... return then
+            debugERROR("The user cancelled the configuration dialog!\n");
+            return false;
+        }
 	}
-	Common::GlobalObjects::window = mWindow;
 
+	// if we are here, then we can safely init the window
+    mWindow = mRoot->initialise(true, "AppTester Window");
+	Common::GlobalObjects::window = mWindow;
 
 	// creates a generic sceneManager
 	mSceneMgr = mRoot->createSceneManager(Ogre::ST_GENERIC);
@@ -408,7 +415,7 @@ void AppTester::loadAditionalResourcesFromFile(const Ogre::String &file,
 }
 
 /******************************************************************************/
-AppTester::AppTester(bool disableInputGrabbing) :
+AppTester::AppTester(bool disableInputGrabbing, bool showConfig) :
 		mCamera(0), mCameraScnNode(0), mInputManager(0),
 		mKeyboard(0), mMouse(0), mRoot(0), mSceneMgr(0),
 		mWindow(0), mAnimCamera(false),mDefaultInput(true),
@@ -418,7 +425,7 @@ AppTester::AppTester(bool disableInputGrabbing) :
     configureSignals();
 
 	// TODO Auto-generated constructor stub
-	loadInitialConfig();
+	loadInitialConfig(showConfig);
 
 
 	// Load the aditional resources.

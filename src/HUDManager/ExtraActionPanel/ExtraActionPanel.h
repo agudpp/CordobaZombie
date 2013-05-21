@@ -20,6 +20,8 @@
 #define EXTRA_ACTION_PANEL_OVERLAY		"HUD/ActionPanel"
 #define EXTRA_ACTION_PANEL_CONTAINTER	"ActionPanel/Main"
 
+namespace hud {
+
 class ExtraActionPanel
 {
 	typedef std::vector<ExtraAction *>	ElementVec;
@@ -82,6 +84,8 @@ private:
 inline int ExtraActionPanel::getNumLockers(void) const
 {
 	return mElements.size();
+}
+
 }
 
 #endif /* EXTRAACTIONPANEL_H_ */

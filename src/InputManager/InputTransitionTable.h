@@ -9,10 +9,17 @@
 #ifndef INPUTTRANSITIONTABLE_H_
 #define INPUTTRANSITIONTABLE_H_
 
+
+
+namespace input {
+
+
 class InputTransitionTable {
 public:
 	InputTransitionTable();
 	~InputTransitionTable();
 };
 
+
+}
 #endif /* INPUTTRANSITIONTABLE_H_ */

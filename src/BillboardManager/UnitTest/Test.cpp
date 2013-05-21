@@ -129,7 +129,7 @@ void Test::update()
 				return;
 			}
 			// create a billboard
-			Ogre::Billboard *bb = mBbManager.getNewBillboard(auxp);
+			billboard::BillboardWrapper bb = mBbManager.getNewBillboard(auxp);
 			auxp++;
 			ASSERT(bb);
 			debugGREEN("Billboard created on (%f,\t%f,\t%f)\n", pos.x,pos.y,pos.z);

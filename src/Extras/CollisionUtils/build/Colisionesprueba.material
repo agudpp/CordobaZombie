@@ -1,0 +1,31 @@
+
+material NoMaterial
+{
+	technique
+	{
+		pass
+		{
+		}
+
+	}
+
+}
+
+
+
+material Layer0
+{
+	technique
+	{
+		pass
+		{
+			ambient 1 0.329412 0.329412 1
+			diffuse 1 0.329412 0.329412 1
+			specular 0 0 0 1 1
+		}
+
+	}
+
+}
+
+

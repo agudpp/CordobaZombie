@@ -10,16 +10,7 @@
 
 
 CollisionResult	Weapon::mCollResult;
-ShootContainer	*Weapon::mShootCont = 0;
-
-/**
- * Set the shoot container to be used
- */
-void Weapon::setShootContainer(ShootContainer *sc)
-{
-	ASSERT(sc);
-	mShootCont = sc;
-}
+ShootContainer	*Weapon::mShootCont = Shoot::getContainer();
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -57,7 +48,8 @@ Weapon::~Weapon()
 /**
  * Second shoot always can be performed
  */
-void Weapon::secondShoot(const sm::Vector2 &p)
+void
+Weapon::secondShoot(const sm::Vector2 &p)
 {
 	ASSERT(mOwner);
 
@@ -95,4 +87,9 @@ void Weapon::secondShoot(const sm::Vector2 &p)
 	return;
 }
 
+Weapon::Connection
+Weapon::addCallback(const Signal::slot_type& subscriber)
+{
+    return mSignal.connect(subscriber);
+}
 

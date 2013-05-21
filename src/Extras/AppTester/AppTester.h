@@ -42,7 +42,7 @@ class AppTester {
 public:
 	/* constructor
 	 */
-	AppTester(bool disableInputGrabbing = true);
+	AppTester(bool disableInputGrabbing = true, bool showConfig = true);
 
 	/* run the editor */
 	int run();
@@ -58,10 +58,12 @@ public:
 
 	virtual ~AppTester();
 
+	Ogre::RenderWindow *getRenderWindow(void) const {return mWindow;}
+
 protected:
 	/* Function to setup the first configurations */
 	bool loadResources(void);
-	bool loadInitialConfig(void);
+	bool loadInitialConfig(bool showConfig);
 
 	/* Function to handle the input (select the objects, move the elements,
 	 * resize the elements, load objects, remove objects, etc)

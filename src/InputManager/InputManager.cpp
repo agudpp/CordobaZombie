@@ -8,12 +8,17 @@
 
 #include "InputManager.h"
 
-#include "CameraController.h"
-#include "LevelManager.h"
-#include "InputActionObject.h"
+#include <boost/bind.hpp>
+
+#include <CameraController/CameraController.h>
+#include <LevelManager/LevelManager.h>
+#include <SelectionSystem/SelectableObject.h>
+
 #include "IInputState.h"
-#include "GameUnit.h"
-#include "MouseCursor.h"
+#include "InputStateMachine.h"
+
+
+namespace input {
 
 ////////////////////////////////////////////////////////////////////////////////
 const float  InputManager::CAMERA_MOVE_BOUNDS_LIMITS   =   0.01f;
@@ -21,6 +26,8 @@ const float  InputManager::CAMERA_MOVE_BOUNDS_L_LIMIT  =   CAMERA_MOVE_BOUNDS_LI
 const float  InputManager::CAMERA_MOVE_BOUNDS_R_LIMIT  =   1.0f-CAMERA_MOVE_BOUNDS_LIMITS;
 const float  InputManager::CAMERA_MOVE_BOUNDS_T_LIMIT  =   CAMERA_MOVE_BOUNDS_LIMITS;
 const float  InputManager::CAMERA_MOVE_BOUNDS_B_LIMIT  =   1.0f-CAMERA_MOVE_BOUNDS_LIMITS;
+
+const float  InputManager::CAMERA_ZOOM_VEL  =   5.f;
 
 ////////////////////////////////////////////////////////////////////////////////
 void
@@ -37,10 +44,27 @@ InputManager::configureDefaultKeys(void)
 	mKeys[KEY_PAUSE_GAME]		= input::KC_PAUSE;
 	mKeys[KEY_OPEN_CELLPHONE]	= input::KC_ADD;
 
-	// Mouse
-	mKeys[MOUSE_BUTTON_LEFT]	= input::MB_Left;
-	mKeys[MOUSE_BUTTON_RIGHT]	= input::MB_Right;
-	mKeys[MOUSE_BUTTON_MIDDLE]	= input::MB_Middle;
+}
+
+void
+InputManager::handleRaycastedObj(selection::SelectableObject *raycastedObj)
+{
+    // if the object is already selected probably we don't want to do anything..
+    if (mSelManager.isSelected(raycastedObj)) {
+        return;
+    }
+
+    // check if Control is pressed
+    if(!input::InputKeyboard::isKeyDown(static_cast<input::KeyCode>(
+                           mKeys[inputID::KEY_GROUP_UNITS]))) {
+        // add selection
+        mSelManager.select(raycastedObj);
+    } else {
+        // we want to remove all the selection and just select this one
+        mSelManager.unselectAll();
+        mSelManager.select(raycastedObj);
+    }
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -62,13 +86,6 @@ void
 InputManager::handleRaycast(void)
 {
 
-}
-
-////////////////////////////////////////////////////////////////////////////////
-bool
-InputManager::shouldPerformRaycast(void) const
-{
-    ASSERT(false);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -209,9 +226,9 @@ InputManager::handleCameraZoom(void)
     const float lMouseZ = float(input::InputMouse::relZ());
     float scrollZoom = mCameraController->zoom();
     if (lMouseZ > 0.0f) {
-        scrollZoom += 1.f;
+        scrollZoom += CAMERA_ZOOM_VEL;
     } else if (lMouseZ < 0.0f) {
-        scrollZoom -= 1.f;
+        scrollZoom -= CAMERA_ZOOM_VEL;
     }
     if(scrollZoom != mCameraController->zoom()){
         mCameraController->zoomCamera(scrollZoom);
@@ -226,11 +243,12 @@ InputManager::InputManager() :
 		mLevelManager(0),
 		mCameraController(0),
 		mMenuManager(0),
-		mActualActionObj(0),
+		mStateMachine(0),
 		mFlags(~0),
 		mActualState(S_NORMAL),
 		mLastState(S_NORMAL),
-		mLastEvent(E_NONE)
+		mLastEvent(E_NONE),
+		mSelManager(selection::SelectionManager::getInstance())
 {
 	configureDefaultKeys();
 }
@@ -238,18 +256,33 @@ InputManager::InputManager() :
 ////////////////////////////////////////////////////////////////////////////////
 InputManager::~InputManager()
 {
-	// TODO Auto-generated destructor stub
+    delete mStateMachine;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void InputManager::setLevelManager(LevelManager *lm)
+void
+InputManager::setLevelManager(LevelManager *lm)
 {
 	ASSERT(lm);
 	mLevelManager = lm;
+
+	debugWARNING("This operation should be called only once...\n");
+
+	mStateMachineConn.disconnect();
+	delete mStateMachine;
+	mStateMachine = new InputStateMachine(mSelManager, mLevelManager, *this);
+
+    // register the InputStateMachine to the selection manager to receive
+    // events
+	mStateMachineConn = mSelManager.addCallback(
+	    boost::bind(&InputStateMachine::selectionChanged,
+	                mStateMachine,
+	                _1));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void InputManager::setCameraController(CameraController *cc)
+void
+InputManager::setCameraController(CameraController *cc)
 {
 	ASSERT(cc);
 	mCameraController = cc;
@@ -257,14 +290,16 @@ void InputManager::setCameraController(CameraController *cc)
 
 
 ////////////////////////////////////////////////////////////////////////////////
-void InputManager::setMenuManager(MenuManager *mm)
+void
+InputManager::setMenuManager(MenuManager *mm)
 {
 	ASSERT(mm);
 	mMenuManager = mm;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void InputManager::addLevelZone(const sm::AABB &bb)
+void
+InputManager::addLevelZone(const sm::AABB &bb)
 {
 	ASSERT(bb.tl.x >= 0 && bb.tl.x <= 1);
 	ASSERT(bb.tl.y >= 0 && bb.tl.y <= 1);
@@ -274,48 +309,17 @@ void InputManager::addLevelZone(const sm::AABB &bb)
 	mLevelZones.push_back(bb);
 }
 
-/**
- * Handle a InputActionObject. This way we have to check if we can handle
- * or not the action and if we can, then we just activate the
- * "HandleActionState" to handle it.
- * @param	iao		The input action object to be handled
- * @returns	true	if can handle it,
- * 			false	otherwise
- */
-bool InputManager::handleActionObject(InputActionObject *iao)
-{
-	ASSERT(false); // TODO
-}
-
-
-//				GameUnits handling
-/**
- * Select new Unit. Here we will check if we are pressing KEY_GROUP_UNITS
- * to determine if we have to "add" a new unit selected or if we are just
- * selecting one and only one
- * @param	unit	The game unit that we are selecting
- * @note	This function must be called EVERYTIME a unit is selected.
- */
-void InputManager::unitSelected(GameUnit *unit)
-{
-	ASSERT(false); // TODO
-}
-void InputManager::unitUnselected(GameUnit *unit)
-{
-	ASSERT(false); // TODO
-}
-void InputManager::unselectAll(void)
-{
-	ASSERT(false); // TODO
-}
 
 /**
  * TODO: set menu system? aca podemos meter el menu system asociado
  */
-
 ////////////////////////////////////////////////////////////////////////////////
-void InputManager::update(void)
+void
+InputManager::update(void)
 {
+    // update input keys
+    updateKeyFlags();
+
     // update the GLOBAL_CURSOR (TODO: probably we don't want to do this always)
     GLOBAL_CURSOR->updatePosition(input::InputMouse::absX(),
                                   input::InputMouse::absY());
@@ -364,4 +368,11 @@ void InputManager::update(void)
         // ?
         ASSERT(false);
     }
+
+    // update the state machine
+    ASSERT(mStateMachine != 0);
+    mStateMachine->update();
+
+}
+
 }
