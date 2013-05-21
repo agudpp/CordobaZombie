@@ -17,6 +17,9 @@
 #include "OverlayEffect.h"
 #include "OverlayEffectBuilder.h"
 #include "DebugUtil.h"
+#include "SoundEnums.h"
+#include "SoundManager.h"
+#include "SoundFamilyTable.h"
 
 
 /**
@@ -71,7 +74,7 @@ ConfigState::ConfigState() :
 
 		// Register mapped actions
 		actions* acts = new actions;
-		for ( uint j=0 ; j < MAX_NFUN ; j++) {
+		for (uint j=0 ; j < MAX_NFUN ; j++) {
 			if (buttonsActionsList[i][j]) {
 				// If some function was mapped, connect it to the button.
 				acts->connect(boost::bind(buttonsActionsList[i][j], this));
@@ -106,8 +109,19 @@ ConfigState::~ConfigState()
 void
 ConfigState::operator()(CbMenuButton *b, CbMenuButton::ButtonID id)
 {
+	SSerror err(SSerror::SS_NO_ERROR);
+	SoundManager& sMgr(SoundManager::getInstance());
+
+    if (mState == STATE_EXITING) {
+    	// Someone already pressed an escape button, ignore following commands.
+    	return;
+    }
+
 	for (uint i=0 ; i < mButtonsEff.size() ; i++) {
 		if (b == mButtonsEff[i].getButton()) {
+			sMgr.stopEnvSound(*mSounds.getSound(SS_MOUSE_CLICK));
+			err = sMgr.playEnvSound(*mSounds.getSound(SS_MOUSE_CLICK));
+			ASSERT(err == SSerror::SS_NO_ERROR);
 			mButtonsActions[i]->operator()();
 		}
 	}
@@ -118,7 +132,6 @@ ConfigState::operator()(CbMenuButton *b, CbMenuButton::ButtonID id)
 void
 ConfigState::load()
 {
-	Ogre::Real (*parseReal)(const Ogre::String&, Ogre::Real);
 	Ogre::OverlayManager& om(Ogre::OverlayManager::getSingleton());
 	Ogre::Overlay* overlay(0);
 	Ogre::String effectName("Alpha");
@@ -134,6 +147,9 @@ ConfigState::load()
 
 	// Construct the members once, and keep them cached until destruction.
 	if (!mButtonsEff.size()) {
+
+		// First load the sounds for this state from the config.xml file
+		getSoundsFromXML();
 
 		// Create the buttons, and make them invisible.
 		buildButtons(mButtonsEff, sButtonsNames);
@@ -196,6 +212,13 @@ ConfigState::beforeUpdate()
 		mButtonsEff[i].getButton()->getContainer()->show();
 		mButtonsEff[i].getEffect()->start();
 	}
+
+	// Start the background music in looping mode.
+	SSerror err = SoundManager::getInstance().playEnvSound(
+			*mSounds.getSound(SS_BACKGROUND_MUSIC),	// Music filename
+			BACKGROUND_MUSIC_VOLUME,				// Playback volume
+			true);									// Looping activated
+	ASSERT(err == SSerror::SS_NO_ERROR);
 }
 
 
@@ -209,13 +232,13 @@ ConfigState::update()
 	} else if (mState == STATE_EXITING) {
 		for (uint i=0 ; i < mButtonsEff.size() ; i++) {
 			if (mButtonsEff[i].getEffect()->isActive()) {
-				return;  // Can't quit yet
+				return;  // Can't quit yet.
 			} else {
 				mButtonsEff[i].getButton()->setEnable(false);
 			}
 		}
 		if (mPanelEff->isActive()) {
-			return;  // Can't quit yet
+			return;  // Can't quit yet.
 		} else {
 			mPanel->hide();
 		}
@@ -236,13 +259,13 @@ ConfigState::exitConfigState()
 	mState = STATE_EXITING;
 
 	for (uint i=0 ; i < mButtonsEff.size() ; i++) {
-		// Hide buttons
+		// Hide buttons.
 		success = mButtonsEff[i].getEffect()->complement();
 		ASSERT(success);
 		mButtonsEff[i].getEffect()->start();
 	}
 
-	// Hide KeyConfig panel
+	// Hide KeyConfig panel.
 	success = mPanelEff->complement();
 	ASSERT(success);
 	mPanelEff->start();
@@ -259,18 +282,24 @@ ConfigState::unload()
 	ASSERT(sButtonsNames.size() == mButtonsEff.size());
 	ASSERT(sButtonsNames.size() == mButtonsActions.size());
 
-	// Members memory release was relocated inside the class' destructor
-	// Members are kept cached until destruction
+	// Members memory release was relocated inside the class' destructor.
+	// Members are kept cached until destruction.
 
 	for (uint i=0 ; i < mButtonsEff.size() ; i++) {
-		// Set buttons to reappear fresh next time we're called
+		// Set buttons to reappear fresh next time we're called.
 		success = mButtonsEff[i].getEffect()->complement();
 		mButtonsEff[i].getButton()->resetAtlas();
 		ASSERT(success);
 	}
-	// Set KeyConfig panel to reappear next time we're called
+
+	// Set KeyConfig panel to reappear next time we're called.
 	success = mPanelEff->complement();
 	ASSERT(success);
+
+	// Stop the background music.
+	SSerror err = SoundManager::getInstance().stopEnvSound(
+			*mSounds.getSound(SS_BACKGROUND_MUSIC));
+	ASSERT(err == SSerror::SS_NO_ERROR);
 }
 
 

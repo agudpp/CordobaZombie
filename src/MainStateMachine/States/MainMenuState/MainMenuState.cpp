@@ -19,6 +19,8 @@
 #include "IMenu.h"
 #include "Util.h"
 #include "MouseCursor.h"
+#include "SoundManager.h"
+#include "BufferBuilder.h"
 
 const char *MainMenuState::CONFIG_FILENAME = "MainMenuConfiguration.xml";
 
@@ -126,6 +128,8 @@ MainMenuState::VideoState MainMenuState::getVideoState(void)
 ////////////////////////////////////////////////////////////////////////////////
 void MainMenuState::updateStateMachine(void)
 {
+	static SoundManager& sMgr(SoundManager::getInstance());
+
 	// check that we have state to update
 	if(!mActualState) return;
 
@@ -133,11 +137,11 @@ void MainMenuState::updateStateMachine(void)
 	VideoState actualVS = getVideoState();
 
 	if (actualVS == Entering) {
-		// we don't have to do nothing, only update videoplayer
+		// All we had to do was to update the video player.
 		return;
 	}
 
-	// we are in the updating stage
+	// We are in the refresh stage
 	if (mBeforeUpdateCalled == false) {
 		mBeforeUpdateCalled = true;
 		mActualState->beforeUpdate();
@@ -152,9 +156,10 @@ void MainMenuState::updateStateMachine(void)
 		return;
 	}
 
-	// now update the state
+	// Finally update the state ...
 	mActualState->update();
-
+	// ... and the SoundManager.
+	sMgr.update();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -175,7 +180,54 @@ void MainMenuState::configureOvEffectManager(void)
 ////////////////////////////////////////////////////////////////////////////////
 void MainMenuState::configureSoundManager(void)
 {
-	debugERROR("Carlox: mete tu codigo aca :)\n");
+	std::vector<const TiXmlElement *> states;
+	SoundManager& sMgr = SoundManager::getInstance();
+
+	// Gather the sound names for the menu states from the config.xml file.
+	mXmlHelper.getFirstElements(states);
+	for (uint i=0 ; i < states.size() ; ++i) {
+
+		// For each main tag, search for "Sounds" entry.
+		const TiXmlElement* sounds = states[i]->FirstChildElement("Sounds");
+		if(!sounds) {
+			debugWARNING("No sounds specified in the file \"%s\" for XML tag # %u\n",
+					mXmlHelper.getFilename().c_str(), i);
+			continue;
+		} else {
+			sounds = sounds->FirstChildElement("Sound");
+		}
+
+		while(sounds) {
+			// Register currently pointed sound filename.
+			Ogre::String sound = sounds->Attribute("filename");
+			ASSERT(sound.size());
+			mSoundsFilenames.insert(sound);
+			// Get next sound filename.
+			sounds = sounds->NextSiblingElement("Sound");
+		}
+	}
+
+	// Load all found sound files.
+	for (std::set<Ogre::String>::const_iterator sound = mSoundsFilenames.begin() ;
+			sound != mSoundsFilenames.end() ;
+			sound++) {
+
+		Ogre::String soundFilePath("");
+		Common::Util::getResourcePath(Ogre::String(SOUNDS_RESOURCE_GROUP_NAME),
+				*sound, soundFilePath);
+		if (!soundFilePath.size()) {
+			debugWARNING("No resource found to map sound \"%s\"\n",	sound->c_str());
+			continue;
+		}
+
+		SSbuftype buffType = BufferBuilder::bestBufferType(soundFilePath);
+		SSerror err = sMgr.loadSound(*sound, SSformat::SS_NOTHING, buffType);
+		ASSERT(err == SSerror::SS_NO_ERROR);
+	}
+
+	// Load some sources into the SoundManager to play these sounds.
+	sMgr.addSSoundSources(4);
+	sMgr.addLSoundSources(4);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -185,9 +237,9 @@ void MainMenuState::configureVideoAPI(void)
 	if(mVideoPlayerAPI == 0){
 		mVideoPlayerAPI = new VideoPlayerAPI;
 	}
-	// Load menu video
 	ASSERT(mVideoPlayerAPI);
-	// TODO read video path from configuration .xml files
+
+	// Load menu video
 	Ogre::String videoPath;
 	Common::Util::getResourcePath( Ogre::String(VIDEOS_RESOURCE_GROUP),
 	Ogre::String(mXmlHelper.findElement("MenuVideo")->Attribute("videoName")),
@@ -272,7 +324,8 @@ MainMenuState::MainMenuState() :
 	mLastEvent(mm_states::Done),
 	mBeforeUpdateCalled(false),
 	mVideoPlayerAPI(0),
-	mCbReceiver(*this)
+	mCbReceiver(*this),
+	mSoundsFilenames()
 {
     // configure the callback for the IStates
     mm_states::IState::setStateMachineCb(&mCbReceiver);
@@ -281,12 +334,22 @@ MainMenuState::MainMenuState() :
 ////////////////////////////////////////////////////////////////////////////////
 MainMenuState::~MainMenuState()
 {
+	SoundManager& sMgr(SoundManager::getInstance());
+
 	// TODO: Remove all the memory and resources used by this state
 	// calling exit()
 
 	if(mVideoPlayerAPI){
 		delete mVideoPlayerAPI;
 	}
+
+	// Unload the sounds loaded into the SoundManager for the MainMenu states.
+	for (std::set<Ogre::String>::const_iterator it = mSoundsFilenames.begin();
+			it != mSoundsFilenames.end() ;
+			it++) {
+		sMgr.unloadSound(*it);  // TODO Have all sounds been stopped?
+	}
+	mSoundsFilenames.clear();
 
     exit();
 }

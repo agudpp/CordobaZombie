@@ -18,6 +18,8 @@
 #include "CbMenuButton.h"
 #include "InputKeyboard.h"
 #include "GeneralTypedefs.h"
+#include "SoundFamilyTable.h"
+#include "SoundEnums.h"
 
 class TiXmlElement;
 
@@ -37,6 +39,24 @@ enum Event {
 	PlayGame,
 
 };
+
+// Volume of the background music for all MainMenu states
+#define  BACKGROUND_MUSIC_VOLUME  DEFAULT_ENV_GAIN
+
+/********************************************************************
+ *
+ * Mapping between sound codes and config.xml attributes names
+ * (see "Sound codes enum" at the end of IState class definition)
+ *
+ * @======================#====================@
+ * |     Sound code       | XML attribute name |
+ * #======================#====================#
+ * | SS_MOUSE_CLICK       | "mouse_click"      |
+ * | SS_BACKGROUND_MUSIC  | "background"       |
+ * @======================#====================@
+ *
+ ********************************************************************/
+
 
 class IState;
 
@@ -122,16 +142,19 @@ protected:
 	void stateFinish(Event e);
 
 	/**
-	 * TODO: Aca deberiamos definir la interfaz usada para reproducir sonidos
-	 * y cargarlos al SoundManager (static *). Ya que la gran mayoria de los
-	 * estados tienen sonidos + musica.
-	 */
-
-	/**
 	 * Get all the VideoRanges associated to this state name.
-	 * @param	vr		The vector where it will be put the video ranges
+	 * @param	vr		Vector where the video ranges will be registered
 	 */
 	void getVideoRangesFromXML(std::vector<VideoRange> &vr) const;
+
+	/**
+	 * @brief
+	 * Retrieve and register sounds filenames for this state.
+	 *
+	 * @remarks
+	 * Fills up mSounds table, registering filenames for each sound code.
+	 */
+	void getSoundsFromXML();
 
 	/**
 	 * Build a list of CbMenuButtons from a list of names (IDs in the xml).
@@ -177,33 +200,46 @@ private:
 			OvEff::MenuButtonEffect &button);
 
 private:
-	float			mActualTimeDuration;
-	Ogre::String	mName;
-	const TiXmlElement *mRootElement;
+	float					mActualTimeDuration;
+	Ogre::String			mName;
+	const TiXmlElement*		mRootElement;
+	static EventCallback*	sEventCb;
 
-	static EventCallback *sEventCb;
+protected:
+	// Sound codes of each menu state
+	enum {
+		SS_MOUSE_CLICK,		// Mouse click on menu button
+		SS_BACKGROUND_MUSIC	// Background music for this state
+	};
 
+	SoundFamilyTable		mSounds;
 };
+
 
 
 inline void IState::setActualVideoStateDuration(float t)
 {
 	mActualTimeDuration = t;
 }
+
+
 inline float IState::getActualVideoStateDuration(void)
 {
 	return mActualTimeDuration;
 }
+
 
 inline void IState::setXmlElement(const TiXmlElement *elem)
 {
 	mRootElement = elem;
 }
 
+
 inline const Ogre::String &IState::name(void)
 {
 	return mName;
 }
+
 
 inline bool IState::isKeyPressed(input::KeyCode key)
 {

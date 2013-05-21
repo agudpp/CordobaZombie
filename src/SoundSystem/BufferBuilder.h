@@ -16,6 +16,13 @@
 #include "SoundBuffer.h"
 #include "SoundEnums.h"
 
+
+// File size threshold in bytes:
+// files with sizes above these will be recommended for stream buffering.
+#define  MAX_WAV_FILE_SIZE	(1<<20)  // 1 MB
+#define  MAX_OGG_FILE_SIZE	(1<<18)  // 256 KB
+
+
 class BufferBuilder
 {
 public:
@@ -23,7 +30,7 @@ public:
 	 ** @brief
 	 ** Opens audio file named "sName" and fills "buffer" with the content.
 	 **
-	 ** @params
+	 ** @param
 	 **  sName: name of the audio file (absolut path in filesystem)
 	 ** buffer: SoundBuffer to create and fill. MUST POINT TO NULL.
 	 ** format: file's audio compression format (WAV, OGG, MP3)
@@ -50,6 +57,17 @@ public:
 					SoundBuffer** buffer,
 					SSformat format,
 					SSbuftype type);
+
+	/**
+	 ** @brief
+	 ** Chooses the best buffer type for the audio file "sName"
+	 **
+	 ** @return
+	 ** SS_BUF_NONE			Error, inexistent file or else.
+	 ** SSbuftype::<type>	Recommended buffer type for file "sName" is <type>.
+	 **/
+	static SSbuftype
+	bestBufferType(const std::string& sName);
 
 private:
 	/**

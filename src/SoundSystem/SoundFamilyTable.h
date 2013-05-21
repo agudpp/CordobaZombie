@@ -1,16 +1,17 @@
 /*
  * SoundFamilyTable.h
  *
- *	Container of sounds specific to a unit (ZombieUnit, PlayerUnit, Weapon, ...)
+ *	Container of sounds.
  *
+ *  Take for instace the game units (ZombieUnit, PlayerUnit, Weapon, ...)
  *	Each GameUnit has its own SoundFamiliyTable, where the names of the files
  *	containing its sound effects are stored, following an enumerated code
  *	particular of the unit.
  *
- *	For instance, all ZombieUnits (normal or dog) have an available sound code
- *	(aka SSsoundCode) named SS_GRUNT_CODE. This code represents the position in
- *	their SoundFamilyTables where the file names of the zombie grunts (or zombie
- *	barks) are listed.
+ *	So all ZombieUnits (normal or dog) have an available sound code
+ *	(aka SSsoundCode) named SS_GRUNT_CODE. This code represents the position
+ *	in their SoundFamilyTables where the file names of the zombie grunts
+ *	(or zombie barks) are listed.
  *	Hence, thisZombieUnit->sAPI.play(mSounds.getSound(SS_GRUNT_CODE));
  *	will play a zombie grunt (or zombie bark)
  *
@@ -29,40 +30,6 @@
 #include "DebugUtil.h"
 #include "SoundEnums.h"
 
-
-
-/*
- * TODO
- *
- * Hay una "categoría" de sonidos por cada class dentro de GameUnit
- * Las categorías son: ZOMBIES, CIVILIANS, PLAYERS, WEAPONS...
- *
- * Cada categoría tiene una interfaz unificada de acceso a los sonidos.
- * Por ejemplo los ZOMBIES: toda SSfamilyTable de esa categoría tiene:
- *	¤ randomGrunt()  // SS_GRUNT
- *	¤ mobGrunt()     // SS_MOB_GRUNT
- *	¤ hitSound()     // SS_HIT
- *	¤ dying()        // SS_DYING
- * Para PLAYERS:
- *  ¤ yesSir()       // SS_YES_SIR
- *  ¤ cantDoThat()   // SS_CANT_DO_THAT
- *  ¤ healing()      // SS_HEALING
- *  etc...
- *
- * La categoría se asocia a cada clase. Al momento de creación de la unidad
- * se especifica a cual familia de la categoría pertenece. Por ejemplo, cuando
- * se crea un player, se asocia a la tabla "mSounds" de su GameUnit la familia
- * de sonidos que corresponda (SS_PLAYER_CORAL_FAMILY, SS_PLAYER_TULIAN_FAMILY...)
- *
- * La reproducción de los sonidos está hardcodeada en la State Machine de cada
- * una de estas clases. Como la interfaz por categoría está unificada,
- * es posible llevar a cabo esta unificación de código.
- * Entonces cuando Coral haga sAPI.play(mSounds[SS_YES_SIR]) se escuchará
- * una voz de mujer, y cuando Tulián lo haga se escuchará una voz de hombre.
- *
- * Las tablas (familias de sonidos) estarán en archivos independientes incluidos
- * desde aquí. Se planea cargar estas tablas parseando archivos XML.
- */
 
 
 typedef int SSsoundCode;
@@ -190,8 +157,11 @@ inline uint SoundFamilyTable::getNumSounds() const { return mList.size(); }
 inline const Ogre::String*
 SoundFamilyTable::getSound(SSsoundCode sc) const
 {
-	if (mList.size() <= sc || !mList[sc].first || !mList[sc].second) {
-		debugWARNING("Sound code #d empty or inexistent.\n", sc);
+	if (mList.size() <= sc) {
+		debugWARNING("Sound code #%d does not exist, SUCKER.\n", sc);
+		return NULL;
+	} else if (!mList[sc].first || !mList[sc].second) {
+		debugWARNING("Sound code #%d is empty, you IDIOT.\n", sc);
 		return NULL;
 	} else {
 		return &mList[sc].first[0];

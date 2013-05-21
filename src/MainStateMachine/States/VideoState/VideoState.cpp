@@ -21,11 +21,12 @@
 //TODO Cargar la lista de videos desde un xml
 
 namespace{
-	const int VIDEO_STATE_LIST_SIZE = 2;
+	const int VIDEO_STATE_LIST_SIZE = 3;
 
 	const char* VIDEO_STATE_LIST[VIDEO_STATE_LIST_SIZE] =
 				{
 				"perrosInfectados.ogg",
+				"5seg2.ogg",
 				"menu_ar3:2.ogg"
 				};
 }
@@ -37,7 +38,7 @@ namespace{
 VideoState::VideoState():
 	IMainState("VideoState"),
 	mVpapi(0),
-	mVideoIndex(0),
+	mVideoIndex(-1),
 	keyPress(false)
 {
 }
@@ -57,37 +58,18 @@ void VideoState::enter(const MainMachineInfo &info)
 	// Video screen will cover all the Ogre main window because we are not
 	// giving the sizes as arguments:
 
-	mVideoIndex = 0;
+	mVideoIndex = -1;
 
 	if(!mVpapi){
-		Ogre::Vector4 screensize(-1.0f, 1.0f, 1.0f, -1.0f);
-		mVpapi = new VideoPlayerAPI(&screensize);
+		//Ogre::Vector4 screensize(-1.0f, 1.0f, 1.0f, -1.0f);
+		mVpapi = new VideoPlayerAPI();
 	}
 
 	ASSERT(mVpapi);
 
 	ASSERT(VIDEO_STATE_LIST_SIZE > 0)
 
-	// If got videos, try to load one
-	for(int i = 0; i < VIDEO_STATE_LIST_SIZE; i++, mVideoIndex++){
-		Ogre::String videoPath;
-		Common::Util::getResourcePath(Ogre::String("Videos"),
-				Ogre::String(VIDEO_STATE_LIST[i]), videoPath);
 
-		if(VideoPlayerAPI::VIDEO_OK == mVpapi->load(videoPath.c_str())){
-			if( VideoPlayerAPI::VIDEO_OK == mVpapi->play()){
-				mVpapi->setRepeat(false);
-				mVpapi->setVisible(true);
-				break;
-			}else{
-				debugERROR("Can't play %s an VideoState :S\n",
-						VIDEO_STATE_LIST[i]);
-			}
-		}else{
-			debugERROR("Can't load %s at VideoState :S.\n",
-					VIDEO_STATE_LIST[i]);
-		}
-	}
 }
 
 
@@ -113,27 +95,38 @@ int VideoState::checkInput(void)
 ////////////////////////////////////////////////////////////////////////////////
 
 int VideoState::nextVideo(void){
+
 	mVpapi->pause();
-	if(mVideoIndex+1 < VIDEO_STATE_LIST_SIZE){
-		// Load and play next video
-		mVideoIndex++;
+	mVpapi->unload();
 
-		Ogre::String videoPath;
-		Common::Util::getResourcePath(Ogre::String("Videos"),
-				Ogre::String(VIDEO_STATE_LIST[mVideoIndex]), videoPath);
-		if(mVpapi->load(videoPath.c_str()) != VideoPlayerAPI::VIDEO_OK)
-		{
-			return ERROR;
-		}
-
-		if(mVpapi->play() != VideoPlayerAPI::VIDEO_OK)
-		{
-			return ERROR;
-		}
-	}else{
-		// No more videos to play
-		debugRED("NO more videos\n");
+	if (mVideoIndex == VIDEO_STATE_LIST_SIZE - 1){
+		// no more videos to play
 		return DONE;
+	}
+
+	// get next video to play
+	while(mVideoIndex < VIDEO_STATE_LIST_SIZE - 1){
+		mVideoIndex++;
+		Ogre::String videoPath("");
+		if(0 != Common::Util::getResourcePath(Ogre::String("Videos"),
+				Ogre::String(VIDEO_STATE_LIST[mVideoIndex]), videoPath)){
+			debugERROR("Can't find video %s\n", videoPath.c_str());
+			continue;
+		}
+
+		if(VideoPlayerAPI::VIDEO_OK == mVpapi->load(videoPath.c_str())){
+			if( VideoPlayerAPI::VIDEO_OK == mVpapi->play()){
+				mVpapi->setRepeat(false);
+				mVpapi->setVisible(true);
+				break;
+			}else{
+				debugERROR("Can't play %s in VideoState :S\n",
+						VIDEO_STATE_LIST[mVideoIndex]);
+			}
+		}else{
+			debugERROR("Can't load %s at VideoState :S.\n",
+					VIDEO_STATE_LIST[mVideoIndex]);
+		}
 	}
 
 	return OK;

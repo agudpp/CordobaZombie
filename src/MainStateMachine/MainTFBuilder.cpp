@@ -53,8 +53,8 @@ MainTransitionFunction *MainTFBuilder::build(const TiXmlElement  *elem)
 
 	loadingState->setLoaderManager(mLoaderManager);
 	// TODO: borrar estas dos líneas para que luego siga cargando todo
-	tt->setStartState(loadingState);
-	return tt;
+	//tt->setStartState(loadingState);
+	//return tt;
 
 	// build the transitions
 	tt->setStartState(firstInformation);

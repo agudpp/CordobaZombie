@@ -12,6 +12,7 @@
 #include <OgreOverlayManager.h>
 
 #include "DebugUtil.h"
+#include "SoundManager.h"
 
 namespace mm_states {
 
@@ -72,27 +73,47 @@ MainState::~MainState()
 void
 MainState::operator()(CbMenuButton *button, CbMenuButton::ButtonID id)
 {
+	SSerror err(SSerror::SS_NO_ERROR);
+	SoundManager& sMgr(SoundManager::getInstance());
+
     ASSERT(mMenuButtonsEff.size() == NUMBER_BUTTONS);
+    if (mState == Exiting) {
+    	// Someone already pressed an escape button, ignore following commands.
+    	return;
+    }
 
     if (button == mMenuButtonsEff[NewGameButtonIndex].getButton()){
         mReturnEvent = Event::PlayGame;
-        exitState();
+        sMgr.stopEnvSound(*mSounds.getSound(SS_MOUSE_CLICK));
+    	err = sMgr.playEnvSound(*mSounds.getSound(SS_MOUSE_CLICK));
+
     } else if (button == mMenuButtonsEff[HistoryButtonIndex].getButton()) {
         mReturnEvent = Event::History;
-        exitState();
+        sMgr.stopEnvSound(*mSounds.getSound(SS_MOUSE_CLICK));
+        err = sMgr.playEnvSound(*mSounds.getSound(SS_MOUSE_CLICK));
+
     } else if (button == mMenuButtonsEff[CreditsButtonIndex].getButton()) {
         mReturnEvent = Event::Credits;
-        exitState();
+        sMgr.stopEnvSound(*mSounds.getSound(SS_MOUSE_CLICK));
+        err = sMgr.playEnvSound(*mSounds.getSound(SS_MOUSE_CLICK));
+
     } else if (button == mMenuButtonsEff[ConfigButtonIndex].getButton()) {
         mReturnEvent = Event::Config;
-        exitState();
+        sMgr.stopEnvSound(*mSounds.getSound(SS_MOUSE_CLICK));
+        err = sMgr.playEnvSound(*mSounds.getSound(SS_MOUSE_CLICK));
+
     } else if (button == mMenuButtonsEff[ExitButtonIndex].getButton()) {
         mReturnEvent = Event::Exit;
-        exitState();
+        sMgr.stopEnvSound(*mSounds.getSound(SS_MOUSE_CLICK));
+        err = sMgr.playEnvSound(*mSounds.getSound(SS_MOUSE_CLICK));
+
     } else {
         debugERROR("Receiving events from an invalid button!!!\n");
         ASSERT(false);
     }
+
+    ASSERT(err == SSerror::SS_NO_ERROR);
+    exitState();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -112,6 +133,8 @@ MainState::load(void)
     }
     buildButtons(mMenuButtonsEff, buttonNames);
 
+	// Also load the sounds for this state from the config.xml file
+	getSoundsFromXML();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -130,6 +153,13 @@ MainState::beforeUpdate(void)
         mMenuButtonsEff[i].getEffect()->start();
         mMenuButtonsEff[i].getEffect()->getElement()->show();
     }
+
+	// Start the background music in looping mode
+	SSerror err = SoundManager::getInstance().playEnvSound(
+			*mSounds.getSound(SS_BACKGROUND_MUSIC),	// Music filename
+			BACKGROUND_MUSIC_VOLUME,				// Playback volume
+			true);									// Looping activated
+	ASSERT(err == SSerror::SS_NO_ERROR);
 
     mState = Looping;
     mReturnEvent = Event::Done;
@@ -166,6 +196,11 @@ MainState::unload(void)
         mMenuButtonsEff[i].getEffect()->complement();
         mMenuButtonsEff[i].getButton()->resetAtlas();
     }
+
+	// Stop the background music
+	SSerror err = SoundManager::getInstance().stopEnvSound(
+			*mSounds.getSound(SS_BACKGROUND_MUSIC));
+	ASSERT(err == SSerror::SS_NO_ERROR);
 }
 
 

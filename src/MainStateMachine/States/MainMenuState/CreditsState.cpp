@@ -16,6 +16,9 @@
 #include "GlobalObjects.h"
 #include "GUIHelper.h"
 #include "Text2D.h"
+#include "SoundEnums.h"
+#include "SoundManager.h"
+#include "SoundFamilyTable.h"
 
 
 
@@ -93,6 +96,9 @@ void CreditsState::load(void)
 		mSlideEffect.setElement(mTextArea);
 		mBeginPos.x = mTextArea->getLeft();
 		mBeginPos.y = mTextArea->getTop();
+
+		// Finally load the sounds for this state from the config.xml file.
+		getSoundsFromXML();
 	}
 
 	// configure the text of the text area
@@ -150,11 +156,17 @@ void CreditsState::beforeUpdate(void)
     // start slide effect
     mSlideEffect.start();
 
-    // TODO: show credits
     ASSERT(mOverlay);
     mOverlay->show();
 
     mRestarter.link();
+
+	// Start the background music in looping mode.
+	SSerror err = SoundManager::getInstance().playEnvSound(
+			*mSounds.getSound(SS_BACKGROUND_MUSIC),	// Music filename
+			BACKGROUND_MUSIC_VOLUME,				// Playback volume
+			true);									// Looping activated
+	ASSERT(err == SSerror::SS_NO_ERROR);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -169,6 +181,11 @@ void CreditsState::unload(void)
 {
     mOverlay->hide();
     mRestarter.unlink();
+
+    // Stop the background music.
+	SSerror err = SoundManager::getInstance().stopEnvSound(
+			*mSounds.getSound(SS_BACKGROUND_MUSIC));
+	ASSERT(err == SSerror::SS_NO_ERROR);
 }
 
 

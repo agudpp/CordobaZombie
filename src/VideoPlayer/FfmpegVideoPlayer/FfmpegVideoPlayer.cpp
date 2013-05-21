@@ -467,6 +467,7 @@ int VideoPlayer::unload(void){
     avformat_close_input(&pFormatCtx);
     isLoaded = false;
 
+    return VIDEO_OK;
 }
 
 

@@ -111,19 +111,21 @@ void Test::update()
 
 	static bool kp = false;
 
-	if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_SPACE)){
-		if (!kp){
-			kp = true;
-			debugRED("Width container: %f\n", mTextArea->getWidth());
-			gui_utils::Text2D t2d(mTextArea);
-			debugRED("Width container: %f\n", mTextArea->getWidth());
-			Ogre::String str("Esto es una prueba de una cosa muy larrga pero sin enters, "
-					);
-			t2d.configure(str, gui_utils::Text2D::TRUNCATE_HORIZONTAL, 0.9f);
-
-		}
-	} else {
-		kp = false;
+	if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_SPACE))
+        {
+	    if (!kp)
+            {
+	        kp = true;
+	        debugRED("Width container: %f\n", mTextArea->getWidth());
+	        gui_utils::Text2D t2d(mTextArea);
+	        debugRED("Width container: %f\n", mTextArea->getWidth());
+	        Ogre::String str("Esta es una linea de texto! Deberia cambiar de acuerdo a la configuracion");
+	        t2d.configure(str, gui_utils::Text2D::ADJUST_TEXT_TO_CONTAINER, 1.0f, 1.0f);
+	    }
+	}
+        else 
+        {
+	    kp = false;
 	}
 
 

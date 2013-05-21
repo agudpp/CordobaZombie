@@ -8,6 +8,7 @@
 
 #include "IState.h"
 
+#include <cstring>
 #include <OgreOverlayManager.h>
 #include <OgreOverlayContainer.h>
 
@@ -115,6 +116,50 @@ void IState::getVideoRangesFromXML(std::vector<VideoRange> &vr) const
 	parseVideoRange(auxElem, auxVr);
 	vr.push_back(auxVr);
 }
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+void IState::getSoundsFromXML()
+{
+	const TiXmlElement *elem(getXmlElement());
+	ASSERT(elem);
+	elem = elem->FirstChildElement("Sounds");
+
+	if(!elem) {
+		debugWARNING("No sounds specified for the MainMenu state \"%s\"\n",
+					mName.c_str());
+		return;
+	}
+
+	// For each specified sound ...
+	elem = elem->FirstChildElement("Sound");
+	ASSERT(elem);
+	while (elem) {
+		// ... identify sound type ...
+		Ogre::String name(elem->Attribute("name"));
+
+		// ... and map it into the SoundFamilyTable.
+		if (!strncmp(name.c_str(), "mouse_click", strlen("mouse_click"))) {
+			name = elem->Attribute("filename");
+			mSounds.addSounds(SS_MOUSE_CLICK, &name, 1);
+			debugBLUE("Added mouse click (\"%s\") for %s\n",
+					name.c_str(), mName.c_str());
+
+		} else if (!strncmp(name.c_str(), "background", strlen("background"))) {
+			name = elem->Attribute("filename");
+			mSounds.addSounds(SS_BACKGROUND_MUSIC, &name, 1);
+			debugBLUE("Added background music (\"%s\") for %s\n",
+					name.c_str(), mName.c_str());
+		}
+
+		elem = elem->NextSiblingElement("Sound");
+	}
+
+	return;
+}
+
+
 
 ////////////////////////////////////////////////////////////////////////////////
 void IState::buildButtons(std::vector<OvEff::MenuButtonEffect> &buttons,

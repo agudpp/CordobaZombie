@@ -555,7 +555,7 @@ int Util::getResourcePath( Ogre::String resourceGroup
 {
 	std::string sNameFullPath;
 
-	/* First find audio file absolute path */
+	/* First find file absolute path */
 	Ogre::ResourceGroupManager& resGM = Ogre::ResourceGroupManager::getSingleton();
 	Ogre::FileInfoListPtr files = resGM.findResourceFileInfo(
 			resourceGroup, resourceName);
@@ -567,7 +567,7 @@ int Util::getResourcePath( Ogre::String resourceGroup
 	} else {
 		Ogre::FileInfoList::iterator it;
 		for (it = files->begin() ; it < files->end() ; it++) {
-			/* Compose audio file absolute path */
+			/* Compose file absolute path */
 			sNameFullPath.append(it->archive->getName()+"/"+resourceName);
 			if (fileExists(sNameFullPath)) {
 				break;

@@ -9,6 +9,7 @@
 #ifndef MAINMENUSTATE_H_
 #define MAINMENUSTATE_H_
 
+#include <set>
 #include <vector>
 #include <string>
 
@@ -19,7 +20,6 @@
 
 #include "OverlayEffectManager.h"
 #include "MenuManager.h"
-#include "SoundManager.h"
 #include "GeneralTypedefs.h"
 #include "DebugUtil.h"
 #include "VideoRange.h"
@@ -170,7 +170,7 @@ private:
 	VideoPlayerAPI					*mVideoPlayerAPI;
 	CallbackReceiber                mCbReceiver;
 	XMLHelper                       mXmlHelper;
-
+	std::set<Ogre::String>			mSoundsFilenames;
 };
 
 
