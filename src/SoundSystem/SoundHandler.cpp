@@ -638,7 +638,7 @@ SoundHandler::getPlaylistRandomSilence(const Ogre::String& name, bool* found) co
 SSerror
 SoundHandler::startPlaylist(const Ogre::String& name, Playlist *plp)
 {
-	SSerror err(SS_NO_ERROR);
+	SSerror err(SSerror::SS_NO_ERROR);
 	Playlist *pl = plp ? plp : getPlaylist(name);
 
 	if (!pl) {
