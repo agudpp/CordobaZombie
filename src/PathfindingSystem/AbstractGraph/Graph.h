@@ -22,30 +22,6 @@ public:
     Graph(){};
     ~Graph(){};
 
-<<<<<<< HEAD
-	// builds the graph from a list of nodes and edges
-	//
-	void setNodesAndEdges(const std::vector<GNode *> &nodes,
-			const std::vector<GEdge *> &edges);
-
-	// Gets the edges
-	//
-	inline const std::vector<GEdge *> &getEdges(void) const {return mEdges;}
-
-	// Gets the edges
-	//
-	inline const std::vector<GNode *> &getNodes(void) const {return mNodes;}
-
-	// Remove all nodes
-	//
-	void removeNodes(void);
-	void removeAndDestroyNodes(void);
-
-	// Remove all edges
-	//
-	void removeEdges(void);
-	void removeAndDestroyEdeges(void);
-=======
     // builds the graph from a list of nodes and edges
     void
     setNodesAndEdges(const std::vector<GNode *> &nodes,
@@ -76,7 +52,6 @@ public:
     //
     inline std::size_t
     getNumNodes(void) const;
->>>>>>> PlayerMovement
 
 	// Verify if two Graphs are equal
 	//
