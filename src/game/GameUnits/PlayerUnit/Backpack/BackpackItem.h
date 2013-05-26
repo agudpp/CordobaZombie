@@ -10,7 +10,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include <Common/DebugUtil/DebugUtil.h>
+#include <DebugUtil/DebugUtil.h>
 
 #include "BackpackDefines.h"
 

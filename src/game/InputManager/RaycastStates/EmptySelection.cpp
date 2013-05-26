@@ -9,7 +9,7 @@
 
 #include <OgreSceneQuery.h>
 
-#include <Common/DebugUtil/DebugUtil.h>
+#include <DebugUtil/DebugUtil.h>
 #include <SelectionSystem/SelectionData.h>
 #include <OgreMovableObject.h>
 

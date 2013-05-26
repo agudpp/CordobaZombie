@@ -18,7 +18,7 @@
 #include <OgreBillboard.h>
 #include <OgreBillboardSet.h>
 
-#include <Utils/GUI/AtlasOverlay/MultiAtlasOverlay.h>
+#include <GUI/AtlasOverlay/MultiAtlasOverlay.h>
 
 #include "BillboardBatery.h"
 #include "BillboardDefs.h"

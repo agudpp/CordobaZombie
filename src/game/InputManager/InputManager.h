@@ -10,15 +10,15 @@
 
 #include <cstdlib>
 
-#include <Common/GlobalObjects/GlobalObjects.h>
-#include <Common/Math/CommonMath.h>
-#include <Common/DebugUtil/DebugUtil.h>
-#include <Utils/MouseCursor/MouseCursor.h>
+#include <DebugUtil/DebugUtil.h>
+#include <GlobalObjects/GlobalObjects.h>
+#include <Math/CommonMath.h>
+#include <MouseCursor/MouseCursor.h>
 #include <SelectionSystem/SelectionManager.h>
 
-#include "InputMouse.h"
 #include "InputKeyboard.h"
 #include "InputKeys.h"
+#include "InputMouse.h"
 
 
 // Forward declarations

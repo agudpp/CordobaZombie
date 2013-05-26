@@ -10,9 +10,9 @@
 #include <OgreOverlayManager.h>
 #include <OgreOverlayContainer.h>
 
-#include <Common/DebugUtil/DebugUtil.h>
-#include <Common/tinyxml/tinyxml.h>
-#include <Common/XMLHelper/XMLHelper.h>
+#include <DebugUtil/DebugUtil.h>
+#include <tinyxml/tinyxml.h>
+#include <XMLHelper/XMLHelper.h>
 #include <GameUnits/PlayerUnit/Backpack/BackpackDefines.h>
 #include <GameUnits/Weapon/Bombs/Bomb.h>
 #include <GameUnits/Weapon/Weapon.h>

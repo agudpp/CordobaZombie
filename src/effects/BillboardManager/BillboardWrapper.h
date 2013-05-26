@@ -10,7 +10,7 @@
 
 #include <OgreBillboard.h>
 
-#include <Common/DebugUtil/DebugUtil.h>
+#include <DebugUtil/DebugUtil.h>
 
 namespace billboard {
 

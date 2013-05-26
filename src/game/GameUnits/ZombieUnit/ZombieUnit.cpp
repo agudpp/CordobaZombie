@@ -10,7 +10,7 @@
 #include "SoundFamilyTable.h"
 
 #include <SelectionSystem/SelectionType.h>
-#include <Common/GlobalObjects/GlobalObjects.h>
+#include <GlobalObjects/GlobalObjects.h>
 
 ZombieSMTTable		*ZombieUnit::mSMTT = 0;
 ZombieQueue			*ZombieUnit::mQueue = 0;

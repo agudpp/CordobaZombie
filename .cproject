@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?fileVersion 4.0.0?>
-
-<cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
+<?fileVersion 4.0.0?><cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
 	<storageModule moduleId="org.eclipse.cdt.core.settings">
 		<cconfiguration id="cdt.managedbuild.config.gnu.exe.debug.1666725842">
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.config.gnu.exe.debug.1666725842" moduleId="org.eclipse.cdt.core.settings" name="Debug">
@@ -139,9 +137,6 @@
 							</tool>
 						</toolChain>
 					</folderInfo>
-					<fileInfo id="cdt.managedbuild.config.gnu.exe.debug.1666725842.639636222" name="autogenCmake" rcbsApplicability="disable" resourcePath="src/SoundSystem/autogenCmake" toolsToInvoke=""/>
-					<fileInfo id="cdt.managedbuild.config.gnu.exe.debug.1666725842.104641576" name="AutoGen.cmake" rcbsApplicability="disable" resourcePath="src/SoundSystem/AutoGen.cmake" toolsToInvoke=""/>
-					<fileInfo id="cdt.managedbuild.config.gnu.exe.debug.1666725842.1736112990" name="CMakeLists.txt" rcbsApplicability="disable" resourcePath="src/SoundSystem/UnitTest/CMakeLists.txt" toolsToInvoke=""/>
 					<sourceEntries>
 						<entry excluding="src/SoundSystem/multiplatform_hashtable.cpp|src/SoundSystem/idea_SoundSystem.cpp|src/PathfindingSystem/UnitTest/triangleTest|src/SoundSystem/hash_test.cpp|src/SoundSystem/UnitTest/CMakeLists.txt|src/Utils/MathIntersection|src/SoundSystem/autogenCmake|src/SoundSystem/AutoGen.cmake" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>

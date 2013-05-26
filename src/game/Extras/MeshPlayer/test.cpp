@@ -17,11 +17,11 @@
 #include <OgreString.h>
 #include <OgreConfigFile.h>
 // Local
-#include <Common/DebugUtil/DebugUtil.h>
+#include <DebugUtil/DebugUtil.h>
 #include <MainStateMachine/SystemLoader/SystemLoader.h>
-#include <Common/Util/Util.h>
-#include <Common/GlobalObjects/GlobalObjects.h>
-#include <Utils/MouseCursor/MouseCursor.h>
+#include <Util/Util.h>
+#include <GlobalObjects/GlobalObjects.h>
+#include <MouseCursor/MouseCursor.h>
 
 #include "MeshPlayer.h"
 

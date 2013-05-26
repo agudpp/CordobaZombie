@@ -13,8 +13,8 @@
 #include <boost/signal.hpp>
 #include <boost/signals/slot.hpp>
 
-#include <Common/DebugUtil/DebugUtil.h>
-#include <Common/Math/CommonMath.h>
+#include <DebugUtil/DebugUtil.h>
+#include <Math/CommonMath.h>
 #include <GameUnits/GameUnitDefines.h>
 #include <SoundSystem/SoundAPI.h>
 #include <CollisionSystem/CollisionManager.h>

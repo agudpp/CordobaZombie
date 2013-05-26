@@ -17,8 +17,8 @@
 #include <OgreSceneNode.h>
 #include <OgreEntity.h>
 
-#include <Common/GlobalObjects/GlobalObjects.h>
-#include <Utils/MouseCursor/MouseCursor.h>
+#include <GlobalObjects/GlobalObjects.h>
+#include <MouseCursor/MouseCursor.h>
 
 namespace extras {
 

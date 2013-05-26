@@ -10,7 +10,7 @@
 #include <OgreMaterialManager.h>
 #include <OgreSubEntity.h>
 
-#include <Common/GlobalObjects/GlobalObjects.h>
+#include <GlobalObjects/GlobalObjects.h>
 #include <SelectionSystem/SelectionType.h>
 #include <CollisionSystem/CollisionTypedefs.h>
 

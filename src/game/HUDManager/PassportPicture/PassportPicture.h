@@ -12,7 +12,7 @@
 #include <OgrePanelOverlayElement.h>
 #include <OgreString.h>
 
-#include <Utils/GUI/AtlasOverlay/MultiAtlasOverlay.h>
+#include <GUI/AtlasOverlay/MultiAtlasOverlay.h>
 
 #include "HudElement.h"
 

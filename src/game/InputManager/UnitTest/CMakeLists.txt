@@ -57,6 +57,7 @@ if(NOT OIS_FOUND)
 endif()
  
 # Find Boost
+FIND_PACKAGE(Boost)
 if (NOT OGRE_BUILD_PLATFORM_IPHONE)
 	if (WIN32 OR APPLE)
 		set(Boost_USE_STATIC_LIBS TRUE)
@@ -70,7 +71,7 @@ if (NOT OGRE_BUILD_PLATFORM_IPHONE)
 		# search names with "lib". This is the workaround.
 		set(CMAKE_FIND_LIBRARY_PREFIXES ${CMAKE_FIND_LIBRARY_PREFIXES} "")
 	endif ()
-	set(Boost_ADDITIONAL_VERSIONS "1.42" "1.42.0" "1.41.0" "1.41" "1.40.0" "1.40" "1.39.0" "1.39" "1.38.0" "1.38" "1.37.0" "1.37" )
+	set(Boost_ADDITIONAL_VERSIONS "1.51" "1.51.0" "1.50" "1.50.0" "1.41.0" "1.41" "1.40.0" "1.40" "1.39.0" "1.39" "1.38.0" "1.38" "1.37.0" "1.37" )
 	# Components that need linking (NB does not include header-only components like bind)
 	set(OGRE_BOOST_COMPONENTS thread date_time)
 	find_package(Boost COMPONENTS ${OGRE_BOOST_COMPONENTS} QUIET)
@@ -94,11 +95,11 @@ include(${DEV_ROOT_PATH}/CommonFlags.cmake)  # Customized compilation flags
  
 set(HDRS		
 
-	${DEV_ROOT_PATH}/Common/GlobalObjects/GlobalObjects.h
+	${DEV_ROOT_PATH}/game/Common/GlobalObjects/GlobalObjects.h
 	
-	${DEV_ROOT_PATH}/Common/DebugUtil/DebugUtil.h
-	${DEV_ROOT_PATH}/Extras/AppTester/AppTester.h
-	${DEV_ROOT_PATH}/Utils/MouseCursor/MouseCursor.h
+	${DEV_ROOT_PATH}/core/DebugUtil/DebugUtil.h
+	${DEV_ROOT_PATH}/game/Extras/AppTester/AppTester.h
+	${DEV_ROOT_PATH}/front_end/MouseCursor/MouseCursor.h
 
 	
 	./Test.h
@@ -107,9 +108,9 @@ set(HDRS
 set(SRCS
 
 
-	${DEV_ROOT_PATH}/Common/GlobalObjects/GlobalObjects.cpp
+	${DEV_ROOT_PATH}/game/Common/GlobalObjects/GlobalObjects.cpp
 
-	${DEV_ROOT_PATH}/Extras/AppTester/AppTester.cpp
+	${DEV_ROOT_PATH}/game/Extras/AppTester/AppTester.cpp
 
 	./Test.cpp
 	./main.cpp
@@ -119,38 +120,47 @@ set(SRCS
 include_directories( ${OIS_INCLUDE_DIRS}
 	${OGRE_INCLUDE_DIRS}
 	${OGRE_SAMPLES_INCLUDEPATH}
-	${DEV_ROOT_PATH}/Common/DebugUtil
-	${DEV_ROOT_PATH}/Common
+	${DEV_ROOT_PATH}/core/DebugUtil
+	${DEV_ROOT_PATH}/core
 	${DEV_ROOT_PATH}/
-	${DEV_ROOT_PATH}/Common/tinyxml
-	${DEV_ROOT_PATH}/Common/GlobalObjects
-	${DEV_ROOT_PATH}/Utils/MouseCursor
+	${DEV_ROOT_PATH}/core/tinyxml
+	${DEV_ROOT_PATH}/game/Common/GlobalObjects
+	${DEV_ROOT_PATH}/front_end/MouseCursor
 	
-	${DEV_ROOT_PATH}/Extras/AppTester
+	${DEV_ROOT_PATH}/game/Extras/AppTester
+	${DEV_ROOT_PATH}/game
+	${DEV_ROOT_PATH}/core
+	${DEV_ROOT_PATH}/collision_physics
+	${DEV_ROOT_PATH}/effects
+	${DEV_ROOT_PATH}/front_end
+	${DEV_ROOT_PATH}/io_interfaces
+	${DEV_ROOT_PATH}/multimedia
+	${DEV_ROOT_PATH}/resources_manager
 )
 
-include(${DEV_ROOT_PATH}/BillboardManager/AutoGen.cmake)
-include(${DEV_ROOT_PATH}/CameraController/AutoGen.cmake)
-include(${DEV_ROOT_PATH}/CollisionSystem/AutoGen.cmake)
-include(${DEV_ROOT_PATH}/Common/DebugUtil/AutoGen.cmake)
-include(${DEV_ROOT_PATH}/Common/DotSceneLoader/AutoGen.cmake)
-include(${DEV_ROOT_PATH}/Common/GUIHelper/AutoGen.cmake)
-include(${DEV_ROOT_PATH}/Common/Math/AutoGen.cmake)
-include(${DEV_ROOT_PATH}/Common/Util/AutoGen.cmake)
-include(${DEV_ROOT_PATH}/Common/QueueContainer/AutoGen.cmake)
-include(${DEV_ROOT_PATH}/Common/XMLHelper/AutoGen.cmake)
-include(${DEV_ROOT_PATH}/GameUnits/AutoGen.cmake)
-include(${DEV_ROOT_PATH}/IA/AutoGen.cmake)
-include(${DEV_ROOT_PATH}/InputManager/AutoGen.cmake)
-include(${DEV_ROOT_PATH}/LevelManager/AutoGen.cmake)
-include(${DEV_ROOT_PATH}/LoadingSystem/AutoGen.cmake)
-include(${DEV_ROOT_PATH}/LoadingSystem/Loaders/EnvironmentLoader/AutoGen.cmake)
-include(${DEV_ROOT_PATH}/MenuSystem/AutoGen.cmake)
-include(${DEV_ROOT_PATH}/PathfindingSystem/AutoGen.cmake)
-include(${DEV_ROOT_PATH}/SoundSystem/AutoGen.cmake)
-include(${DEV_ROOT_PATH}/UpdatableObjects/AutoGen.cmake)
-include(${DEV_ROOT_PATH}/SelectionSystem/AutoGen.cmake)
-include(${DEV_ROOT_PATH}/Helpers/GameUnitHelper/AutoGen.cmake)
+#include(${DEV_ROOT_PATH}/effects/BillboardManager/AutoGen.cmake)
+#include(${DEV_ROOT_PATH}/game/CameraController/AutoGen.cmake)
+#include(${DEV_ROOT_PATH}/collision_physics/CollisionSystem/AutoGen.cmake)
+#include(${DEV_ROOT_PATH}/core/DebugUtil/AutoGen.cmake)
+#include(${DEV_ROOT_PATH}/game/Common/DotSceneLoader/AutoGen.cmake)
+#include(${DEV_ROOT_PATH}/front_end/GUIHelper/AutoGen.cmake)
+#include(${DEV_ROOT_PATH}/core/Math/AutoGen.cmake)
+#include(${DEV_ROOT_PATH}/Common/Util/AutoGen.cmake)
+#include(${DEV_ROOT_PATH}/game/Common/QueueContainer/AutoGen.cmake)
+#include(${DEV_ROOT_PATH}/core/XMLHelper/AutoGen.cmake)
+#include(${DEV_ROOT_PATH}/game/GameUnits/AutoGen.cmake)
+#include(${DEV_ROOT_PATH}/game/IA/AutoGen.cmake)
+#include(${DEV_ROOT_PATH}/game/InputManager/AutoGen.cmake)
+#include(${DEV_ROOT_PATH}/game/LevelManager/AutoGen.cmake)
+#include(${DEV_ROOT_PATH}/game/LoadingSystem/AutoGen.cmake)
+#include(${DEV_ROOT_PATH}/game/LoadingSystem/Loaders/EnvironmentLoader/AutoGen.cmake)
+#include(${DEV_ROOT_PATH}/front_end/MenuSystem/AutoGen.cmake)
+#include(${DEV_ROOT_PATH}/game/PathfindingSystem/AutoGen.cmake)
+#include(${DEV_ROOT_PATH}/multimedia/SoundSystem/AutoGen.cmake)
+#include(${DEV_ROOT_PATH}/game/UpdatableObjects/AutoGen.cmake)
+#include(${DEV_ROOT_PATH}/game/SelectionSystem/AutoGen.cmake)
+#include(${DEV_ROOT_PATH}/game/GameUnitHelper/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/AutoGen.cmake)
 
 
 
@@ -162,9 +172,21 @@ set_target_properties(OgreApp PROPERTIES DEBUG_POSTFIX _d)
 add_library(tinyxml STATIC IMPORTED)
 # point the imported target at the real file
 set_property(TARGET tinyxml PROPERTY
-                IMPORTED_LOCATION ${DEV_ROOT_PATH}/Common/tinyxml/tinyxmlpath.a)
+                IMPORTED_LOCATION ${DEV_ROOT_PATH}/core/tinyxml/tinyxmlpath.a)
+                
+                
+# TODO: tenemos que tener creada la libreria de box2D
+# add imported target
+add_library(box2D STATIC IMPORTED)
+# point the imported target at the real file
+set_property(TARGET box2D PROPERTY
+IMPORTED_LOCATION ${DEV_ROOT_PATH}/collision_physics/CollisionSystem/Box2D/box2D.a)
 
-target_link_libraries(OgreApp ${OGRE_LIBRARIES} ${OIS_LIBRARIES} tinyxml box2D
+set(SOUND_LIBRARIES openal vorbis vorbisfile)
+set(OPENAL_LIBRARIES ${SOUND_LIBRARIES})
+
+
+target_link_libraries(OgreApp ${OGRE_LIBRARIES} ${OIS_LIBRARIES} tinyxml box2D avcodec avutil avformat swscale
     ${OPENAL_LIBRARIES} ${COMMON_LIBRARIES})
  
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/dist/bin)

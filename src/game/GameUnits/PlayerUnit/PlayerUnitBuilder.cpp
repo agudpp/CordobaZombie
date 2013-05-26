@@ -7,9 +7,9 @@
 
 #include "PlayerUnitBuilder.h"
 
-#include <Common/DebugUtil/DebugUtil.h>
-#include <Common/GlobalObjects/GlobalObjects.h>
-#include <Common/Math/CommonMath.h>
+#include <DebugUtil/DebugUtil.h>
+#include <GlobalObjects/GlobalObjects.h>
+#include <Math/CommonMath.h>
 #include <GameUnits/GameObject.h>
 
 #include "StateMachine/PlayerFSMBuilder.h"

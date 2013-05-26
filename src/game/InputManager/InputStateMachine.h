@@ -21,10 +21,10 @@
 #include <SelectionSystem/SelectionData.h>
 #include <SelectionSystem/SelectionType.h>
 #include <SelectionSystem/SelectionManager.h>
-#include <Common/GlobalObjects/GlobalObjects.h>
-#include <Common/DebugUtil/DebugUtil.h>
-#include <Common/Math/CommonMath.h>
-#include <Utils/MouseCursor/MouseCursor.h>
+#include <GlobalObjects/GlobalObjects.h>
+#include <DebugUtil/DebugUtil.h>
+#include <Math/CommonMath.h>
+#include <MouseCursor/MouseCursor.h>
 
 #include "IInputState.h"
 

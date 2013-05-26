@@ -10,6 +10,7 @@
 
 
 #include <boost/shared_ptr.hpp>
+#include <boost/signal.hpp>
 
 #include "MenuButton.h"
 
@@ -26,8 +27,8 @@ public:
 
     // Define the connection and signals type
     //
-    typedef boost::signal<void (CbMenuButton *, ButtonID)> Signal;
-    typedef boost::signals::connection Connection;
+    typedef boost::signal<void (CallbackMenuButton *, ButtonID)> Signal;
+    typedef boost::signals::scoped_connection Connection;
 
 public:
     CallbackMenuButton();
@@ -56,7 +57,7 @@ protected:
     virtual void leftPressed(void);
 
 private:
-    Signal *mSignal;
+    Signal mSignal;
 
 };
 

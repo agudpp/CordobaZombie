@@ -21,8 +21,8 @@
 
 #include "SoundManager.h"
 
-#include <Common/DebugUtil/DebugUtil.h>
-#include <Common/GlobalObjects/GlobalObjects.h>
+#include <DebugUtil/DebugUtil.h>
+#include <GlobalObjects/GlobalObjects.h>
 
 #include "SoundEnums.h"
 #include "SoundBuffer.h"

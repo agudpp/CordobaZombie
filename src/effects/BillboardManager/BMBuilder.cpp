@@ -11,8 +11,8 @@
 
 #include <OgreStringConverter.h>
 
-#include <Common/tinyxml/tinyxml.h>
-#include <Common/DebugUtil/DebugUtil.h>
+#include <tinyxml/tinyxml.h>
+#include <DebugUtil/DebugUtil.h>
 
 #include "BillboardManager.h"
 #include "BillboardDefs.h"

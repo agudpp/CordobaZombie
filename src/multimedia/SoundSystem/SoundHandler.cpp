@@ -19,7 +19,7 @@
 #include <string>
 #include <strings.h>  // strcasecmp
 
-#include <Common/GlobalObjects/GlobalObjects.h>
+#include <GlobalObjects/GlobalObjects.h>
 
 #include "SoundHandler.h"
 #include "SoundEnums.h"

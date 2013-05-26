@@ -12,7 +12,7 @@
 
 #include <GameUnits/PlayerUnit/Backpack/BackpackItem.h>
 #include <MenuSystem/GUI/Button/CallbackMenuButton.h>
-#include <Common/DebugUtil/DebugUtil.h>
+#include <DebugUtil/DebugUtil.h>
 
 
 // Forward
