@@ -206,7 +206,7 @@ ZombieUnit::build(void)
 	// config the bounding box
 	float w,h;
 	getAABBFromEntity(w,h);
-	configCollObj(w,h, COL_FLAG_UNIT_ZOMBIE, COL_GRFLAG_UNIT_ZOMBIE);
+	configCollObj(w,h, c_p::COL_FLAG_UNIT_ZOMBIE, c_p::COL_GRFLAG_UNIT_ZOMBIE);
 
 	// configure the unit path
 	configureUnitPath();
@@ -251,7 +251,7 @@ ZombieUnit::unitClose(GameUnit *unit)
 	// check that the unit that is close is a player or a civil
 	ASSERT(unit);
 	ASSERT(unit->getCollisionObject().maskFlag &
-			(COL_FLAG_UNIT_PLAYER | COL_FLAG_UNIT_CIVIL));
+			(c_p::COL_FLAG_UNIT_PLAYER | c_p::COL_FLAG_UNIT_CIVIL));
 
 	mTargets.insert(unit);
 }
@@ -301,7 +301,7 @@ ZombieUnit::ZombieUnitVec &
 ZombieUnit::findNearbyZombies(float range)
 {
 	mNearbyZombies.clear();
-	getNearbyObjects(range, range, static_cast<mask_t>(COL_FLAG_UNIT_ZOMBIE),
+	getNearbyObjects(range, range, static_cast<c_p::mask_t>(c_p::COL_FLAG_UNIT_ZOMBIE),
 			reinterpret_cast<std::vector<GameObject *> &>(mNearbyZombies));
 	// TODO:
 }

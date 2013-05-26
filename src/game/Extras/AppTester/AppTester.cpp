@@ -452,7 +452,7 @@ AppTester::AppTester(bool disableInputGrabbing, bool showConfig) :
 	loadAditionalResourcesFromFile(fname, path);
 
     // Create the mouseCursor
-    GLOBAL_CURSOR = new MouseCursor;
+    GLOBAL_CURSOR = new f_e::MouseCursor;
     GLOBAL_CURSOR->setVisible(true);
     GLOBAL_CURSOR->setWindowDimensions(GLOBAL_WINDOW->getWidth(),
             GLOBAL_WINDOW->getHeight());

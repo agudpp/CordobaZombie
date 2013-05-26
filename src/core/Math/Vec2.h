@@ -14,7 +14,7 @@
 
 //http://www.lomont.org/Math/Papers/2003/InvSqrt.pdf
 static inline float InvSqrt(float x){
-	float xhalf = 0.5f*x;
+	const float xhalf = 0.5f*x;
 	int i = *(int*)&x; // get bits for floating value
 	i = 0x5f3759df - (i>>1); // gives initial guess y0
 	x = *(float*)&i; // convert bits back to float
@@ -25,7 +25,7 @@ static inline float InvSqrt(float x){
 // Define the unit of conversions from degress to radians
 #define DEG_TO_RAD_FAC  0.0174532925f /* PI / 180 */
 
-namespace math {
+namespace core {
 
 // define a point used by the convex poly
 struct Point {

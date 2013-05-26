@@ -52,7 +52,7 @@ class InputManager
 
 
 	// typedefs
-	typedef std::vector<math::AABB>		LevelZoneVec;
+	typedef std::vector<core::AABB>		LevelZoneVec;
 
 	// Internal flags
 	enum Flag {
@@ -113,7 +113,7 @@ public:
 	 * @param bb	The boundingbox used to delimite the zone where the mouse
 	 * 				cursor will produce a raycast if we click...
 	 */
-	void addLevelZone(const math::AABB &bb);
+	void addLevelZone(const core::AABB &bb);
 
 	/**
 	 * Check key / mouse buttons pressed and mouse position functions (interface)
@@ -296,7 +296,7 @@ InputManager::shouldPerformRaycast(void) const
     //TODO: do the real check here
     return true;
 
-    const math::Vector2 mousePosition(GLOBAL_CURSOR->getXRelativePos(),
+    const core::Vector2 mousePosition(GLOBAL_CURSOR->getXRelativePos(),
                                     GLOBAL_CURSOR->getYRelativePos());
     // TODO: probably here we have to improve this using the MainMenuManager
     // or sorting by X and Y

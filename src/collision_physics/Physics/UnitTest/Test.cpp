@@ -86,7 +86,7 @@ Test::~Test()
 // handle input
 void Test::handleInput(void)
 {
-	math::Vector2 tran;
+	core::Vector2 tran;
 	static const float VEL = 150.0f;
 	tran.x = tran.y = 0.0f;
 	static bool keyPres1 = false;
@@ -150,7 +150,7 @@ void Test::update()
 	static bool keyPres1 = false;
 	static bool keyPres2 = false;
 	static bool keyPres3 = false;
-	math::Vector2 p;
+	core::Vector2 p;
 
 	t1 = gettimestamp();
 	t3 = t2 - t1;
@@ -160,7 +160,7 @@ void Test::update()
 	if (GLOBAL_KEYBOARD->isKeyDown(OIS::KC_1)) {
 		if (!keyPres) {
 			keyPres = true;
-			mMouseCursor.setCursor(MouseCursor::NORMAL_CURSOR);
+			mMouseCursor.setCursor(f_e::MouseCursor::NORMAL_CURSOR);
 			debugBLUE("MouseCursor::NORMAL_CURSOR\n");
 		}
 	} else {
@@ -169,7 +169,7 @@ void Test::update()
 	if (GLOBAL_KEYBOARD->isKeyDown(OIS::KC_2)) {
 		if (!keyPres1) {
 			keyPres1 = true;
-			mMouseCursor.setCursor(MouseCursor::ATTACK_CURSOR);
+			mMouseCursor.setCursor(f_e::MouseCursor::ATTACK_CURSOR);
 			debugBLUE("MouseCursor::ATTACK_CURSOR\n");
 		}
 	} else {
@@ -178,7 +178,7 @@ void Test::update()
 	if (GLOBAL_KEYBOARD->isKeyDown(OIS::KC_3)) {
 		if (!keyPres2) {
 			keyPres2 = true;
-			mMouseCursor.setCursor(MouseCursor::MOVE_CRUSOR);
+			mMouseCursor.setCursor(f_e::MouseCursor::MOVE_CRUSOR);
 			debugBLUE("MouseCursor::MOVE_CRUSOR\n");
 		}
 	} else {
@@ -187,7 +187,7 @@ void Test::update()
 	if (GLOBAL_KEYBOARD->isKeyDown(OIS::KC_4)) {
 		if (!keyPres3) {
 			keyPres3 = true;
-			mMouseCursor.setCursor(MouseCursor::PICK_OBJECT_CURSOR);
+			mMouseCursor.setCursor(f_e::MouseCursor::PICK_OBJECT_CURSOR);
 			debugBLUE("MouseCursor::PICK_OBJECT_CURSOR\n");
 		}
 	} else {

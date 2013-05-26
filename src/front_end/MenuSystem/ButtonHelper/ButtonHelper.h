@@ -22,7 +22,7 @@ namespace CbBHelper{
 
 void
 parseCbMenuButton(const TiXmlElement *xml,
-		OvEff::MenuButtonEffect &button);
+		f_e::MenuButtonEffect &button);
 
 
 /**
@@ -32,7 +32,7 @@ parseCbMenuButton(const TiXmlElement *xml,
 void
 buildButtons(const TiXmlElement root,
              const std::vector<Ogre::String> &names,
-			 std::vector<OvEff::MenuButtonEffect> &buttons);
+			 std::vector<f_e::MenuButtonEffect> &buttons);
 
 
 }

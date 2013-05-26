@@ -24,43 +24,44 @@
 #include "Backpack.h"
 #include "MenuManager.h"
 
-
 //#include "TestUnit.h"
 
 class Test : public AppTester
 {
 public:
-	Test();
+    Test();
 
-	/* Load additional info */
-	void loadAditionalData(void);
+    /* Load additional info */
+    void
+    loadAditionalData(void);
 
-	/* function called every frame. Use GlobalObjects::lastTimeFrame */
-	void update();
+    /* function called every frame. Use GlobalObjects::lastTimeFrame */
+    void
+    update();
 
-
-	~Test();
-
-private:
-	/// performe a ray from the position of the mouse
-	bool performMouseRay(Ogre::Vector3 &v);
-
-	// create BackpackItems
-	void createBackpackItems(void);
-
-	// handle input
-	void handleInput(void);
-
-
+    ~Test();
 
 private:
-	bool 		mKeyPressed;
-	int						mPlacesCount;
-	MouseCursor				mMouseCursor;
+    /// performe a ray from the position of the mouse
+    bool
+    performMouseRay(Ogre::Vector3 &v);
 
-	Backpack				mBackpack;
+    // create BackpackItems
+    void
+    createBackpackItems(void);
 
-	MenuManager				mMenuManager;
+    // handle input
+    void
+    handleInput(void);
+
+private:
+    bool mKeyPressed;
+    int mPlacesCount;
+    f_e::MouseCursor mMouseCursor;
+
+    Backpack mBackpack;
+
+    MenuManager mMenuManager;
 };
 
 #endif /* TEST_H_ */

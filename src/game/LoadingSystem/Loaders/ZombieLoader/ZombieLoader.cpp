@@ -24,8 +24,8 @@ bool ZombieLoader::parseFactories(TiXmlElement *elem, ZombieFactoryManager &zfm)
 		ZombieFactory *zombiefact = 0;
 
 		Ogre::String name;
-		math::AABB aabb;
-		math::Vector2 dir;
+		core::AABB aabb;
+		core::Vector2 dir;
 		int N;
 
 		name = pElement->Attribute("name");

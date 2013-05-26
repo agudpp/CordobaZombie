@@ -68,8 +68,8 @@ const float Test::TIME_UPDATE_PERIOD = 1.0;
 
 
 /* Posiciones iniciales de los players. */
-const math::Vector2 pos1(521.0, 1188.0);	// coral
-const math::Vector2 pos2(1107.0, 1030.0);	// cardenal
+const core::Vector2 pos1(521.0, 1188.0);	// coral
+const core::Vector2 pos2(1107.0, 1030.0);	// cardenal
 
 /* Ogre sounds resource name */
 const Ogre::String soundsGroupName("Sounds");
@@ -169,7 +169,7 @@ void Test::handleInput()
 			Ogre::Vector3 v;
 
 			// check if we are getting a player
-			static CollisionResult cr;
+			static c_p::CollisionResult cr;
 			static PlayerUnit *pu = 0;
 
 			// first check if we have a player selected
@@ -185,7 +185,7 @@ void Test::handleInput()
 			mLevelManager.getRaycastManger()->getPoint(mMouseCursor.getXRelativePos(),
 					mMouseCursor.getYRelativePos(), v);
 			mLevelManager.getCollisionManager()->getCollisionObjects(
-					math::Point(v.x, v.z), COL_FLAG_UNIT_PLAYER ,cr);
+					core::Point(v.x, v.z), c_p::COL_FLAG_UNIT_PLAYER ,cr);
 
 			if(!cr.empty()){
 				// get the player
@@ -193,7 +193,7 @@ void Test::handleInput()
 				pu->objectSelected();
 			} else {
 				if(pu){
-					pu->plantBomb(mBomb, math::Vector2(v.x,v.z));
+					pu->plantBomb(mBomb, core::Vector2(v.x,v.z));
 				}
 			}
 		}
@@ -557,7 +557,7 @@ Test::createZombies(void)
 	perrozombiematerials.push_back(std::string("perro03"));
 	perrozombiematerials.push_back(std::string("perro04"));
 
-	math::Vector2 p;
+	core::Vector2 p;
 	for(int i = 0; i < 150; ++i){
 
 		Ogre::Entity * ent = 0;
@@ -763,8 +763,8 @@ void Test::loadAditionalData(void)
 	// create a collision object (primera manzana)
 	static CollisionObject co;
 	co.bb.setSize(1014 - 548, 896-433);
-	co.bb.setPosition(math::Vector2((1014+566)/2.0f , (893+433)/2.0f));
-	co.maskFlag = COL_FLAG_UNIT_PLAYER;
+	co.bb.setPosition(core::Vector2((1014+566)/2.0f , (893+433)/2.0f));
+	co.maskFlag = c_p::COL_FLAG_UNIT_PLAYER;
 	co.userDefined = 0;
 	DRAWER.createBox(co.bb);
 
@@ -986,16 +986,16 @@ Test::testCollissionRaycast(void)
 	tlx = 10; tly = 100;
 	brx = 150; bry = 10;
 	co.bb.setSize(brx - tlx, tly-bry);
-	co.bb.setPosition(math::Vector2((tlx+brx)/2.0f,
+	co.bb.setPosition(core::Vector2((tlx+brx)/2.0f,
 			(tly+bry)/2.0f));
-	co.maskFlag = COL_FLAG_UNIT_PLAYER;
+	co.maskFlag = c_p::COL_FLAG_UNIT_PLAYER;
 	co.userDefined = 0;
 	mLevelManager.getCollisionManager()->addStaticObject(&co);
 
 	// create the lines here and test
-	CollisionResult result;
-	std::vector<math::Point> points;
-	math::Point p1,p2;
+	c_p::CollisionResult result;
+	std::vector<core::Point> points;
+	core::Point p1,p2;
 
 	p1.x = 9; p1.y = 19;
 	p2.x = 20; p2.y = 0;

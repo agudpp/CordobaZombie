@@ -207,11 +207,11 @@ void SponsorsState::exit(void)
 {
 	// destroy all
 	if(mOverlay){
-		GUIHelper::fullDestroyOverlay(mOverlay);
+	    f_e::GUIHelper::fullDestroyOverlay(mOverlay);
 		mOverlay = 0;
 	}
 	if(mFader){
-		GUIHelper::fullDestroyOverlay(mFader);
+	    f_e::GUIHelper::fullDestroyOverlay(mFader);
 		mFader = 0;
 	}
 	mTexture = 0;

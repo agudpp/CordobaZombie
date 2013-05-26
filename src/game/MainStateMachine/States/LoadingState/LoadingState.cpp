@@ -12,7 +12,6 @@
 #include "GlobalObjects.h"
 #include "DebugUtil.h"
 #include "LoadingState.h"
-#include "GUIHelper.h"
 #include "MouseCursor.h"
 #include "Util.h"
 
@@ -52,7 +51,7 @@ LoadingState::Updater::operator()(float w, const std::string& msg)
 }
 ////////////////////////////////////////////////////////////////////////////////
 void
-LoadingState::Updater::setLoadingBar(LoadingBar *b)
+LoadingState::Updater::setLoadingBar(f_e::LoadingBar *b)
 {
 	ASSERT(b);
 	mBar = b;

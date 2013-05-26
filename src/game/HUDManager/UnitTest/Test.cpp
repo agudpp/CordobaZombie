@@ -102,7 +102,7 @@ void Test::createPlayer(void)
 		zu->setMaxVelocity(MAX_VEL*2.0f);
 		zu->setVelocity(MAX_VEL);
 
-		math::Vector2 p;
+		core::Vector2 p;
 		p.x = 10;
 		p.y = 10;
 		zu->setPosition(p);
@@ -133,7 +133,7 @@ void Test::configureMap(void)
 	mMap.getContainer()->setTop(0);
 	mMap.getContainer()->setWidth(0.4);
 	mMap.getContainer()->setHeight(0.4);
-//	GUIHelper::reposContainer(mMap.getContainer());
+//	f_e::GUIHelper::reposContainer(mMap.getContainer());
 	mMap.show();
 
 

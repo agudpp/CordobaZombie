@@ -21,34 +21,36 @@
 #include "UpdObjsManager.h"
 #include "InputManager.h"
 
-
 class Test : public AppTester
 {
 public:
-	Test();
+    Test();
 
-	/* Load additional info */
-	void loadAditionalData(void);
+    /* Load additional info */
+    void
+    loadAditionalData(void);
 
-	/* function called every frame. Use GlobalObjects::lastTimeFrame */
-	void update();
+    /* function called every frame. Use GlobalObjects::lastTimeFrame */
+    void
+    update();
 
-
-	~Test();
-
-private:
-	// Add corners to a box
-	void showCorners(const Ogre::AxisAlignedBox &b);
-
-	// handle input
-	void handleInput(void);
+    ~Test();
 
 private:
-	CameraController		mCamController;
-	MouseCursor				mMouseCursor;
+    // Add corners to a box
+    void
+    showCorners(const Ogre::AxisAlignedBox &b);
 
-	UpdObjsManager			mUpdaterManager;
-	input::InputManager *mInputManager;
+    // handle input
+    void
+    handleInput(void);
+
+private:
+    CameraController mCamController;
+    f_e::MouseCursor mMouseCursor;
+
+    UpdObjsManager mUpdaterManager;
+    input::InputManager *mInputManager;
 
 };
 

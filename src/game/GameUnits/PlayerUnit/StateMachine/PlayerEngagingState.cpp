@@ -89,7 +89,7 @@ void PlayerEngagingState::update(PlayerUnit *ref)
 		}
 
 		// else we cannot attack to it... move directly..
-		math::Vector2 move, aux;
+		core::Vector2 move, aux;
 		// check the collision steering vector
 		if(!ref->obtainCollisionObjects().empty()){
 			ref->repellingSteerVec(move, ref->getCollideObjects());
@@ -126,7 +126,7 @@ void PlayerEngagingState::update(PlayerUnit *ref)
 
 	// now move...
 
-	math::Vector2 move, aux;
+	core::Vector2 move, aux;
 	// check the collision steering vector
 	if(!ref->obtainCollisionObjects().empty()){
 		ref->repellingSteerVec(move, ref->getCollideObjects());

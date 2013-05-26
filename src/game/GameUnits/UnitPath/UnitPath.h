@@ -17,7 +17,7 @@
 
 // we will define the path again here (this is the "PathfinderManager::Path"
 // but redefined again to avoid class coupling
-typedef std::vector<math::Vector2>	PointPath;
+typedef std::vector<core::Vector2>	PointPath;
 
 class UnitPath {
 	static const int	MAX_INTERMEDIATE_POINTS		=	7;
@@ -59,12 +59,12 @@ public:
 	 * Get the actual point/index
 	 */
 	inline int getActualIndex(void) const;
-	inline const math::Vector2 &getActualPoint(void) const;
+	inline const core::Vector2 &getActualPoint(void) const;
 
 	/**
 	 * Returns the length from a point to the actual point in the path
 	 */
-	inline float getSqrDistanceToActualPoint(const math::Vector2 &p) const;
+	inline float getSqrDistanceToActualPoint(const core::Vector2 &p) const;
 
 	/**
 	 * Update the path index to the next point.
@@ -107,7 +107,7 @@ public:
 	 *
 	 * This function automatically updates the path
 	 */
-	bool getNextPosition(const math::Vector2 &ap, const math::Vector2 &np, math::Vector2 &result);
+	bool getNextPosition(const core::Vector2 &ap, const core::Vector2 &np, core::Vector2 &result);
 
 private:
 	/**
@@ -120,7 +120,7 @@ private:
 	 * Calculates the position int the spline using all the calculated values
 	 * and the t parametter
 	 */
-	inline void getSplinePos(math::Vector2 &pos, const float t);
+	inline void getSplinePos(core::Vector2 &pos, const float t);
 
 private:
 	PointPath		mPoints;
@@ -133,12 +133,12 @@ private:
 	bool			mUseSpline;
 
 	// We will calculate the spline using Bézier_curve (quadratic)
-	math::Vector2		mP0;
-	math::Vector2		mP1;
-	math::Vector2		mP2;
-	math::Vector2		mDir;
+	core::Vector2		mP0;
+	core::Vector2		mP1;
+	core::Vector2		mP2;
+	core::Vector2		mDir;
 	float 			mSqrLenght;
-	math::Vector2		mSplined[MAX_INTERMEDIATE_POINTS];
+	core::Vector2		mSplined[MAX_INTERMEDIATE_POINTS];
 	int				mActualIntermediate;
 };
 
@@ -195,14 +195,14 @@ inline int UnitPath::getActualIndex(void) const
 {
 	return mIndex;
 }
-inline const math::Vector2 &UnitPath::getActualPoint(void) const
+inline const core::Vector2 &UnitPath::getActualPoint(void) const
 {
 	ASSERT(mIndex < mPoints.size());
 	return mPoints[mIndex];
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-inline float UnitPath::getSqrDistanceToActualPoint(const math::Vector2 &p) const
+inline float UnitPath::getSqrDistanceToActualPoint(const core::Vector2 &p) const
 {
 	return p.squaredDistance(getActualPoint());
 }
@@ -256,7 +256,7 @@ inline void UnitPath::restartPathIndex(void)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-inline void UnitPath::getSplinePos(math::Vector2 &pos, const float t)
+inline void UnitPath::getSplinePos(core::Vector2 &pos, const float t)
 {
 	const float a1 = (1.0f-t);
 	const float a2 = a1*a1;

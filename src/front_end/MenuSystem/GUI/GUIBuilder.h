@@ -42,7 +42,7 @@ private:
 	 * Parse a GUIObject xml
 	 */
 	GUIObject *parseGUIObject(const TiXmlElement *xml, Ogre::String &type);
-	void parseGeometry(const TiXmlElement *elem, math::Vector2 &tl, math::Vector2 &dim);
+	void parseGeometry(const TiXmlElement *elem, core::Vector2 &tl, core::Vector2 &dim);
 
 	/**
 	 * Parse different kind of GUIObject

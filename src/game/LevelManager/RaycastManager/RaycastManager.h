@@ -27,7 +27,7 @@ public:
 	/**
 	 * Set the collision manager to use.
 	 */
-	void setCollisionManager(CollisionManager *cm);
+	void setCollisionManager(c_p::CollisionManager *cm);
 
 	/**
 	 * This function get the size of the collision manager and creates a plane
@@ -48,7 +48,7 @@ public:
 	 * @param	result	The result
 	 */
 	template<typename T>
-	void rayCast(float xrm, float yrm, mask_t mask, std::vector<T> &result) const;
+	void rayCast(float xrm, float yrm, c_p::mask_t mask, std::vector<T> &result) const;
 
 	/**
 	 * Perform a raycast using the actual relative position of the mouse.
@@ -61,7 +61,7 @@ public:
 	 * @return	The object picked or 0 if no object was found
 	 */
 	template<typename T>
-	T rayCast(float xrm, float yrm, mask_t mask) const;
+	T rayCast(float xrm, float yrm, c_p::mask_t mask) const;
 
 	/**
 	 * Perform a raycast using the actual relative position of the mouse.
@@ -69,7 +69,7 @@ public:
 	 * @param	yrm		Y relative mouse position
 	 * @param	result	The point associated to that position
 	 */
-	inline void getPoint(float xrm, float yrm, math::Vector2 &result) const;
+	inline void getPoint(float xrm, float yrm, core::Vector2 &result) const;
 	inline void getPoint(float xrm, float yrm, Ogre::Vector3 &result) const;
 
 	/**
@@ -92,14 +92,14 @@ private:
 	/**
 	 * Returns the point associated to the plane
 	 */
-	inline void getPlanePoint(float xrm, float yrm, math::Vector2 &result) const;
+	inline void getPlanePoint(float xrm, float yrm, core::Vector2 &result) const;
 
 
 private:
 	Ogre::Plane mPlane;
-	CollisionManager *mCollMngr;
+	c_p::CollisionManager *mCollMngr;
 	mutable Ogre::Ray mMouseRay;
-	mutable CollisionResult mResult; // cache
+	mutable c_p::CollisionResult mResult; // cache
 	Ogre::RaySceneQuery *mRaySceneQuery;
 
 };
@@ -108,7 +108,7 @@ private:
 
 
 inline void
-RaycastManager::getPlanePoint(float xrm, float yrm, math::Vector2 &r) const
+RaycastManager::getPlanePoint(float xrm, float yrm, core::Vector2 &r) const
 {
 	// set up the ray
     mMouseRay = GLOBAL_CAMERA->getCameraToViewportRay(xrm, yrm);
@@ -134,7 +134,7 @@ RaycastManager::getPlanePoint(float xrm, float yrm, math::Vector2 &r) const
 }
 
 inline void
-RaycastManager::getPoint(float xrm, float yrm, math::Vector2 &result) const
+RaycastManager::getPoint(float xrm, float yrm, core::Vector2 &result) const
 {
     return getPoint(xrm, yrm, result);
 }

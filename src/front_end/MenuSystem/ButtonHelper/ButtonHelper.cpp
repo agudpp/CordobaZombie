@@ -13,7 +13,7 @@ namespace CbBHelper{
 
 ////////////////////////////////////////////////////////////////////////////////
 void parseCbMenuButton(	const TiXmlElement *xml,
-						OvEff::MenuButtonEffect &button)
+						f_e::MenuButtonEffect &button)
 {
 	ASSERT(xml);
 
@@ -38,8 +38,8 @@ void parseCbMenuButton(	const TiXmlElement *xml,
     	debugWARNING("No OverlayEffect for this button... Do we want this?\n");
     } else {
     	// accept any available effect
-    	OvEff::OverlayEffectBuilder oeb;
-    	OvEff::OverlayEffect* oe = oeb.createOverlayEffect(*effectXml, NULL);
+    	f_e::OverlayEffectBuilder oeb;
+    	f_e::OverlayEffect* oe = oeb.createOverlayEffect(*effectXml, NULL);
     	if (oe) {
     		button.setEffect(oe);
     		oe->setElement(cont);
@@ -66,7 +66,7 @@ void parseCbMenuButton(	const TiXmlElement *xml,
 
 void buildButtons(const TiXmlElement root,
 				  const std::vector<Ogre::String> &names,
-				  std::vector<OvEff::MenuButtonEffect> &buttons)
+				  std::vector<f_e::MenuButtonEffect> &buttons)
 {
 	if(names.empty()) return;
 
@@ -88,7 +88,7 @@ void buildButtons(const TiXmlElement root,
 #endif
 
 		// create the button
-		OvEff::MenuButtonEffect button;
+		f_e::MenuButtonEffect button;
 		parseCbMenuButton(bElem, button);
 		buttons.push_back(button);
 	}

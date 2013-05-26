@@ -12,6 +12,7 @@
 #include "CommonMath.h"
 #include <algorithm>
 
+namespace core {
 
 class IntersectDetect {
 	enum {
@@ -25,8 +26,8 @@ public:
 	/**
 	 * Check if a line intersects a AABB
 	 */
-	static bool checkLineAABB(const math::Point &p1, const math::Point &p2,
-			const math::AABB &aabb);
+	static bool checkLineAABB(const core::Point &p1, const core::Point &p2,
+			const core::AABB &aabb);
 
 
 	/**
@@ -43,12 +44,12 @@ public:
 	 * @param	result	The vector where we will set the intersections points
 	 * @return	the number of intersections point
 	 */
-	static inline int getIntPointsAABBLine(math::Point p1, math::Point p2,
-			const math::AABB &aabb,
-		math::Point result[2]);
+	static inline int getIntPointsAABBLine(core::Point p1, core::Point p2,
+			const core::AABB &aabb,
+		core::Point result[2]);
 
 private:
-	static inline int CompSecPoint(const math::Point &p, const math::AABB &aabb);
+	static inline int CompSecPoint(const core::Point &p, const core::AABB &aabb);
 };
 
 
@@ -109,8 +110,8 @@ inline bool IntersectDetect::lineIntersec(float x1, float y1, float x2, float y2
 
 
 /* Computing Sector Point, gives the relative position of the point */
-inline int IntersectDetect::CompSecPoint(const math::Point &p,
-		const math::AABB &aabb)
+inline int IntersectDetect::CompSecPoint(const core::Point &p,
+		const core::AABB &aabb)
 {
 	int rst_flag = 0;
 	float x,y;
@@ -123,12 +124,12 @@ inline int IntersectDetect::CompSecPoint(const math::Point &p,
 }
 
 /* This is the algorithm of Cohen-Sutherland*/
-inline int IntersectDetect::getIntPointsAABBLine(math::Point p1, math::Point p2,
-		const math::AABB &aabb, math::Point result[2])
+inline int IntersectDetect::getIntPointsAABBLine(core::Point p1, core::Point p2,
+		const core::AABB &aabb, core::Point result[2])
 {
 	bool done = false, intersection_point1 = false;
 	bool intersection_point2 = false;
-	math::Point newpoint;
+	core::Point newpoint;
 	int collitions = 0;
 	int pos_p1 = CompSecPoint(p1, aabb);
 	int pos_p2 = CompSecPoint(p2, aabb);
@@ -215,6 +216,8 @@ inline int IntersectDetect::getIntPointsAABBLine(math::Point p1, math::Point p2,
 		}
 	}
 	return collitions;
+}
+
 }
 
 #endif /* INTERSECTDETECT_H_ */

@@ -40,7 +40,7 @@ public:
 	 * 					a big Queue where all the zombies will be putted and
 	 * 					all the factory retrieves zombies from there
 	 */
-	void configure(const math::AABB &aabb, const Ogre::Vector3 &d, int N,
+	void configure(const core::AABB &aabb, const Ogre::Vector3 &d, int N,
 			ZombieQueue *zq);
 
 	/**
@@ -61,7 +61,7 @@ public:
 
 
 private:
-	math::AABB 			mAABB;
+	core::AABB 			mAABB;
 	Ogre::Vector3		mDirection;
 	int					mCounter;
 	ZombieQueue			*mQueue;

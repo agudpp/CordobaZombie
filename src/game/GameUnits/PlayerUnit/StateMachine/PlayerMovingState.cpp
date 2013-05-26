@@ -49,7 +49,7 @@ void PlayerMovingState::update(PlayerUnit *ref)
 
 
 	// Follow path logic
-	math::Vector2 move, aux;
+	core::Vector2 move, aux;
 
 	if(!ref->followPathSteerVec(aux)){
 		// stop... emmit event done

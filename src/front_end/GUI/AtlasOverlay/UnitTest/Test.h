@@ -50,10 +50,10 @@ private:
 	void handleInput(void);
 
 private:
-	MouseCursor				mMouseCursor;
-	LoadingBar				mBar;
-	MultiAtlasOverlay		mMultiA;
-	SingleAtlasOverlay		mSingleA;
+	f_e::MouseCursor				mMouseCursor;
+	f_e::LoadingBar				mBar;
+	f_e::MultiAtlasOverlay		mMultiA;
+	f_e::SingleAtlasOverlay		mSingleA;
 	Ogre::Entity			*mEntity;
 
 

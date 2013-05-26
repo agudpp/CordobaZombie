@@ -9,7 +9,7 @@
 #include "OverlayEffect.h"
 #include "OverlayEffectManager.h"
 
-namespace OvEff {
+namespace f_e {
 
 OverlayEffectManager		*OverlayEffect::mMngr = 0;
 

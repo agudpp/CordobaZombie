@@ -43,7 +43,7 @@ private:
 	void handleInput(void);
 
 private:
-	MouseCursor				mMouseCursor;
+	f_e::MouseCursor				mMouseCursor;
 	billboard::BillboardBatery			mBbBatery;
 	billboard::BillboardManager mBbManager;
 

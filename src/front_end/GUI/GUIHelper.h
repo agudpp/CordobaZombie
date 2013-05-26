@@ -13,6 +13,8 @@
 #include <OgrePanelOverlayElement.h>
 #include <OgreTexture.h>
 
+namespace f_e {
+
 class GUIHelper {
 public:
 	/**
@@ -102,5 +104,7 @@ public:
 	static int getTextureHeight(const Ogre::String &materialName);
 	static void getTexture(const Ogre::String &matName, Ogre::TexturePtr &result);
 };
+
+}
 
 #endif /* GUIHELPER_H_ */

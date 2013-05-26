@@ -36,7 +36,7 @@
 
 
 
-static inline float triarea2(const math::Vertex &a, const math::Vertex &b, const math::Vertex &c)
+static inline float triarea2(const core::Vertex &a, const core::Vertex &b, const core::Vertex &c)
 {
  return (c.x - a.x)*(b.y - a.y) - (b.x - a.x)*(c.y-a.y);
 }
@@ -45,8 +45,8 @@ static inline float triarea2(const math::Vertex &a, const math::Vertex &b, const
 // get all the right and left vertices
 void
 TriangleFunnel::getSortedVertices(TriangleAStar::Path p,
-                                  const math::Point &start,
-                                  const math::Point &goal,
+                                  const core::Point &start,
+                                  const core::Point &goal,
                                   int size) const
 {
 
@@ -65,9 +65,9 @@ TriangleFunnel::getSortedVertices(TriangleAStar::Path p,
 	edge = p[count]->getSharedEdge(p[count-1]);
 	ASSERT(edge);
 
-	math::Vertex v1,v2;
-	math::Vertex auxV1 = *(edge->getSharedVertex()[0]) - start;
-	math::Vertex auxV2 = *(edge->getSharedVertex()[1]) - start;
+	core::Vertex v1,v2;
+	core::Vertex auxV1 = *(edge->getSharedVertex()[0]) - start;
+	core::Vertex auxV2 = *(edge->getSharedVertex()[1]) - start;
 	if (isClockwise(auxV1, auxV2))
 	{
 		mLeftVertices.push_back(edge->getSharedVertex()[0]);
@@ -110,7 +110,7 @@ TriangleFunnel::getSortedVertices(TriangleAStar::Path p,
 		--count;
 	}
 
-	// add starting math::Point to both vectors
+	// add starting core::Point to both vectors
 	mLeftVertices.push_back(&goal);
 	mRightVertices.push_back(&goal);
 
@@ -119,15 +119,15 @@ TriangleFunnel::getSortedVertices(TriangleAStar::Path p,
 
 // PostProcess the path to create the new path using a radius
 void
-TriangleFunnel::processRadius(std::vector<math::Vertex> &resultPath,
+TriangleFunnel::processRadius(std::vector<core::Vertex> &resultPath,
                               float radius,
                               float delta) const
 {
 	ASSERT(radius > 0.0f);
 
-	// we will not process the first and the last math::Point
+	// we will not process the first and the last core::Point
 	const int size = resultPath.size() - 1;
-	math::Vertex vec1, vec2, vec3;
+	core::Vertex vec1, vec2, vec3;
 	for(int i = 1; i < size; ++i){
 		ASSERT((float)rand()/(float)RAND_MAX >= 0);
 		// get the first vector
@@ -160,13 +160,13 @@ TriangleFunnel::~TriangleFunnel()
 {
 }
 
-// Process and get the list of pathmath::Points
+// Process and get the list of pathcore::Points
 bool
 TriangleFunnel::getShortestPath(TriangleAStar::Path p,
-                                std::vector<math::Vertex> &resultPath,
+                                std::vector<core::Vertex> &resultPath,
                                 int size,
-                                const math::Point &start,
-                                const math::Point &goal,
+                                const core::Point &start,
+                                const core::Point &goal,
                                 float radius,
                                 float delta) const
 {
@@ -180,7 +180,7 @@ TriangleFunnel::getShortestPath(TriangleAStar::Path p,
 
 	// extracted from http://digestingduck.blogspot.com/2010/03/simple-stupid-funnel-algorithm.html
 	// Init scan state
-	const math::Vertex *portalApex, *portalLeft, *portalRight;
+	const core::Vertex *portalApex, *portalLeft, *portalRight;
 	int apexIndex = 0, leftIndex = 0, rightIndex = 0;
 	int numPortals = mLeftVertices.size();
 
@@ -192,15 +192,15 @@ TriangleFunnel::getShortestPath(TriangleAStar::Path p,
 
 	resultPath.clear();
 
-	// Add start math::Point.
+	// Add start core::Point.
 	resultPath.push_back(start);
 
 
 	for (int i = 1; i < numPortals; ++i) {
-		const math::Vertex* left = mLeftVertices[i];
-		const math::Vertex* right = mRightVertices[i];
+		const core::Vertex* left = mLeftVertices[i];
+		const core::Vertex* right = mRightVertices[i];
 
-		// Update right math::Vertex.
+		// Update right core::Vertex.
 		if (triarea2(*portalApex, *portalRight, *right) <= 0.0f) {
 			if (portalApex == portalRight || triarea2(*portalApex,
 					*portalLeft, *right) > 0.0f) {
@@ -209,7 +209,7 @@ TriangleFunnel::getShortestPath(TriangleAStar::Path p,
 
 				rightIndex = i;
 			} else {
-				// Right over left, insert left to path and restart scan from portal left math::Point.
+				// Right over left, insert left to path and restart scan from portal left core::Point.
 				// check if we already add this portal
 				if(portalApex != portalLeft){
 					resultPath.push_back(*portalLeft);
@@ -229,7 +229,7 @@ TriangleFunnel::getShortestPath(TriangleAStar::Path p,
 			}
 		}
 
-		// Update left math::Vertex.
+		// Update left core::Vertex.
 		if (triarea2(*portalApex, *portalLeft, *left) >= 0.0f) {
 			if (portalApex == portalLeft || triarea2(*portalApex,
 					*portalRight, *left) < 0.0f) {
@@ -237,7 +237,7 @@ TriangleFunnel::getShortestPath(TriangleAStar::Path p,
 				portalLeft = left;
 				leftIndex = i;
 			} else {
-				// Left over right, insert right to path and restart scan from portal right math::Point.
+				// Left over right, insert right to path and restart scan from portal right core::Point.
 				// check if we already add this portal
 				if(portalApex != portalRight){
 					resultPath.push_back(*portalRight);
@@ -259,7 +259,7 @@ TriangleFunnel::getShortestPath(TriangleAStar::Path p,
 			}
 		}
 	}
-	// Append last math::Point to path.
+	// Append last core::Point to path.
 	if(resultPath.back() != goal){
 		resultPath.push_back(goal);
 	}

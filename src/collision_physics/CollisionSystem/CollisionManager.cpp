@@ -15,7 +15,7 @@
 
 
 
-
+namespace c_p {
 
 
 CollisionManager::CollisionManager() :
@@ -155,7 +155,7 @@ CollisionManager::removeAllObjects(void)
  * Translate a object from the actual position using the vector t
  */
 void
-CollisionManager::translateObject(CollisionObject *mo, const math::Vector2 &t)
+CollisionManager::translateObject(CollisionObject *mo, const core::Vector2 &t)
 {
 	ASSERT(mo);
 
@@ -213,7 +213,7 @@ CollisionManager::getCollision(const CollisionObject *mo,
 
 ////////////////////////////////////////////////////////////////////////////////
 void
-CollisionManager::getCollisionObjects(const math::AABB &aabb,
+CollisionManager::getCollisionObjects(const core::AABB &aabb,
                                       mask_t mask,
                                       CollisionResult &objs) const
 {
@@ -238,7 +238,7 @@ CollisionManager::getCollisionObjects(const math::AABB &aabb,
 
 ////////////////////////////////////////////////////////////////////////////////
 void
-CollisionManager::getCollisionObjects(const math::Vector2 &point,
+CollisionManager::getCollisionObjects(const core::Vector2 &point,
                                       mask_t mask,
                                       CollisionResult &result) const
 {
@@ -253,8 +253,8 @@ CollisionManager::getCollisionObjects(const math::Vector2 &point,
 
 ////////////////////////////////////////////////////////////////////////////////
 void
-CollisionManager::getCollisionObjects(const math::Vector2 &p1,
-                                      const math::Vector2 &p2,
+CollisionManager::getCollisionObjects(const core::Vector2 &p1,
+                                      const core::Vector2 &p2,
                                       mask_t mask,
                                       CollisionResult &result) const
 {
@@ -310,7 +310,7 @@ CollisionManager::getCollisionObjects(const math::Vector2 &p1,
 		// we have to select the base and how we will be moving
 		bool goingUp = false;
 		if((x1 == lx && y1 == by) || (lx == x2 && y2 == by)) goingUp = true;
-		math::AABB aabb;
+		core::AABB aabb;
 		int lastX = 0;
 
 		if(goingUp){
@@ -323,7 +323,7 @@ CollisionManager::getCollisionObjects(const math::Vector2 &p1,
 				for(int x = lastX; x <= rx; ++x){
 					// check if this cell intersects the line
 					getAABBFromCell(aabb, x, y);
-					if(IntersectDetect::checkLineAABB(p1, p2, aabb)){
+					if(core::IntersectDetect::checkLineAABB(p1, p2, aabb)){
 						// add it to the queue
 						mCells.insert(&(mMatrix[x][y]));
 						lastX = x;
@@ -342,7 +342,7 @@ CollisionManager::getCollisionObjects(const math::Vector2 &p1,
 				for(int x = lastX; x <= rx; ++x){
 					// check if this cell intersects the line
 					getAABBFromCell(aabb, x, y);
-					if(IntersectDetect::checkLineAABB(p1, p2, aabb)){
+					if(core::IntersectDetect::checkLineAABB(p1, p2, aabb)){
 						// add it to the queue
 						mCells.insert(&(mMatrix[x][y]));
 						lastX = x;
@@ -368,3 +368,4 @@ CollisionManager::getCollisionObjects(const math::Vector2 &p1,
 	result.insert(result.end(), mAuxCont.begin(), mAuxCont.end());
 }
 
+}

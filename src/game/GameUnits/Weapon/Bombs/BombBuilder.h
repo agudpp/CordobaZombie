@@ -14,44 +14,54 @@
 #include "Bomb.h"
 #include "tinyxml.h"
 
+// Forward
+//
 class TiXmlElement;
 
+namespace c_p {
 class CollisionManager;
+}
+
 class UpdObjsManager;
 
 class BombBuilder
 {
 public:
-	BombBuilder();
-	~BombBuilder();
+    BombBuilder();
+    ~BombBuilder();
 
-	/**
-	 * Configure the builder.
-	 * @param	cm		The collisionManager used
-	 * @param	uom		The UpdatableObjectManager
-	 */
-	void configure(CollisionManager *cm, UpdObjsManager *uom);
+    /**
+     * Configure the builder.
+     * @param	cm		The collisionManager used
+     * @param	uom		The UpdatableObjectManager
+     */
+    void
+    configure(c_p::CollisionManager *cm, UpdObjsManager *uom);
 
-	/**
-	 * Set the filename to use where there are all the weapons
-	 */
-	void setFilename(const Ogre::String &fname);
+    /**
+     * Set the filename to use where there are all the weapons
+     */
+    void
+    setFilename(const Ogre::String &fname);
 
-	/**
-	 * Create a bomb from and ID (name)
-	 * @param	ID		The name -ID- of the bomb to create
-	 */
-	Bomb *createBomb(const Ogre::String &ID);
-
-
-private:
-
-	Bomb *createProximityBomb(const TiXmlElement *elem);
-	Bomb *createTimeBomb(const TiXmlElement *elem);
-	Bomb *createRemoteBomb(const TiXmlElement *elem);
+    /**
+     * Create a bomb from and ID (name)
+     * @param	ID		The name -ID- of the bomb to create
+     */
+    Bomb *
+    createBomb(const Ogre::String &ID);
 
 private:
-	XMLHelper		mHelper;
+
+    Bomb *
+    createProximityBomb(const TiXmlElement *elem);
+    Bomb *
+    createTimeBomb(const TiXmlElement *elem);
+    Bomb *
+    createRemoteBomb(const TiXmlElement *elem);
+
+private:
+    XMLHelper mHelper;
 };
 
 #endif /* BOMBBUILDER_H_ */

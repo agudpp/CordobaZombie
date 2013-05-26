@@ -8,145 +8,137 @@
 
 #include "GameUnit.h"
 
-
-const float GameUnit::SQRD_PATHPOINT_DIST  =   30.0f;
-
+const float GameUnit::SQRD_PATHPOINT_DIST = 30.0f;
 
 ////////////////////////////////////////////////////////////////////////////////
-void GameUnit::loadAnimations(const std::vector<Ogre::String> &anims)
+void
+GameUnit::loadAnimations(const std::vector<Ogre::String> &anims)
 {
-	ASSERT(anims.size());
-	ASSERT(mEntity);
+    ASSERT(anims.size());
+    ASSERT(mEntity);
 
-	delete []mAnimations; mAnimations = 0;
+    delete[] mAnimations;
+    mAnimations = 0;
 
-	mAnimations = new Ogre::AnimationState*[anims.size()];
-	for(int i = 0; i < anims.size(); ++i){
-		try{
-			mAnimations[i] = mEntity->getAnimationState(anims[i]);
-			mAnimations[i]->setEnabled(false);
-			mAnimations[i]->setLoop(false);
-		} catch(...){
-			debug("The animation doesn't exists %s\n", anims[i].c_str());
-			ASSERT(false);
-		}
-	}
-	mActualAnimID = 0;
-	mActualAnim = mAnimations[0];
+    mAnimations = new Ogre::AnimationState*[anims.size()];
+    for (int i = 0; i < anims.size(); ++i) {
+        try {
+            mAnimations[i] = mEntity->getAnimationState(anims[i]);
+            mAnimations[i]->setEnabled(false);
+            mAnimations[i]->setLoop(false);
+        } catch (...) {
+            debug("The animation doesn't exists %s\n", anims[i].c_str());
+            ASSERT(false);
+        }
+    }
+    mActualAnimID = 0;
+    mActualAnim = mAnimations[0];
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void GameUnit::configureUnitPath(void)
+void
+GameUnit::configureUnitPath(void)
 {
-	mUnitPath.setRadius(std::sqrt(mSqrRadius));
+    mUnitPath.setRadius(std::sqrt(mSqrRadius));
 }
-
-
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////
 GameUnit::GameUnit() :
-		mAnimations(0),
-		mActualAnim(0),
-		mActualAnimID(0),
-		mAnimAccelCoef(1.0f),
-		mUnitGroup(0),
-		mTarget(0),
-		mLastTargetPos(0),
-		mSAPI(0),
-		mTimer(0)
+    mAnimations(0), mActualAnim(0), mActualAnimID(0), mAnimAccelCoef(1.0f), mUnitGroup(
+        0), mTarget(0), mLastTargetPos(0), mSAPI(0), mTimer(0)
 {
-	// TODO Auto-generated constructor stub
+    // TODO Auto-generated constructor stub
 
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////
 GameUnit::~GameUnit()
 {
-	delete []mAnimations;
+    delete[] mAnimations;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-int GameUnit::getLastHitImpactDir(void) const
+int
+GameUnit::getLastHitImpactDir(void) const
 {
-	// get the normals of the left and right
-	math::Vector2 dir, ln, rn;
-	getFieldOfVision(dir,ln,rn);
+    // get the normals of the left and right
+    core::Vector2 dir, ln, rn;
+    getFieldOfVision(dir, ln, rn);
 
-	// normalize all
-	ln.normalize();
-	rn.normalize();
+    // normalize all
+    ln.normalize();
+    rn.normalize();
 
-	// we will create 4 vectors to divide the 360 posible directions on only 4
-	// directions
-	math::Vector2 rdir = dir, v1,v2,v3;
-	rdir.rotate180();
-	v1 = ln + dir;
-	v2 = ln + rdir;
-	v3 = rn + rdir;
-	// v4 is rdir now
-	rdir = rn + dir;
+    // we will create 4 vectors to divide the 360 posible directions on only 4
+    // directions
+    core::Vector2 rdir = dir, v1, v2, v3;
+    rdir.rotate180();
+    v1 = ln + dir;
+    v2 = ln + rdir;
+    v3 = rn + rdir;
+    // v4 is rdir now
+    rdir = rn + dir;
 
-	if(v1.isClockwise(mLastHit.hitDir)){
-		if (!rdir.isClockwise(mLastHit.hitDir)){
-			return Hit_t::FRONT;
-		} else {
-			return Hit_t::RIGHT;
-		}
-	} else {
-		if(v2.isClockwise(mLastHit.hitDir)){
-			return Hit_t::LEFT;
-		}else {
-			return Hit_t::BACK;
-		}
-	}
+    if (v1.isClockwise(mLastHit.hitDir)) {
+        if (!rdir.isClockwise(mLastHit.hitDir)) {
+            return Hit_t::FRONT;
+        } else {
+            return Hit_t::RIGHT;
+        }
+    } else {
+        if (v2.isClockwise(mLastHit.hitDir)) {
+            return Hit_t::LEFT;
+        } else {
+            return Hit_t::BACK;
+        }
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-bool GameUnit::getPathTo(const math::Vector2 &p)
+bool
+GameUnit::getPathTo(const core::Vector2 &p)
 {
-	mPathReady = false;
-	const int r = PATHFINDER_INSTANCE.getPath(getPosition(),p,
-			mUnitPath.getPointPath(), mUnitPath.getRadius());
-	if (r == PathfindingManager::PATH_NOT_FOUND){
-		return false;
-	} else if(r == PathfindingManager::LINE_PATH){
-		// we have a line path... set the only point
-		mUnitPath.getPointPath().push_back(getPosition());
-		mUnitPath.getPointPath().push_back(p);
-	}
-	mPathReady = true;	// by now we will get the path at once
+    mPathReady = false;
+    const int r = PATHFINDER_INSTANCE.getPath(getPosition(), p,
+        mUnitPath.getPointPath(), mUnitPath.getRadius());
+    if (r == PathfindingManager::PATH_NOT_FOUND) {
+        return false;
+    } else if (r == PathfindingManager::LINE_PATH) {
+        // we have a line path... set the only point
+        mUnitPath.getPointPath().push_back(getPosition());
+        mUnitPath.getPointPath().push_back(p);
+    }
+    mPathReady = true; // by now we will get the path at once
 
-	restartPath();
-	return true;
+    restartPath();
+    return true;
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////
-bool GameUnit::updateTargetPath(void)
+bool
+GameUnit::updateTargetPath(void)
 {
-	ASSERT(getActualTarget());
+    ASSERT(getActualTarget());
 
-	const int r = GLOBAL_LVL_MNGR->getPathfinderManager()->
-			updatePath(mUnitPath.getPointPath(), mUnitPath.getActualIndex(),
-					getActualTarget()->getPosition(),
-					mUnitPath.getRadius());
-	if (r == PathfindingManager::PATH_NOT_FOUND){
-		return false;
-	} else if(r == PathfindingManager::LINE_PATH){
-		// we have a line path... set the only the last point
-		mUnitPath.getPointPath().back() = getActualTarget()->getPosition();
+    const int r = GLOBAL_LVL_MNGR->getPathfinderManager()->updatePath(
+        mUnitPath.getPointPath(), mUnitPath.getActualIndex(),
+        getActualTarget()->getPosition(), mUnitPath.getRadius());
+    if (r == PathfindingManager::PATH_NOT_FOUND) {
+        return false;
+    } else if (r == PathfindingManager::LINE_PATH) {
+        // we have a line path... set the only the last point
+        mUnitPath.getPointPath().back() = getActualTarget()->getPosition();
 
-		// no need to update the path..
-		return true;
-	}
-	mPathReady = true;	// by now we will get the path at once
+        // no need to update the path..
+        return true;
+    }
+    mPathReady = true; // by now we will get the path at once
 
-	restartPath();
-	return true;
+    restartPath();
+    return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -154,31 +146,33 @@ bool GameUnit::updateTargetPath(void)
 ////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////
-void GameUnit::repellingSteerVec(math::Vector2 &result, const CollisionResult &objects)
+void
+GameUnit::repellingSteerVec(core::Vector2 &result,
+    const c_p::CollisionResult &objects)
 {
-	// initialize
-	result.x = result.y = 0.0f;
-	float sqrDist;
-	math::Vector2 repVec;
-	math::Vector2 dir, leftV, rightV;
+    // initialize
+    result.x = result.y = 0.0f;
+    float sqrDist;
+    core::Vector2 repVec;
+    core::Vector2 dir, leftV, rightV;
 
-	getFieldOfVision(dir, leftV, rightV);
+    getFieldOfVision(dir, leftV, rightV);
 
-	GameObject *obj;
-	const CollisionObject *co;
-	for(int i = objects.size()-1; i >= 0; --i){
-		co = objects[i];
-		ASSERT(co);
+    GameObject *obj;
+    const CollisionObject *co;
+    for (int i = objects.size() - 1; i >= 0; --i) {
+        co = objects[i];
+        ASSERT(co);
 
-		obj = static_cast<GameObject *>(co->userDefined);
+        obj = static_cast<GameObject *>(co->userDefined);
 
-		// get the repelling vector
-		repVec = co->getPosition();
-		repVec -= getPosition();
+        // get the repelling vector
+        repVec = co->getPosition();
+        repVec -= getPosition();
 //		repVec.transformToNormal();
 
-		// check if the object is inside of the field of view
-		// TODO: podemos ver de usar esto...
+        // check if the object is inside of the field of view
+        // TODO: podemos ver de usar esto...
 //		if(leftV.crossProduct(repVec) > 0.0f || //is counterclockwise
 //				rightV.crossProduct(repVec) < 0.0f // is clockwise
 //				)
@@ -187,37 +181,38 @@ void GameUnit::repellingSteerVec(math::Vector2 &result, const CollisionResult &o
 //			continue;
 //		}
 
-		// yes it is... change the direction of the vector
-		repVec.rotate180();
+        // yes it is... change the direction of the vector
+        repVec.rotate180();
 
-		// get the distance of how much close is the other object to the
-		// center of this one
-		sqrDist = repVec.squaredLength();
-		if(obj){
-			sqrDist -= obj->getSqrRadius();
-		} else {
-			// TODO: aca deberiamos setear un tamaño mas real..
-			sqrDist -= co->bb.getWidth()*0.5f;
-		}
-		if(sqrDist > getSqrRadius()){
-			// the object is not colliding... do nothing
-			continue;
-		} else if (sqrDist < 0.0f){
-			// the other object is inside of us... repell it at the maximum
-			repVec.normalize();
-			repVec *= getVelocity();
-		} else {
-			// we just have to apply a force proportional to the inside distance
-			sqrDist = 1.0f - (sqrDist / getSqrRadius());
-			if(sqrDist > 1.0f) sqrDist = 1.0f;
-			ASSERT(sqrDist >= 0.0f);
-			repVec.normalize();
-			repVec *= sqrDist * getVelocity();
-		}
+        // get the distance of how much close is the other object to the
+        // center of this one
+        sqrDist = repVec.squaredLength();
+        if (obj) {
+            sqrDist -= obj->getSqrRadius();
+        } else {
+            // TODO: aca deberiamos setear un tamaño mas real..
+            sqrDist -= co->bb.getWidth() * 0.5f;
+        }
+        if (sqrDist > getSqrRadius()) {
+            // the object is not colliding... do nothing
+            continue;
+        } else if (sqrDist < 0.0f) {
+            // the other object is inside of us... repell it at the maximum
+            repVec.normalize();
+            repVec *= getVelocity();
+        } else {
+            // we just have to apply a force proportional to the inside distance
+            sqrDist = 1.0f - (sqrDist / getSqrRadius());
+            if (sqrDist > 1.0f)
+                sqrDist = 1.0f;
+            ASSERT(sqrDist >= 0.0f);
+            repVec.normalize();
+            repVec *= sqrDist * getVelocity();
+        }
 
-		// calculate the result
-		result += repVec*0.35;
-	}
+        // calculate the result
+        result += repVec * 0.35;
+    }
 
 //	seekSteerVec(result, result +getPosition());
 //	result.x = result.y = 0.0f; // TODO: eliminar esto
@@ -226,198 +221,203 @@ void GameUnit::repellingSteerVec(math::Vector2 &result, const CollisionResult &o
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void GameUnit::seekSteerVec(math::Vector2 &result, const math::Vector2 &target)
+void
+GameUnit::seekSteerVec(core::Vector2 &result, const core::Vector2 &target)
 {
-	// go directly version...
-	result = target;
-	result -= getPosition();
-	result.normalize();
-	result *= getVelocity();
-	return;
+    // go directly version...
+    result = target;
+    result -= getPosition();
+    result.normalize();
+    result *= getVelocity();
+    return;
 
+    // using desired velocity...
+    // current velocity
+    core::Vector2 cv = getDirection();
+    cv *= getVelocity();
+    // desired velocity
+    result = target;
+    result -= getPosition();
+    result.normalize();
 
-	// using desired velocity...
-	// current velocity
-	math::Vector2 cv = getDirection();
-	cv *= getVelocity();
-	// desired velocity
-	result = target;
-	result -= getPosition();
-	result.normalize();
-
-	// result vel = desired velocity - current velocity
-	result -= cv;
+    // result vel = desired velocity - current velocity
+    result -= cv;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-bool GameUnit::followPathSteerVec(math::Vector2 &result)
+bool
+GameUnit::followPathSteerVec(core::Vector2 &result)
 {
-	// NEW IMPLEMENTATION
-	math::Vector2 dir;
-	getDirection(dir);
-	dir *= getVelocity();
-	dir += getPosition();
+    // NEW IMPLEMENTATION
+    core::Vector2 dir;
+    getDirection(dir);
+    dir *= getVelocity();
+    dir += getPosition();
 
-	if(!mUnitPath.getNextPosition(getPosition(),dir,result)){
-		result.x = result.y = 0.0f;
-		return false;
-	}
-	dir = result;
-	seekSteerVec(result, dir);
-	return true;
+    if (!mUnitPath.getNextPosition(getPosition(), dir, result)) {
+        result.x = result.y = 0.0f;
+        return false;
+    }
+    dir = result;
+    seekSteerVec(result, dir);
+    return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void GameUnit::avoidanceSteerVec(math::Vector2 &result, const GameObject *obj)
+void
+GameUnit::avoidanceSteerVec(core::Vector2 &result, const GameObject *obj)
 {
-	ASSERT(obj);
+    ASSERT(obj);
 
+    // we assume that the object is trying to avoid this object
+    ASSERT(false);
 
-	// we assume that the object is trying to avoid this object
-	ASSERT(false);
+    // TODO: vamos a hacer uno bien bien pedorro pero despues hay que cambiar
+    // esto probablemente
+    core::Vector2 pl, pr, dir;
 
-	// TODO: vamos a hacer uno bien bien pedorro pero despues hay que cambiar
-	// esto probablemente
-	math::Vector2 pl, pr, dir;
+    dir = obj->getPosition();
+    dir -= getPosition();
 
-	dir = obj->getPosition();
-	dir -= getPosition();
+    pl = dir;
+    pl.transformToNormal();
+    pr = pl;
+    pr.rotate180();
 
-	pl = dir;
-	pl.transformToNormal();
-	pr = pl;
-	pr.rotate180();
-
-	// check the closest point and that will we use to follow
+    // check the closest point and that will we use to follow
 
 }
 
 //-------------------	GROUP STEERING BEHAVIORS	-----------------------/
 
 ////////////////////////////////////////////////////////////////////////////
-void GameUnit::cohesionSteerVec(math::Vector2 &result)
+void
+GameUnit::cohesionSteerVec(core::Vector2 &result)
 {
-	result.x = result.y = 0.0f;
-	// if not in group return
-	if(!isInGroup()){
-		return;
-	}
+    result.x = result.y = 0.0f;
+    // if not in group return
+    if (!isInGroup()) {
+        return;
+    }
 
-	// else we get the cohesion steering vector
-	math::Vector2 centerMass;
-	UnitGroup::Container &c = getUnitGroup()->getAllUnits();
-	int numNeighbor = 0;
-	for(int i = c.size()-1; i >= 0; --i){
-		// TODO: aca realmente chequeamos quienes son nuestros vecinos,
-		// podriamos agrgar la funcion de si realmente lo estamos viendo
-		// usando el "campo de vision" de la unidad.. y la distancia
-		if(c[i] != this) {
-			centerMass += c[i]->getPosition();
-			++numNeighbor;
-		}
-	}
+    // else we get the cohesion steering vector
+    core::Vector2 centerMass;
+    UnitGroup::Container &c = getUnitGroup()->getAllUnits();
+    int numNeighbor = 0;
+    for (int i = c.size() - 1; i >= 0; --i) {
+        // TODO: aca realmente chequeamos quienes son nuestros vecinos,
+        // podriamos agrgar la funcion de si realmente lo estamos viendo
+        // usando el "campo de vision" de la unidad.. y la distancia
+        if (c[i] != this) {
+            centerMass += c[i]->getPosition();
+            ++numNeighbor;
+        }
+    }
 
-	// now calculate the center of mass position using an average
-	if(numNeighbor){
-		centerMass /= static_cast<float>(numNeighbor);
-		seekSteerVec(result, centerMass);
-	}
-	// else we have not to do nothing
+    // now calculate the center of mass position using an average
+    if (numNeighbor) {
+        centerMass /= static_cast<float>(numNeighbor);
+        seekSteerVec(result, centerMass);
+    }
+    // else we have not to do nothing
 }
 
 ////////////////////////////////////////////////////////////////////////////
-void GameUnit::alignmentSteerVec(math::Vector2 &result)
+void
+GameUnit::alignmentSteerVec(core::Vector2 &result)
 {
-	result.x = result.y = 0.0f;
-	// if not in group return
-	if(!isInGroup()){
-		return;
-	}
+    result.x = result.y = 0.0f;
+    // if not in group return
+    if (!isInGroup()) {
+        return;
+    }
 
-	// else we get the alignment average steering vector
-	UnitGroup::Container &c = getUnitGroup()->getAllUnits();
-	int numNeighbor = 0;
-	for(int i = c.size()-1; i >= 0; --i){
-		// TODO: aca realmente chequeamos quienes son nuestros vecinos,
-		// podriamos agrgar la funcion de si realmente lo estamos viendo
-		// usando el "campo de vision" de la unidad.. y la distancia
-		if(c[i] != this) {
-			result += c[i]->getDirection();
-			++numNeighbor;
-		}
-	}
+    // else we get the alignment average steering vector
+    UnitGroup::Container &c = getUnitGroup()->getAllUnits();
+    int numNeighbor = 0;
+    for (int i = c.size() - 1; i >= 0; --i) {
+        // TODO: aca realmente chequeamos quienes son nuestros vecinos,
+        // podriamos agrgar la funcion de si realmente lo estamos viendo
+        // usando el "campo de vision" de la unidad.. y la distancia
+        if (c[i] != this) {
+            result += c[i]->getDirection();
+            ++numNeighbor;
+        }
+    }
 
-	// now calculate the center of mass position using an average
-	if(numNeighbor){
-		result /= static_cast<float>(numNeighbor);
-	}
+    // now calculate the center of mass position using an average
+    if (numNeighbor) {
+        result /= static_cast<float>(numNeighbor);
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////
-void GameUnit::separationSteerVec(math::Vector2 &result)
+void
+GameUnit::separationSteerVec(core::Vector2 &result)
 {
-	result.x = result.y = 0.0f;
-	// if not in group return
-	if(!isInGroup()){
-		return;
-	}
+    result.x = result.y = 0.0f;
+    // if not in group return
+    if (!isInGroup()) {
+        return;
+    }
 
-	// else we get the separation steering vector
-	math::Vector2 aux;
-	UnitGroup::Container &c = getUnitGroup()->getAllUnits();
-	for(int i = c.size()-1; i >= 0; --i){
-		// TODO: aca realmente chequeamos quienes son nuestros vecinos,
-		// podriamos agrgar la funcion de si realmente lo estamos viendo
-		// usando el "campo de vision" de la unidad.. y la distancia
-		if(c[i] != this) {
-			aux = getPosition();
-			aux -= c[i]->getPosition();
-			aux.normalize();
-			aux *= aux.inverseLen();
-			result += aux;
-		}
-	}
+    // else we get the separation steering vector
+    core::Vector2 aux;
+    UnitGroup::Container &c = getUnitGroup()->getAllUnits();
+    for (int i = c.size() - 1; i >= 0; --i) {
+        // TODO: aca realmente chequeamos quienes son nuestros vecinos,
+        // podriamos agrgar la funcion de si realmente lo estamos viendo
+        // usando el "campo de vision" de la unidad.. y la distancia
+        if (c[i] != this) {
+            aux = getPosition();
+            aux -= c[i]->getPosition();
+            aux.normalize();
+            aux *= aux.inverseLen();
+            result += aux;
+        }
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////
 ////////////		END	STEERING BEHAVIORS				///////////////////
 ////////////////////////////////////////////////////////////////////////////
 
-
 ////////////////////////////////////////////////////////////////////////////////
-bool GameUnit::haveLineOfSightTo(const GameUnit *other, float maxSqrDist) const
+bool
+GameUnit::haveLineOfSightTo(const GameUnit *other, float maxSqrDist) const
 {
-	ASSERT(other);
+    ASSERT(other);
 
-	float sqrDist = getPosition().squaredDistance(other->getPosition());
-	if(sqrDist > maxSqrDist){
-		return false;
-	}
+    float sqrDist = getPosition().squaredDistance(other->getPosition());
+    if (sqrDist > maxSqrDist) {
+        return false;
+    }
 
-	// now we have to check if the vector formed is in the field of vision
-	// of the unit!
-	math::Vector2 left, right, tmp;
-	getFieldOfVision(tmp, left, right);
-	tmp = getPosition() - other->getPosition();
+    // now we have to check if the vector formed is in the field of vision
+    // of the unit!
+    core::Vector2 left, right, tmp;
+    getFieldOfVision(tmp, left, right);
+    tmp = getPosition() - other->getPosition();
 
-	if(right.isClockwise(tmp) || !left.isClockwise(tmp)) {return false;}
+    if (right.isClockwise(tmp) || !left.isClockwise(tmp)) {
+        return false;
+    }
 
-	// else we are in the range of vision, perform a raycast
-	const math::Vector2 &p1 = getPosition(), &p2 = other->getPosition();
-	collMng->getCollisionObjects(p1, p2, VISION_OBST_MASK,
-			mCollisionResult);
+    // else we are in the range of vision, perform a raycast
+    const core::Vector2 &p1 = getPosition(), &p2 = other->getPosition();
+    collMng->getCollisionObjects(p1, p2, c_p::VISION_OBST_MASK,
+        mCollisionResult);
 
-	// if have no object return
-	if(mCollisionResult.empty()){
-		return true;
-	}
+    // if have no object return
+    if (mCollisionResult.empty()) {
+        return true;
+    }
 
-
-	// check if some of this one is the unit and there are no other unit closer
-	// than the unit... get all the intersections points
-	static std::vector<math::Point>	intersecPoints;
-	float dist;
-	for(int i = mCollisionResult.size()-1; i >= 0; --i){
+    // check if some of this one is the unit and there are no other unit closer
+    // than the unit... get all the intersections points
+    static std::vector<core::Point> intersecPoints;
+    float dist;
+    for (int i = mCollisionResult.size() - 1; i >= 0; --i) {
 
 // 		I commented the following lines because player and zombies
 // are never vision obstacles ...
@@ -426,41 +426,42 @@ bool GameUnit::haveLineOfSightTo(const GameUnit *other, float maxSqrDist) const
 //				mCollisionResult[i]->userDefined == this){
 //			continue;
 //		}
-		// else.. is other object, get the intersection points
-		mCollisionResult[i]->getIntPoints(p1,p2,intersecPoints);
-	//	ASSERT(!intersecPoints.empty());
+        // else.. is other object, get the intersection points
+        mCollisionResult[i]->getIntPoints(p1, p2, intersecPoints);
+        //	ASSERT(!intersecPoints.empty());
 
-		// get the closer point of all this ones
-		for(int j = intersecPoints.size()-1; j >= 0; --j){
-			dist = intersecPoints[j].squaredDistance(p1);
-			if(dist < sqrDist){
-				// there are other object first than the target
-				return false;
-			}
-		}
-	}
+        // get the closer point of all this ones
+        for (int j = intersecPoints.size() - 1; j >= 0; --j) {
+            dist = intersecPoints[j].squaredDistance(p1);
+            if (dist < sqrDist) {
+                // there are other object first than the target
+                return false;
+            }
+        }
+    }
 
-	// we can assume that the target is the closer object... and we can see it
-	return true;
+    // we can assume that the target is the closer object... and we can see it
+    return true;
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////
-	/**
-	 * DESCRIPTION: Makes the game unit follow the path determined by the
-	 * steering behaviors functions.
-	 * RETURN VALUES: Returns true if he is going to move, false otherwise.
-	 * NOTES:
-	 */
-bool GameUnit::moveThroughPath(void){
-	// if we are not planting the bomb, we have to continue moving
-	// Follow path logic
-	math::Vector2 mv, aux;
+/**
+ * DESCRIPTION: Makes the game unit follow the path determined by the
+ * steering behaviors functions.
+ * RETURN VALUES: Returns true if he is going to move, false otherwise.
+ * NOTES:
+ */
+bool
+GameUnit::moveThroughPath(void)
+{
+    // if we are not planting the bomb, we have to continue moving
+    // Follow path logic
+    core::Vector2 mv, aux;
 
-	if(!followPathSteerVec(aux)){
-		return false;
-	}
-	mv += aux;
+    if (!followPathSteerVec(aux)) {
+        return false;
+    }
+    mv += aux;
 
 //	// we are moving... we are in a group?
 //	if(ref->isInGroup()){
@@ -473,15 +474,14 @@ bool GameUnit::moveThroughPath(void){
 //
 //	}
 
-	// check the collision steering vector
-	if(!obtainCollisionObjects().empty()){
-		repellingSteerVec(aux, getCollideObjects());
-		mv += aux;
-	}
+    // check the collision steering vector
+    if (!obtainCollisionObjects().empty()) {
+        repellingSteerVec(aux, getCollideObjects());
+        mv += aux;
+    }
 
-	move(mv);
+    move(mv);
 
-	return true;
+    return true;
 }
-
 

@@ -15,6 +15,9 @@
 #include "DebugUtil.h"
 #include "GUIHelper.h"
 
+
+namespace f_e {
+
 class MultiAtlasOverlay {
 public:
 	MultiAtlasOverlay(Ogre::PanelOverlayElement *p = 0) :
@@ -110,12 +113,12 @@ MultiAtlasOverlay::setNumberImages(int iprow, int ipcolumn)
 	ASSERT(iprow > 0);
 	ASSERT(ipcolumn > 0);
 
-	int textSizex = GUIHelper::getTextureWidth(mCont->getMaterialName());
+	int textSizex = f_e::GUIHelper::getTextureWidth(mCont->getMaterialName());
 	mAtlasFactorX = static_cast<Ogre::Real>(textSizex) /
 	    static_cast<Ogre::Real>(ipcolumn);
 	mAtlasFactorX = mAtlasFactorX / static_cast<Ogre::Real>(textSizex);
 
-	int textSizey = GUIHelper::getTextureHeight(mCont->getMaterialName());
+	int textSizey = f_e::GUIHelper::getTextureHeight(mCont->getMaterialName());
 	mAtlasFactorY = static_cast<Ogre::Real>(textSizey) /
 	    static_cast<Ogre::Real>(iprow);
 	mAtlasFactorY = mAtlasFactorY / static_cast<Ogre::Real>(textSizey);
@@ -132,12 +135,12 @@ MultiAtlasOverlay::configureAtlasForCalculus(const Ogre::String &materialName,
 {
     ASSERT(mCont == 0);
 
-    int textSizex = GUIHelper::getTextureWidth(materialName);
+    int textSizex = f_e::GUIHelper::getTextureWidth(materialName);
     mAtlasFactorX = static_cast<Ogre::Real>(textSizex) /
         static_cast<Ogre::Real>(ipcolumn);
     mAtlasFactorX = mAtlasFactorX / static_cast<Ogre::Real>(textSizex);
 
-    int textSizey = GUIHelper::getTextureHeight(materialName);
+    int textSizey = f_e::GUIHelper::getTextureHeight(materialName);
     mAtlasFactorY = static_cast<Ogre::Real>(textSizey) /
         static_cast<Ogre::Real>(iprow);
     mAtlasFactorY = mAtlasFactorY / static_cast<Ogre::Real>(textSizey);
@@ -188,5 +191,5 @@ MultiAtlasOverlay::getUVs(size_t index,
     getUVs(row, col, u0, v0, u1, v1);
 }
 
-
+}
 #endif /* MULTIATLASOVERLAY_H_ */

@@ -183,7 +183,7 @@ static void configureGlobalObjects(SystemLoader &sl)
 	ASSERT(Common::GlobalObjects::mouse);
 
 	// configure the MouseCursor used by all the states
-    Common::GlobalObjects::mouseCursor = new MouseCursor;
+    Common::GlobalObjects::mouseCursor = new f_e::MouseCursor;
     Common::GlobalObjects::mouseCursor->setVisible(true);
     Common::GlobalObjects::mouseCursor->setWindowDimensions(
             GLOBAL_WINDOW->getWidth(),

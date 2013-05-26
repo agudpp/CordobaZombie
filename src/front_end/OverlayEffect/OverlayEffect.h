@@ -17,7 +17,7 @@
 
 #include "DebugUtil.h"
 
-namespace OvEff {
+namespace f_e {
 
 class OverlayEffectManager;
 

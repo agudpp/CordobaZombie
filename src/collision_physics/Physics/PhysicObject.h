@@ -12,6 +12,7 @@
 #include <OgreSceneNode.h>
 #include <CollisionObject.h>
 
+namespace c_p {
 
 struct PhysicObject
 {
@@ -29,5 +30,7 @@ struct PhysicObject
 		node(0)
 	{}
 };
+
+}
 
 #endif /* PHYSICOBJECT_H_ */

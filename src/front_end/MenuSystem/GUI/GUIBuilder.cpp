@@ -16,7 +16,7 @@ GUIObject *GUIBuilder::parseGUIObject(const TiXmlElement *xml, Ogre::String &typ
 	ASSERT(Ogre::String(xml->Value()) == "GUIObject");
 
 	// parse geometry
-	math::Vector2 tl, dims;
+	core::Vector2 tl, dims;
 	parseGeometry(xml, tl, dims);
 
 	ASSERT(xml->Attribute("material"));
@@ -51,8 +51,8 @@ GUIObject *GUIBuilder::parseGUIObject(const TiXmlElement *xml, Ogre::String &typ
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void GUIBuilder::parseGeometry(const TiXmlElement *elem, math::Vector2 &tl,
-		math::Vector2 &dim)
+void GUIBuilder::parseGeometry(const TiXmlElement *elem, core::Vector2 &tl,
+		core::Vector2 &dim)
 {
 	ASSERT(elem);
 	const char *tlx = elem->Attribute("topLeftX");

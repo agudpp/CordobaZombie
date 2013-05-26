@@ -78,8 +78,8 @@ public:
 
     // Returns the vertex of the triangle that is shared by the edge that
     // contains V but is not the edge E
-    inline const math::Vertex *
-    getOppositeVertex(const math::Vertex *V, const GEdge *R) const;
+    inline const core::Vertex *
+    getOppositeVertex(const core::Vertex *V, const GEdge *R) const;
 
     // Get the current node ID (unique ID between the set of all nodes)
     //
@@ -142,7 +142,7 @@ inline float
 GNode::getSquaredDistance(const GNode &other) const
 {
     ASSERT(mTriangle && other.getTriangle());
-    math::Point p1, p2;
+    core::Point p1, p2;
     mTriangle->getCenterPoint(p1);
     other.getTriangle()->getCenterPoint(p2);
 
@@ -208,8 +208,8 @@ GNode::getSharedEdge(const GNode *other) const
 
 // Returns the vertex of the triangle that is shared by the edge that
 // contains V but is not the edge E
-inline const math::Vertex *
-GNode::getOppositeVertex(const math::Vertex *V, const GEdge *R) const
+inline const core::Vertex *
+GNode::getOppositeVertex(const core::Vertex *V, const GEdge *R) const
 {
     // get the edge that contains V but is not R
     if (mEdge1 && mEdge1 != R) {
@@ -220,7 +220,7 @@ GNode::getOppositeVertex(const math::Vertex *V, const GEdge *R) const
             return mEdge1->getSharedVertex()[0];
         } else {
             // mEdge1 share some vertex with R, get it
-            const math::Vertex *shared =
+            const core::Vertex *shared =
                 (R->getSharedVertex()[0] == V) ?
                     R->getSharedVertex()[1] : R->getSharedVertex()[0];
             if (mEdge1->getSharedVertex()[0] == shared) {
@@ -237,7 +237,7 @@ GNode::getOppositeVertex(const math::Vertex *V, const GEdge *R) const
             return mEdge2->getSharedVertex()[0];
         } else {
             // mEdge1 share some vertex with R, get it
-            const math::Vertex *shared =
+            const core::Vertex *shared =
                 (R->getSharedVertex()[0] == V) ?
                     R->getSharedVertex()[1] : R->getSharedVertex()[0];
             if (mEdge2->getSharedVertex()[0] == shared) {
@@ -255,7 +255,7 @@ GNode::getOppositeVertex(const math::Vertex *V, const GEdge *R) const
             return mEdge3->getSharedVertex()[0];
         } else {
             // mEdge1 share some vertex with R, get it
-            const math::Vertex *shared =
+            const core::Vertex *shared =
                 (R->getSharedVertex()[0] == V) ?
                     R->getSharedVertex()[1] : R->getSharedVertex()[0];
             if (mEdge3->getSharedVertex()[0] == shared) {

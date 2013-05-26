@@ -81,18 +81,18 @@ bool FirstInformationState::showInfo(Ogre::Real ftime)
 void FirstInformationState::deallocateAll(void)
 {
 //	for(int i = 0; i < mOverlays.size(); i++){
-//		GUIHelper::fullDestroyOverlay(mOverlays[i]);
+//		f_e::GUIHelper::fullDestroyOverlay(mOverlays[i]);
 //	}
 	mOverlays.clear();
 //	for(int i = 0; i < mToRemoveOverlays.size(); i++){
-//		GUIHelper::fullDestroyOverlay(mToRemoveOverlays[i]);
+//		f_e::GUIHelper::fullDestroyOverlay(mToRemoveOverlays[i]);
 //	}
 	mToRemoveOverlays.clear();
 
 	// destroy all
 	mOverlay = 0;
 //	if(mFader){
-//		GUIHelper::fullDestroyOverlay(mFader);
+//		f_e::GUIHelper::fullDestroyOverlay(mFader);
 	mFader->hide();
     mFader = 0;
 //	}

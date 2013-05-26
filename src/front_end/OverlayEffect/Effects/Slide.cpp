@@ -14,7 +14,7 @@
 
 // internal structures
 namespace {
-class LinealFun : public OvEff::Slide::VelFunction {
+class LinealFun : public f_e::Slide::VelFunction {
 public:
     virtual float operator()(float x) const
     {
@@ -25,7 +25,7 @@ static LinealFun linealFunc;
 }
 
 
-namespace OvEff {
+namespace f_e {
 
 const Slide::VelFunction *Slide::LINEAL_FUNCTION = &linealFunc;
 

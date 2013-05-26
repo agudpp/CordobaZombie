@@ -23,37 +23,38 @@
 #include "GUIBuilder.h"
 #include "GUIManager.h"
 
-
 class Test : public AppTester
 {
 public:
-	Test();
+    Test();
 
-	/* Load additional info */
-	void loadAditionalData(void);
+    /* Load additional info */
+    void
+    loadAditionalData(void);
 
-	/* function called every frame. Use GlobalObjects::lastTimeFrame */
-	void update();
+    /* function called every frame. Use GlobalObjects::lastTimeFrame */
+    void
+    update();
 
-
-	~Test();
-
-private:
-
-	// create overlay uv test
-	void createOverlay(void);
-
-	// handle input
-	void handleInput(void);
+    ~Test();
 
 private:
-	MouseCursor				mMouseCursor;
-	MenuManager				mMenuManager;
-	GUIManager				mGuiManager;
-	GUIBuilder				mGUIBuilder;
 
-	Ogre::PanelOverlayElement *mFader;
+    // create overlay uv test
+    void
+    createOverlay(void);
 
+    // handle input
+    void
+    handleInput(void);
+
+private:
+    f_e::MouseCursor mMouseCursor;
+    MenuManager mMenuManager;
+    GUIManager mGuiManager;
+    GUIBuilder mGUIBuilder;
+
+    Ogre::PanelOverlayElement *mFader;
 
 };
 

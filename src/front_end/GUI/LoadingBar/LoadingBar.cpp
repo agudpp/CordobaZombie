@@ -11,6 +11,8 @@
 
 #include "GUIHelper.h"
 
+namespace f_e {
+
 LoadingBar::LoadingBar() :
 		mProgress(0),
 		mActualProgress(0),
@@ -48,14 +50,14 @@ void LoadingBar::setOverlayName(const Ogre::String &overlay)
 
 	// get the progress bar and background
 	mContainer = static_cast<Ogre::OverlayContainer*>(
-				GUIHelper::findContainer(mOverlay, "Background"));
+	    f_e::GUIHelper::findContainer(mOverlay, "Background"));
 	ASSERT(mContainer);
 
 	mProgress = static_cast<Ogre::PanelOverlayElement*>(
-			GUIHelper::findContainer(mOverlay, "ProgressBar"));
+	    f_e::GUIHelper::findContainer(mOverlay, "ProgressBar"));
 	ASSERT(mProgress);
 
-//	GUIHelper::fixOverlayPosition(mOverlay);
+//	f_e::GUIHelper::fixOverlayPosition(mOverlay);
 	mOverlay->show();
 
 	// get the size of the progress bar
@@ -81,7 +83,7 @@ void LoadingBar::setOverlayContainer(Ogre::OverlayContainer *ovc)
 	// get the progress bar and background
 	mContainer = ovc;
 	mProgress = static_cast<Ogre::PanelOverlayElement*>(
-			GUIHelper::findContainer(ovc, "ProgressBar"));
+	    f_e::GUIHelper::findContainer(ovc, "ProgressBar"));
 	ASSERT(mProgress);
 
 	// get the size of the progress bar
@@ -117,14 +119,16 @@ void LoadingBar::setState(float progress)
 void LoadingBar::clear(void)
 {
 	if(mOverlay) {
-		GUIHelper::fullDestroyOverlay(mOverlay);
+	    f_e::GUIHelper::fullDestroyOverlay(mOverlay);
 	} else {
 		if(mContainer){
-			GUIHelper::fullDestroyOverlayElement(mContainer);
+		    f_e::GUIHelper::fullDestroyOverlayElement(mContainer);
 		}
 	}
 
 	mOverlay = 0;
 	mProgress = 0;
 	mContainer = 0;
+}
+
 }

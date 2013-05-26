@@ -26,7 +26,7 @@ RaycastManager::~RaycastManager()
  * Set the collision manager to use.
  */
 void
-RaycastManager::setCollisionManager(CollisionManager *cm)
+RaycastManager::setCollisionManager(c_p::CollisionManager *cm)
 {
 	ASSERT(cm);
 	mCollMngr = cm;
@@ -60,12 +60,12 @@ RaycastManager::build(float y)
 template<typename T>
 void
 RaycastManager::rayCast(float xrm, float yrm,
-                        mask_t mask,
+                        c_p::mask_t mask,
                         std::vector<T> &result) const
 {
 	ASSERT(mCollMngr);
 
-	math::Vector2 p;
+	core::Vector2 p;
 
 	// get the point in the plane
 	getPoint(xrm, yrm, p);
@@ -93,11 +93,11 @@ RaycastManager::rayCast(float xrm, float yrm,
  */
 template<typename T>
 T
-RaycastManager::rayCast(float xrm, float yrm, mask_t mask) const
+RaycastManager::rayCast(float xrm, float yrm, c_p::mask_t mask) const
 {
 	ASSERT(mCollMngr);
 
-	math::Vector2 p;
+	core::Vector2 p;
 
 	// get the point in the plane
 	getPoint(xrm, yrm, p);

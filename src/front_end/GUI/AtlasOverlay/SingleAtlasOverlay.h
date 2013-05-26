@@ -15,6 +15,8 @@
 #include "DebugUtil.h"
 #include "GUIHelper.h"
 
+namespace f_e {
+
 class SingleAtlasOverlay {
 public:
 	/**
@@ -70,7 +72,7 @@ inline void SingleAtlasOverlay::setNumberImages(int n)
 	ASSERT(mCont);
 	ASSERT(n > 0);
 
-	int textSize = GUIHelper::getTextureWidth(mCont->getMaterialName());
+	int textSize = f_e::GUIHelper::getTextureWidth(mCont->getMaterialName());
 	mAtlasFactor = static_cast<float>(textSize) / static_cast<float>(n);
 	mAtlasFactor = mAtlasFactor / static_cast<float>(textSize);
 }
@@ -82,6 +84,8 @@ inline void SingleAtlasOverlay::changeAtlas(int n)
 	const Ogre::Real x1 = (mAtlasFactor * n);
 	ASSERT(x1 + mAtlasFactor <= 1.0f);
 	mCont->setUV(x1, 0.0f, x1+mAtlasFactor, 1.0f);
+}
+
 }
 
 #endif /* SINGLEATLASOVERLAY_H_ */

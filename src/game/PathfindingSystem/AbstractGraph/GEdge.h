@@ -46,7 +46,7 @@ public:
 	inline const GNode *getNode2(void) const {return mNode2;}
 
 	// Returns the vertexs that the nodes share (array of size 2)
-	inline const math::Vertex *const *getSharedVertex(void) const {return mSharedVertexs;}
+	inline const core::Vertex *const *getSharedVertex(void) const {return mSharedVertexs;}
 
 	// compare operator
 	bool operator==(const GEdge &other) const
@@ -65,7 +65,7 @@ private:
 	const GNode		*mNode1;
 	const GNode		*mNode2;
 	float			mWeight;
-	const math::Vertex 	*mSharedVertexs[2];
+	const core::Vertex 	*mSharedVertexs[2];
 
 };
 

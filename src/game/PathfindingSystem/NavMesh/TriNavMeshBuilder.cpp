@@ -38,14 +38,14 @@ TriNavMeshBuilder::exportGraph(const std::vector<GNode *> &nodes,
 	}
 
 	// get all the vertexs
-	std::map<const math::Vertex *, int> vertexs;
+	std::map<const core::Vertex *, int> vertexs;
 	int vertexCount = 0;
-	std::vector<const math::Vertex *> vertexList;
+	std::vector<const core::Vertex *> vertexList;
 	for(int i = nodes.size()-1; i >= 0; --i){
 		ASSERT(nodes[i]->getTriangle());
-		const math::Vertex *v1 = nodes[i]->getTriangle()->v1;
-		const math::Vertex *v2 = nodes[i]->getTriangle()->v2;
-		const math::Vertex *v3 = nodes[i]->getTriangle()->v3;
+		const core::Vertex *v1 = nodes[i]->getTriangle()->v1;
+		const core::Vertex *v2 = nodes[i]->getTriangle()->v2;
+		const core::Vertex *v3 = nodes[i]->getTriangle()->v3;
 		if(vertexs.find(v1) == vertexs.end())
 		{vertexs[v1] = vertexCount++; vertexList.push_back(v1);}
 
@@ -113,7 +113,7 @@ TriNavMeshBuilder::exportGraph(const Graph &graph, const Ogre::String &fname)
  */
 bool
 TriNavMeshBuilder::importGraph(std::vector<GNode *> &nodes,
-		PolyStructsContainer<math::Vertex *> &container,
+		PolyStructsContainer<core::Vertex *> &container,
 		PolyStructsContainer<Triangle *> &triangles,
 		std::vector<GEdge *> &edges,
 		const Ogre::String &fname)
@@ -136,14 +136,14 @@ TriNavMeshBuilder::importGraph(std::vector<GNode *> &nodes,
 	}
 
 	// first read the vertexs list
-	std::vector<math::Vertex *> vertexs;
+	std::vector<core::Vertex *> vertexs;
 	int aux;
 	in >> aux;
 	ASSERT(aux > 0);
 	vertexs.reserve(aux);
 
 	for(int i = 0; i < aux; ++i){
-		math::Vertex *v = new math::Vertex;
+		core::Vertex *v = new core::Vertex;
 		in >> v->x;
 		in >> v->y;
 		vertexs.push_back(v);
@@ -235,7 +235,7 @@ TriNavMeshBuilder::importGraph(std::vector<GNode *> &nodes,
  * 			false		otherwise
  */
 bool
-TriNavMeshBuilder::importGraph(std::vector<math::Vertex *> &vertexs,
+TriNavMeshBuilder::importGraph(std::vector<core::Vertex *> &vertexs,
 		std::vector<Triangle *> &triangVec,
 		const Ogre::String &fname)
 {
@@ -263,7 +263,7 @@ TriNavMeshBuilder::importGraph(std::vector<math::Vertex *> &vertexs,
 	vertexs.reserve(aux);
 
 	for(int i = 0; i < aux; ++i){
-		math::Vertex *v = new math::Vertex;
+		core::Vertex *v = new core::Vertex;
 		in >> v->x;
 		in >> v->y;
 		vertexs.push_back(v);

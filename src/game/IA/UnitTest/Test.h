@@ -41,7 +41,7 @@ private:
 
 	bool 		mKeyPressed;
 	CameraController		mCamController;
-	MouseCursor				mMouseCursor;
+	f_e::MouseCursor				mMouseCursor;
 
 };
 

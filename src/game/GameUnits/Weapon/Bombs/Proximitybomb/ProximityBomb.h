@@ -15,7 +15,7 @@
 
 class ProximityBomb : public Bomb
 {
-	static const int 	PROXIMITY_MASK = COL_FLAG_UNIT_ZOMBIE;
+	static const int 	PROXIMITY_MASK = c_p::COL_FLAG_UNIT_ZOMBIE;
 	static const float	CHECK_TIME;
 public:
 	ProximityBomb();
@@ -50,7 +50,7 @@ public:
 protected:
 	float			mActivationTime;
 	float			mAuxTime;
-	math::AABB		mProximityQuery;
+	core::AABB		mProximityQuery;
 };
 
 #endif /* PROXIMITYBOMB_H_ */

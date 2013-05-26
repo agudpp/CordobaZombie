@@ -31,7 +31,7 @@ BodyWeapon::~BodyWeapon()
 /**
  * Function called when we perform a shoot
  */
-bool BodyWeapon::shoot(const math::Vector2 &p)
+bool BodyWeapon::shoot(const core::Vector2 &p)
 {
 	ASSERT(mOwner);
 
@@ -42,7 +42,7 @@ bool BodyWeapon::shoot(const math::Vector2 &p)
 	// TODO: tendriamos que ver de cambiar los flags aca si queremos por ejemplo
 	// poder romper una caja? no es un zombie... asique deberiamos poder pegarle
 	GLOBAL_LVL_MNGR->getCollisionManager()->getCollisionObjects(p,
-			COL_FLAG_UNIT_ZOMBIE, mCollResult);
+			c_p::COL_FLAG_UNIT_ZOMBIE, mCollResult);
 
 	if(mCollResult.empty()){
 		debug("No object found\n");

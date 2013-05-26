@@ -223,7 +223,7 @@ private:
 	Ogre::BillboardSet	*mBillboardSet;
 	Ogre::SceneNode		*mNode;
 	float				mAtlasSize;
-	MultiAtlasOverlay mAtlasOverlay;
+	f_e::MultiAtlasOverlay mAtlasOverlay;
 	BillboardBatery mBatteries[BatteryID::SIZE];
 	AtlasIDHash mAtlasIDs;
 	BillboardQueues mQueues;

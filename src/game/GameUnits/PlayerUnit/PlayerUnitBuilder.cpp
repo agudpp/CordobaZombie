@@ -43,7 +43,7 @@ PlayerUnitBuilder::buildDefaultCardenal(PlayerUnitPtr &unit) const
     unit->build();
 
     // set the 0,0 position
-    math::Vector2 pos(100.f, 100.f);
+    core::Vector2 pos(100.f, 100.f);
     unit->setPosition(pos);
 
 
@@ -86,7 +86,7 @@ PlayerUnitBuilder::buildDefaultCoral(PlayerUnitPtr &unit) const
     unit->build();
 
     // set the 0,0 position
-    math::Vector2 pos(100.f, 100.f);
+    core::Vector2 pos(100.f, 100.f);
     unit->setPosition(pos);
 
 
@@ -130,7 +130,7 @@ PlayerUnitBuilder::buildDefaultTulian(PlayerUnitPtr &unit) const
     unit->build();
 
     // set the 0,0 position
-    math::Vector2 pos(100.f, 100.f);
+    core::Vector2 pos(100.f, 100.f);
     unit->setPosition(pos);
 
 

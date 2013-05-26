@@ -113,14 +113,14 @@ private:
 	// but it does recognize the "portable" one (see http://goo.gl/V6AeZ)
 	typedef boost::signal<void ()>		actions;  // Buttons actions
 	typedef std::vector<Ogre::String>	StrVec;
-	typedef std::vector<OvEff::MenuButtonEffect>  ButtonsEffectVec;
+	typedef std::vector<f_e::MenuButtonEffect>  ButtonsEffectVec;
 	typedef std::vector<actions*>		ButtonsActionsVec;
 
 	static StrVec			sButtonsNames;	 // Buttons names
 	ButtonsActionsVec		mButtonsActions; // Buttons actions
 	ButtonsEffectVec		mButtonsEff;	 // Buttons and their visual effects
 	Ogre::OverlayContainer*	mPanel;			 // Image to display
-	OvEff::OverlayEffect*	mPanelEff;		 // Fading effect for the image
+	f_e::OverlayEffect*	mPanelEff;		 // Fading effect for the image
 	State					mState;
 };
 

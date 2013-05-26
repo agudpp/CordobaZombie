@@ -9,10 +9,8 @@
 
 #include <boost/bind.hpp>
 #include "DebugUtil.h"
-#include "GUIHelper.h"
 #include "ButtonHelper.h"
 #include "MenuManager.h"
-#include "MouseCursor.h"
 
 
 const std::string PreGameState::PREGAMEDIRNAME = "PreGameState/";
@@ -288,9 +286,9 @@ void PreGameState::operator()(CbMenuButton * b, CbMenuButton::ButtonID id)
 
 
 ////////////////////////////////////////////////////////////////////////////////
-void PreGameState::operator()(OvEff::OverlayEffect::EventID id){
+void PreGameState::operator()(f_e::OverlayEffect::EventID id){
 
-    if (id == OvEff::OverlayEffect::ENDING && mState == HIDE) {
+    if (id == f_e::OverlayEffect::ENDING && mState == HIDE) {
     	mState = EXIT;
     }
 

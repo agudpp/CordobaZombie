@@ -23,7 +23,7 @@
 class PathfindingManager
 {
 public:
-	typedef std::vector<math::Point>		Path;
+	typedef std::vector<core::Point>		Path;
 
 
 	// The possibilities of the path
@@ -50,14 +50,14 @@ public:
 	 * DO NOT DELET any triangle nor any vertex
 	 */
 	int loadLevel(const std::vector<Triangle *> &triangles,
-	              const std::vector<math::Vertex *> &vertices);
+	              const std::vector<core::Vertex *> &vertices);
 
 	/* Load a level from a Graph
 	 * This triangles and vertices now belongs to the PathFinderManager.
 	 * DO NOT DELET any triangle nor any vertex
 	 */
 	int loadLevel(const Graph &g, const std::vector<Triangle *> &triangles,
-	              const std::vector<math::Vertex *> &vertices);
+	              const std::vector<core::Vertex *> &vertices);
 
 	/* Function used to get the shortest path from 2 differents points
 	 * Requires:
@@ -73,7 +73,7 @@ public:
 	 *	LINE_PATH		when the unit can get the goal in a straight line
 	 *	NORMAL_PATH		when there are a path
 	 */
-	int getPath(const math::Point &start, const math::Point &end,
+	int getPath(const core::Point &start, const core::Point &end,
 	            Path &path,
 	            float radius = 0.0f,
 	            float delta = 1);
@@ -90,7 +90,7 @@ public:
 	 *
 	 * @note	We do not apply funnel algorithm here..
 	 */
-	int getRandomPath(const math::Point &start,
+	int getRandomPath(const core::Point &start,
 	                  Path &path,
 	                  float radius = 0.0f,
 	                  int numNodes = -1);
@@ -99,7 +99,7 @@ public:
 	 * Returns the associated GNode to a certain point or 0 if there are not.
 	 * @param	p	The point where we will get the GNode
 	 */
-	inline const GNode *getNodeFromPoint(const math::Point &p) const;
+	inline const GNode *getNodeFromPoint(const core::Point &p) const;
 
 	/**
 	 * Updates a given path and a new "end position". This function will modify
@@ -114,7 +114,7 @@ public:
 	 *	LINE_PATH		when the unit can get the goal in a straight line
 	 *	NORMAL_PATH		when there are a path
 	 */
-	int updatePath(Path &path, int ap, const math::Point &np, float radius = 0.0f);
+	int updatePath(Path &path, int ap, const core::Point &np, float radius = 0.0f);
 
 	/**
 	 * @brief Accessory function to get the triangle list of the NavMesh
@@ -126,7 +126,7 @@ public:
 	 * @brief Accessory function to get the vertices used by the NavMesh
 	 * @returns the vertices vector used by the NavMesh
 	 */
-	inline const std::vector<math::Vertex *> &vertices(void) const;
+	inline const std::vector<core::Vertex *> &vertices(void) const;
 
 private:
 	PathfindingManager();
@@ -138,7 +138,7 @@ private:
 
 private:
 	typedef PolyStructsContainer<Triangle *>	TriangleCont;
-	typedef PolyStructsContainer<math::Vertex *>		VertexCont;
+	typedef PolyStructsContainer<core::Vertex *>		VertexCont;
 
 	TriangleNavMesh					*mNavMesh;
 	TriangleAStar					*mAStar;
@@ -158,7 +158,7 @@ private:
  * @param	p	The point where we will get the GNode
  */
 inline const GNode *
-PathfindingManager::getNodeFromPoint(const math::Point &p) const
+PathfindingManager::getNodeFromPoint(const core::Point &p) const
 {
 	ASSERT(mNavMesh);
 	return mNavMesh->getNodeFromPoint(p);
@@ -170,7 +170,7 @@ PathfindingManager::triangles(void) const
     return mTriangles.getObjs();
 }
 
-inline const std::vector<math::Vertex *> &
+inline const std::vector<core::Vertex *> &
 PathfindingManager::vertices(void) const
 {
     return mVertices.getObjs();

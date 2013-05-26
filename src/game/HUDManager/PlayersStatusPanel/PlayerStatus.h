@@ -38,9 +38,9 @@ private:
 		virtual void operator()(int);
 
 		// members
-		LoadingBar			loadingBar;
+		f_e::LoadingBar			loadingBar;
 		PlayerUnit			*unit;
-		LoadingBar			*bigBar;
+		f_e::LoadingBar			*bigBar;
 	};
 
 public:
@@ -58,7 +58,7 @@ public:
 	 * @param	bigB	The Big Bar (or global bar) to be handled by this unit.
 	 */
 	void configure(PlayerUnit *gu, Ogre::OverlayContainer *oc, Callback *cb,
-			LoadingBar *bigB);
+			f_e::LoadingBar *bigB);
 
 	/**
 	 * Getters functions

@@ -57,7 +57,7 @@ Test::Test()
 {
 	mMouseCursor.setVisible(true);
 	mMouseCursor.setWindowDimensions(GLOBAL_WINDOW->getWidth(), GLOBAL_WINDOW->getHeight());
-	OvEff::OverlayEffect::setManager(&mOvEffMngr);
+	f_e::OverlayEffect::setManager(&mOvEffMngr);
 }
 
 Test::~Test()
@@ -76,7 +76,7 @@ void Test::handleInput(void)
 void Test::loadAditionalData(void)
 {
 	createOverlay();
-	mSlideEffect = new OvEff::Slide;
+	mSlideEffect = new f_e::Slide;
 	mSlideEffect->setDuration(1.5f);
 	mSlideEffect->setTranslationPositions(Ogre::Vector2(0.90f,0.0f),
 			Ogre::Vector2(-0.1f,0.0f));

@@ -22,8 +22,8 @@
 
 namespace {
 struct TmpEdge {
-	const math::Vertex *v1;
-	const math::Vertex *v2;
+	const core::Vertex *v1;
+	const core::Vertex *v2;
 };
 
 #define  ALIGNMENT_TOLERANCE  1e-10
@@ -38,7 +38,7 @@ struct TmpEdge {
  ** 2 if  y  aligned
  **/
 int
-aligned(const math::Vertex *v1, const math::Vertex *v2) {
+aligned(const core::Vertex *v1, const core::Vertex *v2) {
 	ASSERT(v1 && v2);
 	if (fabs(v1->y - v2->y) < ALIGNMENT_TOLERANCE)
 		return 2;
@@ -153,7 +153,7 @@ CollObjExporter::entityExtractor(Ogre::Node* node,
 	ASSERT(node);
 	ASSERT(ent);
 
-	PolyStructsContainer<math::Vertex *> vertices;
+	PolyStructsContainer<core::Vertex *> vertices;
 	PolyStructsContainer<Triangle *> triangles;
 	std::stringstream data;
 
@@ -188,13 +188,13 @@ CollObjExporter::entityExtractor(Ogre::Node* node,
 
 ////////////////////////////////////////////////////////////////////////////////
 std::string
-CollObjExporter::createPolyShape(PolyStructsContainer<math::Vertex *> &vertices,
+CollObjExporter::createPolyShape(PolyStructsContainer<core::Vertex *> &vertices,
 								 PolyStructsContainer<Triangle *> &triangles)
 {
 	std::vector<Triangle *> &tri = triangles.getObjs();
-	std::vector<math::Vertex *> &vert = vertices.getObjs();
+	std::vector<core::Vertex *> &vert = vertices.getObjs();
 	std::stringstream data;
-	const math::Vertex *v = 0;
+	const core::Vertex *v = 0;
 	int untouched = 1;  // '1' to enter loop
 
 	// Find central vertex, which touches all triangles
@@ -238,7 +238,7 @@ CollObjExporter::createPolyShape(PolyStructsContainer<math::Vertex *> &vertices,
 
 	// Save the vertices of the external edges,
 	// clockwise and without repetitions.
-	std::vector<const math::Vertex *> vSet;
+	std::vector<const core::Vertex *> vSet;
 	v = edges.front().v1;
 	vSet.push_back(v);  // Save the first vertex first
 	for (size_t numVert = 0 ; numVert < edges.size() ; numVert++) {
@@ -268,10 +268,10 @@ CollObjExporter::createPolyShape(PolyStructsContainer<math::Vertex *> &vertices,
 
 ////////////////////////////////////////////////////////////////////////////////
 std::string
-CollObjExporter::createCircleShape(PolyStructsContainer<math::Vertex *> &vertices,
+CollObjExporter::createCircleShape(PolyStructsContainer<core::Vertex *> &vertices,
 								   PolyStructsContainer<Triangle *> &triangles)
 {
-	std::vector<math::Vertex *> &vert = vertices.getObjs();
+	std::vector<core::Vertex *> &vert = vertices.getObjs();
 	std::stringstream data;
 
 	debugBLUE("# of vertex: %zu\n", vert.size());
@@ -288,10 +288,10 @@ CollObjExporter::createCircleShape(PolyStructsContainer<math::Vertex *> &vertice
 
 ////////////////////////////////////////////////////////////////////////////////
 std::string
-CollObjExporter::createEdgeShape(PolyStructsContainer<math::Vertex *> &vertices,
+CollObjExporter::createEdgeShape(PolyStructsContainer<core::Vertex *> &vertices,
 								 PolyStructsContainer<Triangle *> &triangles)
 {
-	std::vector<math::Vertex *> &vert = vertices.getObjs();
+	std::vector<core::Vertex *> &vert = vertices.getObjs();
 	std::stringstream data;
 
 	// We receive 3 vertices, two of them overlap
@@ -312,7 +312,7 @@ CollObjExporter::createEdgeShape(PolyStructsContainer<math::Vertex *> &vertices,
 
 ////////////////////////////////////////////////////////////////////////////////
 std::string
-CollObjExporter::createBoxShape(PolyStructsContainer<math::Vertex *> &vertices,
+CollObjExporter::createBoxShape(PolyStructsContainer<core::Vertex *> &vertices,
 								PolyStructsContainer<Triangle *> &triangles)
 {
 	std::vector<Triangle *> &tri = triangles.getObjs();
@@ -325,7 +325,7 @@ CollObjExporter::createBoxShape(PolyStructsContainer<math::Vertex *> &vertices,
 	}
 
 	// Triangles shared-vertices recognition
-	std::vector<const math::Vertex *> shared, notShared;
+	std::vector<const core::Vertex *> shared, notShared;
 	Triangle *t_a = tri[0],
 			 *t_b = tri[1];
 
@@ -377,12 +377,12 @@ CollObjExporter::createBoxShape(PolyStructsContainer<math::Vertex *> &vertices,
 
 ////////////////////////////////////////////////////////////////////////////////
 std::string
-CollObjExporter::createAABBShape(PolyStructsContainer<math::Vertex *> &vertices,
+CollObjExporter::createAABBShape(PolyStructsContainer<core::Vertex *> &vertices,
 								 PolyStructsContainer<Triangle *> &triangles)
 {
-	math::AABB shape;
+	core::AABB shape;
 	std::stringstream data;
-	std::vector<math::Vertex *> vert = vertices.getObjs();
+	std::vector<core::Vertex *> vert = vertices.getObjs();
 
 	if (vert.size() != 4) {
 		debugERROR("Wrong number of vertices for AABBShape.\n"

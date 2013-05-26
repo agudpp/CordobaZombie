@@ -45,7 +45,7 @@ private:
 
 
 private:
-	MouseCursor				mMouseCursor;
+	f_e::MouseCursor				mMouseCursor;
 	EffectsManager effectMgr;
 
 };

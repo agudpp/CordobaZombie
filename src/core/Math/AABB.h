@@ -11,7 +11,7 @@
 
 #include "Vec2.h"
 
-namespace math {
+namespace core {
 
 // Aligned box2D
 struct AABB {

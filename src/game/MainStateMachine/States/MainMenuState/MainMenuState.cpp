@@ -18,7 +18,6 @@
 #include "InputMouse.h"
 #include "IMenu.h"
 #include "Util.h"
-#include "MouseCursor.h"
 #include "SoundManager.h"
 #include "BufferBuilder.h"
 
@@ -165,7 +164,7 @@ void MainMenuState::updateStateMachine(void)
 ////////////////////////////////////////////////////////////////////////////////
 void MainMenuState::configureOvEffectManager(void)
 {
-	OvEff::OverlayEffect::setManager(&mOvEffManager);
+	f_e::OverlayEffect::setManager(&mOvEffManager);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

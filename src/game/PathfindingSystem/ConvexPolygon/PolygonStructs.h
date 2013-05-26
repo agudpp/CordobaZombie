@@ -17,7 +17,7 @@ typedef Point Vertex;
 
 // Edge
 struct Edge {
-	math::Vertex *v1;
+	core::Vertex *v1;
 	Vertex *v2;
 };
 

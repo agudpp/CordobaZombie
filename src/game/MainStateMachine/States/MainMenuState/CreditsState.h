@@ -79,9 +79,9 @@ private:
 
 	Ogre::Overlay		*mOverlay;
 	Ogre::TextAreaOverlayElement *mTextArea;
-	OvEff::Slide mSlideEffect;
+	f_e::Slide mSlideEffect;
 	Ogre::Vector2 mBeginPos;
-	OvEff::EffectRestarter mRestarter;
+	f_e::EffectRestarter mRestarter;
 
 
 };

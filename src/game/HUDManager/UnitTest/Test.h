@@ -55,7 +55,7 @@ private:
 	bool 		mKeyPressed;
 	int			mPlacesCount;
 	MenuManager	mMenuManager;
-	MouseCursor	mMouseCursor;
+	f_e::MouseCursor	mMouseCursor;
 	ExtraActionPanel	mPanel;
 	PassportPicture		mPassportPic;
 

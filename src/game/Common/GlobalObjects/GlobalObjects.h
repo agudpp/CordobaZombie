@@ -27,9 +27,13 @@
 #define GLOBAL_CURSOR				Common::GlobalObjects::mouseCursor
 #define GLOBAL_MENU_MNGR			Common::GlobalObjects::menuManager
 
+// Forward
+//
+namespace f_e {
+class MouseCursor;
+}
 
 class LevelManager;
-class MouseCursor;
 class MenuManager;
 
 
@@ -38,28 +42,28 @@ namespace Common {
 class GlobalObjects {
 public:
 	/* The scene manager that we are using */
-	static Ogre::SceneManager 	*sceneManager;
+	static Ogre::SceneManager   *sceneManager;
 
 	// The OgreRoot
-	static Ogre::Root			*ogreRoot;
+	static Ogre::Root           *ogreRoot;
 
 	// Render Window
-	static Ogre::RenderWindow	*window;
+	static Ogre::RenderWindow   *window;
 
 	/* The last timeFrame (this should be actualized every frame) */
-	static Ogre::Real 			lastTimeFrame;
-	static Ogre::Camera			*camera;
+	static Ogre::Real           lastTimeFrame;
+	static Ogre::Camera         *camera;
 
-	static OIS::Keyboard 		*keyboard;
-	static OIS::Mouse 			*mouse;
+	static OIS::Keyboard        *keyboard;
+	static OIS::Mouse           *mouse;
 
 	/* The LevelManager used actually */
-	static LevelManager			*levelMngr;
+	static LevelManager         *levelMngr;
 
 	// Globarl Mouse cursor
-	static MouseCursor          *mouseCursor;
+	static f_e::MouseCursor     *mouseCursor;
 
-	static MenuManager			*menuManager;
+	static MenuManager          *menuManager;
 
 
 public:

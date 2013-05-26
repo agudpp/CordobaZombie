@@ -26,7 +26,7 @@
 
 struct ZombiePair{
 	ZombieUnit *zu;
-	math::Vector2 desTpos;
+	core::Vector2 desTpos;
 };
 
 //#include "TestUnit.h"

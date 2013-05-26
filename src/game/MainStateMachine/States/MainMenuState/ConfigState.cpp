@@ -135,7 +135,7 @@ ConfigState::load()
 	Ogre::OverlayManager& om(Ogre::OverlayManager::getSingleton());
 	Ogre::Overlay* overlay(0);
 	Ogre::String effectName("Alpha");
-	OvEff::OverlayEffectBuilder oeb;
+	f_e::OverlayEffectBuilder oeb;
 	const TiXmlElement* img(0);
 
 	if (mState == STATE_LOOPING) {

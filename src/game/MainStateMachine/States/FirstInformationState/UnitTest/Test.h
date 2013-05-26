@@ -50,8 +50,8 @@ private:
 	void handleInput(void);
 
 private:
-	MouseCursor				mMouseCursor;
-	LoadingBar				mBar;
+	f_e::MouseCursor				mMouseCursor;
+	f_e::LoadingBar				mBar;
 	FirstInformationState	mFirstInfoState;
 
 

@@ -117,10 +117,10 @@ void Test::update()
             {
 	        kp = true;
 	        debugRED("Width container: %f\n", mTextArea->getWidth());
-	        gui_utils::Text2D t2d(mTextArea);
+	        f_e::Text2D t2d(mTextArea);
 	        debugRED("Width container: %f\n", mTextArea->getWidth());
 	        Ogre::String str("Esta es una linea de texto! Deberia cambiar de acuerdo a la configuracion");
-	        t2d.configure(str, gui_utils::Text2D::ADJUST_TEXT_TO_CONTAINER, 1.0f, 1.0f);
+	        t2d.configure(str, f_e::Text2D::ADJUST_TEXT_TO_CONTAINER, 1.0f, 1.0f);
 	    }
 	}
         else 

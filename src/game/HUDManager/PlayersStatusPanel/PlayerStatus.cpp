@@ -65,13 +65,13 @@ mCallback(0)
 ////////////////////////////////////////////////////////////////////////////////
 PlayerStatus::~PlayerStatus()
 {
-	GUIHelper::fullDestroyOverlayElement(mCont);
+    f_e::GUIHelper::fullDestroyOverlayElement(mCont);
 	if(mBarUpdater.unit)	mBarUpdater.unit->clearLifeCallback();
 }
 
 /////////////////////////////////////////////////////////////////////////////////
 void PlayerStatus::configure(PlayerUnit *gu, Ogre::OverlayContainer *oc,
-		Callback *cb, LoadingBar *bigB)
+		Callback *cb, f_e::LoadingBar *bigB)
 {
 	ASSERT(gu);
 	ASSERT(oc);
@@ -90,7 +90,7 @@ void PlayerStatus::configure(PlayerUnit *gu, Ogre::OverlayContainer *oc,
 	configureAll(oc);
 
 	// Configure the loading bar
-	Ogre::OverlayContainer *cont = GUIHelper::findContainer(oc, "LifeBar");
+	Ogre::OverlayContainer *cont = f_e::GUIHelper::findContainer(oc, "LifeBar");
 	if(!cont){
 		debugERROR("El contenedor no tiene un sub container nombre LifeBar\n");
 		ASSERT(false);

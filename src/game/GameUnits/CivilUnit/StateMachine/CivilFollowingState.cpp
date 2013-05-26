@@ -98,7 +98,7 @@ void CivilFollowingState::update(CivilUnit *ref)
 		// of the player we will try to go to the last place where it was seen
 		// and then try to see it again, if we can see it we continue following
 		// it, otherwise we emit a sound or something that we lost it
-		math::Vector2 move, aux;
+		core::Vector2 move, aux;
 		// check the collision steering vector
 		if(!ref->obtainCollisionObjects().empty()){
 			ref->repellingSteerVec(move, ref->getCollideObjects());

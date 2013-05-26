@@ -53,7 +53,7 @@ Test::Test()
 	mMouseCursor.setVisible(true);
 	mMouseCursor.setWindowDimensions(GLOBAL_WINDOW->getWidth(), GLOBAL_WINDOW->getHeight());
 	testBEGIN("Setting OverlayEffectManager.%s", "\n");
-	OvEff::OverlayEffect::setManager(&mOvEffMngr);
+	f_e::OverlayEffect::setManager(&mOvEffMngr);
 	testSUCCESS("Test passed.%s", "\n");
 }
 
@@ -78,7 +78,7 @@ Test::handleInput()
 		if(!k1p){
 			k1p = true;
 			// switch and start the effect
-			mAlphaEffect->setType(OvEff::Alpha::FADE_IN);
+			mAlphaEffect->setType(f_e::Alpha::FADE_IN);
 			mAlphaEffect->start();
 		}
 	} else {
@@ -89,7 +89,7 @@ Test::handleInput()
 		if(!k2p){
 			k2p = true;
 			// switch and start the effect
-			mAlphaEffect->setType(OvEff::Alpha::FADE_OUT);
+			mAlphaEffect->setType(f_e::Alpha::FADE_OUT);
 			mAlphaEffect->start();
 		}
 	} else {
@@ -105,14 +105,14 @@ Test::handleInput()
 /* Load additional info */
 void Test::loadAditionalData(void)
 {
-	OvEff::OverlayEffect* ovef(0);
+	f_e::OverlayEffect* ovef(0);
 
 	testBEGIN("Creating overlay.%s", "\n");
 	createOverlay();
 	testSUCCESS("Test passed.%s", "\n");
 
 	testBEGIN("Manually creating an Alpha OverlayEffect.%s", "\n");
-	mAlphaEffect = new OvEff::Alpha;
+	mAlphaEffect = new f_e::Alpha;
 	if (mAlphaEffect) {
 		testSUCCESS("Test passed.%s", "\n");
 	} else {
@@ -146,7 +146,7 @@ void Test::loadAditionalData(void)
 	ASSERT(h.hasOpenFile());
 	ovef = mOvBuilder.createOverlayEffect(*h.findElement("Alpha"), &alpha);
 	ASSERT(ovef);
-	ASSERT(static_cast<OvEff::Alpha*>(ovef));
+	ASSERT(static_cast<f_e::Alpha*>(ovef));
 	delete ovef;
 	h.closeXml();
 	testSUCCESS("Test passed.%s", "\n");

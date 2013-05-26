@@ -160,9 +160,9 @@ void
 InputStateMachine::selectionChanged(const selection::SelectionData &selData)
 {
     // reset the mouse cursor
-    MouseCursor &mc = *GLOBAL_CURSOR;
-    if (mc.getCursor() != MouseCursor::Cursor::NORMAL_CURSOR) {
-        mc.setCursor(MouseCursor::Cursor::NORMAL_CURSOR);
+    f_e::MouseCursor &mc = *GLOBAL_CURSOR;
+    if (mc.getCursor() != f_e::MouseCursor::Cursor::NORMAL_CURSOR) {
+        mc.setCursor(f_e::MouseCursor::Cursor::NORMAL_CURSOR);
     }
 
     // hide move billboards (all of them just in case)
@@ -236,7 +236,7 @@ InputStateMachine::selectionChanged(const selection::SelectionData &selData)
 void
 InputStateMachine::update(void)
 {
-    MouseCursor &mc = *GLOBAL_CURSOR;
+    f_e::MouseCursor &mc = *GLOBAL_CURSOR;
 
     // We have to perform raycast?
     if (mInputManager.shouldPerformRaycast()){
@@ -372,7 +372,7 @@ InputStateMachine::update(void)
                         // show the billboard and the cursor.. We need to calculate
                         // the new locations of the players in the map and then
                         // show the billboards
-                        mc.setCursor(MouseCursor::Cursor::MOVE_CRUSOR);
+                        mc.setCursor(f_e::MouseCursor::Cursor::MOVE_CRUSOR);
                         calculateLocations(pointInPlane);
 
                         ASSERT(mMoveBillboards.size() >= mSavedPositions.size());
@@ -386,7 +386,7 @@ InputStateMachine::update(void)
 
                 } else {
                     // we have nothing to show nor do...
-                    mc.setCursor(MouseCursor::Cursor::NORMAL_CURSOR);
+                    mc.setCursor(f_e::MouseCursor::Cursor::NORMAL_CURSOR);
                     if (mMoveBillbardVisible[0]) {
                         hideCurrentBillboards();
                     }
@@ -408,7 +408,7 @@ InputStateMachine::update(void)
                         ASSERT(dynamic_cast<PlayerUnit *>(mAuxVec[i]));
                         PlayerUnit *player = static_cast<PlayerUnit *>(mAuxVec[i]);
                         const Ogre::Vector3& destPos = mSavedPositions[i];
-                        player->moveUnitTo(math::Vector2(destPos.x, destPos.z));
+                        player->moveUnitTo(core::Vector2(destPos.x, destPos.z));
                     }
                 } else {
                     // emit sound that the player couldn't move over there?
@@ -465,7 +465,7 @@ InputStateMachine::update(void)
                     if (pointInPlane != mLastPointInPlane) {
                         // the mouse was moved, do the logic
                         // show the billboard and the cursor
-                        mc.setCursor(MouseCursor::Cursor::MOVE_CRUSOR);
+                        mc.setCursor(f_e::MouseCursor::Cursor::MOVE_CRUSOR);
                         mMoveBillboards[0]->setPosition(pointInPlane);
                         mMoveBillbardVisible[0] = true;
                     }
@@ -473,7 +473,7 @@ InputStateMachine::update(void)
 
                 } else {
                     // we have nothing to show nor do...
-                    mc.setCursor(MouseCursor::Cursor::NORMAL_CURSOR);
+                    mc.setCursor(f_e::MouseCursor::Cursor::NORMAL_CURSOR);
                     if (mMoveBillbardVisible[0]) {
                         mMoveBillbardVisible[0] = false;
                         mMoveBillboards[0]->setPosition(0.0f, -9999.0f, 0.f);
@@ -492,7 +492,7 @@ InputStateMachine::update(void)
                     // move the player
                     ASSERT(dynamic_cast<PlayerUnit *>(mAuxVec.back()));
                     PlayerUnit *player = static_cast<PlayerUnit *>(mAuxVec.back());
-                    player->moveUnitTo(math::Vector2(pointInPlane.x, pointInPlane.z));
+                    player->moveUnitTo(core::Vector2(pointInPlane.x, pointInPlane.z));
                 } else {
                     // emit sound that the player couldn't move over there?
                     // TODO:

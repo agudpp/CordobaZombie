@@ -26,7 +26,7 @@ public:
 	 *
 	 * @param	to	The position where we have to send all the group
 	 */
-	void moveGroupTo(const math::Vector2 &to);
+	void moveGroupTo(const core::Vector2 &to);
 
 	/**
 	 * Plan some attack strategy..

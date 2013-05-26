@@ -22,47 +22,50 @@
 #include "OverlayEffectManager.h"
 #include "Slide.h"
 
-
 const float PI = 3.1415;
 
-class myVfun: public OvEff::Slide::VelFunction
+class myVfun : public f_e::Slide::VelFunction
 {
 public:
-	float operator()(float x) const
-	{
-		x *= 3.1415f;
-		return (std::sin(x-(PI/2.0f))+1.0f)/2.0f;
-	}
+    float
+    operator()(float x) const
+    {
+        x *= 3.1415f;
+        return (std::sin(x - (PI / 2.0f)) + 1.0f) / 2.0f;
+    }
 };
 
 class Test : public AppTester
 {
 public:
-	Test();
+    Test();
 
-	/* Load additional info */
-	void loadAditionalData(void);
+    /* Load additional info */
+    void
+    loadAditionalData(void);
 
-	/* function called every frame. Use GlobalObjects::lastTimeFrame */
-	void update();
+    /* function called every frame. Use GlobalObjects::lastTimeFrame */
+    void
+    update();
 
-
-	~Test();
-
-private:
-
-	// create overlay
-	void createOverlay(void);
-
-	// handle input
-	void handleInput(void);
+    ~Test();
 
 private:
-	MouseCursor				mMouseCursor;
-	OvEff::OverlayEffectManager	mOvEffMngr;
-	Ogre::PanelOverlayElement	*mOverlayPanel;
-	OvEff::Slide				*mSlideEffect;
-	myVfun						mvfun;
+
+    // create overlay
+    void
+    createOverlay(void);
+
+    // handle input
+    void
+    handleInput(void);
+
+private:
+    f_e::MouseCursor mMouseCursor;
+    f_e::OverlayEffectManager mOvEffMngr;
+    Ogre::PanelOverlayElement *mOverlayPanel;
+    f_e::Slide *mSlideEffect;
+    myVfun mvfun;
 };
 
 #endif /* TEST_H_ */

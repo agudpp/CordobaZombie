@@ -16,6 +16,7 @@
 #define MOUSE_RELATIVE_WIDTH			0.05f
 #define MOUSE_RELATIVE_HEIGHT			0.05f
 
+namespace f_e {
 
 class MouseCursor
 {
@@ -273,6 +274,6 @@ MouseCursor::setImage(const Ogre::String& filename, const Ogre::String& group)
 }
 
 
-
+}
 
 #endif  // __MOUSECURSOR_H__

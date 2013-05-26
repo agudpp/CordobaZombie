@@ -15,6 +15,8 @@
 #include "DebugUtil.h"
 
 
+namespace f_e {
+
 class LoadingBar
 {
 public:
@@ -123,6 +125,8 @@ inline void LoadingBar::show(void)
 inline void LoadingBar::hide(void)
 {
 	mContainer->hide();
+}
+
 }
 
 #endif /* LOADINGBAR_H_ */

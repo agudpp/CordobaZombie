@@ -61,7 +61,7 @@ private:
 	LevelManager	mLevelManager;
 	bool 		mKeyPressed;
 	int			mPlacesCount;
-	MouseCursor				mMouseCursor;
+	f_e::MouseCursor				mMouseCursor;
 	PhysicObject		mPhysicObj;
 
 

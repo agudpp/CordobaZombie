@@ -55,7 +55,7 @@ void
 PassportPicture::unload(void)
 {
 	if(!mPanel) return;
-	GUIHelper::fullDestroyOverlayElement(mPanel);
+	f_e::GUIHelper::fullDestroyOverlayElement(mPanel);
 	mPanel = 0;
 }
 

@@ -22,7 +22,7 @@ void UnitGroup::setPathToUnits(void)
 {
 	ASSERT(mPath.size() > 2);
 	ASSERT(mFormation);
-	std::vector<math::Vector2> pathPositions;
+	std::vector<core::Vector2> pathPositions;
 	pathPositions.reserve(mUnits.size());
 
 	const int usize = mUnits.size();

@@ -8,227 +8,231 @@
 
 #include "GameObject.h"
 
-CollisionResult GameObject::mCollisionResult;
-std::vector<GameObject *>	GameObject::mGameObjectResult;
-CollisionManager *GameObject::collMng = 0;
-
+c_p::CollisionResult GameObject::mCollisionResult;
+std::vector<GameObject *> GameObject::mGameObjectResult;
+c_p::CollisionManager *GameObject::collMng = 0;
 
 ////////////////////////////////////////////////////////////////////////////////
 void
 GameObject::configCollObj(float w, float h, uint32 mF, uint32 mG)
 {
-	mCollObject.bb.setSize(w, h);
-	mCollObject.maskFlag = mF;
-	mCollObject.groupMask = mG;
-	mCollObject.userDefined = this;
+    mCollObject.bb.setSize(w, h);
+    mCollObject.maskFlag = mF;
+    mCollObject.groupMask = mG;
+    mCollObject.userDefined = this;
 
-	ASSERT(collMng);
-	collMng->addMovableObject(&mCollObject);
-	mCollisionActive = true;
+    ASSERT(collMng);
+    collMng->addMovableObject(&mCollObject);
+    mCollisionActive = true;
 
-	// calculate the squared radius
-	const float max = ((w > h) ? w : h) * 0.5f;
-	mSqrRadius = max*max;
+    // calculate the squared radius
+    const float max = ((w > h) ? w : h) * 0.5f;
+    mSqrRadius = max * max;
 
-	ASSERT(mEntity);
-	configureEntity(mEntity, mF);
+    ASSERT(mEntity);
+    configureEntity(mEntity, mF);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void GameObject::getAABBFromEntity(float &w, float &h)
+void
+GameObject::getAABBFromEntity(float &w, float &h)
 {
-	ASSERT(mEntity);
+    ASSERT(mEntity);
 
-	const Ogre::AxisAlignedBox &ab = mEntity->getBoundingBox();
-	Ogre::Real r = ab.getHalfSize().length();
+    const Ogre::AxisAlignedBox &ab = mEntity->getBoundingBox();
+    Ogre::Real r = ab.getHalfSize().length();
 //	Ogre::Real r = mEntity->getBoundingRadius();
 //	r *= 2.0f;
-	w = r;
-	h = r;
+    w = r;
+    h = r;
 }
 
-
-
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-
-
 
 ////////////////////////////////////////////////////////////////////////////////
 GameObject::GameObject() :
-		mEntity(0),
-		mNode(0),
-		mCollisionActive(false)
+    mEntity(0), mNode(0), mCollisionActive(false)
 {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 GameObject::~GameObject()
 {
-	// TODO Auto-generated destructor stub
+    // TODO Auto-generated destructor stub
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void GameObject::setEntity(Ogre::Entity *ent)
+void
+GameObject::setEntity(Ogre::Entity *ent)
 {
-	ASSERT(!mEntity);
-	ASSERT(ent);
-	mEntity = ent;
+    ASSERT(!mEntity);
+    ASSERT(ent);
+    mEntity = ent;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void GameObject::setSceneNode(Ogre::SceneNode *node)
+void
+GameObject::setSceneNode(Ogre::SceneNode *node)
 {
-	ASSERT(!mNode);
-	ASSERT(node);
-	mNode = node;
-	ASSERT(mEntity);
-	if(mEntity->getParentSceneNode() != node){
-		// attach it
-		mNode->attachObject(mEntity);
-	}
-	// initialize the position of the object in height 5
-	const Ogre::Vector3& pos = mNode->getPosition();
-	mNode->setPosition(pos.x, 5, pos.z);
+    ASSERT(!mNode);
+    ASSERT(node);
+    mNode = node;
+    ASSERT(mEntity);
+    if (mEntity->getParentSceneNode() != node) {
+        // attach it
+        mNode->attachObject(mEntity);
+    }
+    // initialize the position of the object in height 5
+    const Ogre::Vector3& pos = mNode->getPosition();
+    mNode->setPosition(pos.x, 5, pos.z);
 
 //	// set the node to the object position
-//	const math::Vector2 &p = mCollObject.getPosition();
+//	const core::Vector2 &p = mCollObject.getPosition();
 //	mNode->setPosition(p.x, getPosYAxis(), p.y);
 
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void GameObject::setActiveCollision(bool active)
+void
+GameObject::setActiveCollision(bool active)
 {
-	ASSERT(collMng);
+    ASSERT(collMng);
 
-	if(!active ){
-		if(mCollisionActive){
-			// remove the object from the place
-			collMng->removeMovableObject(&mCollObject);
-		}
+    if (!active) {
+        if (mCollisionActive) {
+            // remove the object from the place
+            collMng->removeMovableObject(&mCollObject);
+        }
 
-		mCollisionActive = false;
-	} else {
-		// it already active?
-		if(!mCollisionActive){
-			// put it again
-			collMng->addMovableObject(&mCollObject);
-		}
-		mCollisionActive = true;
-	}
+        mCollisionActive = false;
+    } else {
+        // it already active?
+        if (!mCollisionActive) {
+            // put it again
+            collMng->addMovableObject(&mCollObject);
+        }
+        mCollisionActive = true;
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void GameObject::setPosition(const math::Vector2 &p)
+void
+GameObject::setPosition(const core::Vector2 &p)
 {
-	math::Vector2 trans = p - mCollObject.getPosition();
-	translate(trans);
+    core::Vector2 trans = p - mCollObject.getPosition();
+    translate(trans);
 
 }
-void GameObject::setPosition(const Ogre::Vector3 &p)
+void
+GameObject::setPosition(const Ogre::Vector3 &p)
 {
-	math::Vector2 trans = math::Vector2(p.x, p.z) - mCollObject.getPosition();
-	translate(trans);
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-void GameObject::translate(const math::Vector2 &t)
-{
-	ASSERT(mNode);
-
-	// update the position of the collision Object
-	if(mCollisionActive){
-		ASSERT(collMng);
-		collMng->translateObject(&mCollObject, t);
-	} else {
-		mCollObject.bb.translate(t);
-	}
-
-	// set the position of the scenenode
-	const math::Vector2 &p = mCollObject.getPosition();
-	mNode->setPosition(p.x, getPosYAxis(), p.y);
-
-}
-void GameObject::translate(const Ogre::Vector3 &t)
-{
-	translate(math::Vector2(t.x, t.z));
+    core::Vector2 trans = core::Vector2(p.x, p.z) - mCollObject.getPosition();
+    translate(trans);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void GameObject::advance(const math::Vector2 &m)
+void
+GameObject::translate(const core::Vector2 &t)
 {
-	ASSERT(mNode);
+    ASSERT(mNode);
 
-	// we will advance using the translate method of the scene node
-	Ogre::Vector3 oldPos = mNode->getPosition();
-	mNode->translate(m.x, getPosYAxis(), m.y);
-	oldPos -= mNode->getPosition();
+    // update the position of the collision Object
+    if (mCollisionActive) {
+        ASSERT(collMng);
+        collMng->translateObject(&mCollObject, t);
+    } else {
+        mCollObject.bb.translate(t);
+    }
 
+    // set the position of the scenenode
+    const core::Vector2 &p = mCollObject.getPosition();
+    mNode->setPosition(p.x, getPosYAxis(), p.y);
 
-	// now oldPos get the translate vector... translate it
-	if(mCollisionActive){
-		ASSERT(collMng);
-		collMng->translateObject(&mCollObject, math::Vector2(oldPos.x, oldPos.z));
-	} else {
-		mCollObject.bb.translate(math::Vector2(oldPos.x, oldPos.z));
-	}
+}
+void
+GameObject::translate(const Ogre::Vector3 &t)
+{
+    translate(core::Vector2(t.x, t.z));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void
+GameObject::advance(const core::Vector2 &m)
+{
+    ASSERT(mNode);
+
+    // we will advance using the translate method of the scene node
+    Ogre::Vector3 oldPos = mNode->getPosition();
+    mNode->translate(m.x, getPosYAxis(), m.y);
+    oldPos -= mNode->getPosition();
+
+    // now oldPos get the translate vector... translate it
+    if (mCollisionActive) {
+        ASSERT(collMng);
+        collMng->translateObject(&mCollObject,
+            core::Vector2(oldPos.x, oldPos.z));
+    } else {
+        mCollObject.bb.translate(core::Vector2(oldPos.x, oldPos.z));
+    }
 
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void GameObject::advance(const Ogre::Vector3 &m)
+void
+GameObject::advance(const Ogre::Vector3 &m)
 {
-	advance(math::Vector2(m.x, m.z));
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-void GameObject::lookAt(const Ogre::Vector3 &p)
-{
-	mNode->lookAt(Ogre::Vector3(p.x,getPosYAxis(),p.z), Ogre::SceneNode::TS_WORLD);
-	updateActualDirection();
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-const CollisionResult &GameObject::obtainCollisionObjects(void)
-{
-	mCollisionResult.clear();
-	if(!mCollisionActive){
-		debug("Warning: calling get collision without need\n");
-		return mCollisionResult;
-	}
-	// TODO: implementar con flags
-	ASSERT(collMng);
-	collMng->getCollision(&mCollObject, mCollisionResult);
-
-	return mCollisionResult;
+    advance(core::Vector2(m.x, m.z));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void GameObject::getNearbyObjects(float mh, float mw, mask_t mask,
-		std::vector<GameObject *> &result)
+void
+GameObject::lookAt(const Ogre::Vector3 &p)
 {
-	ASSERT(mh > 0.0f);
-	ASSERT(mw > 0.0f);
+    mNode->lookAt(Ogre::Vector3(p.x, getPosYAxis(), p.z),
+        Ogre::SceneNode::TS_WORLD);
+    updateActualDirection();
+}
 
-	static CollisionResult collresult;
+////////////////////////////////////////////////////////////////////////////////
+const c_p::CollisionResult &
+GameObject::obtainCollisionObjects(void)
+{
+    mCollisionResult.clear();
+    if (!mCollisionActive) {
+        debug("Warning: calling get collision without need\n");
+        return mCollisionResult;
+    }
+    // TODO: implementar con flags
+    ASSERT(collMng);
+    collMng->getCollision(&mCollObject, mCollisionResult);
 
-	// create the AABB
-	static math::AABB aabb;
-	aabb.tl.x = getPosition().x - mw;
-	aabb.br.x = getPosition().x + mw;
-	aabb.tl.y = getPosition().y + mh;
-	aabb.br.y = getPosition().y - mh;
+    return mCollisionResult;
+}
 
-	collMng->getCollisionObjects(aabb, mask, collresult);
+////////////////////////////////////////////////////////////////////////////////
+void
+GameObject::getNearbyObjects(float mh, float mw, c_p::mask_t mask,
+    std::vector<GameObject *> &result)
+{
+    ASSERT(mh > 0.0f);
+    ASSERT(mw > 0.0f);
 
-	result.clear();
-	for(int i = collresult.size()-1; i >= 0; --i){
-		ASSERT(collresult[i]);
-		ASSERT(collresult[i]->userDefined);
-		result.push_back(static_cast<GameObject *>(collresult[i]->userDefined));
-	}
+    static c_p::CollisionResult collresult;
+
+    // create the AABB
+    static core::AABB aabb;
+    aabb.tl.x = getPosition().x - mw;
+    aabb.br.x = getPosition().x + mw;
+    aabb.tl.y = getPosition().y + mh;
+    aabb.br.y = getPosition().y - mh;
+
+    collMng->getCollisionObjects(aabb, mask, collresult);
+
+    result.clear();
+    for (int i = collresult.size() - 1; i >= 0; --i) {
+        ASSERT(collresult[i]);
+        ASSERT(collresult[i]->userDefined);
+        result.push_back(static_cast<GameObject *>(collresult[i]->userDefined));
+    }
 }

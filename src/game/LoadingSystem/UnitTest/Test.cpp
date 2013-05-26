@@ -85,7 +85,7 @@ Test::~Test()
 // handle input
 void Test::handleInput(void)
 {
-	math::Vector2 tran;
+	core::Vector2 tran;
 	static const float VEL = 150.0f;
 	tran.x = tran.y = 0.0f;
 	static bool keyPres1 = false;

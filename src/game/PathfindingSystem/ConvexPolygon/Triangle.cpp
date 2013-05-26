@@ -14,7 +14,7 @@
 #include "DebugUtil.h"
 
 
-static inline int getVertxPos(const math::AlignedBox &r, const math::Vertex *v)
+static inline int getVertxPos(const core::AlignedBox &r, const core::Vertex *v)
 {
 	// first get the column
 	int column;
@@ -40,7 +40,7 @@ static inline int getVertxPos(const math::AlignedBox &r, const math::Vertex *v)
 
 
 
-Triangle::Triangle(const math::Vertex *p1, const math::Vertex *p2, const math::Vertex *p3)
+Triangle::Triangle(const core::Vertex *p1, const core::Vertex *p2, const core::Vertex *p3)
 {
 	ASSERT(p1);
 	ASSERT(p2);
@@ -72,18 +72,18 @@ Triangle::~Triangle() {
 
 
 // Check if intersects a box
-bool Triangle::intersectAlignedBox(const math::AlignedBox &r) const
+bool Triangle::intersectAlignedBox(const core::AlignedBox &r) const
 {
 	// TODO: cambiar esta funcion por algo mucho mas rapido, por el momento
 	// vamos a chequear si alguno de los puntos del triangulo esta dentro de la
 	// caja o si alguno de los puntos esta dentro del triangulo. LENTISIMO
 
 	if(containsPoint(r.tl) || containsPoint(r.br) ||
-			containsPoint(math::Point(r.tl.x, r.br.y)) || containsPoint(math::Point(r.br.x, r.tl.y))){
+			containsPoint(core::Point(r.tl.x, r.br.y)) || containsPoint(core::Point(r.br.x, r.tl.y))){
 		return true;
 	}
 
-	static const math::Vertex *matrix[9];
+	static const core::Vertex *matrix[9];
 //	std::memset(matrix, 0, sizeof(Vertex *)*9);
 	for(int i = 8; i >= 0; --i) matrix[i] = 0;
 
@@ -104,42 +104,42 @@ bool Triangle::intersectAlignedBox(const math::AlignedBox &r) const
 		if(matrix[1] && matrix[2]){return false;}
 		if(matrix[3] && matrix[6]){return false;}
 		if(matrix[5]){
-			return IntersectDetect::lineIntersec(matrix[0]->x, matrix[0]->y,
+			return core::IntersectDetect::lineIntersec(matrix[0]->x, matrix[0]->y,
 					matrix[5]->x, matrix[5]->y, r.tl.x, r.tl.y, r.br.x, r.tl.y);
 		/*check 0-5*/
 		}
 		if(matrix[8]){
 			/*check 0-8*/
-			return IntersectDetect::lineIntersec(matrix[0]->x, matrix[0]->y,
+			return core::IntersectDetect::lineIntersec(matrix[0]->x, matrix[0]->y,
 					matrix[8]->x, matrix[8]->y, r.tl.x, r.tl.y, r.br.x, r.tl.y) ||
-					IntersectDetect::lineIntersec(matrix[0]->x, matrix[0]->y,
+					core::IntersectDetect::lineIntersec(matrix[0]->x, matrix[0]->y,
 							matrix[8]->x, matrix[8]->y, r.tl.x, r.tl.y, r.tl.x, r.br.y);
 		}
 		if(matrix[7]){
 			/*check 0-7*/
-			return IntersectDetect::lineIntersec(matrix[0]->x, matrix[0]->y,
+			return core::IntersectDetect::lineIntersec(matrix[0]->x, matrix[0]->y,
 					matrix[7]->x, matrix[7]->y, r.tl.x, r.tl.y, r.tl.x, r.br.y);
 		}
 	}
 	if(matrix[1]){
 		if(matrix[3]){
 			/*check 1-3*/
-			return IntersectDetect::lineIntersec(matrix[1]->x, matrix[1]->y,
+			return core::IntersectDetect::lineIntersec(matrix[1]->x, matrix[1]->y,
 					matrix[3]->x, matrix[3]->y, r.tl.x, r.tl.y, r.br.x, r.tl.y);
 		}
 		if(matrix[5]){
 			/*check 1-5*/
-			return IntersectDetect::lineIntersec(matrix[1]->x, matrix[1]->y,
+			return core::IntersectDetect::lineIntersec(matrix[1]->x, matrix[1]->y,
 					matrix[5]->x, matrix[5]->y, r.tl.x, r.tl.y, r.br.x, r.tl.y);
 		}
 		if(matrix[6]){
 			/*check 1-6*/
-			return IntersectDetect::lineIntersec(matrix[1]->x, matrix[1]->y,
+			return core::IntersectDetect::lineIntersec(matrix[1]->x, matrix[1]->y,
 					matrix[6]->x, matrix[6]->y, r.tl.x, r.tl.y, r.br.x, r.tl.y);
 		}
 		if(matrix[8]){
 			/*check 1-8*/
-			return IntersectDetect::lineIntersec(matrix[1]->x, matrix[1]->y,
+			return core::IntersectDetect::lineIntersec(matrix[1]->x, matrix[1]->y,
 					matrix[8]->x, matrix[8]->y, r.tl.x, r.tl.y, r.br.x, r.tl.y);
 		}
 	}
@@ -147,43 +147,43 @@ bool Triangle::intersectAlignedBox(const math::AlignedBox &r) const
 		if(matrix[5] && matrix[8]){return false;}
 		if(matrix[3]){
 			/*check 2-3*/
-			return IntersectDetect::lineIntersec(matrix[2]->x, matrix[2]->y,
+			return core::IntersectDetect::lineIntersec(matrix[2]->x, matrix[2]->y,
 					matrix[3]->x, matrix[3]->y, r.tl.x, r.tl.y, r.br.x, r.tl.y);
 		}
 		if(matrix[6]){
 			/*check 2-6*/
-			return IntersectDetect::lineIntersec(matrix[2]->x, matrix[2]->y,
+			return core::IntersectDetect::lineIntersec(matrix[2]->x, matrix[2]->y,
 					matrix[6]->x, matrix[6]->y, r.tl.x, r.tl.y, r.br.x, r.tl.y);
 		}
 		if(matrix[7]){
 			/*check 2-7*/
-			return IntersectDetect::lineIntersec(matrix[2]->x, matrix[2]->y,
+			return core::IntersectDetect::lineIntersec(matrix[2]->x, matrix[2]->y,
 					matrix[7]->x, matrix[7]->y, r.tl.x, r.tl.y, r.br.x, r.tl.y) ||
-					IntersectDetect::lineIntersec(matrix[2]->x, matrix[2]->y,
+					core::IntersectDetect::lineIntersec(matrix[2]->x, matrix[2]->y,
 							matrix[7]->x, matrix[7]->y, r.br.x, r.tl.y, r.br.x, r.br.y);
 		}
 	}
 	if(matrix[3]){
 		if(matrix[8]){
 			/*check 3-8*/
-			return IntersectDetect::lineIntersec(matrix[3]->x, matrix[3]->y,
+			return core::IntersectDetect::lineIntersec(matrix[3]->x, matrix[3]->y,
 					matrix[8]->x, matrix[8]->y, r.tl.x, r.tl.y, r.tl.x, r.br.y);
 		}
 		if(matrix[7]){
 			/*check 3-7*/
-			return IntersectDetect::lineIntersec(matrix[3]->x, matrix[3]->y,
+			return core::IntersectDetect::lineIntersec(matrix[3]->x, matrix[3]->y,
 					matrix[7]->x, matrix[7]->y, r.tl.x, r.tl.y, r.tl.x, r.br.y);
 		}
 	}
 	if(matrix[5]){
 		if(matrix[6]){
 			/*check 5-6*/
-			return IntersectDetect::lineIntersec(matrix[5]->x, matrix[5]->y,
+			return core::IntersectDetect::lineIntersec(matrix[5]->x, matrix[5]->y,
 					matrix[6]->x, matrix[6]->y, r.br.x, r.tl.y, r.br.x, r.br.y);
 		}
 		if(matrix[7]){
 			/*check 5-7*/
-			return IntersectDetect::lineIntersec(matrix[5]->x, matrix[5]->y,
+			return core::IntersectDetect::lineIntersec(matrix[5]->x, matrix[5]->y,
 					matrix[7]->x, matrix[7]->y, r.br.x, r.tl.y, r.br.x, r.br.y);
 		}
 	}
@@ -193,7 +193,7 @@ bool Triangle::intersectAlignedBox(const math::AlignedBox &r) const
 }
 
 // Get the center point of the triangle (slow)
-void Triangle::getCenterPoint(math::Point &p) const
+void Triangle::getCenterPoint(core::Point &p) const
 {
 	// TODO: improve this to get a more accurate and efficient result
 	ASSERT(v1);
@@ -205,7 +205,7 @@ void Triangle::getCenterPoint(math::Point &p) const
 }
 
 
-void Triangle::getRandomPoint(math::Point &r) const
+void Triangle::getRandomPoint(core::Point &r) const
 {
 	static const float INV_MAX_RND = 1.0f/RAND_MAX;
 	float a = std::rand() * INV_MAX_RND;

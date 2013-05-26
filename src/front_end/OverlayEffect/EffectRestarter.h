@@ -17,7 +17,7 @@
 #include "OverlayEffect.h"
 
 
-namespace OvEff {
+namespace f_e {
 
 class EffectRestarter {
 public:

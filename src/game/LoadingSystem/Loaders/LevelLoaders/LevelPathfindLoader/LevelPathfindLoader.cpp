@@ -43,7 +43,7 @@ LevelPathfindLoader::load(TiXmlElement*elem, LoaderData *data)
 	unload();
 
 	// load all
-	std::vector<math::Vertex *> vertexs;
+	std::vector<core::Vertex *> vertexs;
 	std::vector<Triangle *> triangles;
 	if(!TriNavMeshBuilder::importGraph(vertexs,triangles,fname)) {
 		debugERROR("Error loading the file %s\n", fname);

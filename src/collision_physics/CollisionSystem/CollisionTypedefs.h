@@ -12,6 +12,8 @@
 
 #include "CommonMath.h"
 
+namespace c_p {
+
 // mask type
 typedef int		mask_t;
 typedef short	objectType_t;
@@ -42,7 +44,7 @@ enum {
 /**
  * Define the mask used to get the objects that can be affected
  */
-enum{
+enum {
 	// Mask used to get object that are affected and not affected by a bomb
 	BOMB_AFFECTABLE_MASK		= COL_FLAG_UNIT_PLAYER | COL_FLAG_UNIT_ZOMBIE,
 	BOMB_NOT_AFFECT_MASK		= ~BOMB_AFFECTABLE_MASK,
@@ -68,6 +70,6 @@ enum {
 	COL_GRFLAG_COLL_OBJECT = 0,     // None
 };
 
-
+}
 
 #endif /* COLLISIONTYPEDEFS_H_ */

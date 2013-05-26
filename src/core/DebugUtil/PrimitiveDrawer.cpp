@@ -71,7 +71,7 @@ DrawablePath::~DrawablePath()
 	clearPath();
 }
 
-void DrawablePath::drawPath(const std::vector<math::Point> &path, int color)
+void DrawablePath::drawPath(const std::vector<core::Point> &path, int color)
 {
 	Ogre::String colorstr;
 	switch(color){
@@ -260,7 +260,7 @@ void PrimitiveDrawer::destroyAllVPoints(void)
 }
 
 
-PrimitiveDrawer::Box *PrimitiveDrawer::createBox(const math::AABB &box)
+PrimitiveDrawer::Box *PrimitiveDrawer::createBox(const core::AABB &box)
 {
 	Box *r = new Box;
 	r->node = GLOBAL_SCN_MNGR->getRootSceneNode()->createChildSceneNode();

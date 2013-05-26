@@ -132,7 +132,7 @@ void ZombieIdleState::update(ZombieUnit *ref)
 
 	} else {
 		// walking around
-		math::Vector2 trans;
+		core::Vector2 trans;
 
 		if(!ref->followPathSteerVec(trans)){
 			// we have no more pathPoints.. random choice
@@ -153,7 +153,7 @@ void ZombieIdleState::update(ZombieUnit *ref)
 		// perform the collision detection
 		if(!ref->obtainCollisionObjects().empty()){
 			// we collide
-			math::Vector2 avoidVec;
+			core::Vector2 avoidVec;
 			ref->repellingSteerVec(avoidVec, ref->getCollideObjects());
 			trans += avoidVec;
 		}

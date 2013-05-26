@@ -10,15 +10,18 @@
 #include "CommonMath.h"
 #include "IntersectDetect2.h"
 
+namespace core {
 
 /**
  * Check if a line intersects a AABB
  */
-bool IntersectDetect::checkLineAABB(const math::Point &p1, const math::Point &p2,
-		const math::AABB &aabb)
+bool IntersectDetect::checkLineAABB(const core::Point &p1, const core::Point &p2,
+		const core::AABB &aabb)
 {
-	math::Point result[2];
+	core::Point result[2];
 	int npoint;
 	npoint = IntersectDetect::getIntPointsAABBLine(p1, p2, aabb, result);
 	return npoint != 0;
+}
+
 }

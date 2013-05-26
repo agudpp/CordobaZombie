@@ -31,7 +31,7 @@ public:
 	 * @param	p	The target position to shoot
 	 *
 	 */
-	virtual bool shoot(const math::Vector2 &p);
+	virtual bool shoot(const core::Vector2 &p);
 
 };
 

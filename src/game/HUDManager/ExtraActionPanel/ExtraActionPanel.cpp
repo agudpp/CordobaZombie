@@ -41,7 +41,7 @@ void ExtraActionPanel::load(void)
 	std::vector<Ogre::OverlayContainer *> childs;
 	Ogre::OverlayContainer *parent = mOverlay->getChild("ActionPanel/Main");
 	ASSERT(parent);
-	GUIHelper::getChildrens(parent, childs);
+	f_e::GUIHelper::getChildrens(parent, childs);
 	ASSERT(!childs.empty());
 
 	for(int i = 0; i < childs.size(); ++i){
@@ -58,7 +58,7 @@ void ExtraActionPanel::load(void)
 void ExtraActionPanel::unload(void)
 {
 	if(mOverlay){
-		GUIHelper::fullDestroyOverlay(mOverlay);
+	    f_e::GUIHelper::fullDestroyOverlay(mOverlay);
 		mOverlay = 0;
 	}
 	for(int i = 0; i < mElements.size(); ++i){

@@ -59,9 +59,9 @@ Test::createPlayers(void)
     // build the player:
     PlayerUnitBuilder &playerBuilder = PlayerUnitBuilder::instance();
     mPlayers.push_back(playerBuilder.buildPlayer(PlayerID::PLAYER_CORAL));
-    mPlayers.back()->setPosition(math::Vector2(1169.335327, 1365.213867));
+    mPlayers.back()->setPosition(core::Vector2(1169.335327, 1365.213867));
     mPlayers.push_back(playerBuilder.buildPlayer(PlayerID::PLAYER_TULIAN));
-    mPlayers.back()->setPosition(math::Vector2(1139.335327, 1395.213867));
+    mPlayers.back()->setPosition(core::Vector2(1139.335327, 1395.213867));
 
 
 
@@ -135,7 +135,7 @@ void Test::loadAditionalData(void)
     node->showBoundingBox(true);
     co->build(entity, node);
     co->setCollectableType(CollectableType::COT_BACKPACK_ITEM);
-    co->setPosition(math::Vector2(1249.335327, 1395.213867));
+    co->setPosition(core::Vector2(1249.335327, 1395.213867));
     co->setObject(item.get());
 }
 

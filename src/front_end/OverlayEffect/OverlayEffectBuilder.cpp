@@ -30,7 +30,7 @@ namespace {
 
 
 
-namespace OvEff {
+namespace f_e {
 
 #define  OVEFF_XMLNAME		"OverlayEffect"
 #define  MAX_OVEFFNAME_LEN	(1<<5)  // 32 chars

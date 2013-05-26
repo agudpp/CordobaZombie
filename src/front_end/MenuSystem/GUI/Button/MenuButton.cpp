@@ -78,7 +78,7 @@ void MenuButton::createFromMaterial(const Ogre::String &mat)
 	ASSERT(!mCont);
 
 	// first we create the panel
-	mCont = GUIHelper::createPanel(mat, mTextureWidth);
+	mCont = f_e::GUIHelper::createPanel(mat, mTextureWidth);
 	ASSERT(mCont);
 
 	ASSERT(mAtlasSize > 0)
@@ -117,7 +117,7 @@ void MenuButton::updateMaterial(const Ogre::String &matName)
 {
 	mCont->setMaterialName(matName);
 	// get the texture size
-	mTextureWidth = GUIHelper::getTextureWidth(matName);
+	mTextureWidth = f_e::GUIHelper::getTextureWidth(matName);
 	ASSERT(mTextureWidth > 0);
 	configure(mTextureWidth/3);
 }
@@ -135,9 +135,9 @@ void MenuButton::configureAll(Ogre::OverlayContainer *cont)
 	setContainer(cont);
 
 	// first of all remove from the MenuManager
-	math::Vector2 tl, br;
-	GUIHelper::getAbsoluteGeometry(cont, tl.y,tl.x,br.x, br.y);
-	setRelativeAABB(math::AABB(tl,br));
+	core::Vector2 tl, br;
+	f_e::GUIHelper::getAbsoluteGeometry(cont, tl.y,tl.x,br.x, br.y);
+	setRelativeAABB(core::AABB(tl,br));
 	Ogre::MaterialPtr mat = cont->getMaterial();
 	if(mat.isNull() || !mat->getTechnique(0) || !mat->getTechnique(0)->getPass(0)){
 		debugWARNING("Container %s has no material to set the atlas size\n",

@@ -19,7 +19,7 @@
 
 #include "DebugUtil.h"
 
-namespace gui_utils {
+namespace f_e {
 
 class Text2D {
 public:

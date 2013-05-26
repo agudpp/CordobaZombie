@@ -20,7 +20,6 @@
 #include "CellphoneMapInfo.h"
 #include "CellphoneElement.h"
 #include "QueueContainer.h"
-#include "GUIHelper.h"
 
 class PlayerUnit;
 class GameUnit;

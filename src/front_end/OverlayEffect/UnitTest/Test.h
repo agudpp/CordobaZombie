@@ -23,35 +23,37 @@
 #include "OverlayEffectBuilder.h"
 #include "Alpha.h"
 
-
 class Test : public AppTester
 {
 public:
-	Test();
+    Test();
 
-	/* Load additional info */
-	void loadAditionalData(void);
+    /* Load additional info */
+    void
+    loadAditionalData(void);
 
-	/* function called every frame. Use GlobalObjects::lastTimeFrame */
-	void update();
+    /* function called every frame. Use GlobalObjects::lastTimeFrame */
+    void
+    update();
 
-
-	~Test();
-
-private:
-
-	// create overlay
-	void createOverlay(void);
-
-	// handle input
-	void handleInput(void);
+    ~Test();
 
 private:
-	MouseCursor						mMouseCursor;
-	Ogre::PanelOverlayElement*		mOverlayPanel;
-	OvEff::OverlayEffectManager		mOvEffMngr;
-	OvEff::OverlayEffectBuilder 	mOvBuilder;
-	OvEff::Alpha*					mAlphaEffect;
+
+    // create overlay
+    void
+    createOverlay(void);
+
+    // handle input
+    void
+    handleInput(void);
+
+private:
+    f_e::MouseCursor mMouseCursor;
+    Ogre::PanelOverlayElement* mOverlayPanel;
+    f_e::OverlayEffectManager mOvEffMngr;
+    f_e::OverlayEffectBuilder mOvBuilder;
+    f_e::Alpha* mAlphaEffect;
 };
 
 #endif /* TEST_H_ */

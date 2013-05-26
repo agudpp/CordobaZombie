@@ -68,7 +68,7 @@ private:
 	/**
 	 * Returns the cells that overlaps a AABB
 	 */
-	void getCellsFromAABB(const math::AABB &aabb, std::vector<MenuCell *> &cells);
+	void getCellsFromAABB(const core::AABB &aabb, std::vector<MenuCell *> &cells);
 
 	/**
 	 * Swap a value from a vector with the last value and remove the last
@@ -86,7 +86,7 @@ private:
 	MenuMatrix	mMatrix;
 	int			mNumCellX;
 	int			mNumCellY;
-	math::Point	mLastPoint;
+	core::Point	mLastPoint;
 
 	IMenuVec	mLastInside;
 };

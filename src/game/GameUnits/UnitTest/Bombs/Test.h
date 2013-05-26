@@ -37,62 +37,63 @@
 #include "RemoteBomb.h"
 #include "RemoteBombTrigger.h"
 
-
-
 //#include "TestUnit.h"
 
 class Test : public AppTester
 {
 public:
-	Test();
+    Test();
 
-	/* Load additional info */
-	void loadAditionalData(void);
+    /* Load additional info */
+    void
+    loadAditionalData(void);
 
-	/* function called every frame. Use GlobalObjects::lastTimeFrame */
-	void update();
+    /* function called every frame. Use GlobalObjects::lastTimeFrame */
+    void
+    update();
 
-
-	~Test();
-
-private:
-	/// performe a ray from the position of the mouse
-	bool performMouseRay(Ogre::Vector3 &v);
-
-	void createLevelManager(void);
-
-	// create game objects
-	void createPlayer(void);
-	void createZombies(void);
-
-	/**
-	 * create the bombs
-	 */
-	void createBombs(void);
-
-
-	// handle input
-	void handleInput(void);
-
-
+    ~Test();
 
 private:
-	LevelManager	mLevelManager;
-	bool 		mKeyPressed;
-	int			mPlacesCount;
-	MouseCursor				mMouseCursor;
+    /// performe a ray from the position of the mouse
+    bool
+    performMouseRay(Ogre::Vector3 &v);
+
+    void
+    createLevelManager(void);
+
+    // create game objects
+    void
+    createPlayer(void);
+    void
+    createZombies(void);
+
+    /**
+     * create the bombs
+     */
+    void
+    createBombs(void);
+
+    // handle input
+    void
+    handleInput(void);
+
+private:
+    LevelManager mLevelManager;
+    bool mKeyPressed;
+    int mPlacesCount;
+    f_e::MouseCursor mMouseCursor;
 //	CameraController		mCamController;
 //	MouseCursor				mMouseCursor;
-	std::vector<ZombieUnit*> mZombies;
-	std::vector<PlayerUnit*> mPlayers;
+    std::vector<ZombieUnit*> mZombies;
+    std::vector<PlayerUnit*> mPlayers;
 
-	UpdObjsManager			mUpdMngr;
+    UpdObjsManager mUpdMngr;
 
-	TimeBomb				*mTimeBomb;
-	ProximityBomb			*mProximityBomb;
-	RemoteBomb				*mRemoteBomb;
-	RemoteBombTrigger		*mTrigger;
-
+    TimeBomb *mTimeBomb;
+    ProximityBomb *mProximityBomb;
+    RemoteBomb *mRemoteBomb;
+    RemoteBombTrigger *mTrigger;
 
 //	TestUnit				mTestUnit;
 

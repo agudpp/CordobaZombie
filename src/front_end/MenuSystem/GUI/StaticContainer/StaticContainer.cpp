@@ -31,7 +31,7 @@ StaticContainer::~StaticContainer()
 void StaticContainer::setMaterial(const Ogre::String &mat)
 {
 	int aux;
-	mCont = GUIHelper::createPanel(mat, aux);
+	mCont = f_e::GUIHelper::createPanel(mat, aux);
 	ASSERT(mCont);
 }
 

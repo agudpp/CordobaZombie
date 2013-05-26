@@ -56,10 +56,10 @@ void CircularFormation::configure(float unitRadius,
  * 							that have to go in the "middlePos"
  * @note	We have to previously configure the formation
  */
-void CircularFormation::calculate(const math::Vector2 &actualPos,
-		const math::Vector2 &middlePos,
-		const math::Vector2 &endPos,
-		std::vector<math::Vector2> &result)
+void CircularFormation::calculate(const core::Vector2 &actualPos,
+		const core::Vector2 &middlePos,
+		const core::Vector2 &endPos,
+		std::vector<core::Vector2> &result)
 {
 	// TODO: cambiar todo esto
 	const int size = mPositions.size();

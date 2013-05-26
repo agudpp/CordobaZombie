@@ -36,7 +36,7 @@ LongWeapon::~LongWeapon() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-bool LongWeapon::shoot(const math::Vector2 &p)
+bool LongWeapon::shoot(const core::Vector2 &p)
 {
 	// check if we can shoot
 	if(mActualMagazine <= 0){
@@ -55,12 +55,12 @@ bool LongWeapon::shoot(const math::Vector2 &p)
 	mSignal(this);
 
 	// configure the shoot
-	const math::Vector2 &pos = mOwner->getPosition();
+	const core::Vector2 &pos = mOwner->getPosition();
 	shoot->setStartPos(Ogre::Vector3(pos.x, mOwner->getPosYAxis(),
 			pos.y));
 
 	// create the translate vector
-	math::Vector2 tv = p;
+	core::Vector2 tv = p;
 	tv -= mOwner->getPosition();
 	tv.normalize();
 	tv *= SHOOT_VELOCITY;

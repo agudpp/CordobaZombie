@@ -43,7 +43,7 @@ PlayerUnit::obtainAndAdviseNearbyZombies(void)
 {
     // check all the objects that are close
     getNearbyObjects(ZOMBIE_MAX_VISIBILITY_DIST, ZOMBIE_MAX_VISIBILITY_DIST,
-            COL_FLAG_UNIT_ZOMBIE, mGameObjectResult);
+            c_p::COL_FLAG_UNIT_ZOMBIE, mGameObjectResult);
 
     // now for every object we put it into the nearbyZombies
     mNearbyZombies.clear();
@@ -218,7 +218,7 @@ PlayerUnit::build(void)
     // config the bounding box
     float w,h;
     getAABBFromEntity(w,h);
-    configCollObj(w,h, COL_FLAG_UNIT_PLAYER, COL_GRFLAG_UNIT_PLAYER);
+    configCollObj(w,h, c_p::COL_FLAG_UNIT_PLAYER, c_p::COL_GRFLAG_UNIT_PLAYER);
 
     // configure the unit path
     configureUnitPath();
@@ -406,7 +406,7 @@ PlayerUnit::changeBestNextWeapon(void)
 
 ////////////////////////////////////////////////////////////////////////////////
 bool
-PlayerUnit::plantBomb(Bomb *b, const math::Vector2 &position)
+PlayerUnit::plantBomb(Bomb *b, const core::Vector2 &position)
 {
     ASSERT(b);
     ASSERT(hasBomb(b));
@@ -437,7 +437,7 @@ PlayerUnit::getNearbyPlayers(PlayerVector &players)
 {
     // check all the objects that are close
     getNearbyObjects(PLAYER_MAX_VISIBILITY_DIST, PLAYER_MAX_VISIBILITY_DIST,
-            COL_FLAG_UNIT_PLAYER, mGameObjectResult);
+            c_p::COL_FLAG_UNIT_PLAYER, mGameObjectResult);
 
     // now for every object we put it into the nearbyZombies
     players.clear();
@@ -450,7 +450,7 @@ PlayerUnit::getNearbyPlayers(PlayerVector &players)
 
 ////////////////////////////////////////////////////////////////////////////////
 void
-PlayerUnit::moveUnitTo(const math::Vector2 &p)
+PlayerUnit::moveUnitTo(const core::Vector2 &p)
 {
     if(!getPathTo(p)){
         // TODO: reproducimos algun sonido de que no podemos movernos hasta ese
@@ -482,7 +482,7 @@ void
 PlayerUnit::collectObject(CollectableObject *co){
     ASSERT(co);
     mTargetColObject = co;
-    const math::Vector2 &pos2 = co->getPosition();
+    const core::Vector2 &pos2 = co->getPosition();
 #ifdef DEBUG
     debugRED("Yendo a levantar el objeto en x = %f y = %f\n", pos2.x, pos2.y);
 #endif

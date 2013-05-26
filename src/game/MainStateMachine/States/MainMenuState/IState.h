@@ -23,7 +23,7 @@
 
 class TiXmlElement;
 
-namespace OvEff {
+namespace f_e {
 class MenuButtonEffect;
 }
 
@@ -167,7 +167,7 @@ protected:
 	 * @note: The effects and buttons are allocated dynamically so the caller
 	 * 		  is responsible for the posterior deletion of that elements
 	 */
-	void buildButtons(std::vector<OvEff::MenuButtonEffect> &buttons,
+	void buildButtons(std::vector<f_e::MenuButtonEffect> &buttons,
 			const std::vector<Ogre::String> &names);
 
 	/**
@@ -197,7 +197,7 @@ private:
 	 * @param	button	The button to be configured
 	 */
 	void parseCbMenuButton(const TiXmlElement *xml,
-			OvEff::MenuButtonEffect &button);
+			f_e::MenuButtonEffect &button);
 
 private:
 	float					mActualTimeDuration;

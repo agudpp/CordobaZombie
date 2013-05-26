@@ -86,13 +86,13 @@ bool Test::performMouseRay()
 	ASSERT(entry.movable);
 	const uint32 flags = entry.movable->getQueryFlags();
 	switch(flags){
-	case COL_FLAG_UNIT_CIVIL:
+	case c_p::COL_FLAG_UNIT_CIVIL:
 		debugYELLOW("Raycast with a CIVIL\n");
 		break;
-	case COL_FLAG_UNIT_ZOMBIE:
+	case c_p::COL_FLAG_UNIT_ZOMBIE:
 		debugYELLOW("Raycast with a ZOMBIE\n");
 		break;
-	case COL_FLAG_UNIT_PLAYER:
+	case c_p::COL_FLAG_UNIT_PLAYER:
 		debugYELLOW("Raycast with a PLAYER\n");
 		break;
 	default:
@@ -136,7 +136,7 @@ void Test::createPlayer(void)
 		zu->setMaxVelocity(MAX_VEL*2.0f);
 		zu->setVelocity(MAX_VEL);
 
-		math::Vector2 p;
+		core::Vector2 p;
 		p.x = 507 + 5*i;
 		p.y = 788 + 30*i;
 		zu->setPosition(p);
@@ -175,7 +175,7 @@ void Test::createCivils(void)
 	CivilSMTTable *tt = CivilFSMBuilder::build();
 	CivilUnit::setSMTTable(tt);
 
-	math::Vector2 p;
+	core::Vector2 p;
 	for(int i = 0; i < 1; ++i){
 		Ogre::Entity * ent = GLOBAL_SCN_MNGR->createEntity("civil01.mesh");
 		Ogre::SceneNode *node = GLOBAL_SCN_MNGR->getRootSceneNode()->createChildSceneNode();
@@ -211,7 +211,7 @@ void Test::createZombies(void)
 	static ZombieQueue q;
 	ZombieUnit::setQueue(&q);
 
-	math::Vector2 p;
+	core::Vector2 p;
 	for(int i = 0; i < 15; ++i){
 		Ogre::Entity * ent = GLOBAL_SCN_MNGR->createEntity("zombie01.mesh");
 		Ogre::SceneNode *node = GLOBAL_SCN_MNGR->getRootSceneNode()->createChildSceneNode();
@@ -325,7 +325,7 @@ Test::~Test()
 // handle input
 void Test::handleInput(void)
 {
-	math::Vector2 tran;
+	core::Vector2 tran;
 	static const float VEL = 150.0f;
 	tran.x = tran.y = 0.0f;
 	static bool keyPres1 = false;
@@ -389,12 +389,12 @@ void Test::update()
 
 	static double t1,t2,t3,t4;
 	static bool keyPres = false;
-	math::Vector2 p;
+	core::Vector2 p;
 
 	t1 = gettimestamp();
 	t3 = t2 - t1;
 	// update the game objects
-	math::Vector2 trans;
+	core::Vector2 trans;
 	ZombieUnit *zu;
 	for(int i = mZombies.size()-1; i>= 0; --i){
 		mZombies[i]->update();

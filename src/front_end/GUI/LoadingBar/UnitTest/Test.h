@@ -23,38 +23,40 @@
 #include "MultiAtlasOverlay.h"
 #include "SingleAtlasOverlay.h"
 
-
 class Test : public AppTester
 {
 public:
-	Test();
+    Test();
 
-	/* Load additional info */
-	void loadAditionalData(void);
+    /* Load additional info */
+    void
+    loadAditionalData(void);
 
-	/* function called every frame. Use GlobalObjects::lastTimeFrame */
-	void update();
+    /* function called every frame. Use GlobalObjects::lastTimeFrame */
+    void
+    update();
 
-
-	~Test();
-
-private:
-
-	// create overlay uv test
-	void createOverlay(void);
-
-	// Load loading state
-	void loadInfostate(void);
-
-	// handle input
-	void handleInput(void);
+    ~Test();
 
 private:
-	MouseCursor				mMouseCursor;
-	LoadingBar				mBar;
-	MultiAtlasOverlay		mMultiA;
-	SingleAtlasOverlay		mSingleA;
 
+    // create overlay uv test
+    void
+    createOverlay(void);
+
+    // Load loading state
+    void
+    loadInfostate(void);
+
+    // handle input
+    void
+    handleInput(void);
+
+private:
+    f_e::MouseCursor mMouseCursor;
+    f_e::LoadingBar mBar;
+    f_e::MultiAtlasOverlay mMultiA;
+    f_e::SingleAtlasOverlay mSingleA;
 
 };
 

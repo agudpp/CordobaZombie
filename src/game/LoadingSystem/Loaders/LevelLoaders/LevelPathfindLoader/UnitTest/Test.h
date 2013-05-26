@@ -49,7 +49,7 @@ private:
 
 private:
 	CameraController		mCamController;
-	MouseCursor				mMouseCursor;
+	f_e::MouseCursor				mMouseCursor;
 
 	UpdObjsManager			mUpdaterManager;
 	InputManager mInputManager;

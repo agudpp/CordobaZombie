@@ -58,7 +58,7 @@ void CellphoneMap::showZombieSet(void)
 	ZombieSet::iterator bit = mZombiesSeen.begin(), eit = mZombiesSeen.end();
 	for(; bit != eit && i >= 0; ++bit, --i){
 		// show the zombies in their respective position
-		const math::Vector2 &zpos = (*bit)->getPosition();
+		const core::Vector2 &zpos = (*bit)->getPosition();
 		positionElement(mActiveZombiesElem[i], zpos.x, zpos.y);
 	}
 }
@@ -121,9 +121,9 @@ CellphoneMap::~CellphoneMap()
 	 removeAllStaticelements();
 
 	// destroy texture
-	GUIHelper::destroyMaterial(mContainer->getMaterial()->getName());
+	 f_e::GUIHelper::destroyMaterial(mContainer->getMaterial()->getName());
 
-	GUIHelper::fullDestroyOverlayElement(mContainer);
+	 f_e::GUIHelper::fullDestroyOverlayElement(mContainer);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -158,7 +158,7 @@ void CellphoneMap::setMap(const CellphoneMapInfo &map)
 {
 	ASSERT(mContainer);
 	if(!mContainer->getMaterial().isNull()){
-		GUIHelper::destroyMaterial(mContainer->getMaterial()->getName());
+	    f_e::GUIHelper::destroyMaterial(mContainer->getMaterial()->getName());
 	}
 	mContainer->setMaterialName(map.materialName);
 	mXFactor = map.getXFactor();
@@ -214,7 +214,7 @@ void CellphoneMap::addPlayer(PlayerUnit *pu)
 	mPlayers.push_back(pu);
 	createPlayerElement("mapUni"+pu->getEntity()->getName());
 	mContainer->addChild(mPlayerElements[mPlayerElements.size()-1]->element);
-	GUIHelper::reposContainer(static_cast<Ogre::OverlayContainer *>(
+	f_e::GUIHelper::reposContainer(static_cast<Ogre::OverlayContainer *>(
 					mPlayerElements[mPlayerElements.size()-1]->element));
 }
 ////////////////////////////////////////////////////////////////////////////////
@@ -264,7 +264,7 @@ void CellphoneMap::update(void)
 	for(int i = 0; i < mPlayers.size(); ++i){
 		// update the position of the player
 		ASSERT(i < mPlayerElements.size());
-		const math::Vector2 &ppos = mPlayers[i]->getPosition();
+		const core::Vector2 &ppos = mPlayers[i]->getPosition();
 		positionElement(mPlayerElements[i], ppos.x, ppos.y);
 
 		PlayerUnit::ZombieUnitVec &vec = mPlayers[i]->getNearbyZombies();

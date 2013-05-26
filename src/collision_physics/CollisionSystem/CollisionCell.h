@@ -17,6 +17,7 @@
 #include <vector>
 #include <set>
 
+namespace c_p {
 
 class CollisionCell {
 public:
@@ -120,7 +121,7 @@ public:
 
 	// Returns all the collision objects using only mask group
 	inline void getAllCollisionsMask(std::set<const CollisionObject *> &objs,
-			mask_t groupMask, const math::AABB &aabb) const
+			mask_t groupMask, const core::AABB &aabb) const
 	{
 		const CollisionObject *aux;
 		const int le = mObjs.size();
@@ -135,7 +136,7 @@ public:
 
 	// Returns all the collision objects using mask group and a certain point
 	inline void getAllCollisionMask(std::vector<const CollisionObject *> &objs,
-			mask_t groupMask, const math::Vector2 &p) const
+			mask_t groupMask, const core::Vector2 &p) const
 	{
 		const CollisionObject *aux;
 		const int le = mObjs.size();
@@ -150,14 +151,14 @@ public:
 
 	// Returns all the collision objects using mask group and a certain point
 	inline void getAllCollisionMask(std::set<const CollisionObject *> &objs,
-			mask_t groupMask, const math::Vector2 &p1, const math::Vector2 &p2) const
+			mask_t groupMask, const core::Vector2 &p1, const core::Vector2 &p2) const
 	{
 		const CollisionObject *aux;
 		const int le = mObjs.size();
 		for(int i = 0; i < le; ++i){
 			aux = mObjs[i];
 			if((groupMask & aux->maskFlag) &&
-					IntersectDetect::checkLineAABB(p1,p2,aux->bb)){
+					core::IntersectDetect::checkLineAABB(p1,p2,aux->bb)){
 				// check for furder collision here... or not?
 				objs.insert(aux);
 			}
@@ -173,5 +174,7 @@ private:
 private:
 	std::vector<const CollisionObject *>	mObjs;
 };
+
+}
 
 #endif /* COLLISIONCELL_H_ */

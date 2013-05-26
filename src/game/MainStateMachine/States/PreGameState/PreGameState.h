@@ -83,7 +83,7 @@ public:
 	 * Call back function to let buttons effect tell us when they have done
 	 * hiding.
 	 */
-	void operator()(OvEff::OverlayEffect::EventID id);
+	void operator()(f_e::OverlayEffect::EventID id);
 
 
 protected:
@@ -125,15 +125,15 @@ protected:
 
 
 protected:
-	typedef std::vector<OvEff::MenuButtonEffect>	ButtonsEffectVec;
+	typedef std::vector<f_e::MenuButtonEffect>	ButtonsEffectVec;
 	typedef std::vector<Ogre::String>				StrVec;
 
 	Ogre::Overlay				*mBackground;
-	SlidePlayer					*mSlidePlayer;
+	f_e::SlidePlayer			*mSlidePlayer;
 	std::string					mPreGamePath;
 	StrVec					 	mButtonNames;
 	ButtonsEffectVec			mCbButtons;
-	OvEff::OverlayEffectManager	mOvEffManager;
+	f_e::OverlayEffectManager	mOvEffManager;
 	int							mState;
 
 };
@@ -142,7 +142,7 @@ protected:
 
 inline void PreGameState::configureOEffMngr(void)
 {
-	OvEff::OverlayEffect::setManager(&mOvEffManager);
+	f_e::OverlayEffect::setManager(&mOvEffManager);
 }
 
 

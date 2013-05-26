@@ -10,7 +10,7 @@
 
 
 
-namespace gui_utils {
+namespace f_e {
 
 ////////////////////////////////////////////////////////////////////////////////
 void Text2D::truncateHorizontally(Ogre::String &input,

@@ -14,7 +14,7 @@
 #include "OverlayEffect.h"
 #include "DebugUtil.h"
 
-namespace OvEff {
+namespace f_e {
 
 
 class Slide : public OverlayEffect {

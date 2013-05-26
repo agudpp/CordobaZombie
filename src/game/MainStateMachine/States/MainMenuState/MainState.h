@@ -93,7 +93,7 @@ private:
     void checkInput(void);
 
 private:
-    typedef std::vector<OvEff::MenuButtonEffect>    MenuButtonEffVec;
+    typedef std::vector<f_e::MenuButtonEffect>    MenuButtonEffVec;
 
     MenuButtonEffVec    mMenuButtonsEff;
     State   mState;

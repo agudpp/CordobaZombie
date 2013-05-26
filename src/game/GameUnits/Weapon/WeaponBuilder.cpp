@@ -22,7 +22,7 @@
 
 
 ////////////////////////////////////////////////////////////////////////////////
-void WeaponBuilder::configureShoots(int n, CollisionManager *cm,
+void WeaponBuilder::configureShoots(int n, c_p::CollisionManager *cm,
 		UpdObjsManager *uom)
 {
 	ASSERT(n > 0);

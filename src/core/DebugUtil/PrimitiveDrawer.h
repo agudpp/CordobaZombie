@@ -33,7 +33,7 @@ public:
 	}
 	~DrawablePath();
 
-	void drawPath(const std::vector<math::Point> &path, int color = COLOR_BLUE);
+	void drawPath(const std::vector<core::Point> &path, int color = COLOR_BLUE);
 
 	void clearPath(void);
 
@@ -93,7 +93,7 @@ public:
 	void destroyAllVPoints(void);
 
 	// Draw a box
-	Box *createBox(const math::AABB &box);
+	Box *createBox(const core::AABB &box);
 	void destroyBox(Box *b);
 	void destroyAllBoxes(void);
 

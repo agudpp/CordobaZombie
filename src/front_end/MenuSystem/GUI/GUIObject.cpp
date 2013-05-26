@@ -21,7 +21,7 @@ mCont(0)
 GUIObject::~GUIObject() {
 	// remove the panel
 	if(mCont){
-		GUIHelper::fullDestroyOverlayElement(mCont);
+	    f_e::GUIHelper::fullDestroyOverlayElement(mCont);
 	}
 }
 

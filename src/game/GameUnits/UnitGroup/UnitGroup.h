@@ -73,7 +73,7 @@ public:
 	 *
 	 * @param	to	The position where we have to send all the group
 	 */
-	virtual void moveGroupTo(const math::Vector2 &to) = 0;
+	virtual void moveGroupTo(const core::Vector2 &to) = 0;
 
 	/**
 	 * Set the attack strategy if we have
@@ -103,8 +103,8 @@ protected:
 	 * the result in the path member.
 	 * @returns pfr		The PathfinderManager result.
 	 */
-	inline int calculatePathWithRadius(const math::Vector2 &start,
-			const math::Vector2 &end,
+	inline int calculatePathWithRadius(const core::Vector2 &start,
+			const core::Vector2 &end,
 			float radius);
 
 	/**
@@ -136,8 +136,8 @@ protected:
 
 
 ////////////////////////////////////////////////////////////////////////////////
-inline int UnitGroup::calculatePathWithRadius(const math::Vector2 &start,
-		const math::Vector2 &end,
+inline int UnitGroup::calculatePathWithRadius(const core::Vector2 &start,
+		const core::Vector2 &end,
 		float radius)
 {
 	return mLevelManager->getPathfinderManager()->getPath(start, end, mPath, radius);

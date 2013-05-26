@@ -90,7 +90,7 @@ CollectableObject::build(Ogre::Entity *entity, Ogre::SceneNode *node)
     // config the bounding box
     float w,h;
     getAABBFromEntity(w,h);
-    configCollObj(w,h, COL_FLAG_COLLECTABLE_OBJ, COL_GRFLAG_COLL_OBJECT);
+    configCollObj(w,h, c_p::COL_FLAG_COLLECTABLE_OBJ, c_p::COL_GRFLAG_COLL_OBJECT);
 }
 
 void

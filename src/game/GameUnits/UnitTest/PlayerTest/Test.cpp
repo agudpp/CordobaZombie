@@ -129,7 +129,7 @@ void Test::createPlayer(void)
 		zu->setMaxVelocity(MAX_VEL*2.0f);
 		zu->setVelocity(MAX_VEL);
 
-		math::Vector2 p;
+		core::Vector2 p;
 		p.x = 507 + 5*i;
 		p.y = 788 + 30*i;
 		zu->setPosition(p);
@@ -177,7 +177,7 @@ void Test::createZombies(void)
 	static ZombieQueue q;
 	ZombieUnit::setQueue(&q);
 
-	math::Vector2 p;
+	core::Vector2 p;
 	for(int i = 0; i < 1; ++i){
 		Ogre::Entity * ent = GLOBAL_SCN_MNGR->createEntity("zombie01.mesh");
 		Ogre::SceneNode *node = GLOBAL_SCN_MNGR->getRootSceneNode()->createChildSceneNode();
@@ -293,7 +293,7 @@ void Test::handleMouseRaycast(void)
 {
 	static GameUnit *lastUnitSelected = 0;
 
-	static CollisionResult cr;
+	static c_p::CollisionResult cr;
 	static GameUnit *pu = 0;
 	static bool mouseDown = false;
 
@@ -303,7 +303,7 @@ void Test::handleMouseRaycast(void)
 
 
 	mLevelManager.getCollisionManager()->getCollisionObjects(
-			math::Point(v.x, v.z), COL_FLAG_UNIT_PLAYER | COL_FLAG_UNIT_ZOMBIE ,cr);
+			core::Point(v.x, v.z), c_p::COL_FLAG_UNIT_PLAYER | c_p::COL_FLAG_UNIT_ZOMBIE ,cr);
 	if(!cr.empty()){
 		// get the player
 		 pu = static_cast<GameUnit *>(cr.front()->userDefined);
@@ -342,7 +342,7 @@ void Test::handleMouseRaycast(void)
 // handle input
 void Test::handleInput(void)
 {
-	math::Vector2 tran;
+	core::Vector2 tran;
 	static const float VEL = 150.0f;
 	tran.x = tran.y = 0.0f;
 	static bool keyPres1 = false;
@@ -362,7 +362,7 @@ void Test::handleInput(void)
 			mousePressed = true;
 
 			// check if we are getting a player
-			static CollisionResult cr;
+			static c_p::CollisionResult cr;
 			static PlayerUnit *pu = 0;
 
 			// first check if we have a player selected
@@ -384,7 +384,7 @@ void Test::handleInput(void)
 
 
 			mLevelManager.getCollisionManager()->getCollisionObjects(
-					math::Point(v.x, v.z), COL_FLAG_UNIT_PLAYER ,cr);
+					core::Point(v.x, v.z), c_p::COL_FLAG_UNIT_PLAYER ,cr);
 			if(!cr.empty()){
 				// get the player
 				 pu = static_cast<PlayerUnit *>(cr.front()->userDefined);
@@ -392,9 +392,9 @@ void Test::handleInput(void)
 				pu->objectSelected();
 			} else {
 				if(pu){
-//					pu->moveUnitTo(math::Vector2(v.x, v.z));
+//					pu->moveUnitTo(core::Vector2(v.x, v.z));
 
-					pu->plantBomb(mBomb, math::Vector2(v.x,v.z));
+					pu->plantBomb(mBomb, core::Vector2(v.x,v.z));
 				}
 			}
 
@@ -408,8 +408,8 @@ void Test::handleInput(void)
 
 
 
-//			mPlayerGroup->moveGroupTo(math::Vector2(v.x, v.z));
-//			mPlayers[0]->moveUnitTo(math::Vector2(v.x, v.z));
+//			mPlayerGroup->moveGroupTo(core::Vector2(v.x, v.z));
+//			mPlayers[0]->moveUnitTo(core::Vector2(v.x, v.z));
 		}
 	} else {
 		mousePressed = false;
@@ -434,16 +434,16 @@ void Test::testCollisionRaycast(void)
 	tlx = 10; tly = 100;
 	brx = 150; bry = 10;
 	co.bb.setSize(brx - tlx, tly-bry);
-	co.bb.setPosition(math::Vector2((tlx+brx)/2.0f,
+	co.bb.setPosition(core::Vector2((tlx+brx)/2.0f,
 			(tly+bry)/2.0f));
-	co.maskFlag = COL_FLAG_UNIT_PLAYER;
+	co.maskFlag = c_p::COL_FLAG_UNIT_PLAYER;
 	co.userDefined = 0;
 	mLevelManager.getCollisionManager()->addStaticObject(&co);
 
 	// create the lines here and test
-	CollisionResult result;
-	std::vector<math::Point> points;
-	math::Point p1,p2;
+	c_p::CollisionResult result;
+	std::vector<core::Point> points;
+	core::Point p1,p2;
 
 	p1.x = 9; p1.y = 19;
 	p2.x = 20; p2.y = 0;
@@ -512,9 +512,9 @@ void Test::loadAditionalData(void)
 	// create a collision object (primera manzana)
 	static CollisionObject co;
 	co.bb.setSize(1014 - 548, 896-433);
-	co.bb.setPosition(math::Vector2((1014+566)/2.0f,
+	co.bb.setPosition(core::Vector2((1014+566)/2.0f,
 			(893+433)/2.0f));
-	co.maskFlag = COL_FLAG_UNIT_PLAYER;
+	co.maskFlag = c_p::COL_FLAG_UNIT_PLAYER;
 	co.userDefined = 0;
 	DRAWER.createBox(co.bb);
 //	mLevelManager.getCollisionManager()->addStaticObject(&co);
@@ -533,12 +533,12 @@ void Test::update()
 
 	static double t1,t2,t3,t4;
 	static bool keyPres = false;
-	math::Vector2 p;
+	core::Vector2 p;
 
 	t1 = gettimestamp();
 	t3 = t2 - t1;
 	// update the game objects
-	math::Vector2 trans;
+	core::Vector2 trans;
 	ZombieUnit *zu;
 	for(int i = mZombies.size()-1; i>= 0; --i){
 		mZombies[i]->update();
@@ -547,7 +547,7 @@ void Test::update()
 		mPlayers[i]->update();
 	}
 //	Ogre::Billboard *b = mBillboardSet->getBillboard(0);
-//	const math::Vector2 &zp = mZombies[0]->getPosition();
+//	const core::Vector2 &zp = mZombies[0]->getPosition();
 //	b->setPosition(Ogre::Vector3(zp.x, 1, zp.y));
 
 	t2 = gettimestamp();

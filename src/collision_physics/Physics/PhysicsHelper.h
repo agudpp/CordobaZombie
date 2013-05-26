@@ -12,6 +12,9 @@
 #include "GlobalObjects.h"
 #include "DebugUtil.h"
 
+
+namespace c_p {
+
 class PhysicsHelper
 {
 	static const float	GRAVITY_FACTOR;
@@ -91,6 +94,8 @@ inline void PhysicsHelper::getReflectedVector(const Ogre::Vector3 &in,
 //	Vnew = b * ( -2*(V dot N)*N + V )
 	result = -2.0f*(in.dotProduct(n))*n + in;
 	result *= b;
+}
+
 }
 
 #endif /* PHYSICSHELPER_H_ */

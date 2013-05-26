@@ -138,7 +138,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="src/SoundSystem/multiplatform_hashtable.cpp|src/SoundSystem/idea_SoundSystem.cpp|src/PathfindingSystem/UnitTest/triangleTest|src/SoundSystem/hash_test.cpp|src/SoundSystem/UnitTest/CMakeLists.txt|src/Utils/MathIntersection|src/SoundSystem/autogenCmake|src/SoundSystem/AutoGen.cmake" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="src/SoundSystem/multiplatform_hashtable.cpp|src/SoundSystem/idea_SoundSystem.cpp|src/SoundSystem/UnitTest/CMakeLists.txt|src/SoundSystem/hash_test.cpp|src/PathfindingSystem/UnitTest/triangleTest|src/Utils/MathIntersection|src/SoundSystem/autogenCmake|src/SoundSystem/AutoGen.cmake" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>

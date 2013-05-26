@@ -41,7 +41,7 @@ void IState::parseVideoRange(const TiXmlElement *xml, VideoRange &vr) const
 
 ////////////////////////////////////////////////////////////////////////////////
 void IState::parseCbMenuButton(const TiXmlElement *xml,
-		OvEff::MenuButtonEffect &button)
+		f_e::MenuButtonEffect &button)
 {
 	ASSERT(xml);
 
@@ -69,8 +69,8 @@ void IState::parseCbMenuButton(const TiXmlElement *xml,
     	debugWARNING("No OverlayEffect for this button... Do we want this?\n");
     } else {
     	// accept any available effect
-    	OvEff::OverlayEffectBuilder oeb;
-    	OvEff::OverlayEffect* oe = oeb.createOverlayEffect(*effectXml, NULL);
+    	f_e::OverlayEffectBuilder oeb;
+    	f_e::OverlayEffect* oe = oeb.createOverlayEffect(*effectXml, NULL);
     	if (oe) {
     		button.setEffect(oe);
     		oe->setElement(cont);
@@ -162,7 +162,7 @@ void IState::getSoundsFromXML()
 
 
 ////////////////////////////////////////////////////////////////////////////////
-void IState::buildButtons(std::vector<OvEff::MenuButtonEffect> &buttons,
+void IState::buildButtons(std::vector<f_e::MenuButtonEffect> &buttons,
 		const std::vector<Ogre::String> &names)
 {
 	if(names.empty()) return;
@@ -188,7 +188,7 @@ void IState::buildButtons(std::vector<OvEff::MenuButtonEffect> &buttons,
 #endif
 
 		// create the button
-		OvEff::MenuButtonEffect button;
+		f_e::MenuButtonEffect button;
 		parseCbMenuButton(bElem, button);
 		buttons.push_back(button);
 	}

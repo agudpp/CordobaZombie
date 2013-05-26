@@ -299,7 +299,7 @@ InputManager::setMenuManager(MenuManager *mm)
 
 ////////////////////////////////////////////////////////////////////////////////
 void
-InputManager::addLevelZone(const math::AABB &bb)
+InputManager::addLevelZone(const core::AABB &bb)
 {
 	ASSERT(bb.tl.x >= 0 && bb.tl.x <= 1);
 	ASSERT(bb.tl.y >= 0 && bb.tl.y <= 1);

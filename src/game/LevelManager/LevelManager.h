@@ -44,8 +44,8 @@ public:
 	/**
 	 * Returns the CollisionManager instance
 	 */
-	inline CollisionManager *getCollisionManager();
-	inline const CollisionManager *getCollisionManager() const;
+	inline c_p::CollisionManager *getCollisionManager();
+	inline const c_p::CollisionManager *getCollisionManager() const;
 
 	/**
 	 * Returns the LineOfSightManager...
@@ -85,7 +85,7 @@ public:
 	 * @param cnY	The number of cells used in Y
 	 */
 	void load(const Ogre::Entity *levelMesh,
-			cScalar ssX, cScalar ssY, int cnX, int cnY);
+			c_p::cScalar ssX, c_p::cScalar ssY, int cnX, int cnY);
 
 	/**
 	 * Show all the triangles...
@@ -100,10 +100,10 @@ private:
 
 private:
 	PathfindingManager	*mPathfindingMngr;
-	CollisionManager	*mCollMngr;
+	c_p::CollisionManager	*mCollMngr;
 	LOSManager			mLOSManager;
 	RaycastManager		mRaycastManager;
-	PolyStructsContainer<math::Vertex *> mVertexs;
+	PolyStructsContainer<core::Vertex *> mVertexs;
 	PolyStructsContainer<Triangle *> mTriangles;
 
 };
@@ -126,12 +126,12 @@ LevelManager::getPathfinderManager() const
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-inline CollisionManager *
+inline c_p::CollisionManager *
 LevelManager::getCollisionManager()
 {
 	return mCollMngr;
 }
-inline const CollisionManager *
+inline const c_p::CollisionManager *
 LevelManager::getCollisionManager() const
 {
 	return mCollMngr;

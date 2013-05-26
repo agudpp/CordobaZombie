@@ -12,7 +12,7 @@
 #include <OgreTextureUnitState.h>
 #include "OverlayEffect.h"
 
-namespace OvEff {
+namespace f_e {
 
 class Alpha : public OverlayEffect {
 public:

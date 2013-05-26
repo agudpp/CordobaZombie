@@ -49,10 +49,11 @@
 #include "OgreOverlayManager.h"
 
 
+namespace f_e {
 
 const float PI = 3.1415f;
 
-class SlideVelFun: public OvEff::Slide::VelFunction
+class SlideVelFun: public f_e::Slide::VelFunction
 {
 public:
 	float operator()(float x) const
@@ -171,7 +172,7 @@ private:
 	//
 	SlideVelFun 						mSVFun;
 	//
-	OvEff::OverlayEffectBuilder			mOEBuilder;
+	f_e::OverlayEffectBuilder			mOEBuilder;
 	//Vector of slides to show:
 	slideVec				 			mSlideVec;
 	//The slide the user wants to see:
@@ -186,10 +187,10 @@ private:
 	Ogre::PanelOverlayElement			*mNext;
 	Ogre::PanelOverlayElement			*mHidden;
 	//
-	OvEff::Slide						*mCenterSEffect;
-	OvEff::Slide						*mPrevSEffect;
-	OvEff::Slide						*mNextSEffect;
-	OvEff::Slide						*mHiddenSEffect;
+	f_e::Slide						*mCenterSEffect;
+	f_e::Slide						*mPrevSEffect;
+	f_e::Slide						*mNextSEffect;
+	f_e::Slide						*mHiddenSEffect;
 	// Top left positions for slides
 	Ogre::Vector2						mCenterTL;
 	Ogre::Vector2						mPrevTL;
@@ -251,4 +252,5 @@ inline bool SlidePlayer::hasSlides(void)
 	return mSlideVec.size() > 0;
 }
 
+}
 #endif // SLIDE_PLAYER_H_

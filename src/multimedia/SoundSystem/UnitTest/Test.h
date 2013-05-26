@@ -38,7 +38,7 @@
 
 struct ZombiePair{
 	ZombieUnit *zu;
-	math::Vector2 desTpos;
+	core::Vector2 desTpos;
 };
 
 
@@ -93,7 +93,7 @@ private:
 	LevelManager 				mLevelManager;
 	bool 						mKeyPressed;
 	int							mPlacesCount;
-	MouseCursor					mMouseCursor;
+	f_e::MouseCursor					mMouseCursor;
 	std::vector<ZombiePair>		mGameObjs;
 	std::vector<ZombieUnit*>	mZombies;
 	std::vector<PlayerUnit*>	mPlayers;

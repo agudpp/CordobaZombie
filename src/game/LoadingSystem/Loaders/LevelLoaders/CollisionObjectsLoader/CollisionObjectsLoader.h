@@ -14,26 +14,35 @@
 #include "LoaderData.h"
 #include "tinyxml.h"
 
+// Forward
+//
 class TiXmlElement;
+namespace c_p {
 class CollisionManager;
 class CollisionObject;
+}
 
-class CollisionObjectsLoader : public Loader {
+class CollisionObjectsLoader : public Loader
+{
 public:
     CollisionObjectsLoader();
-    virtual ~CollisionObjectsLoader();
+    virtual
+    ~CollisionObjectsLoader();
 
     // Functoin used to load something
-    virtual int load(TiXmlElement*, LoaderData *data, LoaderManager::LoaderCallback *callback);
+    virtual int
+    load(TiXmlElement*, LoaderData *data,
+        LoaderManager::LoaderCallback *callback);
 
     // Unload the information?
-    virtual int unload();
+    virtual int
+    unload();
 
 private:
-    typedef std::vector<CollisionObject *> ObjectsVec;
+    typedef std::vector<c_p::CollisionObject *> ObjectsVec;
 
     ObjectsVec mCollisionObjects;
-    CollisionManager *mCollisionMngr;
+    c_p::CollisionManager *mCollisionMngr;
 };
 
 #endif /* COLLISIONOBJECTSLOADER_H_ */

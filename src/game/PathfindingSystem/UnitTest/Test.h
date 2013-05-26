@@ -37,7 +37,7 @@ public:
 	}
 	~DrawablePath();
 
-	void drawPath(const std::vector<math::Vertex> &path, int color = COLOR_BLUE);
+	void drawPath(const std::vector<core::Vertex> &path, int color = COLOR_BLUE);
 
 	void clearPath(void);
 
@@ -79,12 +79,12 @@ private:
 	void handleInput(void);
 
 private:
-	PolyStructsContainer<math::Vertex *> mVvertexs;
+	PolyStructsContainer<core::Vertex *> mVvertexs;
 	PolyStructsContainer<Triangle *> mTriangles;
 	bool 		mKeyPressed;
 	int			mPlacesCount;
 	CameraController		mCamController;
-	MouseCursor				mMouseCursor;
+	f_e::MouseCursor				mMouseCursor;
 
 };
 

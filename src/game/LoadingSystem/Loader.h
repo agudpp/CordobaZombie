@@ -62,8 +62,8 @@ protected:
 	/**
 	 * Parse auxiliaries
 	 */
-	void parseAABB(TiXmlElement *elem, math::AABB &aabb);
-	void parseVector(TiXmlElement *elem, math::Vector2 &vec);
+	void parseAABB(TiXmlElement *elem, core::AABB &aabb);
+	void parseVector(TiXmlElement *elem, core::Vector2 &vec);
 	float			mChunkWeight;
 	void**			mCallback;	// This is a LoaderManager::LoaderCallback,
 								// but C++ can't forward declare nested classes.

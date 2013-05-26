@@ -13,13 +13,13 @@
 #include "Box2D.h"
 
 struct TmpEdge {
-	const math::Vertex *v1;
-	const math::Vertex *v2;
+	const core::Vertex *v1;
+	const core::Vertex *v2;
 };
 
 
 
-void CollObjBuilder::getBoundingBox(std::vector<math::Vertex *> &v, math::AABB &bb)
+void CollObjBuilder::getBoundingBox(std::vector<core::Vertex *> &v, core::AABB &bb)
 {
 	ASSERT(v.size() >= 2);
 
@@ -39,7 +39,7 @@ void CollObjBuilder::getBoundingBox(std::vector<math::Vertex *> &v, math::AABB &
 	bb.br.y = miny;
 }
 
-void CollObjBuilder::getBoundingBox(std::vector<const math::Vertex *> &v, math::AABB &bb)
+void CollObjBuilder::getBoundingBox(std::vector<const core::Vertex *> &v, core::AABB &bb)
 {
 	ASSERT(v.size() >= 2);
 
@@ -69,7 +69,7 @@ CollisionObject *CollObjBuilder::createFromMesh(Ogre::Entity *ent,
 {
 	ASSERT(ent);
 
-	PolyStructsContainer<math::Vertex *> cont;
+	PolyStructsContainer<core::Vertex *> cont;
 	PolyStructsContainer<Triangle *> triangles;
 
 	if(!Common::Util::getTrianglesFromMesh(cont, triangles, ent->getMesh())){
@@ -105,13 +105,13 @@ CollisionObject *CollObjBuilder::createFromMesh(Ogre::Entity *ent,
 /**
  * Create Polygon shape (counterclockwise vertex)
  */
-CollisionObject *CollObjBuilder::createPolyShape(PolyStructsContainer<math::Vertex *> &cont,
+CollisionObject *CollObjBuilder::createPolyShape(PolyStructsContainer<core::Vertex *> &cont,
 		PolyStructsContainer<Triangle *> &triangles)
 {
 	// get the center vertex
 	std::vector<Triangle *> &tri = triangles.getObjs();
-	std::vector<math::Vertex *> &vert = cont.getObjs();
-	math::Vertex *v = 0;
+	std::vector<core::Vertex *> &vert = cont.getObjs();
+	core::Vertex *v = 0;
 	bool found = false;
 
 	debug("Creating poly with %zd triangles and %zd vertex\n",
@@ -157,7 +157,7 @@ CollisionObject *CollObjBuilder::createPolyShape(PolyStructsContainer<math::Vert
 
 	// save the vector of vertices without repetition
 	// FUCKING UGLY SLOW!
-	std::vector<const math::Vertex *> vSet;
+	std::vector<const core::Vertex *> vSet;
 	vSet.push_back(edges[edges.size()-1].v1);
 	for(int i = edges.size()-1; i >= 0; --i){
 		for(int j = 0; j < edges.size(); ++j){
@@ -204,11 +204,11 @@ CollisionObject *CollObjBuilder::createPolyShape(PolyStructsContainer<math::Vert
 /**
  * Create circle shape
  */
-CollisionObject *CollObjBuilder::createCircleShape(PolyStructsContainer<math::Vertex *> &cont,
+CollisionObject *CollObjBuilder::createCircleShape(PolyStructsContainer<core::Vertex *> &cont,
 		PolyStructsContainer<Triangle *> &triangles)
 {
 	std::vector<Triangle *> &tri = triangles.getObjs();
-	std::vector<math::Vertex *> &vert = cont.getObjs();
+	std::vector<core::Vertex *> &vert = cont.getObjs();
 
 	ASSERT(vert.size() == 2);
 
@@ -235,11 +235,11 @@ CollisionObject *CollObjBuilder::createCircleShape(PolyStructsContainer<math::Ve
 /**
  * Edge shape
  */
-CollisionObject *CollObjBuilder::createEdgeShape(PolyStructsContainer<math::Vertex *> &cont,
+CollisionObject *CollObjBuilder::createEdgeShape(PolyStructsContainer<core::Vertex *> &cont,
 		PolyStructsContainer<Triangle *> &triangles)
 {
 	std::vector<Triangle *> &tri = triangles.getObjs();
-	std::vector<math::Vertex *> &vert = cont.getObjs();
+	std::vector<core::Vertex *> &vert = cont.getObjs();
 
 	ASSERT(vert.size() == 2);
 
@@ -270,19 +270,19 @@ CollisionObject *CollObjBuilder::createEdgeShape(PolyStructsContainer<math::Vert
 /**
  * Box shape
  */
-CollisionObject *CollObjBuilder::createBoxShape(PolyStructsContainer<math::Vertex *> &cont,
+CollisionObject *CollObjBuilder::createBoxShape(PolyStructsContainer<core::Vertex *> &cont,
 		PolyStructsContainer<Triangle *> &triangles)
 {
 	std::vector<Triangle *> &tri = triangles.getObjs();
-	std::vector<math::Vertex *> &vert = cont.getObjs();
+	std::vector<core::Vertex *> &vert = cont.getObjs();
 
 	ASSERT(vert.size() == 4);
 
-	std::vector<const math::Vertex *> shared;
-	std::vector<const math::Vertex *> notShared;
+	std::vector<const core::Vertex *> shared;
+	std::vector<const core::Vertex *> notShared;
 
 	//get the unshared
-	const math::Vertex *v = 0;
+	const core::Vertex *v = 0;
 	Triangle *t = 0;
 	for(int j = 0; j < 2; j++){
 		t = tri[j];
@@ -305,7 +305,7 @@ CollisionObject *CollObjBuilder::createBoxShape(PolyStructsContainer<math::Verte
 	ASSERT(shared.size() == 2);
 
 	// create the vector
-	std::vector<const math::Vertex *> vertexs;
+	std::vector<const core::Vertex *> vertexs;
 	vertexs.push_back(shared[0]);
 	vertexs.push_back(notShared[0]);
 	vertexs.push_back(shared[1]);
@@ -336,11 +336,11 @@ CollisionObject *CollObjBuilder::createBoxShape(PolyStructsContainer<math::Verte
 /**
  * AABB shape
  */
-CollisionObject *CollObjBuilder::createAABBShape(PolyStructsContainer<math::Vertex *> &cont,
+CollisionObject *CollObjBuilder::createAABBShape(PolyStructsContainer<core::Vertex *> &cont,
 		PolyStructsContainer<Triangle *> &triangles)
 {
 	std::vector<Triangle *> &tri = triangles.getObjs();
-	std::vector<math::Vertex *> &vert = cont.getObjs();
+	std::vector<core::Vertex *> &vert = cont.getObjs();
 
 	ASSERT(vert.size() == 4);
 

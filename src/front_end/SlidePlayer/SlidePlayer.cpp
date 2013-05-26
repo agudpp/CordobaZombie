@@ -7,6 +7,8 @@
 #include "DebugUtil.h"
 #include "SlidePlayer.h"
 
+namespace f_e {
+
 ////////////////////////////////////////////////////////////////////////////////
 /*
  * @Overlay : The name of the slides overlay
@@ -73,13 +75,13 @@ mHiddenSEffect(0)
 	}
 	ASSERT(mOEBuilder.hasOpenFile());
 
-	mCenterSEffect = static_cast<OvEff::Slide*>(
+	mCenterSEffect = static_cast<f_e::Slide*>(
 			mOEBuilder.createOverlayEffect(Ogre::String("Slide")));
-	mPrevSEffect = static_cast<OvEff::Slide*>(
+	mPrevSEffect = static_cast<f_e::Slide*>(
 			mOEBuilder.createOverlayEffect(Ogre::String("Slide")));
-	mNextSEffect = static_cast<OvEff::Slide*>(
+	mNextSEffect = static_cast<f_e::Slide*>(
 			mOEBuilder.createOverlayEffect(Ogre::String("Slide")));
-	mHiddenSEffect = static_cast<OvEff::Slide*>(
+	mHiddenSEffect = static_cast<f_e::Slide*>(
 			mOEBuilder.createOverlayEffect(Ogre::String("Slide")));
 
 	if(!mCenterSEffect || !mPrevSEffect || !mNextSEffect || !mHiddenSEffect)
@@ -401,4 +403,6 @@ int SlidePlayer::loadSlides(const char *sldBaseName){
 int SlidePlayer::playSlides(float tlapse)
 {
 	return SP_OK;
+}
+
 }

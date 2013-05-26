@@ -13,7 +13,7 @@
 #include "OverlayEffect.h"
 
 
-namespace OvEff {
+namespace f_e {
 
 
 /* FWD references to supported OverlayEffects.

@@ -45,7 +45,7 @@ private:
 	void handleInput(void);
 
 private:
-	MouseCursor				mMouseCursor;
+	f_e::MouseCursor				mMouseCursor;
 
 	UpdObjsManager			mUpdaterManager;
 	input::InputManager &mInputManager;

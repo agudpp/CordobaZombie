@@ -25,18 +25,18 @@ public:
 	/**
 	 * Returns the AABB associated to this menu
 	 */
-	inline const math::AABB &getAABB(void) const;
+	inline const core::AABB &getAABB(void) const;
 
 	/**
 	 * Set the AABB to this menu
 	 */
-	inline void setAABB(const math::AABB &aabb);
-	inline void setRelativeAABB(const math::AABB &aabb);
+	inline void setAABB(const core::AABB &aabb);
+	inline void setRelativeAABB(const core::AABB &aabb);
 
 	/**
 	 * Check if a point is inside of the menu
 	 */
-	inline bool pointInside(const math::Point &p) const;
+	inline bool pointInside(const core::Point &p) const;
 
 	/**
 	 * Activate this menu in the MenuManager or not
@@ -68,7 +68,7 @@ protected:
 
 
 protected:
-	math::AABB			mAABB;
+	core::AABB			mAABB;
 
 
 	static MenuManager	*mMenuManager;
@@ -79,7 +79,7 @@ protected:
 /**
  * Returns the AABB associated to this menu
  */
-inline const math::AABB &IMenu::getAABB(void) const
+inline const core::AABB &IMenu::getAABB(void) const
 {
 	return mAABB;
 }
@@ -87,11 +87,11 @@ inline const math::AABB &IMenu::getAABB(void) const
 /**
  * Set the AABB to this menu
  */
-inline void IMenu::setAABB(const math::AABB &aabb)
+inline void IMenu::setAABB(const core::AABB &aabb)
 {
 	mAABB = aabb;
 }
-inline void IMenu::setRelativeAABB(const math::AABB &aabb)
+inline void IMenu::setRelativeAABB(const core::AABB &aabb)
 {
 	ASSERT(aabb.tl.x >= 0.0f && aabb.tl.x <= 1.0f);
 	ASSERT(aabb.tl.y >= 0.0f && aabb.tl.y <= 1.0f);
@@ -108,7 +108,7 @@ inline void IMenu::setRelativeAABB(const math::AABB &aabb)
 /**
  * Check if a point is inside of the menu
  */
-inline bool IMenu::pointInside(const math::Point &p) const
+inline bool IMenu::pointInside(const core::Point &p) const
 {
 	return mAABB.tl.x <= p.x && mAABB.tl.y <= p.y &&
 			mAABB.br.x >= p.x && mAABB.br.y >= p.y;

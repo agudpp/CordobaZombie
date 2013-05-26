@@ -37,7 +37,7 @@ Shotgun::~Shotgun()
  * @param	p	The target position to shoot
  *
  */
-bool Shotgun::shoot(const math::Vector2 &p)
+bool Shotgun::shoot(const core::Vector2 &p)
 {
 	// check if we can shoot
 	if(mActualMagazine <= 0){
@@ -57,9 +57,9 @@ bool Shotgun::shoot(const math::Vector2 &p)
 	--mActualMagazine;
 
 	// configure the shoot
-	const math::Vector2 &pos = mOwner->getPosition();
+	const core::Vector2 &pos = mOwner->getPosition();
 	Ogre::Vector3 spos(pos.x, mOwner->getPosYAxis(), pos.y);
-	math::Vector2 tv;
+	core::Vector2 tv;
 	const float realPower = mPower * SPREAD_BULLETS_POWER;
 	for(int j = 0; j < i; ++j){
 		shoot[j]->setStartPos(spos);

@@ -19,29 +19,29 @@ public:
 	TriangleFunnel();
 	~TriangleFunnel();
 
-	// Process and get the list of pathmath::Points
+	// Process and get the list of pathcore::Points
 	bool getShortestPath(TriangleAStar::Path p,
-	                     std::vector<math::Vertex> &resultPath,
+	                     std::vector<core::Vertex> &resultPath,
 	                     int size,
-	                     const math::Point &start,
-	                     const math::Point &goal,
+	                     const core::Point &start,
+	                     const core::Point &goal,
 	                     float radius = 0.0f,
 	                     float delta = -1) const;
 
 private:
-	typedef std::vector<const math::Vertex*>	 VertexVec;
-	typedef std::pair<bool, const math::Vertex *>	TunnelVertex;
+	typedef std::vector<const core::Vertex*>	 VertexVec;
+	typedef std::pair<bool, const core::Vertex *>	TunnelVertex;
 	typedef std::vector<TunnelVertex>		TunnelVertexVec;
 
 private:
 	// get all the right and left vertices
 	void getSortedVertices(TriangleAStar::Path p,
-	                       const math::Point &start,
-	                       const math::Point &goal,
+	                       const core::Point &start,
+	                       const core::Point &goal,
 	                       int size) const;
 
 	// PostProcess the path to create the new path using a radius
-	void processRadius(std::vector<math::Vertex> &resultPath,
+	void processRadius(std::vector<core::Vertex> &resultPath,
 	                   float radius,
 	                   float delta) const;
 
@@ -50,12 +50,12 @@ private:
 	// two vertices
 	inline void getNewRadiusPoints(const GEdge *e,
 	                               float radius,
-	                               math::Vertex &v1,
-	                               math::Vertex &v2) const;
+	                               core::Vertex &v1,
+	                               core::Vertex &v2) const;
 
 	// Is p1 clockwise to p2?
-	inline bool isClockwise(const math::Point &p1, const math::Point &p2) const;
-	inline bool isCounterClockwise(const math::Point &p1, const math::Point &p2) const;
+	inline bool isClockwise(const core::Point &p1, const core::Point &p2) const;
+	inline bool isCounterClockwise(const core::Point &p1, const core::Point &p2) const;
 
 
 
@@ -76,11 +76,11 @@ private:
 inline void
 TriangleFunnel::getNewRadiusPoints(const GEdge *e,
                                    float radius,
-                                   math::Vertex &v1,
-                                   math::Vertex &v2) const
+                                   core::Vertex &v1,
+                                   core::Vertex &v2) const
 {
     // we will use vertex as vectors
-    math::Vertex nv = *(e->getSharedVertex()[0]);
+    core::Vertex nv = *(e->getSharedVertex()[0]);
     nv -= *(e->getSharedVertex()[1]);
     nv.normalize();
 
@@ -95,13 +95,13 @@ TriangleFunnel::getNewRadiusPoints(const GEdge *e,
 }
 
 inline bool
-TriangleFunnel::isClockwise(const math::Point &p1, const math::Point &p2) const
+TriangleFunnel::isClockwise(const core::Point &p1, const core::Point &p2) const
 {
     return p1.crossProduct(p2) < 0.0f;
 }
 
 inline bool
-TriangleFunnel::isCounterClockwise(const math::Point &p1, const math::Point &p2) const
+TriangleFunnel::isCounterClockwise(const core::Point &p1, const core::Point &p2) const
 {
     return p1.crossProduct(p2) > 0.0f;
 }

@@ -41,10 +41,10 @@
 #include "MenuManager.h"
 #include "CivilUnit.h"
 
-
-struct ZombiePair{
-	ZombieUnit *zu;
-	math::Vector2 desTpos;
+struct ZombiePair
+{
+    ZombieUnit *zu;
+    core::Vector2 desTpos;
 };
 
 //#include "TestUnit.h"
@@ -52,59 +52,64 @@ struct ZombiePair{
 class Test : public AppTester
 {
 public:
-	Test();
+    Test();
 
-	/* Load additional info */
-	void loadAditionalData(void);
+    /* Load additional info */
+    void
+    loadAditionalData(void);
 
-	/* function called every frame. Use GlobalObjects::lastTimeFrame */
-	void update();
+    /* function called every frame. Use GlobalObjects::lastTimeFrame */
+    void
+    update();
 
-
-	~Test();
-
-private:
-	/// performe a ray from the position of the mouse
-	bool performMouseRay(Ogre::Vector3 &v);
-
-	void createLevelManager(void);
-
-	// create game objects
-	void createPlayer(void);
-	void createZombies(void);
-	void createCivils(void);
-	void createBombs(void);
-	void createCollectable(void);
-
-
-	// create billboardset
-	void createBillboardSet(void);
-
-	// handle input
-	void handleInput(void);
-
-
-
+    ~Test();
 
 private:
-	LevelManager	mLevelManager;
-	bool 		mKeyPressed;
-	int			mPlacesCount;
-	MouseCursor				mMouseCursor;
+    /// performe a ray from the position of the mouse
+    bool
+    performMouseRay(Ogre::Vector3 &v);
+
+    void
+    createLevelManager(void);
+
+    // create game objects
+    void
+    createPlayer(void);
+    void
+    createZombies(void);
+    void
+    createCivils(void);
+    void
+    createBombs(void);
+    void
+    createCollectable(void);
+
+    // create billboardset
+    void
+    createBillboardSet(void);
+
+    // handle input
+    void
+    handleInput(void);
+
+private:
+    LevelManager mLevelManager;
+    bool mKeyPressed;
+    int mPlacesCount;
+    f_e::MouseCursor mMouseCursor;
 //	CameraController		mCamController;
 //	MouseCursor				mMouseCursor;
-	std::vector<ZombiePair> mGameObjs;
-	std::vector<ZombieUnit*> mZombies;
-	std::vector<PlayerUnit*> mPlayers;
-	std::vector<CivilUnit*>	mCivils;
-	PlayerGroup				*mPlayerGroup;
-	Ogre::BillboardSet		*mBillboardSet;
-	Bomb					*mBomb;
-	CollectableObject		*mCollectable;
+    std::vector<ZombiePair> mGameObjs;
+    std::vector<ZombieUnit*> mZombies;
+    std::vector<PlayerUnit*> mPlayers;
+    std::vector<CivilUnit*> mCivils;
+    PlayerGroup *mPlayerGroup;
+    Ogre::BillboardSet *mBillboardSet;
+    Bomb *mBomb;
+    CollectableObject *mCollectable;
 
-	UpdObjsManager			mUpdMngr;
-	MenuManager				mMenuManager;
-
+    UpdObjsManager mUpdMngr;
+    MenuManager mMenuManager;
 
 //	TestUnit				mTestUnit;
 

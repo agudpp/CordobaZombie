@@ -42,12 +42,12 @@ public:
 	 * 							that have to go in the "middlePos"
 	 * @note	We have to previously configure the formation
 	 */
-	void calculate(const math::Vector2 &actualPos,
-			const math::Vector2 &middlePos,
-			const math::Vector2 &endPos,
-			std::vector<math::Vector2> &result);
+	void calculate(const core::Vector2 &actualPos,
+			const core::Vector2 &middlePos,
+			const core::Vector2 &endPos,
+			std::vector<core::Vector2> &result);
 private:
-	std::vector<math::Vector2>	mPositions;
+	std::vector<core::Vector2>	mPositions;
 };
 
 #endif /* CIRCULARFORMATION_H_ */

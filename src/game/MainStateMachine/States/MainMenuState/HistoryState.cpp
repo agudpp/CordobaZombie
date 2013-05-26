@@ -92,7 +92,7 @@ void HistoryState::load(void)
 
 	if(!mSlidePlayer){
 
-		mSlidePlayer = new SlidePlayer(
+		mSlidePlayer = new f_e::SlidePlayer(
 							Ogre::String("HistorySlidePlayerOverlay"),
 							Ogre::String("MainStates/MainMenuState/"
 							"HistoryState/SlidePlayerOverlayEffects.xml"));
@@ -252,10 +252,10 @@ void HistoryState::operator()(CbMenuButton * b, CbMenuButton::ButtonID id)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void HistoryState::operator()(OvEff::OverlayEffect::EventID id)
+void HistoryState::operator()(f_e::OverlayEffect::EventID id)
 {
 	// Buttons have finished hiding, send finish event to the MainMenuState
-	if(id == OvEff::OverlayEffect::ENDING && mState == STATE_HIDING){
+	if(id == f_e::OverlayEffect::ENDING && mState == STATE_HIDING){
 		mState = STATE_EXITING;
 	}
 }

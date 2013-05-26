@@ -14,7 +14,7 @@ namespace input {
 selection::SelectionManager *IInputState::sSelectionMngr =
     &selection::SelectionManager::getInstance();
 LevelManager *IInputState::sLevelManager = 0;
-CollisionResult IInputState::mCollObjs;
+c_p::CollisionResult IInputState::mCollObjs;
 selection::SelectableObject *IInputState::sOnMouseOverObj = 0;
 
 ////////////////////////////////////////////////////////////////////////////////

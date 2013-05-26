@@ -104,7 +104,7 @@ void Test::createPlayer(void)
 		zu->setMaxVelocity(MAX_VEL*2.0f);
 		zu->setVelocity(MAX_VEL);
 
-		math::Vector2 p;
+		core::Vector2 p;
 		p.x = 507 + 5*i;
 		p.y = 788 + 30*i;
 		zu->setPosition(p);
@@ -151,7 +151,7 @@ void Test::createZombies(void)
 	static ZombieQueue q;
 	ZombieUnit::setQueue(&q);
 
-	math::Vector2 p;
+	core::Vector2 p;
 	for(int i = 0; i < 1; ++i){
 		Ogre::Entity * ent = GLOBAL_SCN_MNGR->createEntity("zombie01.mesh");
 		Ogre::SceneNode *node = GLOBAL_SCN_MNGR->getRootSceneNode()->createChildSceneNode();
@@ -227,7 +227,7 @@ Test::~Test()
 // handle input
 void Test::handleInput(void)
 {
-	math::Vector2 tran;
+	core::Vector2 tran;
 	static const float VEL = 150.0f;
 	tran.x = tran.y = 0.0f;
 	static bool keyPres1 = false;
@@ -246,7 +246,7 @@ void Test::handleInput(void)
 			mousePressed = true;
 
 			// check if we are getting a player
-			static CollisionResult cr;
+			static c_p::CollisionResult cr;
 			static PlayerUnit *pu = 0;
 
 			// first check if we have a player selected
@@ -312,12 +312,12 @@ void Test::update()
 
 	static double t1,t2,t3,t4;
 	static bool keyPres = false;
-	math::Vector2 p;
+	core::Vector2 p;
 
 	t1 = gettimestamp();
 	t3 = t2 - t1;
 	// update the game objects
-	math::Vector2 trans;
+	core::Vector2 trans;
 	ZombieUnit *zu;
 	for(int i = mZombies.size()-1; i>= 0; --i){
 		mZombies[i]->update();

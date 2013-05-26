@@ -47,7 +47,7 @@ private:
 	void simulateMainMenuStateRun(void);
 
 private:
-	MouseCursor				mMouseCursor;
+	f_e::MouseCursor				mMouseCursor;
 	float					mTimer;
 	MenuManager				mMenuManager;
 

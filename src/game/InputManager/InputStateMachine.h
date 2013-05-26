@@ -159,7 +159,7 @@ private:
     std::vector<Ogre::Vector3> mSavedPositions;
     // and the PlayerOffsets used to separate the destination locations of the
     // players
-    std::vector<math::Vector2> mPlayerOffsets;
+    std::vector<core::Vector2> mPlayerOffsets;
 
 };
 
@@ -173,7 +173,7 @@ InputStateMachine::showCursorSinglePlayer(selection::Type selType)
 {
     ASSERT(!mAuxVec.empty());
 
-    MouseCursor &mc = *GLOBAL_CURSOR;
+    f_e::MouseCursor &mc = *GLOBAL_CURSOR;
 
     switch (selType) {
     case selection::Type::SEL_TYPE_PLAYER:
@@ -181,13 +181,13 @@ InputStateMachine::showCursorSinglePlayer(selection::Type selType)
     case selection::Type::SEL_TYPE_CIVIL:
     case selection::Type::SEL_TYPE_LVL_OBJECT:
         // normal cursor
-        mc.setCursor(MouseCursor::Cursor::NORMAL_CURSOR);
+        mc.setCursor(f_e::MouseCursor::Cursor::NORMAL_CURSOR);
         break;
     case selection::Type::SEL_TYPE_ZOMBIE:
-        mc.setCursor(MouseCursor::Cursor::ATTACK_CURSOR);
+        mc.setCursor(f_e::MouseCursor::Cursor::ATTACK_CURSOR);
         break;
     case selection::Type::SEL_TYPE_COL_OBJECT:
-        mc.setCursor(MouseCursor::Cursor::PICK_OBJECT_CURSOR);
+        mc.setCursor(f_e::MouseCursor::Cursor::PICK_OBJECT_CURSOR);
         break;
     case selection::Type::SEL_TYPE_SPECIAL_ACTION:
         debugERROR("NOT IMPLEMENTED!! NEED TO PUT THE CURSOR HERE\n");
@@ -205,7 +205,7 @@ InputStateMachine::showCursorMultiPlayer(selection::Type selType)
 {
     ASSERT(!mAuxVec.empty());
 
-    MouseCursor &mc = *GLOBAL_CURSOR;
+    f_e::MouseCursor &mc = *GLOBAL_CURSOR;
 
     switch (selType) {
     case selection::Type::SEL_TYPE_PLAYER:
@@ -215,10 +215,10 @@ InputStateMachine::showCursorMultiPlayer(selection::Type selType)
     case selection::Type::SEL_TYPE_COL_OBJECT: // NOTE we cannot pick objects?
     case selection::Type::SEL_TYPE_SPECIAL_ACTION: // NOTE we cannot do actions?
         // normal cursor
-        mc.setCursor(MouseCursor::Cursor::NORMAL_CURSOR);
+        mc.setCursor(f_e::MouseCursor::Cursor::NORMAL_CURSOR);
         break;
     case selection::Type::SEL_TYPE_ZOMBIE:
-        mc.setCursor(MouseCursor::Cursor::ATTACK_CURSOR);
+        mc.setCursor(f_e::MouseCursor::Cursor::ATTACK_CURSOR);
         break;
     default:
         ASSERT(false);
@@ -235,7 +235,7 @@ InputStateMachine::calculateLocations(const Ogre::Vector3 &pointInPath)
 
     for (size_t i = 0, size = mAuxVec.size(); i < size; ++i) {
         // calculate the new possible position of the player
-        const math::Vector2 newPos(pointInPath.x + mPlayerOffsets[i].x,
+        const core::Vector2 newPos(pointInPath.x + mPlayerOffsets[i].x,
                                  pointInPath.z + mPlayerOffsets[i].y);
         if (mActualState->isPointInPath(newPos)) {
             // we have to update the mSavedPositions

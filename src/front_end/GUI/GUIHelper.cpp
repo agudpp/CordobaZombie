@@ -20,6 +20,7 @@
 
 #include "GUIHelper.h"
 
+namespace f_e {
 
 /**
  * Ugly but fast recursively function used to reposition the overlaycontainer
@@ -496,4 +497,6 @@ void GUIHelper::getTexture(const Ogre::String &matName, Ogre::TexturePtr &result
 	result = Ogre::TextureManager::getSingleton().getByName(
 			mat->getTechnique(0)->getPass(0)->getTextureUnitState(
 					0)->getTextureName());
+}
+
 }

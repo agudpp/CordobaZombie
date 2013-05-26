@@ -78,7 +78,7 @@ public:
 	 * Call back function to let buttons effect tell us when they have done
 	 * hiding.
 	 */
-	void operator()(OvEff::OverlayEffect::EventID id);
+	void operator()(f_e::OverlayEffect::EventID id);
 
 private:
 
@@ -95,13 +95,13 @@ private:
 
 
 private:
-	typedef std::vector<OvEff::MenuButtonEffect>	ButtonsEffectVec;
+	typedef std::vector<f_e::MenuButtonEffect>	ButtonsEffectVec;
 	typedef std::vector<Ogre::String>				StrVec;
 
 	ButtonsEffectVec	mButtons;
 	StrVec				mBtnNames;
 	int					mState;
-	SlidePlayer			*mSlidePlayer;
+	f_e::SlidePlayer	*mSlidePlayer;
 };
 
 }

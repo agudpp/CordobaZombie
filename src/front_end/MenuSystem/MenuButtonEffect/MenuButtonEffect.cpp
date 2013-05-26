@@ -10,7 +10,7 @@
 
 #include "MenuButton.h"
 
-namespace OvEff {
+namespace f_e {
 
 MenuButtonEffect::MenuButtonEffect(MenuButton *button, OverlayEffect *effect) :
 		mMenuButton(button),

@@ -31,9 +31,9 @@ class LoadingState : public IMainState
 
 	struct Updater : public LoaderManager::LoaderCallback {
 		void operator()(float, const std::string&);
-		void setLoadingBar(LoadingBar *b);
+		void setLoadingBar(f_e::LoadingBar *b);
 	private:
-		LoadingBar*	mBar;
+		f_e::LoadingBar*	mBar;
 		float		mAccum;
 		Ogre::Timer mTimer;
 		float 		mTimeStamp;
@@ -99,7 +99,7 @@ protected:
 	typedef std::vector<helper::MetaRscManager::FileID> RscFileIDVec;
 
 	LoaderManager*		mLoaderManager;
-	LoadingBar			mLoadingBar;
+	f_e::LoadingBar			mLoadingBar;
 	Ogre::Overlay*		mBackground;
 	Updater				mUpdater;
 	TiXmlDocument*		mDoc;

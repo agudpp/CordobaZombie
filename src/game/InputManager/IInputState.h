@@ -107,8 +107,8 @@ public:
      * @param	point	The point where we want to realize the Query
      * @param	mask	The mask to be used
      */
-    inline CollisionResult &
-    performCollPointQuery(const Ogre::Vector3 &point, mask_t mask) const;
+    inline c_p::CollisionResult &
+    performCollPointQuery(const Ogre::Vector3 &point, c_p::mask_t mask) const;
 
     /**
      * Check if a point is in the Pathfinding "mesh" or is a place where the
@@ -118,7 +118,7 @@ public:
     inline bool
     isPointInPath(const Ogre::Vector3 &pos) const;
     inline bool
-    isPointInPath(const math::Vector2 &pos) const;
+    isPointInPath(const core::Vector2 &pos) const;
 
     /**
      * Returns the bit map of types of unit selected
@@ -156,7 +156,7 @@ protected:
 
 	static selection::SelectionManager *sSelectionMngr;
 	static LevelManager *sLevelManager;
-	static CollisionResult mCollObjs;
+	static c_p::CollisionResult mCollObjs;
 	static selection::SelectableObject *sOnMouseOverObj;
 
 };
@@ -186,11 +186,11 @@ IInputState::performRayQuery(uint32 mask, bool sort, int numR) const
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-inline CollisionResult &
-IInputState::performCollPointQuery(const Ogre::Vector3 &point,mask_t mask) const
+inline c_p::CollisionResult &
+IInputState::performCollPointQuery(const Ogre::Vector3 &point,c_p::mask_t mask) const
 {
 	sLevelManager->getCollisionManager()->getCollisionObjects(
-				math::Vector2(point.x, point.z), mask, mCollObjs);
+				core::Vector2(point.x, point.z), mask, mCollObjs);
 	return mCollObjs;
 }
 
@@ -199,11 +199,11 @@ inline bool
 IInputState::isPointInPath(const Ogre::Vector3 &pos) const
 {
 	return sLevelManager->getPathfinderManager()->getNodeFromPoint(
-			math::Vector2(pos.x, pos.z)) != 0;
+			core::Vector2(pos.x, pos.z)) != 0;
 }
 ////////////////////////////////////////////////////////////////////////////////
 inline bool
-IInputState::isPointInPath(const math::Vector2 &pos) const
+IInputState::isPointInPath(const core::Vector2 &pos) const
 {
 	return sLevelManager->getPathfinderManager()->getNodeFromPoint(pos) != 0;
 }

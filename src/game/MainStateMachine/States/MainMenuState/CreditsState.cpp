@@ -56,7 +56,9 @@ CreditsState::CreditsState() :
 
 CreditsState::~CreditsState()
 {
-    if (mOverlay != 0) GUIHelper::fullDestroyOverlay(mOverlay);
+    if (mOverlay != 0) {
+        f_e::GUIHelper::fullDestroyOverlay(mOverlay);
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -121,9 +123,9 @@ void CreditsState::load(void)
 	}
 	Ogre::String str = creditsStr;
 	debugERROR("Uncomment the following lines\n");
-//	gui_utils::Text2D textConfigurator(mTextArea);
+//	f_e::Text2D textConfigurator(mTextArea);
 //	textConfigurator.configure(str,
-//	        gui_utils::Text2D::ADJUST_TEXT_TO_CONTAINER_H);
+//	        f_e::Text2D::ADJUST_TEXT_TO_CONTAINER_H);
 
 	// configure the translation position
 	Ogre::Vector2 endPos;
@@ -144,7 +146,7 @@ void CreditsState::load(void)
 	mSlideEffect.setDuration(timeDuration);
 
 	// configure the velocity here, is linear
-	mSlideEffect.setFunction(OvEff::Slide::LINEAL_FUNCTION);
+	mSlideEffect.setFunction(f_e::Slide::LINEAL_FUNCTION);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

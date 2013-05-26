@@ -28,7 +28,9 @@ class BillboardBatery;
 }
 
 class ZombieFactoryManager;
+namespace c_p {
 class CollisionManager;
+}
 
 typedef std::vector<GameObject *>			GameObjectVec;
 typedef std::vector<GameUnit *>				GameUnitVec;
@@ -47,7 +49,7 @@ struct LoaderData {
 	PathfindingManager			*pathfindingManager;
 	billboard::BillboardBatery  *bloodBatery;
 	ZombieFactoryManager		*zombieFactoryManager;
-	CollisionManager			*collisionManager;
+	c_p::CollisionManager		*collisionManager;
 
 	LoaderData() :
 		loaderManager(0),

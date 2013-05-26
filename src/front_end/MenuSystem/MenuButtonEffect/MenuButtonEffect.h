@@ -17,7 +17,7 @@
 
 class MenuButton;
 
-namespace OvEff {
+namespace f_e {
 
 class MenuButtonEffect {
 public:

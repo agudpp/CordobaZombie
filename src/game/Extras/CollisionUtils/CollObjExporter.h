@@ -110,7 +110,7 @@ private:
 	 ** Vertices are returned counterclockwise
 	 **/
 	static std::string
-	createPolyShape(PolyStructsContainer<math::Vertex *> &vertices,
+	createPolyShape(PolyStructsContainer<core::Vertex *> &vertices,
 					PolyStructsContainer<Triangle *> &triangles);
 
 	/**
@@ -122,7 +122,7 @@ private:
 	 ** "" on error
 	 **/
 	static std::string
-	createCircleShape(PolyStructsContainer<math::Vertex *> &vertices,
+	createCircleShape(PolyStructsContainer<core::Vertex *> &vertices,
 					  PolyStructsContainer<Triangle *> &triangles);
 
 	/**
@@ -134,7 +134,7 @@ private:
 	 ** "" on error
 	 **/
 	static std::string
-	createEdgeShape(PolyStructsContainer<math::Vertex *> &vertices,
+	createEdgeShape(PolyStructsContainer<core::Vertex *> &vertices,
 					PolyStructsContainer<Triangle *> &triangles);
 
 	/**
@@ -146,7 +146,7 @@ private:
 	 ** "" on error
 	 **/
 	static std::string
-	createBoxShape(PolyStructsContainer<math::Vertex *> &vertices,
+	createBoxShape(PolyStructsContainer<core::Vertex *> &vertices,
 				   PolyStructsContainer<Triangle *> &triangles);
 
 	/**
@@ -158,7 +158,7 @@ private:
 	 ** "" on error
 	 **/
 	static std::string
-	createAABBShape(PolyStructsContainer<math::Vertex *> &vertices,
+	createAABBShape(PolyStructsContainer<core::Vertex *> &vertices,
 					PolyStructsContainer<Triangle *> &triangles);
 
 	/**
@@ -166,7 +166,7 @@ private:
 	 ** Create a bounding box from a list of 2D vertices
 	 **/
 	static inline void
-	getBoundingBox(const std::vector<math::Vertex *> &v, math::AABB &bb);
+	getBoundingBox(const std::vector<core::Vertex *> &v, core::AABB &bb);
 };
 
 
@@ -189,7 +189,7 @@ CollObjExporter::userDefExtractor(const Ogre::String &source)
 
 ////////////////////////////////////////////////////////////////////////////////
 void
-CollObjExporter::getBoundingBox(const std::vector<math::Vertex *> &v, math::AABB &bb)
+CollObjExporter::getBoundingBox(const std::vector<core::Vertex *> &v, core::AABB &bb)
 {
 	ASSERT(v.size() >= 2);
 

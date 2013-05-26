@@ -89,7 +89,7 @@ private:
 private:
 	StatusVec			mPlayerStatus;
 	StatusVec			mPlayerSelected;
-	LoadingBar			mBigLoadingBar;
+	f_e::LoadingBar			mBigLoadingBar;
 	Ogre::Overlay		*mOverlay;
 };
 

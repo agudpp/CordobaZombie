@@ -21,11 +21,11 @@ namespace input {
 class EmptySelection : public IInputState
 {
     // define the mask we want to use to perform the raycast
-    static const uint32 RAYCAST_MASK =  COL_FLAG_UNIT_PLAYER    |
-                                        COL_FLAG_UNIT_ZOMBIE    |
-                                        COL_FLAG_UNIT_CIVIL     |
-                                        COL_FLAG_LEVEL_INFO_OBJ |
-                                        COL_FLAG_COLLECTABLE_OBJ;
+    static const uint32 RAYCAST_MASK =  c_p::COL_FLAG_UNIT_PLAYER    |
+                                        c_p::COL_FLAG_UNIT_ZOMBIE    |
+                                        c_p::COL_FLAG_UNIT_CIVIL     |
+                                        c_p::COL_FLAG_LEVEL_INFO_OBJ |
+                                        c_p::COL_FLAG_COLLECTABLE_OBJ;
 public:
     EmptySelection();
 

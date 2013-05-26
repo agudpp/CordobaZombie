@@ -176,7 +176,7 @@ void Test::loadAditionalData(void)
 //    mLevelManager.load(ent, 25000, 25000, 100, 100);
 
 
-    PolyStructsContainer<math::Vertex *> vertexs;
+    PolyStructsContainer<core::Vertex *> vertexs;
     PolyStructsContainer<Triangle *> triangles;
     TriangleNavMesh triNavMesh;
     // Create graph

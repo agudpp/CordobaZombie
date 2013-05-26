@@ -33,7 +33,7 @@ void CivilUnit::adviseNearbyZombies(void)
 {
 	// check all the objects that are close
 	getNearbyObjects(ZOMBIE_MAX_VISIBILITY_DIST, ZOMBIE_MAX_VISIBILITY_DIST,
-			COL_FLAG_UNIT_ZOMBIE,
+			c_p::COL_FLAG_UNIT_ZOMBIE,
 			reinterpret_cast<std::vector<GameObject *> &>(mNearbyZombies));
 
 	// now for every object we put it into the nearbyZombies
@@ -151,7 +151,7 @@ bool CivilUnit::build(void)
 	// config the bounding box
 	float w,h;
 	getAABBFromEntity(w,h);
-	configCollObj(w,h, COL_FLAG_UNIT_CIVIL, COL_GRFLAG_UNIT_CIVIL);
+	configCollObj(w,h, c_p::COL_FLAG_UNIT_CIVIL, c_p::COL_GRFLAG_UNIT_CIVIL);
 
 	// configure the unit path
 	configureUnitPath();

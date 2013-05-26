@@ -9,7 +9,6 @@
 #include <OgrePanelOverlayElement.h>
 
 #include "DebugUtil.h"
-#include "GUIHelper.h"
 #include "ExtraAction.h"
 
 

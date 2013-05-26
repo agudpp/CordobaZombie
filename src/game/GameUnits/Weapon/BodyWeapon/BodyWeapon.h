@@ -29,7 +29,7 @@ public:
 	/**
 	 * Function called when we perform a shoot
 	 */
-	virtual bool shoot(const math::Vector2 &p);
+	virtual bool shoot(const core::Vector2 &p);
 
 	/**
 	 * Check if we can shoot the weapon or not, if we cannot shoot then

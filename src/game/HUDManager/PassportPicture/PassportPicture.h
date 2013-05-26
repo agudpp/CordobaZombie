@@ -82,7 +82,7 @@ public:
 private:
 
 	Ogre::PanelOverlayElement	*mPanel;
-	MultiAtlasOverlay mAtlas;
+	f_e::MultiAtlasOverlay mAtlas;
 };
 
 // Inline implementations

@@ -16,6 +16,7 @@
 #include <Box2D/Collision/Shapes/b2PolygonShape.h>
 #include <Box2D/Collision/Shapes/b2CircleShape.h>
 
+namespace c_p {
 
 struct CollisionObject {
     struct Box2DData {
@@ -35,7 +36,7 @@ struct CollisionObject {
         b2Transform     transform;  //Position and rotation of the real shape
     };
 
-	math::AABB		bb;	// bounding box
+	core::AABB		bb;	// bounding box
 	int				numEdges;	//Numbre of edeges of the real shape. If it is a
 								//circle, numEdges = 0;
 	mask_t			maskFlag;	// the flags of this collision object
@@ -61,9 +62,9 @@ struct CollisionObject {
 	    delete b2dData;
 	}
 
-	inline const math::Vector2 &getPosition(void) const {return bb.pos;}
+	inline const core::Vector2 &getPosition(void) const {return bb.pos;}
 	
-	inline void setPosition(const math::Vector2 &p)
+	inline void setPosition(const core::Vector2 &p)
 	{
 		if(b2dData) b2dData->transform.Set(b2Vec2(p.x, p.y),0);
 		bb.setPosition(p);
@@ -78,19 +79,19 @@ struct CollisionObject {
 	/**
 	 * Get the intersection point from an AABB and the object
 	 */
-	void getIntPoints(const math::AABB &aabb, std::vector<math::Vector2> &result) const;
+	void getIntPoints(const core::AABB &aabb, std::vector<core::Vector2> &result) const;
 
 	/**
 	 * Get the intersection between this object and a line
 	 */
-	void getIntPoints(const math::Vector2 &p1, const math::Vector2 &p2,
-			std::vector<math::Vector2> &result) const;
+	void getIntPoints(const core::Vector2 &p1, const core::Vector2 &p2,
+			std::vector<core::Vector2> &result) const;
 	
 	/**
 	 * Get the intersection between this object and other object
 	 */
 	void getIntPoints(const CollisionObject *other,
-			std::vector<math::Vector2> &result) const;
+			std::vector<core::Vector2> &result) const;
 	
 
 
@@ -129,5 +130,7 @@ struct CollisionObject {
 //	}
 
 };
+
+}
 
 #endif /* COLLISIONOBJECT_H_ */

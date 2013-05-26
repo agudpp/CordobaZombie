@@ -127,12 +127,12 @@ public:
      *
      * @param	p	The target position to shoot
      */
-    virtual bool shoot(const math::Vector2 &p) = 0;
+    virtual bool shoot(const core::Vector2 &p) = 0;
 
     /**
      * Second shoot always can be performed
      */
-    virtual void secondShoot(const math::Vector2 &p);
+    virtual void secondShoot(const core::Vector2 &p);
 
     /**
      * Check if we can shoot the weapon or not, if we cannot shoot then
@@ -177,7 +177,7 @@ protected:
     // TODO: Effect		*mEffect;
 
     static ShootContainer	*mShootCont;
-    static CollisionResult	mCollResult;
+    static c_p::CollisionResult	mCollResult;
 };
 
 

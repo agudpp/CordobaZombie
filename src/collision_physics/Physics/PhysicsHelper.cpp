@@ -13,6 +13,7 @@
 #include <cmath>
 
 
+namespace c_p {
 
 const float  PhysicsHelper::GRAVITY_FACTOR      =   9.8f;
 const float  PhysicsHelper::FLOOR_POSITION_Y    =   .0f;
@@ -70,7 +71,7 @@ bool PhysicsHelper::updateAllObject(PhysicObject &obj)
 	// object position in the world
 	obj.node->translate(obj.force);
 	GLOBAL_LVL_MNGR->getCollisionManager()->translateObject(obj.collisionObject,
-			math::Vector2(obj.force.x, obj.force.z));
+			core::Vector2(obj.force.x, obj.force.z));
 
 	return true;
 }
@@ -78,6 +79,8 @@ bool PhysicsHelper::updateAllObject(PhysicObject &obj)
 ////////////////////////////////////////////////////////////////////////////////
 void PhysicsHelper::updateBounce(PhysicObject &obj, const Ogre::Vector3 &nsurf)
 {
+    ASSERT(false);
+}
 
 }
 
