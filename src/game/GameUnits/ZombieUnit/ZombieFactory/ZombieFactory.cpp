@@ -32,7 +32,7 @@ ZombieFactory::~ZombieFactory()
  * @param	p	Position
  * @param	d	Direction
  */
-void ZombieFactory::configure(const sm::AABB &aabb,
+void ZombieFactory::configure(const math::AABB &aabb,
 		const Ogre::Vector3 &d, int N, ZombieQueue *zq)
 {
 	mAABB = aabb;
@@ -57,7 +57,7 @@ void ZombieFactory::create(int n)
 		const float x = Ogre::Math::RangeRandom(mAABB.tl.x, mAABB.br.x);
 		const float y = Ogre::Math::RangeRandom(mAABB.br.y, mAABB.tl.y);
 		// else.. we configure the zombie
-		z->setPosition(sm::Vector2(x,y));
+		z->setPosition(math::Vector2(x,y));
 		z->setDirection(mDirection);
 
 		// advise that is alive again

@@ -70,7 +70,7 @@ bool PhysicsHelper::updateAllObject(PhysicObject &obj)
 	// object position in the world
 	obj.node->translate(obj.force);
 	GLOBAL_LVL_MNGR->getCollisionManager()->translateObject(obj.collisionObject,
-			sm::Vector2(obj.force.x, obj.force.z));
+			math::Vector2(obj.force.x, obj.force.z));
 
 	return true;
 }

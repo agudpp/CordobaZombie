@@ -87,8 +87,8 @@ protected:
 	/**
 	 * Get the first collision object that exists between p1 and p2
 	 */
-	const CollisionObject *getCollObj(const sm::Vector2 &p1,
-			const sm::Vector2 &p2);
+	const CollisionObject *getCollObj(const math::Vector2 &p1,
+			const math::Vector2 &p2);
 
 
 protected:

@@ -37,7 +37,7 @@ ShortWeapon::~ShortWeapon()
 /**
  * Function called when we perform a shoot
  */
-bool ShortWeapon::shoot(const sm::Vector2 &p)
+bool ShortWeapon::shoot(const math::Vector2 &p)
 {
 	// TODO: deberiamos alomejor implementar aca un disparo de arma normal...
 	// como cualquier arma corta...

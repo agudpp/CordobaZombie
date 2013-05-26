@@ -29,7 +29,7 @@ inline void removeElement(std::vector<IMenu *> &vec, const size_t index)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void MenuManager::getCellsFromAABB(const sm::AABB &aabb,
+void MenuManager::getCellsFromAABB(const math::AABB &aabb,
 		std::vector<MenuCell *> &cells)
 {
 	ASSERT(!mMatrix.empty());
@@ -165,7 +165,7 @@ bool MenuManager::update(void)
 {
 	ASSERT(!mMatrix.empty());
 
-	static sm::Point p;
+	static math::Point p;
 	static bool lastStepClicked = false;
 	static bool acatualStepClicked = false;
 

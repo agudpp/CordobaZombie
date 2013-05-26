@@ -50,9 +50,9 @@ public:
 		node = other.node;
 	}
 
-	void updatePos(sm::Vector2 &p, CollisionResult &cr)
+	void updatePos(math::Vector2 &p, CollisionResult &cr)
 	{
-		sm::Vector2 aux, pos;
+		math::Vector2 aux, pos;
 		p = transVec;
 
 
@@ -77,7 +77,7 @@ public:
 
 	}
 
-	sm::Vector2 transVec;
+	math::Vector2 transVec;
 private:
 	const CollisionObject *co;
 	Ogre::Entity *ent;

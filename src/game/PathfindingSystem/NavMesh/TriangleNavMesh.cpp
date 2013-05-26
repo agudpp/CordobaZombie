@@ -75,7 +75,7 @@ TriangleNavMesh::setFactorsPosition(float levelSizeX, float levelSizeY)
 ////////////////////////////////////////////////////////////////////////////////
 void
 TriangleNavMesh::getTrianglesBoundingBox(const TriangleVec &triangles,
-		sm::Point &tl, sm::Point &br)
+		math::Point &tl, math::Point &br)
 {
 	ASSERT(!triangles.empty());
 
@@ -84,7 +84,7 @@ TriangleNavMesh::getTrianglesBoundingBox(const TriangleVec &triangles,
 	tl.y = triangles[0]->v1->y;
 	br.y = triangles[0]->v1->y;
 
-	const sm::Vertex *v1,*v2,*v3;
+	const math::Vertex *v1,*v2,*v3;
 	for(int i = triangles.size() - 1; i >= 0; --i){
 		v1 = triangles[i]->v1;
 		v2 = triangles[i]->v2;
@@ -124,7 +124,7 @@ TriangleNavMesh::getCellsIntersection(const Triangle &region,
 	brx = M_MIN(brx, mColumnCount-1);
 
 	// now check all the cells if there are inside or not
-	sm::AlignedBox box;
+	math::AlignedBox box;
 	for(i = bry; i <= tly; i++) {
 		for(j = tlx; j <= brx; j++) {
 			getCellBoundingBox(box, i, j);
@@ -219,10 +219,10 @@ TriangleNavMesh::linkNodes(GNode *n1, GNode *n2)
 int
 TriangleNavMesh::buildGraph(const TriangleVec &triangles)
 {
-	typedef std::map<const sm::Vertex*, std::list<GNode *> > HashVertex;
+	typedef std::map<const math::Vertex*, std::list<GNode *> > HashVertex;
 	HashVertex hash;
 	HashVertex::iterator it;
-	const sm::Vertex *v1,*v2,*v3;
+	const math::Vertex *v1,*v2,*v3;
 
 	// check if the graph is not empty we remove everything
 	mGraph.removeAndDestroyEdeges();
@@ -341,7 +341,7 @@ TriangleNavMesh::setNumColumnsAndRows(int numColumns, int numRows)
 
 ////////////////////////////////////////////////////////////////////////////////
 const GNode *
-TriangleNavMesh::getNodeFromPoint(const sm::Point &p) const
+TriangleNavMesh::getNodeFromPoint(const math::Point &p) const
 {
 	ASSERT(mMatrix);
 	int r = MATRIX_GET_ROW(p.y);
@@ -389,7 +389,7 @@ int
 TriangleNavMesh::build(void)
 {
 	// get the size of the level
-	sm::Point tl, br;
+	math::Point tl, br;
 	getTrianglesBoundingBox(mTriangles, tl, br);
 	ASSERT(tl.x < br.x);
 	ASSERT(tl.y > br.y);
@@ -440,7 +440,7 @@ TriangleNavMesh::buildFromGraph(const Graph &g)
 	}
 
 	// get the size of the level
-	sm::Point tl, br;
+	math::Point tl, br;
 	getTrianglesBoundingBox(mTriangles, tl, br);
 	ASSERT(tl.x < br.x);
 	ASSERT(tl.y > br.y);

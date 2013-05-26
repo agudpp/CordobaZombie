@@ -25,7 +25,7 @@ void Test::drawTrianglesBox(const PolyStructsContainer<Triangle *> &cont)
 		Ogre::SceneNode *node = GLOBAL_SCN_MNGR->getRootSceneNode()->createChildSceneNode();
 
 		node->attachObject(ent);
-		sm::Point p;
+		math::Point p;
 		objs[i]->getCenterPoint(p);
 		node->setPosition(Ogre::Vector3(p.x,0,p.y));
 		node->setScale(0.2, 0.2, 0.2);
@@ -70,7 +70,7 @@ Test::~Test()
 void Test::loadAditionalData(void)
 {
 
-	std::vector<sm::Vertex *> vertexs;
+	std::vector<math::Vertex *> vertexs;
 	std::vector<Triangle *> triangles;
 
 	ASSERT(TriNavMeshBuilder::importGraph(vertexs, triangles, "testGraph.txt"));
@@ -111,7 +111,7 @@ void Test::loadAditionalData(void)
 //	debug("Number of vertexs: %d, Triangles size: %d\n", mVvertexs.getSize(),
 //			mTriangles.getSize());
 //
-//	std::vector<sm::Vertex *> &vv = mVvertexs.getObjs();
+//	std::vector<math::Vertex *> &vv = mVvertexs.getObjs();
 //	for(int i = vv.size()-1; i >= 0; --i){
 //		debug("Vertex[%d]: (%f, %f)\n", i, vv[i]->x, vv[i]->y);
 //	}

@@ -103,7 +103,7 @@ private:
 	CollisionManager	*mCollMngr;
 	LOSManager			mLOSManager;
 	RaycastManager		mRaycastManager;
-	PolyStructsContainer<sm::Vertex *> mVertexs;
+	PolyStructsContainer<math::Vertex *> mVertexs;
 	PolyStructsContainer<Triangle *> mTriangles;
 
 };

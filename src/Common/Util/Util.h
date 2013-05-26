@@ -86,7 +86,7 @@ public:
 	 * 	true		on success
 	 * 	false		otherwise
 	 */
-	static bool getTrianglesFromMesh(PolyStructsContainer<sm::Vertex *> &cont,
+	static bool getTrianglesFromMesh(PolyStructsContainer<math::Vertex *> &cont,
 			PolyStructsContainer<Triangle *> &triangles,
 			Ogre::MeshPtr mesh,
 			const Ogre::Matrix4 &trmatrix = Ogre::Matrix4::IDENTITY);
@@ -121,7 +121,7 @@ private:
 	                        const Ogre::Vector3 &scale = Ogre::Vector3::UNIT_SCALE);
 
 	// Find a vertex from a vector
-	static sm::Vertex *findVertex(const std::vector<sm::Vertex *> &vertexs,
+	static math::Vertex *findVertex(const std::vector<math::Vertex *> &vertexs,
 			const Ogre::Vector3 &ve);
 
 

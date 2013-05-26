@@ -135,9 +135,9 @@ void MenuButton::configureAll(Ogre::OverlayContainer *cont)
 	setContainer(cont);
 
 	// first of all remove from the MenuManager
-	sm::Vector2 tl, br;
+	math::Vector2 tl, br;
 	GUIHelper::getAbsoluteGeometry(cont, tl.y,tl.x,br.x, br.y);
-	setRelativeAABB(sm::AABB(tl,br));
+	setRelativeAABB(math::AABB(tl,br));
 	Ogre::MaterialPtr mat = cont->getMaterial();
 	if(mat.isNull() || !mat->getTechnique(0) || !mat->getTechnique(0)->getPass(0)){
 		debugWARNING("Container %s has no material to set the atlas size\n",

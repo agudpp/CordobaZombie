@@ -102,7 +102,7 @@ void Test::createPlayer(void)
 		zu->setMaxVelocity(MAX_VEL*2.0f);
 		zu->setVelocity(MAX_VEL);
 
-		sm::Vector2 p;
+		math::Vector2 p;
 		p.x = 10;
 		p.y = 10;
 		zu->setPosition(p);

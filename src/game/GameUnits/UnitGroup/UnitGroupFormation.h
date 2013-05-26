@@ -42,10 +42,10 @@ public:
 	 * 							that have to go in the "middlePos"
 	 * @note	We have to previously configure the formation
 	 */
-	virtual void calculate(const sm::Vector2 &actualPos,
-			const sm::Vector2 &middlePos,
-			const sm::Vector2 &endPos,
-			std::vector<sm::Vector2> &result) = 0;
+	virtual void calculate(const math::Vector2 &actualPos,
+			const math::Vector2 &middlePos,
+			const math::Vector2 &endPos,
+			std::vector<math::Vector2> &result) = 0;
 };
 
 #endif /* UNITGROUPFORMATION_H_ */

@@ -86,7 +86,7 @@ Ogre::Vector3 Util::parseVector3(TiXmlElement *XMLNode)
  * 	true		on success
  * 	false		otherwise
  */
-bool Util::getTrianglesFromMesh(PolyStructsContainer<sm::Vertex *> &cont,
+bool Util::getTrianglesFromMesh(PolyStructsContainer<math::Vertex *> &cont,
 		PolyStructsContainer<Triangle *> &triangles,
 		Ogre::MeshPtr mesh, const Ogre::Matrix4 &trmatrix)
 {
@@ -118,16 +118,16 @@ bool Util::getTrianglesFromMesh(PolyStructsContainer<sm::Vertex *> &cont,
 	// el vertice asociado. Es lento
 
 	// here we will map Ogre::Vector3[i] -> Vertex*
-	std::vector<sm::Vertex *> vertexMap;
+	std::vector<math::Vertex *> vertexMap;
 	vertexMap.resize(vertex_count);
 
 	// fills the map of vertexs
-	sm::Vertex *v = 0;
+	math::Vertex *v = 0;
 	for(size_t i = 0; i < vertex_count; ++i){
 		v = findVertex(cont.getObjs(), vertices[i]);
 		if(!v){
 			// create a new vertex and put it in the container
-			v = new sm::Vertex(vertices[i].x, vertices[i].z);
+			v = new math::Vertex(vertices[i].x, vertices[i].z);
 			cont.addObj(v);
 		}
 
@@ -190,7 +190,7 @@ bool Util::readEnvVar(const std::string &var, std::string &result)
 
 
 // Find a vertex from a vector
-sm::Vertex *Util::findVertex(const std::vector<sm::Vertex *> &vertexs,
+math::Vertex *Util::findVertex(const std::vector<math::Vertex *> &vertexs,
 		const Ogre::Vector3 &vec)
 {
 	for(int i = vertexs.size()-1; i >= 0; --i){

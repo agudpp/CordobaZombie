@@ -21,8 +21,8 @@ const Ogre::Real Shoot::COEFF_FACTOR    = 200.0f;
 /**
  * Get the first collision object that exists between p1 and p2
  */
-const CollisionObject *Shoot::getCollObj(const sm::Vector2 &p1,
-		const sm::Vector2 &p2)
+const CollisionObject *Shoot::getCollObj(const math::Vector2 &p1,
+		const math::Vector2 &p2)
 {
 	mCollMngr->getCollisionObjects(p1,p2,COLL_FLAG, mCollResult);
 
@@ -146,13 +146,13 @@ void Shoot::update(void)
 {
 	// get the actual pos and the new position to raytrace..
 	const Ogre::Vector3 &pos = mNode->getPosition();
-	const sm::Vector2 oldP(pos.x, pos.z);
+	const math::Vector2 oldP(pos.x, pos.z);
 
 	// here we have to use the collision manager
 	mNode->translate(mTranslateVec * GLOBAL_TIME_FRAME );
 
 	// get the new pos
-	sm::Vector2 shootPos(pos.x, pos.z);
+	math::Vector2 shootPos(pos.x, pos.z);
 //	ASSERT(shootPos.x != oldP.x || shootPos.y != oldP.y);
 
 	// check if is still inside

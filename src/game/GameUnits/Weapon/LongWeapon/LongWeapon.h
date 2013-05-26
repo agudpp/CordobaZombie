@@ -40,7 +40,7 @@ public:
 	 * @param	p	The target position to shoot
 	 *
 	 */
-	virtual bool shoot(const sm::Vector2 &p);
+	virtual bool shoot(const math::Vector2 &p);
 
 	/**
 	 * Check if we can shoot the weapon or not, if we cannot shoot then

@@ -69,7 +69,7 @@ public:
 	 * @param	yrm		Y relative mouse position
 	 * @param	result	The point associated to that position
 	 */
-	inline void getPoint(float xrm, float yrm, sm::Vector2 &result) const;
+	inline void getPoint(float xrm, float yrm, math::Vector2 &result) const;
 	inline void getPoint(float xrm, float yrm, Ogre::Vector3 &result) const;
 
 	/**
@@ -92,7 +92,7 @@ private:
 	/**
 	 * Returns the point associated to the plane
 	 */
-	inline void getPlanePoint(float xrm, float yrm, sm::Vector2 &result) const;
+	inline void getPlanePoint(float xrm, float yrm, math::Vector2 &result) const;
 
 
 private:
@@ -108,7 +108,7 @@ private:
 
 
 inline void
-RaycastManager::getPlanePoint(float xrm, float yrm, sm::Vector2 &r) const
+RaycastManager::getPlanePoint(float xrm, float yrm, math::Vector2 &r) const
 {
 	// set up the ray
     mMouseRay = GLOBAL_CAMERA->getCameraToViewportRay(xrm, yrm);
@@ -134,7 +134,7 @@ RaycastManager::getPlanePoint(float xrm, float yrm, sm::Vector2 &r) const
 }
 
 inline void
-RaycastManager::getPoint(float xrm, float yrm, sm::Vector2 &result) const
+RaycastManager::getPoint(float xrm, float yrm, math::Vector2 &result) const
 {
     return getPoint(xrm, yrm, result);
 }

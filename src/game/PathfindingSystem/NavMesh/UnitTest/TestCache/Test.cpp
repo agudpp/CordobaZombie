@@ -20,12 +20,12 @@ int main(void){
 
 	TriangleCache::TriangleCache TC(50,2);
 
-	sm::Point p11(10,10);
-	sm::Point p12(20,20);
-	sm::Point p13(30,30);
-	sm::Point p21(40,40);
-	sm::Point p22(50,50);
-	sm::Point p23(60,60);
+	math::Point p11(10,10);
+	math::Point p12(20,20);
+	math::Point p13(30,30);
+	math::Point p21(40,40);
+	math::Point p22(50,50);
+	math::Point p23(60,60);
 
 	Triangle t1(&p11, &p12, &p13);
 	Triangle t2(&p21, &p22, &p23);

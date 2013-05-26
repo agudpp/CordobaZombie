@@ -21,8 +21,8 @@ typedef std::vector<const CollisionObject *> CollisionResult;
 
 struct CollRslt{
 	const CollisionObject 		*collObj;
-	sm::Vector2					point;
-//	std::vector<sm::Vector2>	points;
+	math::Vector2					point;
+//	std::vector<math::Vector2>	points;
 
 };
 typedef std::vector<CollRslt>	CollRsltPoints;
@@ -91,7 +91,7 @@ public:
 	/**
 	 * Translate a object from the actual position using the vector t
 	 */
-	void translateObject(CollisionObject *mo, const sm::Vector2 &t);
+	void translateObject(CollisionObject *mo, const math::Vector2 &t);
 
 	/**
 	 * Get all the collision of an object
@@ -112,7 +112,7 @@ public:
 	 * @param	mask	MaskGroup used to filter all the objects
 	 * @param	result	The Objects that are in the AABB
 	 */
-	void getCollisionObjects(const sm::AABB &aabb,
+	void getCollisionObjects(const math::AABB &aabb,
 	                         mask_t mask,
 	                         CollisionResult &result) const;
 
@@ -122,7 +122,7 @@ public:
 	 * @param mask		The mask to be used
 	 * @param result	The result of the check
 	 */
-	void getCollisionObjects(const sm::Vector2 &point,
+	void getCollisionObjects(const math::Vector2 &point,
 	                         mask_t mask,
 	                         CollisionResult &result) const;
 
@@ -134,8 +134,8 @@ public:
 	 * @param mask		The mask to be used
 	 * @param result	The result of the check
 	 */
-	void getCollisionObjects(const sm::Vector2 &p1,
-	                         const sm::Vector2 &p2,
+	void getCollisionObjects(const math::Vector2 &p1,
+	                         const math::Vector2 &p2,
 	                         mask_t mask,
 	                         CollisionResult &result) const;
 
@@ -145,7 +145,7 @@ public:
 	 * @return	True	if p is inside the level
 	 * 			False	otherwise
 	 */
-	inline bool isPointInside(const sm::Vector2 &p) const;
+	inline bool isPointInside(const math::Vector2 &p) const;
 
 
 private:
@@ -173,7 +173,7 @@ private:
 	/**
 	 * Get the AABB associated to a cell
 	 */
-	inline void getAABBFromCell(sm::AABB &result, int x, int y) const;
+	inline void getAABBFromCell(math::AABB &result, int x, int y) const;
 
 
 
@@ -207,7 +207,7 @@ inline int CollisionManager::getNumCellsy(void) const {return mNumCellY;}
 
 ////////////////////////////////////////////////////////////////////////////////
 inline bool
-CollisionManager::isPointInside(const sm::Vector2 &p) const
+CollisionManager::isPointInside(const math::Vector2 &p) const
 {
 	if((p.x < 0.0f || p.x > mXBounds) ||
 			(p.y < 0.0f || p.y > mYBounds)) return false;
@@ -216,7 +216,7 @@ CollisionManager::isPointInside(const sm::Vector2 &p) const
 }
 
 inline void
-CollisionManager::getAABBFromCell(sm::AABB &result, int x, int y) const
+CollisionManager::getAABBFromCell(math::AABB &result, int x, int y) const
 {
     result.tl.x = x * mCellSizeX;
     result.tl.y = (y+1) * mCellSizeY;

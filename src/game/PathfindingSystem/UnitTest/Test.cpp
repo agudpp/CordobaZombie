@@ -73,7 +73,7 @@ DrawablePath::~DrawablePath()
 	clearPath();
 }
 
-void DrawablePath::drawPath(const std::vector<sm::Vertex> &path, int color)
+void DrawablePath::drawPath(const std::vector<math::Vertex> &path, int color)
 {
 	Ogre::String colorstr;
 	switch(color){
@@ -178,8 +178,8 @@ Test::Test()
 	DrawablePath p;
 
 
-	sm::Point p1(10,100);
-	sm::Point p2(100, 10);
+	math::Point p1(10,100);
+	math::Point p2(100, 10);
 	if(p1.crossProduct(p2) < 0.0f){
 		debug("P1 to p2 clockwise %f\n", p1.crossProduct(p2));
 	} else {
@@ -195,7 +195,7 @@ Test::Test()
 	} else {
 		debug("P1 to p1 counterclockwise %f\n", p1.crossProduct(p1));
 	}
-	sm::Point p3(-10, -100);
+	math::Point p3(-10, -100);
 	if(p1.crossProduct(p3) < 0.0f){
 		debug("P1 to p3 clockwise %f\n", p1.crossProduct(p3));
 	} else {
@@ -331,7 +331,7 @@ void Test::handleInput(void)
 				return;
 			}
 
-			static sm::Point p1, p2;
+			static math::Point p1, p2;
 
 			if (mPlacesCount < 1)
 			{
@@ -345,7 +345,7 @@ void Test::handleInput(void)
 				p2.x = v.x;
 				p2.y = v.z;
 
-				std::vector<sm::Vertex> v;
+				std::vector<math::Vertex> v;
 				PATHFINDER_INSTANCE.getPath(p1, p2, v, 20.0f);
 				debug("ShortestPath of size: %d\n", v.size());
 				static DrawablePath dwp;
@@ -388,7 +388,7 @@ void Test::loadAditionalData(void)
 
 	int err = PATHFINDER_INSTANCE.loadLevel(mTriangles.getObjs(), mVvertexs.getObjs());
 	ASSERT(err == 0);
-	std::vector<sm::Vertex *> &vv = mVvertexs.getObjs();
+	std::vector<math::Vertex *> &vv = mVvertexs.getObjs();
 //	for(int i = vv.size()-1; i >= 0; --i){
 //		debug("Vertex[%d]: (%f, %f)\n", i, vv[i]->x, vv[i]->y);
 //	}
@@ -409,7 +409,7 @@ void Test::update()
 	handleInput();
 
 	if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_SPACE)){
-		static sm::Point p1, p2;
+		static math::Point p1, p2;
 		if(!mKeyPressed){
 			mKeyPressed = true;
 			if(mPlacesCount < 1){
@@ -421,7 +421,7 @@ void Test::update()
 				p2.x = GLOBAL_CAMERA->getDerivedPosition().x;
 				p2.y = GLOBAL_CAMERA->getDerivedPosition().z;
 
-				std::vector<sm::Vertex> v;
+				std::vector<math::Vertex> v;
 				PATHFINDER_INSTANCE.getPath(p1, p2, v, 30.0f);
 				debug("ShortestPath of size: %d\n", v.size());
 				static DrawablePath dwp;

@@ -73,7 +73,7 @@ GameUnit::~GameUnit()
 int GameUnit::getLastHitImpactDir(void) const
 {
 	// get the normals of the left and right
-	sm::Vector2 dir, ln, rn;
+	math::Vector2 dir, ln, rn;
 	getFieldOfVision(dir,ln,rn);
 
 	// normalize all
@@ -82,7 +82,7 @@ int GameUnit::getLastHitImpactDir(void) const
 
 	// we will create 4 vectors to divide the 360 posible directions on only 4
 	// directions
-	sm::Vector2 rdir = dir, v1,v2,v3;
+	math::Vector2 rdir = dir, v1,v2,v3;
 	rdir.rotate180();
 	v1 = ln + dir;
 	v2 = ln + rdir;
@@ -106,7 +106,7 @@ int GameUnit::getLastHitImpactDir(void) const
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-bool GameUnit::getPathTo(const sm::Vector2 &p)
+bool GameUnit::getPathTo(const math::Vector2 &p)
 {
 	mPathReady = false;
 	const int r = PATHFINDER_INSTANCE.getPath(getPosition(),p,
@@ -154,13 +154,13 @@ bool GameUnit::updateTargetPath(void)
 ////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////
-void GameUnit::repellingSteerVec(sm::Vector2 &result, const CollisionResult &objects)
+void GameUnit::repellingSteerVec(math::Vector2 &result, const CollisionResult &objects)
 {
 	// initialize
 	result.x = result.y = 0.0f;
 	float sqrDist;
-	sm::Vector2 repVec;
-	sm::Vector2 dir, leftV, rightV;
+	math::Vector2 repVec;
+	math::Vector2 dir, leftV, rightV;
 
 	getFieldOfVision(dir, leftV, rightV);
 
@@ -226,7 +226,7 @@ void GameUnit::repellingSteerVec(sm::Vector2 &result, const CollisionResult &obj
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void GameUnit::seekSteerVec(sm::Vector2 &result, const sm::Vector2 &target)
+void GameUnit::seekSteerVec(math::Vector2 &result, const math::Vector2 &target)
 {
 	// go directly version...
 	result = target;
@@ -238,7 +238,7 @@ void GameUnit::seekSteerVec(sm::Vector2 &result, const sm::Vector2 &target)
 
 	// using desired velocity...
 	// current velocity
-	sm::Vector2 cv = getDirection();
+	math::Vector2 cv = getDirection();
 	cv *= getVelocity();
 	// desired velocity
 	result = target;
@@ -250,10 +250,10 @@ void GameUnit::seekSteerVec(sm::Vector2 &result, const sm::Vector2 &target)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-bool GameUnit::followPathSteerVec(sm::Vector2 &result)
+bool GameUnit::followPathSteerVec(math::Vector2 &result)
 {
 	// NEW IMPLEMENTATION
-	sm::Vector2 dir;
+	math::Vector2 dir;
 	getDirection(dir);
 	dir *= getVelocity();
 	dir += getPosition();
@@ -268,7 +268,7 @@ bool GameUnit::followPathSteerVec(sm::Vector2 &result)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void GameUnit::avoidanceSteerVec(sm::Vector2 &result, const GameObject *obj)
+void GameUnit::avoidanceSteerVec(math::Vector2 &result, const GameObject *obj)
 {
 	ASSERT(obj);
 
@@ -278,7 +278,7 @@ void GameUnit::avoidanceSteerVec(sm::Vector2 &result, const GameObject *obj)
 
 	// TODO: vamos a hacer uno bien bien pedorro pero despues hay que cambiar
 	// esto probablemente
-	sm::Vector2 pl, pr, dir;
+	math::Vector2 pl, pr, dir;
 
 	dir = obj->getPosition();
 	dir -= getPosition();
@@ -295,7 +295,7 @@ void GameUnit::avoidanceSteerVec(sm::Vector2 &result, const GameObject *obj)
 //-------------------	GROUP STEERING BEHAVIORS	-----------------------/
 
 ////////////////////////////////////////////////////////////////////////////
-void GameUnit::cohesionSteerVec(sm::Vector2 &result)
+void GameUnit::cohesionSteerVec(math::Vector2 &result)
 {
 	result.x = result.y = 0.0f;
 	// if not in group return
@@ -304,7 +304,7 @@ void GameUnit::cohesionSteerVec(sm::Vector2 &result)
 	}
 
 	// else we get the cohesion steering vector
-	sm::Vector2 centerMass;
+	math::Vector2 centerMass;
 	UnitGroup::Container &c = getUnitGroup()->getAllUnits();
 	int numNeighbor = 0;
 	for(int i = c.size()-1; i >= 0; --i){
@@ -326,7 +326,7 @@ void GameUnit::cohesionSteerVec(sm::Vector2 &result)
 }
 
 ////////////////////////////////////////////////////////////////////////////
-void GameUnit::alignmentSteerVec(sm::Vector2 &result)
+void GameUnit::alignmentSteerVec(math::Vector2 &result)
 {
 	result.x = result.y = 0.0f;
 	// if not in group return
@@ -354,7 +354,7 @@ void GameUnit::alignmentSteerVec(sm::Vector2 &result)
 }
 
 ////////////////////////////////////////////////////////////////////////////
-void GameUnit::separationSteerVec(sm::Vector2 &result)
+void GameUnit::separationSteerVec(math::Vector2 &result)
 {
 	result.x = result.y = 0.0f;
 	// if not in group return
@@ -363,7 +363,7 @@ void GameUnit::separationSteerVec(sm::Vector2 &result)
 	}
 
 	// else we get the separation steering vector
-	sm::Vector2 aux;
+	math::Vector2 aux;
 	UnitGroup::Container &c = getUnitGroup()->getAllUnits();
 	for(int i = c.size()-1; i >= 0; --i){
 		// TODO: aca realmente chequeamos quienes son nuestros vecinos,
@@ -396,14 +396,14 @@ bool GameUnit::haveLineOfSightTo(const GameUnit *other, float maxSqrDist) const
 
 	// now we have to check if the vector formed is in the field of vision
 	// of the unit!
-	sm::Vector2 left, right, tmp;
+	math::Vector2 left, right, tmp;
 	getFieldOfVision(tmp, left, right);
 	tmp = getPosition() - other->getPosition();
 
 	if(right.isClockwise(tmp) || !left.isClockwise(tmp)) {return false;}
 
 	// else we are in the range of vision, perform a raycast
-	const sm::Vector2 &p1 = getPosition(), &p2 = other->getPosition();
+	const math::Vector2 &p1 = getPosition(), &p2 = other->getPosition();
 	collMng->getCollisionObjects(p1, p2, VISION_OBST_MASK,
 			mCollisionResult);
 
@@ -415,7 +415,7 @@ bool GameUnit::haveLineOfSightTo(const GameUnit *other, float maxSqrDist) const
 
 	// check if some of this one is the unit and there are no other unit closer
 	// than the unit... get all the intersections points
-	static std::vector<sm::Point>	intersecPoints;
+	static std::vector<math::Point>	intersecPoints;
 	float dist;
 	for(int i = mCollisionResult.size()-1; i >= 0; --i){
 
@@ -455,7 +455,7 @@ bool GameUnit::haveLineOfSightTo(const GameUnit *other, float maxSqrDist) const
 bool GameUnit::moveThroughPath(void){
 	// if we are not planting the bomb, we have to continue moving
 	// Follow path logic
-	sm::Vector2 mv, aux;
+	math::Vector2 mv, aux;
 
 	if(!followPathSteerVec(aux)){
 		return false;

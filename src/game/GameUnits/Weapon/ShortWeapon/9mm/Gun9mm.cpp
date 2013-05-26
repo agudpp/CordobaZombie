@@ -40,7 +40,7 @@ Gun9mm::~Gun9mm()
  *
  * @param	p	The target position to shoot
  */
-bool Gun9mm::shoot(const sm::Vector2 &p)
+bool Gun9mm::shoot(const math::Vector2 &p)
 {
 	// check if we can shoot
 	if(mActualMagazine <= 0){
@@ -56,12 +56,12 @@ bool Gun9mm::shoot(const sm::Vector2 &p)
 	--mActualMagazine;
 
 	// configure the shoot
-	const sm::Vector2 &pos = mOwner->getPosition();
+	const math::Vector2 &pos = mOwner->getPosition();
 	shoot->setStartPos(Ogre::Vector3(pos.x, mOwner->getPosYAxis(),
 			pos.y));
 
 	// create the translate vector
-	sm::Vector2 tv = p;
+	math::Vector2 tv = p;
 	tv -= mOwner->getPosition();
 	tv.normalize();
 	tv *= SHOOT_VELOCITY;

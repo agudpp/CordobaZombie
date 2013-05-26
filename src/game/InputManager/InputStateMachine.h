@@ -159,7 +159,7 @@ private:
     std::vector<Ogre::Vector3> mSavedPositions;
     // and the PlayerOffsets used to separate the destination locations of the
     // players
-    std::vector<sm::Vector2> mPlayerOffsets;
+    std::vector<math::Vector2> mPlayerOffsets;
 
 };
 
@@ -235,7 +235,7 @@ InputStateMachine::calculateLocations(const Ogre::Vector3 &pointInPath)
 
     for (size_t i = 0, size = mAuxVec.size(); i < size; ++i) {
         // calculate the new possible position of the player
-        const sm::Vector2 newPos(pointInPath.x + mPlayerOffsets[i].x,
+        const math::Vector2 newPos(pointInPath.x + mPlayerOffsets[i].x,
                                  pointInPath.z + mPlayerOffsets[i].y);
         if (mActualState->isPointInPath(newPos)) {
             // we have to update the mSavedPositions

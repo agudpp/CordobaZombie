@@ -66,7 +66,7 @@ PathfindingManager::unloadActualLevel(void)
 ////////////////////////////////////////////////////////////////////////////////
 int
 PathfindingManager::loadLevel(const std::vector<Triangle *> &triangles,
-                              const std::vector<sm::Vertex *> &vertices)
+                              const std::vector<math::Vertex *> &vertices)
 {
 	if(mNavMesh){
 		debug("Warning: Loading a new level without removing the first one\n");
@@ -95,7 +95,7 @@ PathfindingManager::loadLevel(const std::vector<Triangle *> &triangles,
 int
 PathfindingManager::loadLevel(const Graph &g,
                                   const std::vector<Triangle *> &triangles,
-                                  const std::vector<sm::Vertex *> &vertices)
+                                  const std::vector<math::Vertex *> &vertices)
 {
 	if(mNavMesh){
 		debug("Warning: Loading a new level without removing the first one\n");
@@ -133,8 +133,8 @@ PathfindingManager::loadLevel(const Graph &g,
  *	LINE_PATH		when the unit can get the goal in a straight line
  */
 int
-PathfindingManager::getPath(const sm::Point &start,
-                            const sm::Point &goal,
+PathfindingManager::getPath(const math::Point &start,
+                            const math::Point &goal,
                             Path &path,
                             float radius,
                             float delta)
@@ -178,7 +178,7 @@ PathfindingManager::getPath(const sm::Point &start,
  * @return errCode
  */
 int
-PathfindingManager::getRandomPath(const sm::Point &start,
+PathfindingManager::getRandomPath(const math::Point &start,
                                   Path &path,
                                   float radius,
                                   int numNodes)
@@ -199,7 +199,7 @@ PathfindingManager::getRandomPath(const sm::Point &start,
 	// start to generate the path
 	const GNode *old = n, *neigh;
 	const GNode * neighbors[3];
-	sm::Point aux;
+	math::Point aux;
 	int rndInx, j;
 	ASSERT(n->getTriangle());
 	n->getTriangle()->getCenterPoint(aux);
@@ -244,7 +244,7 @@ PathfindingManager::getRandomPath(const sm::Point &start,
 int
 PathfindingManager::updatePath(Path &path,
                                int ap,
-                               const sm::Point &np,
+                               const math::Point &np,
                                float radius)
 {
 	ASSERT(!path.empty());

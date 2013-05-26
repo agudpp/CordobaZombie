@@ -31,7 +31,7 @@ BodyWeapon::~BodyWeapon()
 /**
  * Function called when we perform a shoot
  */
-bool BodyWeapon::shoot(const sm::Vector2 &p)
+bool BodyWeapon::shoot(const math::Vector2 &p)
 {
 	ASSERT(mOwner);
 

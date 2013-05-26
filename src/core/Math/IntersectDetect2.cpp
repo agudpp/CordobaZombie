@@ -14,10 +14,10 @@
 /**
  * Check if a line intersects a AABB
  */
-bool IntersectDetect::checkLineAABB(const sm::Point &p1, const sm::Point &p2,
-		const sm::AABB &aabb)
+bool IntersectDetect::checkLineAABB(const math::Point &p1, const math::Point &p2,
+		const math::AABB &aabb)
 {
-	sm::Point result[2];
+	math::Point result[2];
 	int npoint;
 	npoint = IntersectDetect::getIntPointsAABBLine(p1, p2, aabb, result);
 	return npoint != 0;

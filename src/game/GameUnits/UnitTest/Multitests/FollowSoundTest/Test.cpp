@@ -131,7 +131,7 @@ void Test::createPlayer(void)
 		zu->setMaxVelocity(MAX_VEL*2.0f);
 		zu->setVelocity(MAX_VEL);
 
-		sm::Vector2 p;
+		math::Vector2 p;
 		p.x = 521 + 5*i;
 		p.y = 1188 + 30*i;
 		zu->setPosition(p);
@@ -179,7 +179,7 @@ void Test::createZombies(void)
 	static ZombieQueue q;
 	ZombieUnit::setQueue(&q);
 
-	sm::Vector2 p;
+	math::Vector2 p;
 	for(int i = 0; i < 2; ++i){
 		Ogre::Entity * ent = GLOBAL_SCN_MNGR->createEntity("zombie01.mesh");
 		Ogre::SceneNode *node = GLOBAL_SCN_MNGR->getRootSceneNode()->createChildSceneNode();
@@ -307,11 +307,11 @@ Test::Test()
 			GLOBAL_WINDOW->getHeight());
 
 	// testing collision aabb with line
-	sm::AABB bb;
+	math::AABB bb;
 	bb.tl.x = 0; bb.tl.y = 100;
 	bb.br.x = 150; bb.br.y = 0;
 
-	sm::Point p1,p2;
+	math::Point p1,p2;
 
 	p1.x = -1; p1.y = 0;
 	p2.x = -10; p2.y = -10;
@@ -373,7 +373,7 @@ Test::~Test()
 // handle input
 void Test::handleInput(void)
 {
-	sm::Vector2 tran;
+	math::Vector2 tran;
 	static const float VEL = 150.0f;
 	tran.x = tran.y = 0.0f;
 	static bool keyPres1 = false;
@@ -412,7 +412,7 @@ void Test::handleInput(void)
 
 
 			mLevelManager.getCollisionManager()->getCollisionObjects(
-					sm::Point(v.x, v.z), COL_FLAG_UNIT_PLAYER ,cr);
+					math::Point(v.x, v.z), COL_FLAG_UNIT_PLAYER ,cr);
 			if(!cr.empty()){
 				// get the player
 				 pu = static_cast<PlayerUnit *>(cr.front()->userDefined);
@@ -420,9 +420,9 @@ void Test::handleInput(void)
 				pu->objectSelected();
 			} else {
 				if(pu){
-//					pu->moveUnitTo(sm::Vector2(v.x, v.z));
+//					pu->moveUnitTo(math::Vector2(v.x, v.z));
 
-					pu->plantBomb(mBomb, sm::Vector2(v.x,v.z));
+					pu->plantBomb(mBomb, math::Vector2(v.x,v.z));
 				}
 			}
 
@@ -436,8 +436,8 @@ void Test::handleInput(void)
 
 
 
-//			mPlayerGroup->moveGroupTo(sm::Vector2(v.x, v.z));
-//			mPlayers[0]->moveUnitTo(sm::Vector2(v.x, v.z));
+//			mPlayerGroup->moveGroupTo(math::Vector2(v.x, v.z));
+//			mPlayers[0]->moveUnitTo(math::Vector2(v.x, v.z));
 		}
 	} else {
 		mousePressed = false;
@@ -466,7 +466,7 @@ void Test::testCollisionRaycast(void)
 	tlx = 10; tly = 100;
 	brx = 150; bry = 10;
 	co.bb.setSize(brx - tlx, tly-bry);
-	co.bb.setPosition(sm::Vector2((tlx+brx)/2.0f,
+	co.bb.setPosition(math::Vector2((tlx+brx)/2.0f,
 			(tly+bry)/2.0f));
 	co.maskFlag = COL_FLAG_UNIT_PLAYER;
 	co.userDefined = 0;
@@ -474,8 +474,8 @@ void Test::testCollisionRaycast(void)
 
 	// create the lines here and test
 	CollisionResult result;
-	std::vector<sm::Point> points;
-	sm::Point p1,p2;
+	std::vector<math::Point> points;
+	math::Point p1,p2;
 
 	p1.x = 9; p1.y = 19;
 	p2.x = 20; p2.y = 0;
@@ -545,7 +545,7 @@ void Test::loadAditionalData(void)
 	// create a collision object (primera manzana)
 	static CollisionObject co;
 	co.bb.setSize(1014 - 548, 896-433);
-	co.bb.setPosition(sm::Vector2((1014+566)/2.0f,
+	co.bb.setPosition(math::Vector2((1014+566)/2.0f,
 			(893+433)/2.0f));
 	co.maskFlag = COL_FLAG_UNIT_PLAYER;
 	co.userDefined = 0;
@@ -567,12 +567,12 @@ void Test::update()
 
 	static double t1,t2,t3,t4;
 	static bool keyPres = false;
-	sm::Vector2 p;
+	math::Vector2 p;
 
 	t1 = gettimestamp();
 	t3 = t2 - t1;
 	// update the game objects
-	sm::Vector2 trans;
+	math::Vector2 trans;
 	ZombieUnit *zu;
 	for(int i = mZombies.size()-1; i>= 0; --i){
 		mZombies[i]->update();
@@ -581,7 +581,7 @@ void Test::update()
 		mPlayers[i]->update();
 	}
 //	Ogre::Billboard *b = mBillboardSet->getBillboard(0);
-//	const sm::Vector2 &zp = mZombies[0]->getPosition();
+//	const math::Vector2 &zp = mZombies[0]->getPosition();
 //	b->setPosition(Ogre::Vector3(zp.x, 1, zp.y));
 
 	SoundManager& sMgr = SoundManager::getInstance();

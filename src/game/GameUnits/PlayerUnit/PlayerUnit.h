@@ -265,7 +265,7 @@ public:
      * @return	True	if it can put the bomb in that place, false otherwise
      */
     bool
-    plantBomb(Bomb *b, const sm::Vector2 &position);
+    plantBomb(Bomb *b, const math::Vector2 &position);
 
     /**
      * GameItems functions
@@ -317,7 +317,7 @@ public:
      * @param p		The position where we have to move the unit
      */
     void
-    moveUnitTo(const sm::Vector2 &p);
+    moveUnitTo(const math::Vector2 &p);
 
     /**
      * Get/Set the internal Attacking behavior

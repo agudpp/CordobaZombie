@@ -127,7 +127,7 @@ void Test::createPlayer(void)
 		zu->setMaxVelocity(MAX_VEL*2.0f);
 		zu->setVelocity(MAX_VEL);
 
-		sm::Vector2 p;
+		math::Vector2 p;
 		p.x = 507 + 5*i;
 		p.y = 788 + 30*i;
 		zu->setPosition(p);
@@ -162,7 +162,7 @@ void Test::createZombies(void)
 	static ZombieQueue q;
 	ZombieUnit::setQueue(&q);
 
-	sm::Vector2 p;
+	math::Vector2 p;
 	for(int i = 0; i < 1; ++i){
 		Ogre::Entity * ent = GLOBAL_SCN_MNGR->createEntity("zombie01.mesh");
 		Ogre::SceneNode *node = GLOBAL_SCN_MNGR->getRootSceneNode()->createChildSceneNode();
@@ -245,7 +245,7 @@ Test::~Test()
 // handle input
 void Test::handleInput(void)
 {
-	sm::Vector2 tran;
+	math::Vector2 tran;
 	static const float VEL = 150.0f;
 	tran.x = tran.y = 0.0f;
 	static bool keyPres1 = false;
@@ -308,7 +308,7 @@ void Test::loadAditionalData(void)
 	// create a collision object (primera manzana)
 	static CollisionObject co;
 	co.bb.setSize(1014 - 548, 896-433);
-	co.bb.setPosition(sm::Vector2((1014+566)/2.0f,
+	co.bb.setPosition(math::Vector2((1014+566)/2.0f,
 			(893+433)/2.0f));
 	co.maskFlag = COL_FLAG_UNIT_PLAYER;
 	co.userDefined = 0;
@@ -327,12 +327,12 @@ void Test::update()
 	static bool keyPres = false;
 	static bool keyPres1 = false;
 	static bool keyPres2 = false;
-	sm::Vector2 p;
+	math::Vector2 p;
 
 	t1 = gettimestamp();
 	t3 = t2 - t1;
 	// update the game objects
-	sm::Vector2 trans;
+	math::Vector2 trans;
 	ZombieUnit *zu;
 	for(int i = mZombies.size()-1; i>= 0; --i){
 		mZombies[i]->update();
@@ -359,7 +359,7 @@ void Test::update()
 		}
 	}
 
-//	const sm::Vector2 &zp = mZombies[0]->getPosition();
+//	const math::Vector2 &zp = mZombies[0]->getPosition();
 //	b->setPosition(Ogre::Vector3(zp.x, 1, zp.y));
 
 	t2 = gettimestamp();

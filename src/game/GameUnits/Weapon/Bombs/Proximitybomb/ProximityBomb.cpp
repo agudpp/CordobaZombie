@@ -47,7 +47,7 @@ void ProximityBomb::beforeUpdate(void)
 	ASSERT(mNode);
 	const Ogre::Vector3 &pos = mNode->getPosition();
 	mProximityQuery.setSize(mRadius * 2.0f, mRadius *2.0f);
-	mProximityQuery.setPosition(sm::Vector2(pos.x,pos.z));
+	mProximityQuery.setPosition(math::Vector2(pos.x,pos.z));
 
 	mAuxTime = 0;
 

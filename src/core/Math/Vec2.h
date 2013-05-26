@@ -25,7 +25,7 @@ static inline float InvSqrt(float x){
 // Define the unit of conversions from degress to radians
 #define DEG_TO_RAD_FAC  0.0174532925f /* PI / 180 */
 
-namespace sm {
+namespace math {
 
 // define a point used by the convex poly
 struct Point {

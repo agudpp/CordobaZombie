@@ -112,7 +112,7 @@ private:
 	 * @param t		The target
 	 * @return		True if there are an object between, false otherwise
 	 */
-	bool checkObjectBetween(const sm::Vector2 &p1, const CollisionObject *t);
+	bool checkObjectBetween(const math::Vector2 &p1, const CollisionObject *t);
 
 protected:
 	Ogre::Entity				*mEntity;

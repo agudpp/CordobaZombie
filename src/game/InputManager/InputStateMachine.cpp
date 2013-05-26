@@ -408,7 +408,7 @@ InputStateMachine::update(void)
                         ASSERT(dynamic_cast<PlayerUnit *>(mAuxVec[i]));
                         PlayerUnit *player = static_cast<PlayerUnit *>(mAuxVec[i]);
                         const Ogre::Vector3& destPos = mSavedPositions[i];
-                        player->moveUnitTo(sm::Vector2(destPos.x, destPos.z));
+                        player->moveUnitTo(math::Vector2(destPos.x, destPos.z));
                     }
                 } else {
                     // emit sound that the player couldn't move over there?
@@ -492,7 +492,7 @@ InputStateMachine::update(void)
                     // move the player
                     ASSERT(dynamic_cast<PlayerUnit *>(mAuxVec.back()));
                     PlayerUnit *player = static_cast<PlayerUnit *>(mAuxVec.back());
-                    player->moveUnitTo(sm::Vector2(pointInPlane.x, pointInPlane.z));
+                    player->moveUnitTo(math::Vector2(pointInPlane.x, pointInPlane.z));
                 } else {
                     // emit sound that the player couldn't move over there?
                     // TODO:

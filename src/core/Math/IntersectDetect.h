@@ -25,8 +25,8 @@ public:
 	/**
 	 * Check if a line intersects a AABB
 	 */
-	static bool checkLineAABB(const sm::Point &p1, const sm::Point &p2,
-			const sm::AABB &aabb);
+	static bool checkLineAABB(const math::Point &p1, const math::Point &p2,
+			const math::AABB &aabb);
 
 
 	/**
@@ -43,12 +43,12 @@ public:
 	 * @param	result	The vector where we will set the intersections points
 	 * @return	the number of intersections point
 	 */
-	static inline int getIntPointsAABBLine(sm::Point p1, sm::Point p2,
-			const sm::AABB &aabb,
-		sm::Point result[2]);
+	static inline int getIntPointsAABBLine(math::Point p1, math::Point p2,
+			const math::AABB &aabb,
+		math::Point result[2]);
 
 private:
-	static inline int CompSecPoint(const sm::Point &p, const sm::AABB &aabb);
+	static inline int CompSecPoint(const math::Point &p, const math::AABB &aabb);
 };
 
 
@@ -109,8 +109,8 @@ inline bool IntersectDetect::lineIntersec(float x1, float y1, float x2, float y2
 
 
 /* Computing Sector Point, gives the relative position of the point */
-inline int IntersectDetect::CompSecPoint(const sm::Point &p,
-		const sm::AABB &aabb)
+inline int IntersectDetect::CompSecPoint(const math::Point &p,
+		const math::AABB &aabb)
 {
 	int rst_flag = 0;
 	float x,y;
@@ -123,12 +123,12 @@ inline int IntersectDetect::CompSecPoint(const sm::Point &p,
 }
 
 /* This is the algorithm of Cohen-Sutherland*/
-inline int IntersectDetect::getIntPointsAABBLine(sm::Point p1, sm::Point p2,
-		const sm::AABB &aabb, sm::Point result[2])
+inline int IntersectDetect::getIntPointsAABBLine(math::Point p1, math::Point p2,
+		const math::AABB &aabb, math::Point result[2])
 {
 	bool done = false, intersection_point1 = false;
 	bool intersection_point2 = false;
-	sm::Point newpoint;
+	math::Point newpoint;
 	int collitions = 0;
 	int pos_p1 = CompSecPoint(p1, aabb);
 	int pos_p2 = CompSecPoint(p2, aabb);

@@ -129,7 +129,7 @@ void ZombieEngagingState::update(ZombieUnit *ref)
 	// here we can check if the target is TO FAR away and then emmit that
 	// we have lost (TODO: usar la distancia calculada 1 sola vez)
 
-	sm::Vector2 move, aux;
+	math::Vector2 move, aux;
 	// check the collision steering vector
 	if(!ref->obtainCollisionObjects().empty()){
 		ref->repellingSteerVec(move, ref->getCollideObjects());
@@ -184,7 +184,7 @@ void ZombieEngagingState::update(ZombieUnit *ref)
 		// it from where to attack:
 		if( ref->distToActualTarget() < 4*ref->getSqrRadius()){
 			aux *= 0.3;
-			sm::Vector2 mv = aux;
+			math::Vector2 mv = aux;
 			mv.transformToNormal();
 			if(Ogre::Math::RangeRandom(0,1) != 0){
 				mv.rotate180();

@@ -25,7 +25,7 @@ public:
 	TriangleAStar(const TriangleNavMesh *tnm, int maxPathSize = 50);
 	~TriangleAStar();
 
-	/* Returns the shortest path given two sm::Points or 0 if no path is found
+	/* Returns the shortest path given two math::Points or 0 if no path is found
 	 * If path is returned, then the Path[0] is the last node and
 	 * Path[size] is the start node
 	 * Returns:
@@ -37,8 +37,8 @@ public:
 	 * 	@radius	The radius of the unit
 	 */
 	const Path
-	getshortestPath(const sm::Point &start,
-	                const sm::Point &end,
+	getshortestPath(const math::Point &start,
+	                const math::Point &end,
 	                size_t &size,
 	                float radius,
 	                float &min);
@@ -54,7 +54,7 @@ private:
 	 * given 2 nodes. If there are no path, then 0 is returned
 	 * Otherwise mPath is filled and size is returned */
 	void findPath(size_t &size, NodePtr n1, NodePtr n2,
-			const sm::Point &p1, const sm::Point &p2, float radius, float &min);
+			const math::Point &p1, const math::Point &p2, float radius, float &min);
 
 private:
 	const TriangleNavMesh *mNavMesh;

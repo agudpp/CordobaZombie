@@ -11,13 +11,13 @@
 
 #include "CommonMath.h"
 
-namespace sm {
+namespace math {
 
 typedef Point Vertex;
 
 // Edge
 struct Edge {
-	sm::Vertex *v1;
+	math::Vertex *v1;
 	Vertex *v2;
 };
 

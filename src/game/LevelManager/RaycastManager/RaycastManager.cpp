@@ -65,7 +65,7 @@ RaycastManager::rayCast(float xrm, float yrm,
 {
 	ASSERT(mCollMngr);
 
-	sm::Vector2 p;
+	math::Vector2 p;
 
 	// get the point in the plane
 	getPoint(xrm, yrm, p);
@@ -97,7 +97,7 @@ RaycastManager::rayCast(float xrm, float yrm, mask_t mask) const
 {
 	ASSERT(mCollMngr);
 
-	sm::Vector2 p;
+	math::Vector2 p;
 
 	// get the point in the plane
 	getPoint(xrm, yrm, p);

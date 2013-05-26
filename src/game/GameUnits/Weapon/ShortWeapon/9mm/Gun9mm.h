@@ -27,7 +27,7 @@ public:
 	 *
 	 * @param	p	The target position to shoot
 	 */
-	bool shoot(const sm::Vector2 &p);
+	bool shoot(const math::Vector2 &p);
 
 };
 

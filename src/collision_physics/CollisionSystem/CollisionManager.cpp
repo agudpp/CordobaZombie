@@ -155,7 +155,7 @@ CollisionManager::removeAllObjects(void)
  * Translate a object from the actual position using the vector t
  */
 void
-CollisionManager::translateObject(CollisionObject *mo, const sm::Vector2 &t)
+CollisionManager::translateObject(CollisionObject *mo, const math::Vector2 &t)
 {
 	ASSERT(mo);
 
@@ -213,7 +213,7 @@ CollisionManager::getCollision(const CollisionObject *mo,
 
 ////////////////////////////////////////////////////////////////////////////////
 void
-CollisionManager::getCollisionObjects(const sm::AABB &aabb,
+CollisionManager::getCollisionObjects(const math::AABB &aabb,
                                       mask_t mask,
                                       CollisionResult &objs) const
 {
@@ -238,7 +238,7 @@ CollisionManager::getCollisionObjects(const sm::AABB &aabb,
 
 ////////////////////////////////////////////////////////////////////////////////
 void
-CollisionManager::getCollisionObjects(const sm::Vector2 &point,
+CollisionManager::getCollisionObjects(const math::Vector2 &point,
                                       mask_t mask,
                                       CollisionResult &result) const
 {
@@ -253,8 +253,8 @@ CollisionManager::getCollisionObjects(const sm::Vector2 &point,
 
 ////////////////////////////////////////////////////////////////////////////////
 void
-CollisionManager::getCollisionObjects(const sm::Vector2 &p1,
-                                      const sm::Vector2 &p2,
+CollisionManager::getCollisionObjects(const math::Vector2 &p1,
+                                      const math::Vector2 &p2,
                                       mask_t mask,
                                       CollisionResult &result) const
 {
@@ -310,7 +310,7 @@ CollisionManager::getCollisionObjects(const sm::Vector2 &p1,
 		// we have to select the base and how we will be moving
 		bool goingUp = false;
 		if((x1 == lx && y1 == by) || (lx == x2 && y2 == by)) goingUp = true;
-		sm::AABB aabb;
+		math::AABB aabb;
 		int lastX = 0;
 
 		if(goingUp){

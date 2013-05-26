@@ -38,7 +38,7 @@
 
 struct ZombiePair{
 	ZombieUnit *zu;
-	sm::Vector2 desTpos;
+	math::Vector2 desTpos;
 };
 
 

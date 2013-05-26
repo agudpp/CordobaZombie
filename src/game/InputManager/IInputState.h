@@ -118,7 +118,7 @@ public:
     inline bool
     isPointInPath(const Ogre::Vector3 &pos) const;
     inline bool
-    isPointInPath(const sm::Vector2 &pos) const;
+    isPointInPath(const math::Vector2 &pos) const;
 
     /**
      * Returns the bit map of types of unit selected
@@ -190,7 +190,7 @@ inline CollisionResult &
 IInputState::performCollPointQuery(const Ogre::Vector3 &point,mask_t mask) const
 {
 	sLevelManager->getCollisionManager()->getCollisionObjects(
-				sm::Vector2(point.x, point.z), mask, mCollObjs);
+				math::Vector2(point.x, point.z), mask, mCollObjs);
 	return mCollObjs;
 }
 
@@ -199,11 +199,11 @@ inline bool
 IInputState::isPointInPath(const Ogre::Vector3 &pos) const
 {
 	return sLevelManager->getPathfinderManager()->getNodeFromPoint(
-			sm::Vector2(pos.x, pos.z)) != 0;
+			math::Vector2(pos.x, pos.z)) != 0;
 }
 ////////////////////////////////////////////////////////////////////////////////
 inline bool
-IInputState::isPointInPath(const sm::Vector2 &pos) const
+IInputState::isPointInPath(const math::Vector2 &pos) const
 {
 	return sLevelManager->getPathfinderManager()->getNodeFromPoint(pos) != 0;
 }

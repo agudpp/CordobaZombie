@@ -89,7 +89,7 @@ void Test::simpleTest(void)
 //	mCollManager.removeAllObjects();
 //	mCollManager.build(22800.0f, 22800.0f, 100,100);
 
-//	sm::Vector2 p;
+//	math::Vector2 p;
 //	int numUnits = 1600;
 //	float velFactor = 1;
 //
@@ -141,12 +141,12 @@ Test::~Test()
 // handle input
 void Test::handleInput(void)
 {
-	sm::Vector2 tran;
+	math::Vector2 tran;
 	static const float VEL = 150.0f;
 	tran.x = tran.y = 0.0f;
 	static bool keyPres1 = false;
 	static bool keyPres = false;
-	static std::vector<sm::Point>	selPoints;
+	static std::vector<math::Point>	selPoints;
 
 	// MOUSE
 	const OIS::MouseState& lMouseState = GLOBAL_MOUSE->getMouseState();
@@ -166,7 +166,7 @@ void Test::handleInput(void)
 			mLevelManager.getRaycastManger()->getPoint(mMouseCursor.getXRelativePos(),
 					mMouseCursor.getYRelativePos(), v);
 
-			selPoints.push_back(sm::Point(v.x,v.z));
+			selPoints.push_back(math::Point(v.x,v.z));
 
 			if(selPoints.size() >= 2){
 				DRAWER.destroyAllVPoints();
@@ -179,7 +179,7 @@ void Test::handleInput(void)
 						selPoints[0], selPoints[1], ~0, cr);
 				if(!cr.empty()){
 					// get the points for every point that collide
-					std::vector<sm::Vector2> intpoints;
+					std::vector<math::Vector2> intpoints;
 
 					for(int i = cr.size() - 1; i >= 0; --i){
 						cr[i]->getIntPoints(selPoints[0], selPoints[1], intpoints);
@@ -228,7 +228,7 @@ void Test::loadAditionalData(void)
 	// create a collision object (primera manzana)
 //	static CollisionObject co;
 //	co.bb.setSize(1014 - 548, 896-433);
-//	co.bb.setPosition(sm::Vector2((1014+566)/2.0f,
+//	co.bb.setPosition(math::Vector2((1014+566)/2.0f,
 //			(893+433)/2.0f));
 //	co.maskFlag = ~0;
 //	co.userDefined = 0;
@@ -244,7 +244,7 @@ void Test::update()
 
 	static double t1,t2,t3,t4;
 	static bool keyPres = false;
-	sm::Vector2 p;
+	math::Vector2 p;
 
 	t1 = gettimestamp();
 	t3 = t2 - t1;

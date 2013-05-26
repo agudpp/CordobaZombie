@@ -50,7 +50,7 @@ public:
 protected:
 	float			mActivationTime;
 	float			mAuxTime;
-	sm::AABB		mProximityQuery;
+	math::AABB		mProximityQuery;
 };
 
 #endif /* PROXIMITYBOMB_H_ */

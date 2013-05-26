@@ -23,7 +23,7 @@ PlayerGroup::~PlayerGroup()
  *
  * @param	to	The position where we have to send all the group
  */
-void PlayerGroup::moveGroupTo(const sm::Vector2 &to)
+void PlayerGroup::moveGroupTo(const math::Vector2 &to)
 {
 	ASSERT(mCreator);
 	// TODO: notar que tenemos que calcular los path de todas las unidades

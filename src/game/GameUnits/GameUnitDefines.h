@@ -27,7 +27,7 @@ typedef int		live_t;
 class GameUnit;
 
 typedef struct {
-	sm::Vector2		hitDir;
+	math::Vector2		hitDir;
 	float			power;
 	GameUnit		*shooter;
 
@@ -42,7 +42,7 @@ typedef struct {
 
 // Define in a simple way what the unit is doing
 typedef struct {
-	sm::Vector2			goingTo;	// this probably will not be used (depend
+	math::Vector2			goingTo;	// this probably will not be used (depend
 									// of the event)
 	GameUnit 			*target;
 	int					event;

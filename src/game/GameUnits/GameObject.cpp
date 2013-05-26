@@ -92,7 +92,7 @@ void GameObject::setSceneNode(Ogre::SceneNode *node)
 	mNode->setPosition(pos.x, 5, pos.z);
 
 //	// set the node to the object position
-//	const sm::Vector2 &p = mCollObject.getPosition();
+//	const math::Vector2 &p = mCollObject.getPosition();
 //	mNode->setPosition(p.x, getPosYAxis(), p.y);
 
 }
@@ -120,21 +120,21 @@ void GameObject::setActiveCollision(bool active)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void GameObject::setPosition(const sm::Vector2 &p)
+void GameObject::setPosition(const math::Vector2 &p)
 {
-	sm::Vector2 trans = p - mCollObject.getPosition();
+	math::Vector2 trans = p - mCollObject.getPosition();
 	translate(trans);
 
 }
 void GameObject::setPosition(const Ogre::Vector3 &p)
 {
-	sm::Vector2 trans = sm::Vector2(p.x, p.z) - mCollObject.getPosition();
+	math::Vector2 trans = math::Vector2(p.x, p.z) - mCollObject.getPosition();
 	translate(trans);
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////
-void GameObject::translate(const sm::Vector2 &t)
+void GameObject::translate(const math::Vector2 &t)
 {
 	ASSERT(mNode);
 
@@ -147,17 +147,17 @@ void GameObject::translate(const sm::Vector2 &t)
 	}
 
 	// set the position of the scenenode
-	const sm::Vector2 &p = mCollObject.getPosition();
+	const math::Vector2 &p = mCollObject.getPosition();
 	mNode->setPosition(p.x, getPosYAxis(), p.y);
 
 }
 void GameObject::translate(const Ogre::Vector3 &t)
 {
-	translate(sm::Vector2(t.x, t.z));
+	translate(math::Vector2(t.x, t.z));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void GameObject::advance(const sm::Vector2 &m)
+void GameObject::advance(const math::Vector2 &m)
 {
 	ASSERT(mNode);
 
@@ -170,9 +170,9 @@ void GameObject::advance(const sm::Vector2 &m)
 	// now oldPos get the translate vector... translate it
 	if(mCollisionActive){
 		ASSERT(collMng);
-		collMng->translateObject(&mCollObject, sm::Vector2(oldPos.x, oldPos.z));
+		collMng->translateObject(&mCollObject, math::Vector2(oldPos.x, oldPos.z));
 	} else {
-		mCollObject.bb.translate(sm::Vector2(oldPos.x, oldPos.z));
+		mCollObject.bb.translate(math::Vector2(oldPos.x, oldPos.z));
 	}
 
 }
@@ -180,7 +180,7 @@ void GameObject::advance(const sm::Vector2 &m)
 ////////////////////////////////////////////////////////////////////////////////
 void GameObject::advance(const Ogre::Vector3 &m)
 {
-	advance(sm::Vector2(m.x, m.z));
+	advance(math::Vector2(m.x, m.z));
 }
 
 
@@ -217,7 +217,7 @@ void GameObject::getNearbyObjects(float mh, float mw, mask_t mask,
 	static CollisionResult collresult;
 
 	// create the AABB
-	static sm::AABB aabb;
+	static math::AABB aabb;
 	aabb.tl.x = getPosition().x - mw;
 	aabb.br.x = getPosition().x + mw;
 	aabb.tl.y = getPosition().y + mh;

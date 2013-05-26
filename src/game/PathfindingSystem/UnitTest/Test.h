@@ -37,7 +37,7 @@ public:
 	}
 	~DrawablePath();
 
-	void drawPath(const std::vector<sm::Vertex> &path, int color = COLOR_BLUE);
+	void drawPath(const std::vector<math::Vertex> &path, int color = COLOR_BLUE);
 
 	void clearPath(void);
 
@@ -79,7 +79,7 @@ private:
 	void handleInput(void);
 
 private:
-	PolyStructsContainer<sm::Vertex *> mVvertexs;
+	PolyStructsContainer<math::Vertex *> mVvertexs;
 	PolyStructsContainer<Triangle *> mTriangles;
 	bool 		mKeyPressed;
 	int			mPlacesCount;

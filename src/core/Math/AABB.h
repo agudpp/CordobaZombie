@@ -9,9 +9,9 @@
 #ifndef AABB_H_
 #define AABB_H_
 
+#include "Vec2.h"
 
-
-namespace sm{
+namespace math {
 
 // Aligned box2D
 struct AABB {

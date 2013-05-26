@@ -49,7 +49,7 @@ Weapon::~Weapon()
  * Second shoot always can be performed
  */
 void
-Weapon::secondShoot(const sm::Vector2 &p)
+Weapon::secondShoot(const math::Vector2 &p)
 {
 	ASSERT(mOwner);
 

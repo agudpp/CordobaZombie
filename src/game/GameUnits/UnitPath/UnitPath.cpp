@@ -29,7 +29,7 @@ void UnitPath::calculateActualPathPoint(void)
 
 	// calculate the vectors used to calculate the bezier curves
 	ASSERT((mIndex > 0) && (mIndex < mPoints.size()-1));
-	sm::Vector2 v1,v2;
+	math::Vector2 v1,v2;
 	v1 = mPoints[mIndex];
 	v1 -= mPoints[mIndex-1];
 	v2 = mPoints[mIndex];
@@ -105,7 +105,7 @@ UnitPath::~UnitPath()
  * 					position of the unit in the next frame)
  * @param	result	The position that have to be the unit in the path
  */
-bool UnitPath::getNextPosition(const sm::Vector2 &ap, const sm::Vector2 &np, sm::Vector2 &result)
+bool UnitPath::getNextPosition(const math::Vector2 &ap, const math::Vector2 &np, math::Vector2 &result)
 {
 
 	if(!mUseSpline){
@@ -128,7 +128,7 @@ bool UnitPath::getNextPosition(const sm::Vector2 &ap, const sm::Vector2 &np, sm:
 	ASSERT(mActualIntermediate < MAX_INTERMEDIATE_POINTS);
 
 	// now check the which is the next spline to move
-	const sm::Vector2 *spline = &(mSplined[mActualIntermediate]);
+	const math::Vector2 *spline = &(mSplined[mActualIntermediate]);
 	float sqrActDist = spline->squaredDistance(ap);
 	const float nxtsqrDist = (mActualIntermediate == MAX_INTERMEDIATE_POINTS) ?
 			-1.0f : mSplined[mActualIntermediate+1].squaredDistance(ap);

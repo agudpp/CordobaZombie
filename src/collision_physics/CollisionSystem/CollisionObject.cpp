@@ -16,8 +16,8 @@
 /**
  * Get the intersection point from an AABB and the object
  */
-void CollisionObject::getIntPoints(const sm::AABB &aabb,
-		std::vector<sm::Vector2> &result) const
+void CollisionObject::getIntPoints(const math::AABB &aabb,
+		std::vector<math::Vector2> &result) const
 {
 	ASSERT(false);
 }
@@ -25,8 +25,8 @@ void CollisionObject::getIntPoints(const sm::AABB &aabb,
 /**
  * Get the intersection between this object and a line
  */
-void CollisionObject::getIntPoints(const sm::Vector2 &p1, const sm::Vector2 &p2,
-		std::vector<sm::Vector2> &result) const
+void CollisionObject::getIntPoints(const math::Vector2 &p1, const math::Vector2 &p2,
+		std::vector<math::Vector2> &result) const
 {
 	// TODO: aca tenemos que agregar el caso que el objeto no sea un aabb
 
@@ -36,19 +36,19 @@ void CollisionObject::getIntPoints(const sm::Vector2 &p1, const sm::Vector2 &p2,
 	float xRes, yRes;
 	if(IntersectDetect::lineIntersec(p1.x,p1.y,p2.x,p2.y,bb.tl.x, bb.tl.y,
 			bb.br.x, bb.tl.y,xRes,yRes)){
-		result.push_back(sm::Point(xRes, yRes));
+		result.push_back(math::Point(xRes, yRes));
 	}
 	if(IntersectDetect::lineIntersec(p1.x,p1.y,p2.x,p2.y,bb.tl.x, bb.tl.y,
 			bb.tl.x, bb.br.y,xRes,yRes)){
-		result.push_back(sm::Point(xRes, yRes));
+		result.push_back(math::Point(xRes, yRes));
 	}
 	if(IntersectDetect::lineIntersec(p1.x,p1.y,p2.x,p2.y,bb.tl.x, bb.br.y,
 			bb.br.x, bb.br.y,xRes,yRes)){
-		result.push_back(sm::Point(xRes, yRes));
+		result.push_back(math::Point(xRes, yRes));
 	}
 	if(IntersectDetect::lineIntersec(p1.x,p1.y,p2.x,p2.y,bb.br.x, bb.tl.y,
 			bb.br.x, bb.br.y,xRes,yRes)){
-		result.push_back(sm::Point(xRes, yRes));
+		result.push_back(math::Point(xRes, yRes));
 	}
 
 }
@@ -57,7 +57,7 @@ void CollisionObject::getIntPoints(const sm::Vector2 &p1, const sm::Vector2 &p2,
  * Get the intersection between this object and other object
  */
 void CollisionObject::getIntPoints(const CollisionObject *other,
-		std::vector<sm::Vector2> &result) const
+		std::vector<math::Vector2> &result) const
 {
 	ASSERT(false);
 }

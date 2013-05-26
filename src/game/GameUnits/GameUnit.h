@@ -153,7 +153,7 @@ public:
 	 * 			can move directly).
 	 */
 	inline bool getPathTo(const Ogre::Vector3 &p);
-	bool getPathTo(const sm::Vector2 &p);
+	bool getPathTo(const math::Vector2 &p);
 	inline bool isPathReady(void) const {return mPathReady;}
 
 	/**
@@ -175,7 +175,7 @@ public:
 	/**
 	 * Returns the actual pathPoint
 	 */
-	inline const sm::Vector2 &getActualPathPoint(void) const;
+	inline const math::Vector2 &getActualPathPoint(void) const;
 	inline int getActualPathIndex(void) const;
 
 	/**
@@ -244,8 +244,8 @@ public:
 	 * @param left		The left line of vision
 	 * @param right		The right line of vision
 	 */
-	inline void getFieldOfVision(sm::Vector2 &unitDir,
-			sm::Vector2 &left, sm::Vector2 &right) const;
+	inline void getFieldOfVision(math::Vector2 &unitDir,
+			math::Vector2 &left, math::Vector2 &right) const;
 
 	/**
 	 * Function used to move the unit in a certain direction.
@@ -255,7 +255,7 @@ public:
 	 * @note	This function NOT NORMALIZE the move vector, assume is normalized
 	 * 			AND the vector is modified for performance
 	 */
-	inline void move(sm::Vector2 &move);
+	inline void move(math::Vector2 &move);
 
 
 	/**
@@ -290,7 +290,7 @@ public:
 	 * TODO: probablemente podamos eliminar objects y obtenerlo directamente
 	 * 		 leyendo el miembro protected...
 	 */
-	void repellingSteerVec(sm::Vector2 &result, const CollisionResult &objects);
+	void repellingSteerVec(math::Vector2 &result, const CollisionResult &objects);
 
 	/**
 	 * Calculate the seek vector given a target pos. This returns the "move"
@@ -298,7 +298,7 @@ public:
 	 * @param result	The result "force"
 	 * @param target	The target position to move
 	 */
-	void seekSteerVec(sm::Vector2 &result, const sm::Vector2 &target);
+	void seekSteerVec(math::Vector2 &result, const math::Vector2 &target);
 
 	/**
 	 * Calculate the force needed to follow a path. This use the internal
@@ -307,7 +307,7 @@ public:
 	 * @param	result	The result force
 	 * @return	false	if no more pathPoints, true otherwise
 	 */
-	bool followPathSteerVec(sm::Vector2 &result);
+	bool followPathSteerVec(math::Vector2 &result);
 
 	/**
 	 * Calculate the vector corresponding to avoid a "movable" object in the
@@ -315,7 +315,7 @@ public:
 	 * @param result	The result "force"
 	 * @param obj		The object to avoid
 	 */
-	void avoidanceSteerVec(sm::Vector2 &result, const GameObject *obj);
+	void avoidanceSteerVec(math::Vector2 &result, const GameObject *obj);
 
 	//-------------------	GROUP STEERING BEHAVIORS	-----------------------/
 
@@ -324,21 +324,21 @@ public:
 	 * the UnitGroup units
 	 * @param reslut 	The resulting cohesion vector
 	 */
-	void cohesionSteerVec(sm::Vector2 &result);
+	void cohesionSteerVec(math::Vector2 &result);
 
 	/**
 	 * Calculate the vector associated to the alignment steering vector using
 	 * the UnitGroup units
 	 * @param reslut 	The resulting alignment vector
 	 */
-	void alignmentSteerVec(sm::Vector2 &result);
+	void alignmentSteerVec(math::Vector2 &result);
 
 	/**
 	 * Calculate the vector associated to the separation steering vector using
 	 * the UnitGroup units
 	 * @param reslut 	The resulting separation vector
 	 */
-	void separationSteerVec(sm::Vector2 &result);
+	void separationSteerVec(math::Vector2 &result);
 
 
 	//-------------------	END GROUP STEERING BEHAVIORS	-------------------/
@@ -505,7 +505,7 @@ inline void GameUnit::setPath(const PathfindingManager::Path &p)
 ////////////////////////////////////////////////////////////////////////////////
 inline bool GameUnit::getPathTo(const Ogre::Vector3 &p)
 {
-	return getPathTo(sm::Vector2(p.x, p.z));
+	return getPathTo(math::Vector2(p.x, p.z));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -536,7 +536,7 @@ inline const UnitPath &GameUnit::getUnitPath(void) const
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-inline const sm::Vector2 &GameUnit::getActualPathPoint(void) const
+inline const math::Vector2 &GameUnit::getActualPathPoint(void) const
 {
 	return mUnitPath.getActualPoint();
 }
@@ -628,8 +628,8 @@ inline float GameUnit::getVelocity(void) const
 
 
 ////////////////////////////////////////////////////////////////////////////////
-inline void GameUnit::getFieldOfVision(sm::Vector2 &unitDir,
-			sm::Vector2 &left, sm::Vector2 &right) const
+inline void GameUnit::getFieldOfVision(math::Vector2 &unitDir,
+			math::Vector2 &left, math::Vector2 &right) const
 {
 	getDirection(unitDir);
 	left = unitDir;
@@ -639,7 +639,7 @@ inline void GameUnit::getFieldOfVision(sm::Vector2 &unitDir,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-inline void GameUnit::move(sm::Vector2 &move)
+inline void GameUnit::move(math::Vector2 &move)
 {
 	move *= GLOBAL_TIME_FRAME;
 	translate(move);

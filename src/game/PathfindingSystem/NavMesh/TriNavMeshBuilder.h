@@ -55,7 +55,7 @@ public:
 	 * 	false		otherwise
 	 */
 	static bool importGraph(std::vector<GNode *> &nodes,
-			PolyStructsContainer<sm::Vertex *> &vertexs,
+			PolyStructsContainer<math::Vertex *> &vertexs,
 			PolyStructsContainer<Triangle *> &triangles,
 			std::vector<GEdge *> &edges,
 			const Ogre::String &fname);
@@ -67,7 +67,7 @@ public:
 	 * @return	True		on success
 	 * 			false		otherwise
 	 */
-	static bool importGraph(std::vector<sm::Vertex *> &vertexs,
+	static bool importGraph(std::vector<math::Vertex *> &vertexs,
 			std::vector<Triangle *> &triangles,
 			const Ogre::String &fname);
 

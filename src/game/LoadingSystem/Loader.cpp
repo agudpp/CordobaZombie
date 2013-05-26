@@ -14,7 +14,7 @@
 /**
  * Parse auxiliaries
  */
-void Loader::parseAABB(TiXmlElement *elem, sm::AABB &aabb)
+void Loader::parseAABB(TiXmlElement *elem, math::AABB &aabb)
 {
 	ASSERT(elem);
 
@@ -39,10 +39,10 @@ void Loader::parseAABB(TiXmlElement *elem, sm::AABB &aabb)
 	ASSERT(tly >= bry);
 
 	aabb.setSize(brx - tlx, tly - bry);
-	aabb.setPosition(sm::Vector2((tlx + brx)/2.0f, (tly + bry)/2.0f));
+	aabb.setPosition(math::Vector2((tlx + brx)/2.0f, (tly + bry)/2.0f));
 }
 
-void Loader::parseVector(TiXmlElement *elem, sm::Vector2 &vec)
+void Loader::parseVector(TiXmlElement *elem, math::Vector2 &vec)
 {
 	ASSERT(elem);
 	const char *aux = elem->Attribute("x");

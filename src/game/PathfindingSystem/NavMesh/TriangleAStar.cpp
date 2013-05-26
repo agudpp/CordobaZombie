@@ -124,19 +124,19 @@ public:
 // a lo largo de todo el edge, por el momento solo nos fijamos en los 2
 // vertices
 static inline float
-heuristic_function(const GEdge *edge, const sm::Point *goal)
+heuristic_function(const GEdge *edge, const math::Point *goal)
 {
-    // get the closest sm::Point between the two sm::Points of the edge and the goal sm::Point
-    const sm::Vertex *const *Vertexs = edge->getSharedVertex();
+    // get the closest math::Point between the two math::Points of the edge and the goal math::Point
+    const math::Vertex *const *Vertexs = edge->getSharedVertex();
     float d1 = EUCLIDEAN_DISTANCE(goal, Vertexs[0]);
     float d2 = EUCLIDEAN_DISTANCE(goal, Vertexs[1]);
     return (d1 < d2) ? d1 : d2;
 }
 
 static inline float
-g_function(const GEdge *edge, const sm::Point *start)
+g_function(const GEdge *edge, const math::Point *start)
 {
-    const sm::Vertex *const *Vertexs = edge->getSharedVertex();
+    const math::Vertex *const *Vertexs = edge->getSharedVertex();
     float d1 = EUCLIDEAN_DISTANCE(start, Vertexs[0]);
     float d2 = EUCLIDEAN_DISTANCE(start, Vertexs[1]);
     return (d1 < d2) ? d1 : d2;
@@ -218,7 +218,7 @@ TriangleAStar::addToCache(Path p, size_t size,
 void
 TriangleAStar::findPath(size_t &size,
                         NodePtr start, NodePtr end,
-                        const sm::Point &startP, const sm::Point &endP,
+                        const math::Point &startP, const math::Point &endP,
                         float radius,
                         float &min)
 {
@@ -409,8 +409,8 @@ TriangleAStar::~TriangleAStar()
 
 ////////////////////////////////////////////////////////////////////////////////
 const TriangleAStar::Path
-TriangleAStar::getshortestPath(const sm::Point &p1,
-                               const sm::Point &p2,
+TriangleAStar::getshortestPath(const math::Point &p1,
+                               const math::Point &p2,
                                size_t &size,
                                float radius,
                                float &min)

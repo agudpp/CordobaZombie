@@ -11,7 +11,7 @@
 
 #include "CollObjImporter.h"
 #include "DebugUtil.h"
-#include "Triangle.h"	// sm::Vertex
+#include "Triangle.h"	// math::Vertex
 
 
 // According to CallObjExporter, newline character used is UNIX/MAC's '\n'
@@ -26,7 +26,7 @@ namespace
  ** Create a bounding box from a list of 2D vertices
  **/
 inline void
-getBoundingBox(const std::vector<sm::Vertex> &v, sm::AABB &bb)
+getBoundingBox(const std::vector<math::Vertex> &v, math::AABB &bb)
 {
 	ASSERT(v.size() >= 2);
 
@@ -60,7 +60,7 @@ getBoundingBox(const std::vector<sm::Vertex> &v, sm::AABB &bb)
 inline CollisionObject *
 readBoxLine(std::ifstream &f)
 {
-	std::vector<sm::Vertex> v(4);
+	std::vector<math::Vertex> v(4);
 	CollisionObject *co(0);
 
 	ASSERT(f.good() && f.is_open() && !f.eof());
@@ -98,7 +98,7 @@ readBoxLine(std::ifstream &f)
 inline CollisionObject *
 readAABBLine(std::ifstream &f)
 {
-	std::vector<sm::Vertex> v(4);
+	std::vector<math::Vertex> v(4);
 	CollisionObject *co(0);
 
 	ASSERT(f.good() && f.is_open() && !f.eof());

@@ -120,7 +120,7 @@ public:
 
 	// Returns all the collision objects using only mask group
 	inline void getAllCollisionsMask(std::set<const CollisionObject *> &objs,
-			mask_t groupMask, const sm::AABB &aabb) const
+			mask_t groupMask, const math::AABB &aabb) const
 	{
 		const CollisionObject *aux;
 		const int le = mObjs.size();
@@ -135,7 +135,7 @@ public:
 
 	// Returns all the collision objects using mask group and a certain point
 	inline void getAllCollisionMask(std::vector<const CollisionObject *> &objs,
-			mask_t groupMask, const sm::Vector2 &p) const
+			mask_t groupMask, const math::Vector2 &p) const
 	{
 		const CollisionObject *aux;
 		const int le = mObjs.size();
@@ -150,7 +150,7 @@ public:
 
 	// Returns all the collision objects using mask group and a certain point
 	inline void getAllCollisionMask(std::set<const CollisionObject *> &objs,
-			mask_t groupMask, const sm::Vector2 &p1, const sm::Vector2 &p2) const
+			mask_t groupMask, const math::Vector2 &p1, const math::Vector2 &p2) const
 	{
 		const CollisionObject *aux;
 		const int le = mObjs.size();

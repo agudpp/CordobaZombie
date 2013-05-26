@@ -17,15 +17,15 @@ CollisionResult		Bomb::mCollResult;
 /**
  * Check if there are some object in the middle between us and the target
  */
-bool Bomb::checkObjectBetween(const sm::Vector2 &p1,  const CollisionObject *t)
+bool Bomb::checkObjectBetween(const math::Vector2 &p1,  const CollisionObject *t)
 {
 	ASSERT(t);
-	const sm::Vector2 &p2 = t->getPosition();
+	const math::Vector2 &p2 = t->getPosition();
 	mCollMngr->getCollisionObjects(p1, p2, BOMB_NOT_AFFECT_MASK,
 			mCollResult);
 
 	// get the closest
-	std::vector<sm::Point>	intersecPoints;
+	std::vector<math::Point>	intersecPoints;
 	float sqrDist = p1.squaredDistance(p2);
 	float dist;
 	for(int i = mCollResult.size()-1; i >= 0; --i){
@@ -56,13 +56,13 @@ bool Bomb::checkObjectBetween(const sm::Vector2 &p1,  const CollisionObject *t)
 void Bomb::performExplosion(float sqrRadius, float power)
 {
 	// perform an aabb query
-	sm::AABB query;
+	math::AABB query;
 	query.setSize(2.0f * sqrRadius, 2.0f * sqrRadius);
 
 	// set the actual position
 	ASSERT(mNode);
 	const Ogre::Vector3 &pos = mNode->getPosition();
-	query.setPosition(sm::Vector2(pos.x, pos.z));
+	query.setPosition(math::Vector2(pos.x, pos.z));
 	static CollisionResult	objects;
 	mCollMngr->getCollisionObjects(query, BOMB_AFFECTABLE_MASK, objects);
 

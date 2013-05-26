@@ -58,7 +58,7 @@ void CellphoneMap::showZombieSet(void)
 	ZombieSet::iterator bit = mZombiesSeen.begin(), eit = mZombiesSeen.end();
 	for(; bit != eit && i >= 0; ++bit, --i){
 		// show the zombies in their respective position
-		const sm::Vector2 &zpos = (*bit)->getPosition();
+		const math::Vector2 &zpos = (*bit)->getPosition();
 		positionElement(mActiveZombiesElem[i], zpos.x, zpos.y);
 	}
 }
@@ -264,7 +264,7 @@ void CellphoneMap::update(void)
 	for(int i = 0; i < mPlayers.size(); ++i){
 		// update the position of the player
 		ASSERT(i < mPlayerElements.size());
-		const sm::Vector2 &ppos = mPlayers[i]->getPosition();
+		const math::Vector2 &ppos = mPlayers[i]->getPosition();
 		positionElement(mPlayerElements[i], ppos.x, ppos.y);
 
 		PlayerUnit::ZombieUnitVec &vec = mPlayers[i]->getNearbyZombies();

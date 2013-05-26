@@ -32,7 +32,7 @@ public:
 	 * Build the matrix associated to the level
 	 * @param aabb		The level AABB
 	 */
-	void buildMatrix(const sm::AABB &aabb);
+	void buildMatrix(const math::AABB &aabb);
 
 	/**
 	 * Function that set into the matrix that two position have LineOfSigh(LOS)
@@ -40,7 +40,7 @@ public:
 	 * @param	to		Point2
 	 * @param	los		Have LOS (true) or not(false)
 	 */
-	void setLOS(const sm::Vector2 &from, const sm::Vector2 &to, bool los);
+	void setLOS(const math::Vector2 &from, const math::Vector2 &to, bool los);
 
 	/**
 	 * Clear all the matrix
@@ -65,7 +65,7 @@ public:
 	 */
 	inline int getNumColumns(void) const;
 	inline int getNumRows(void) const;
-	inline const sm::AABB &getAABB(void) const;
+	inline const math::AABB &getAABB(void) const;
 
 	/**
 	 * Returns the point associated to a row and a column, this point is in
@@ -76,7 +76,7 @@ public:
 	 *
 	 * @note	This function is slow, do not call in the game loop
 	 */
-	inline void getPositionFromCell(int r, int c, sm::Vector2 &result) const;
+	inline void getPositionFromCell(int r, int c, math::Vector2 &result) const;
 
 	/**
 	 * Check if we have line of sight between two points
@@ -84,7 +84,7 @@ public:
 	 * @param	to		The second position
 	 * @returns	True if we have line of sight or false otherwise
 	 */
-	bool checkLOS(const sm::Vector2 &from, const sm::Vector2 &to) const;
+	bool checkLOS(const math::Vector2 &from, const math::Vector2 &to) const;
 
 
 private:
@@ -95,7 +95,7 @@ private:
 	inline int getYPosition(const float &y) const;
 
 private:
-	sm::AABB 			mAABB;
+	math::AABB 			mAABB;
 	int					mRows;
 	int					mColumns;
 	float				mFactorX;
@@ -127,7 +127,7 @@ LineOfSightManager<numRows, numColums>::getNumRows(void) const
 }
 template<int numRows, int numColums>
 inline const
-sm::AABB &LineOfSightManager<numRows, numColums>::getAABB(void) const
+math::AABB &LineOfSightManager<numRows, numColums>::getAABB(void) const
 {
 	return mAABB;
 }
@@ -137,7 +137,7 @@ template<int numRows, int numColums>
 inline void
 LineOfSightManager<numRows, numColums>::getPositionFromCell(int r,
 		                                                    int c,
-		                                                    sm::Vector2 &result) const
+		                                                    math::Vector2 &result) const
 {
 	ASSERT(r < numRows);
 	ASSERT(c < numColums);

@@ -32,7 +32,7 @@ public:
 	 * In case that the point is outside of the world or there are no Node
 	 * in that point 0 is returned
 	 */
-	const GNode *getNodeFromPoint(const sm::Point &p) const;
+	const GNode *getNodeFromPoint(const math::Point &p) const;
 
 	// Adds a new triangle to be used when build the graph
 	void addTriangle(const Triangle *t);
@@ -85,10 +85,10 @@ private:
 
 	// Gets the bounding box that contains all the triangles
 	void getTrianglesBoundingBox(const TriangleVec &triangles,
-			sm::Point &tl, sm::Point &br);
+			math::Point &tl, math::Point &br);
 
 	// Get the bounding box of a cell
-	inline void getCellBoundingBox(sm::AlignedBox &box, unsigned int r, unsigned int c) const
+	inline void getCellBoundingBox(math::AlignedBox &box, unsigned int r, unsigned int c) const
 	{
 		ASSERT(r < mRowCount);
 		ASSERT(c < mColumnCount);

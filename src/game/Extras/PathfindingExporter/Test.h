@@ -48,7 +48,7 @@ private:
 	void handleInput(void);
 
 private:
-	PolyStructsContainer<sm::Vertex *> mVvertexs;
+	PolyStructsContainer<math::Vertex *> mVvertexs;
 	PolyStructsContainer<Triangle *> mTriangles;
 	TriangleNavMesh mTnm;
 	TriangleAStar mTAStar;

@@ -406,7 +406,7 @@ PlayerUnit::changeBestNextWeapon(void)
 
 ////////////////////////////////////////////////////////////////////////////////
 bool
-PlayerUnit::plantBomb(Bomb *b, const sm::Vector2 &position)
+PlayerUnit::plantBomb(Bomb *b, const math::Vector2 &position)
 {
     ASSERT(b);
     ASSERT(hasBomb(b));
@@ -450,7 +450,7 @@ PlayerUnit::getNearbyPlayers(PlayerVector &players)
 
 ////////////////////////////////////////////////////////////////////////////////
 void
-PlayerUnit::moveUnitTo(const sm::Vector2 &p)
+PlayerUnit::moveUnitTo(const math::Vector2 &p)
 {
     if(!getPathTo(p)){
         // TODO: reproducimos algun sonido de que no podemos movernos hasta ese
@@ -482,7 +482,7 @@ void
 PlayerUnit::collectObject(CollectableObject *co){
     ASSERT(co);
     mTargetColObject = co;
-    const sm::Vector2 &pos2 = co->getPosition();
+    const math::Vector2 &pos2 = co->getPosition();
 #ifdef DEBUG
     debugRED("Yendo a levantar el objeto en x = %f y = %f\n", pos2.x, pos2.y);
 #endif

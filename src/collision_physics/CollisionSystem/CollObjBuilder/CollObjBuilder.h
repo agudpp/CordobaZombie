@@ -34,38 +34,38 @@ private:
 	/**
 	 * Create Polygon shape (counterclockwise vertex)
 	 */
-	static CollisionObject *createPolyShape(PolyStructsContainer<sm::Vertex *> &cont,
+	static CollisionObject *createPolyShape(PolyStructsContainer<math::Vertex *> &cont,
 			PolyStructsContainer<Triangle *> &triangles);
 
 	/**
 	 * Create circle shape
 	 */
-	static CollisionObject *createCircleShape(PolyStructsContainer<sm::Vertex *> &cont,
+	static CollisionObject *createCircleShape(PolyStructsContainer<math::Vertex *> &cont,
 			PolyStructsContainer<Triangle *> &triangles);
 
 	/**
 	 * Edge shape
 	 */
-	static CollisionObject *createEdgeShape(PolyStructsContainer<sm::Vertex *> &cont,
+	static CollisionObject *createEdgeShape(PolyStructsContainer<math::Vertex *> &cont,
 			PolyStructsContainer<Triangle *> &triangles);
 
 	/**
 	 * Box shape
 	 */
-	static CollisionObject *createBoxShape(PolyStructsContainer<sm::Vertex *> &cont,
+	static CollisionObject *createBoxShape(PolyStructsContainer<math::Vertex *> &cont,
 			PolyStructsContainer<Triangle *> &triangles);
 
 	/**
 	 * AABB shape
 	 */
-	static CollisionObject *createAABBShape(PolyStructsContainer<sm::Vertex *> &cont,
+	static CollisionObject *createAABBShape(PolyStructsContainer<math::Vertex *> &cont,
 			PolyStructsContainer<Triangle *> &triangles);
 
 	/**
 	 * Get the bounding box of a list of vertex
 	 */
-	static void getBoundingBox(std::vector<sm::Vertex *> &v, sm::AABB &bb);
-	static void getBoundingBox(std::vector<const sm::Vertex *> &v, sm::AABB &bb);
+	static void getBoundingBox(std::vector<math::Vertex *> &v, math::AABB &bb);
+	static void getBoundingBox(std::vector<const math::Vertex *> &v, math::AABB &bb);
 };
 
 #endif /* COLLOBJBUILDER_H_ */

@@ -49,7 +49,7 @@ void ZombieFollowSoundState::update(ZombieUnit *ref)
 	int animID = ref->getActualAnimID();
 	static std::vector<GameUnit *> targets;
 	const Ogre::Vector3 & v3 = ref->getSoundTarget()->getPosition();
-	sm::Point p(v3.x, v3.z);
+	math::Point p(v3.x, v3.z);
 
 	// first of all we have to check if we can see an enemy
 	if(ref->seeTarges(targets)){

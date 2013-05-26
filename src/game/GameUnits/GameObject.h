@@ -87,21 +87,21 @@ public:
 	/**
 	 * Set the position of the object in the world (collision and 3D World)
 	 */
-	void setPosition(const sm::Vector2 &p);
+	void setPosition(const math::Vector2 &p);
 	void setPosition(const Ogre::Vector3 &p);
-	inline const sm::Vector2 &getPosition(void) const;
+	inline const math::Vector2 &getPosition(void) const;
 
 	/**
 	 * Translate unit in the world (3D and collision)
 	 */
-	void translate(const sm::Vector2 &t);
+	void translate(const math::Vector2 &t);
 	void translate(const Ogre::Vector3 &t);
 
 	/**
 	 * Advance the GameObject in the direction that already have. This is something
 	 * like translate but using local axis
 	 */
-	void advance(const sm::Vector2 &m);
+	void advance(const math::Vector2 &m);
 	void advance(const Ogre::Vector3 &m);
 
 	/**
@@ -110,20 +110,20 @@ public:
 	inline void rotateObject(Ogre::Real r);
 	inline void rotateObject(const Ogre::Quaternion &q);
 	inline void setDirection(const Ogre::Vector3 &d);
-	inline void setDirection(const sm::Vector2 &d);
+	inline void setDirection(const math::Vector2 &d);
 
 	/**
 	 * Look object at certain point
 	 */
 	void lookAt(const Ogre::Vector3 &p);
-	inline void lookAt(const sm::Vector2 &p);
+	inline void lookAt(const math::Vector2 &p);
 	/**
 	 * Get direction of the object (dir vector or radians of axis y)
 	 */
 	inline const Ogre::Quaternion &getOrientation(void) const;
 	inline const Ogre::Radian getYaw(void) const;
-	inline void getDirection(sm::Vector2 &dir) const;
-	inline const sm::Vector2 &getDirection(void) const;
+	inline void getDirection(math::Vector2 &dir) const;
+	inline const math::Vector2 &getDirection(void) const;
 
 	/**
 	 * Get the squared radius of the object (calculated from the AABB)
@@ -204,7 +204,7 @@ protected:
 	CollisionObject				mCollObject;
 	bool						mCollisionActive;
 	float						mSqrRadius;
-	sm::Vector2					mDirection;
+	math::Vector2					mDirection;
 
 
 	// the result of the collision will be put here for every objects, this is
@@ -222,7 +222,7 @@ protected:
 
 
 ////////////////////////////////////////////////////////////////////////////////
-inline const sm::Vector2 &GameObject::getPosition(void) const
+inline const math::Vector2 &GameObject::getPosition(void) const
 {
 	return mCollObject.getPosition();
 }
@@ -248,7 +248,7 @@ void GameObject::setDirection(const Ogre::Vector3 &d)
 	mNode->setDirection(d);
 	updateActualDirection();
 }
-void GameObject::setDirection(const sm::Vector2 &d)
+void GameObject::setDirection(const math::Vector2 &d)
 {
 	ASSERT(mNode);
 	// TODO: verificar esto.... del mFloorHeight
@@ -257,7 +257,7 @@ void GameObject::setDirection(const sm::Vector2 &d)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-inline void GameObject::lookAt(const sm::Vector2 &p)
+inline void GameObject::lookAt(const math::Vector2 &p)
 {
 	lookAt(Ogre::Vector3(p.x, getPosYAxis(), p.y));
 
@@ -279,11 +279,11 @@ const Ogre::Radian GameObject::getYaw(void) const
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-inline void GameObject::getDirection(sm::Vector2 &dir) const
+inline void GameObject::getDirection(math::Vector2 &dir) const
 {
 	dir = mDirection;
 }
-inline const sm::Vector2 &GameObject::getDirection() const
+inline const math::Vector2 &GameObject::getDirection() const
 {
 	return mDirection;
 }

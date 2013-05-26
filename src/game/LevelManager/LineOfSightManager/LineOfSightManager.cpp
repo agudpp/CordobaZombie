@@ -12,7 +12,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 template<int numRows, int numColums>
-void LineOfSightManager<numRows, numColums>::buildMatrix(const sm::AABB &aabb)
+void LineOfSightManager<numRows, numColums>::buildMatrix(const math::AABB &aabb)
 {
 	const float xCellSize = aabb.getWidth() / numColums;
 	const float yCellSize = aabb.getHeight() / numRows;
@@ -23,7 +23,7 @@ void LineOfSightManager<numRows, numColums>::buildMatrix(const sm::AABB &aabb)
 
 ////////////////////////////////////////////////////////////////////////////////
 template<int numRows, int numColums>
-void LineOfSightManager<numRows, numColums>::setLOS(const sm::Vector2 &from, const sm::Vector2 &to,
+void LineOfSightManager<numRows, numColums>::setLOS(const math::Vector2 &from, const math::Vector2 &to,
 		bool los)
 {
 	int xf = getXPosition(from), yf = getYPosition(from),
@@ -65,7 +65,7 @@ bool LineOfSightManager<numRows, numColums>::saveToFile(const std::string &fname
 
 ////////////////////////////////////////////////////////////////////////////////
 template<int numRows, int numColums>
-bool LineOfSightManager<numRows, numColums>::checkLOS(const sm::Vector2 &from, const sm::Vector2 &to) const
+bool LineOfSightManager<numRows, numColums>::checkLOS(const math::Vector2 &from, const math::Vector2 &to) const
 {
 	int xf = getXPosition(from), yf = getYPosition(from),
 			xt = getXPosition(to), yt = getXPosition(to);

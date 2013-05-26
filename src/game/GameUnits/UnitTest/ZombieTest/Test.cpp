@@ -72,7 +72,7 @@ void Test::createRealZombies(void)
 	static ZombieQueue q;
 	ZombieUnit::setQueue(&q);
 
-	sm::Vector2 p;
+	math::Vector2 p;
 	int counter = 1;
 	for(int i = 0; i < 400; ++i){
 		Ogre::Entity * ent = GLOBAL_SCN_MNGR->createEntity("zombie01.mesh");
@@ -170,7 +170,7 @@ void Test::createZombieTarget(void)
 //	go->configCollObj(w,h,COL_FLAG_UNIT_PLAYER, COL_FLAG_UNIT_PLAYER);
 //	go->setHeight(5);
 	go->getCollisionObject().maskFlag = COL_FLAG_UNIT_PLAYER;
-	go->setPosition(sm::Vector2(517,3347));
+	go->setPosition(math::Vector2(517,3347));
 
 	go->setWalkVelocity(70.0f);
 	go->setAttackVelocity(70.0f*2.0f);
@@ -196,7 +196,7 @@ Test::~Test()
 // handle input
 void Test::handleInput(void)
 {
-	sm::Vector2 tran;
+	math::Vector2 tran;
 	static const float VEL = 150.0f;
 	tran.x = tran.y = 0.0f;
 	static bool keyPres1 = false;
@@ -225,7 +225,7 @@ void Test::handleInput(void)
 			Hit_t h;
 			h.shooter = mPlayer;
 			h.power = 1.0f;
-			h.hitDir = sm::Vector2(.0f, 1.0);
+			h.hitDir = math::Vector2(.0f, 1.0);
 
 			mZombies[0]->beenHit(h);
 		}
@@ -238,7 +238,7 @@ void Test::handleInput(void)
 			Hit_t h;
 			h.shooter = mPlayer;
 			h.power = 1.0f;
-			h.hitDir = sm::Vector2(1.0f, 0.0);
+			h.hitDir = math::Vector2(1.0f, 0.0);
 
 			mZombies[0]->beenHit(h);
 		}
@@ -277,12 +277,12 @@ void Test::update()
 
 	static double t1,t2,t3,t4;
 	static bool keyPres = false;
-	sm::Vector2 p;
+	math::Vector2 p;
 
 	t1 = gettimestamp();
 	t3 = t2 - t1;
 	// update the game objects
-	sm::Vector2 trans;
+	math::Vector2 trans;
 	ZombieUnit *zu;
 	int size = mZombies.size()-1;
 	for(int i = 0; i <= size; ++i){
@@ -303,7 +303,7 @@ void Test::update()
 
 			static PathfindingManager::Path p;
 			static DrawablePath dp;
-			sm::Point point(507,788);
+			math::Point point(507,788);
 			mLevelManager.getPathfinderManager()->getRandomPath(point,p,0,10);
 			dp.clearPath();
 			dp.drawPath(p);

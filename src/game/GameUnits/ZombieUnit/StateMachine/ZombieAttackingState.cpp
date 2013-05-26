@@ -26,7 +26,7 @@ void ZombieAttackingState::enter(ZombieUnit *ref)
 
 	// Look to the target
 	Ogre::Vector3 v3 = ref->getActualTarget()->getSceneNode()->getPosition();
-	sm::Vector2 v2 = sm::Vector2(v3.x, v3.z);
+	math::Vector2 v2 = math::Vector2(v3.x, v3.z);
 	ref->lookAt(v2);
 
 	// change the animation

@@ -14,18 +14,18 @@
 
 class Triangle {
 public:
-	const sm::Vertex			*v1;
-	const sm::Vertex			*v2;
-	const sm::Vertex			*v3;
+	const math::Vertex			*v1;
+	const math::Vertex			*v2;
+	const math::Vertex			*v3;
 
 public:
 	// Ensures that the vertex will have valid info
-	Triangle(const sm::Vertex *p1, const sm::Vertex *p2, const sm::Vertex *p3);
+	Triangle(const math::Vertex *p1, const math::Vertex *p2, const math::Vertex *p3);
 	Triangle(const Triangle &);
 	~Triangle();
 
 	// check if contains a point
-	inline bool containsPoint(const sm::Point &p) const
+	inline bool containsPoint(const math::Point &p) const
 	{
 		ASSERT(v1);
 		ASSERT(v2);
@@ -35,15 +35,15 @@ public:
 	}
 
 	// Check if intersects a box
-	bool intersectAlignedBox(const sm::AlignedBox &r) const;
+	bool intersectAlignedBox(const math::AlignedBox &r) const;
 
 	// Get the center point of the triangle (slow)
-	void getCenterPoint(sm::Point &p) const;
+	void getCenterPoint(math::Point &p) const;
 
 	/**
 	 * Get a random point inside the triangle
 	 */
-	void getRandomPoint(sm::Point &r) const;
+	void getRandomPoint(math::Point &r) const;
 
 	bool operator==(const Triangle &other) const
     {
@@ -58,12 +58,12 @@ public:
 
 private:
 	// TODO: implementar esto mejor mas rapido
-	float Sign(const sm::Point &p1, const sm::Point &p2, const sm::Point &p3) const
+	float Sign(const math::Point &p1, const math::Point &p2, const math::Point &p3) const
 	{
 	  return (p1.x - p3.x) * (p2.y - p3.y) - (p2.x - p3.x) * (p1.y - p3.y);
 	}
 
-	inline bool checkInside(const sm::Point &p) const
+	inline bool checkInside(const math::Point &p) const
 	{
 		bool b1, b2, b3;
 
@@ -74,9 +74,9 @@ private:
 		return ((b1 == b2) && (b2 == b3));
 	}
 
-	inline bool getIntersectionPoint(const sm::Point &start1,
-			const sm::Point &end1, const sm::Point &start2, const sm::Point &end2,
-			sm::Point &result) const
+	inline bool getIntersectionPoint(const math::Point &start1,
+			const math::Point &end1, const math::Point &start2, const math::Point &end2,
+			math::Point &result) const
 	{
 		float denom = ((end1.x - start1.x) * (end2.y - start2.y)) - ((end1.y
 				- start1.y) * (end2.x - start2.x));
@@ -106,13 +106,13 @@ private:
 		return true;
 	}
 
-	bool boxLineIntersection(const sm::Point &start1, const sm::Point &end1,
-			const sm::AlignedBox &b, sm::Point &result) const
+	bool boxLineIntersection(const math::Point &start1, const math::Point &end1,
+			const math::AlignedBox &b, math::Point &result) const
 	{
-		if(getIntersectionPoint(start1, end1, b.tl, sm::Point(b.br.x, b.tl.y), result) ||
-				getIntersectionPoint(start1, end1, b.tl, sm::Point(b.tl.x, b.br.y), result) ||
-				getIntersectionPoint(start1, end1, b.br, sm::Point(b.br.x, b.tl.y), result) ||
-				getIntersectionPoint(start1, end1, b.br, sm::Point(b.tl.x, b.br.y), result)){
+		if(getIntersectionPoint(start1, end1, b.tl, math::Point(b.br.x, b.tl.y), result) ||
+				getIntersectionPoint(start1, end1, b.tl, math::Point(b.tl.x, b.br.y), result) ||
+				getIntersectionPoint(start1, end1, b.br, math::Point(b.br.x, b.tl.y), result) ||
+				getIntersectionPoint(start1, end1, b.br, math::Point(b.tl.x, b.br.y), result)){
 			return true;
 		}
 		return false;

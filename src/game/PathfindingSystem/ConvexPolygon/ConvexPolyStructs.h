@@ -8,7 +8,7 @@
 #ifndef CONVEXPOLYSTRUCTS_H_
 #define CONVEXPOLYSTRUCTS_H_
 
-namespace sm {
+namespace math {
 
 // define a point used by the convex poly
 struct Point {

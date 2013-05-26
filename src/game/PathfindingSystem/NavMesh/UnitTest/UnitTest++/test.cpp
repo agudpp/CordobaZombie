@@ -47,7 +47,7 @@ freeElements(std::vector<_T> &vec)
 // TESTS
 
 static Ogre::Entity *pathfindingMesh = 0;
-static PolyStructsContainer<sm::Vertex *> vertexs;
+static PolyStructsContainer<math::Vertex *> vertexs;
 static PolyStructsContainer<Triangle *> triangles;
 static TriangleNavMesh triNavMesh;
 
@@ -89,7 +89,7 @@ TEST(CheckImporter)
 {
     CHECK(pathfindingMesh != 0);
     std::vector<GNode *> localNodes;
-    PolyStructsContainer<sm::Vertex *> localVertexs;
+    PolyStructsContainer<math::Vertex *> localVertexs;
     PolyStructsContainer<Triangle *> localTriangles;
     std::vector<GEdge *> localEdges;
 
