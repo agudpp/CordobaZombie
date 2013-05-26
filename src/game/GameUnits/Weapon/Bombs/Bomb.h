@@ -120,8 +120,8 @@ protected:
 	float						mPower;
 	float						mRadius;
 	int							mType;
-	SoundFamilyTable			mSounds;
-	SoundAPI					mSAPI;
+	mm::SoundFamilyTable		mSounds;
+	mm::SoundAPI				mSAPI;
 
 	static	CollisionManager	*mCollMngr;
 	static	CollisionResult		mCollResult;

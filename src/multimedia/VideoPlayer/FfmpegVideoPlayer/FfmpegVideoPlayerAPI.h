@@ -12,6 +12,7 @@
 
 #define VIDEOS_RESOURCE_GROUP "Videos"
 
+namespace mm {
 
 typedef struct sVideo{
 	char *path;
@@ -21,7 +22,7 @@ typedef struct sVideo{
 } * Video;
 
 
-class VideoPlayerAPI{
+class VideoPlayerAPI {
 
 public:
 	enum{
@@ -136,5 +137,6 @@ inline bool VideoPlayerAPI::isVisible(void){
 
 }
 
+}
 
 #endif //FFMPEG_VIDEO_PLAYER_API_H

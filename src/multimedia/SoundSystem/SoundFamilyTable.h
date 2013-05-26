@@ -30,6 +30,7 @@
 #include "DebugUtil.h"
 #include "SoundEnums.h"
 
+namespace mm {
 
 
 typedef int SSsoundCode;
@@ -195,7 +196,6 @@ SoundFamilyTable::getChosenRandomSound(SSsoundCode sc, uint choice) const
 }
 
 
-
-
+}
 
 #endif /* SOUNDFAMILYTABLE_H_ */

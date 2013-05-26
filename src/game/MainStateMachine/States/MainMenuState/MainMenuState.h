@@ -166,7 +166,7 @@ private:
 	bool							mBeforeUpdateCalled;
 	VideoRangeVec					mEnteringRanges;
 	OvEff::OverlayEffectManager		mOvEffManager;
-	VideoPlayerAPI					*mVideoPlayerAPI;
+	mm::VideoPlayerAPI					*mVideoPlayerAPI;
 	CallbackReceiber                mCbReceiver;
 	XMLHelper                       mXmlHelper;
 	std::set<Ogre::String>			mSoundsFilenames;

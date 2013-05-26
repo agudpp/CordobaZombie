@@ -40,6 +40,7 @@
 #  error "Unsupported platform. ABORTING COMPILATION."
 #endif
 
+namespace mm {
 
 
 /* FWD declaration, to avoid circular dependencies. */
@@ -825,6 +826,6 @@ SoundManager::pauseEnvSound(const Ogre::String& sName)
 	}
 }
 
-
+}
 
 #endif /* SOUNDMANAGER_H_ */

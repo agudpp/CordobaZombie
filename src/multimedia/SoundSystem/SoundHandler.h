@@ -24,6 +24,9 @@
 #include "SoundManager.h"
 #include "SoundSource.h"
 
+
+namespace mm {
+
 class SoundHandler
 {
 	struct Playlist
@@ -638,6 +641,6 @@ SoundHandler::unsetPlaylistState(SoundHandler::Playlist *pl, long flags) {
 	pl->mState &= ~flags;
 }
 
-
+}
 
 #endif /* SOUNDHANDLER_H_ */

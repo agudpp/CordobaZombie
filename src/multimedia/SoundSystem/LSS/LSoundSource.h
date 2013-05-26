@@ -17,6 +17,8 @@
 
 #include "SoundSource.h"
 
+namespace mm {
+
 class LSoundSource : public SoundSource
 {
 	friend class SoundManager;
@@ -76,5 +78,6 @@ protected:
 			const bool repeat = false);
 };
 
+}
 
 #endif /* LSOUNDSOURCE_H_ */

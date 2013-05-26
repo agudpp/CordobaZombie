@@ -25,6 +25,7 @@ extern "C" {
 #  error "Unsupported platform. ABORTING COMPILATION."
 #endif
 
+namespace mm {
 
 //FIXME#4
 //#define NUM_BUFFERS 			3
@@ -248,4 +249,5 @@ inline bool VideoPlayer::is_visible(void){
 
 }
 
+}
 #endif

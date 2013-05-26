@@ -31,6 +31,7 @@
 #  error "Unsupported platform, aborting compilation."
 #endif
 
+namespace mm {
 
 ////////////////////////////////////////////////////////////////////////////////
 SSerror
@@ -634,3 +635,4 @@ BufferBuilder::streamBufferFromOGG(StreamOGGSoundBuffer* buffer)
 	return SSerror::SS_NO_ERROR;
 }
 
+}

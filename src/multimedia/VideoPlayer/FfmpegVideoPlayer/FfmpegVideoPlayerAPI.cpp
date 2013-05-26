@@ -8,6 +8,8 @@
 #include "string.h"
 
 
+namespace mm {
+
 const float VideoPlayerAPI::NO_VALUE = -1.0f;
 
 
@@ -195,3 +197,5 @@ float VideoPlayerAPI::getVideoTime(void){
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+
+}

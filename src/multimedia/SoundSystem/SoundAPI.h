@@ -24,6 +24,7 @@
 #include "SoundManager.h"
 
 
+namespace mm {
 
 class SoundAPI
 {
@@ -228,5 +229,6 @@ SoundAPI::getPosition() const
 	return mNode->getPosition();
 }
 
+}
 
 #endif /* SOUNDAPI_H_ */

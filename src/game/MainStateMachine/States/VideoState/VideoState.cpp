@@ -62,7 +62,7 @@ void VideoState::enter(const MainMachineInfo &info)
 
 	if(!mVpapi){
 		//Ogre::Vector4 screensize(-1.0f, 1.0f, 1.0f, -1.0f);
-		mVpapi = new VideoPlayerAPI();
+		mVpapi = new mm::VideoPlayerAPI();
 	}
 
 	ASSERT(mVpapi);
@@ -114,8 +114,8 @@ int VideoState::nextVideo(void){
 			continue;
 		}
 
-		if(VideoPlayerAPI::VIDEO_OK == mVpapi->load(videoPath.c_str())){
-			if( VideoPlayerAPI::VIDEO_OK == mVpapi->play()){
+		if(mm::VideoPlayerAPI::VIDEO_OK == mVpapi->load(videoPath.c_str())){
+			if(mm::VideoPlayerAPI::VIDEO_OK == mVpapi->play()){
 				mVpapi->setRepeat(false);
 				mVpapi->setVisible(true);
 				break;
@@ -155,11 +155,11 @@ MainMachineEvent VideoState::update(MainMachineInfo &info)
 
 		// Update Video
 		ret = mVpapi->update(frameTime);
-		if (ret == VideoPlayerAPI::VIDEO_ERROR){
+		if (ret == mm::VideoPlayerAPI::VIDEO_ERROR){
 			debugERROR("Error while updating the videoPlayerApi in "
 					"VideoState\n");
 			return MME_DONE;
-		}else if( ret == VideoPlayerAPI::VIDEO_ENDED){
+		}else if( ret == mm::VideoPlayerAPI::VIDEO_ENDED){
 			// Get next video to play
 			ret = this->nextVideo();
 			if(ret == DONE){

@@ -25,6 +25,8 @@
 #include "SoundEnums.h"
 
 
+namespace mm {
+
 
 // SoundHandler's static member initialization.
 SoundManager& SoundHandler::sSoundManager = SoundManager::getInstance();
@@ -822,3 +824,4 @@ SoundHandler::fadeInPlaylist(const Ogre::String& name,
 	return err;
 }
 
+}

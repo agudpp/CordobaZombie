@@ -98,6 +98,8 @@ const double EPS = 10e-12;
 
 ////////////////////////////////////////////////////////////////////////////////
 
+namespace mm {
+
 VideoPlayer::VideoPlayer(Ogre::Real left, Ogre::Real top,
 						 Ogre::Real right, Ogre::Real bottom):
 	pFormatCtx(0),
@@ -1353,4 +1355,7 @@ void VideoPlayer::SaveFrame(AVFrame *pFrame, int width, int height, int iFrame)
     // Close file
     fclose(pFile);
 }
+
+}
+
 

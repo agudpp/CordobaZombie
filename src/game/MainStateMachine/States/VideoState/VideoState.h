@@ -68,7 +68,7 @@ private:
 
 public:
 
-	VideoPlayerAPI	*mVpapi;
+	mm::VideoPlayerAPI	*mVpapi;
 	int				mVideoIndex;
 	bool			keyPress;
 

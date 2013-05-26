@@ -9,6 +9,8 @@
 #ifndef SOUNDENUMS_H_
 #define SOUNDENUMS_H_
 
+namespace mm {
+
 
 // Ogre's resource manager name for sound files.
 #define  SOUNDS_RESOURCE_GROUP_NAME  "Sounds"
@@ -86,5 +88,6 @@ typedef enum {
 	SS_FINISHED		= 32
 } SSplayback;
 
+}
 
 #endif /* SOUNSRETURNCODES_H_ */

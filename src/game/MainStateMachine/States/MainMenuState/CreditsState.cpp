@@ -162,11 +162,11 @@ void CreditsState::beforeUpdate(void)
     mRestarter.link();
 
 	// Start the background music in looping mode.
-	SSerror err = SoundManager::getInstance().playEnvSound(
+	mm::SSerror err = mm::SoundManager::getInstance().playEnvSound(
 			*mSounds.getSound(SS_BACKGROUND_MUSIC),	// Music filename
 			BACKGROUND_MUSIC_VOLUME,				// Playback volume
 			true);									// Looping activated
-	ASSERT(err == SSerror::SS_NO_ERROR);
+	ASSERT(err == mm::SSerror::SS_NO_ERROR);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -183,9 +183,9 @@ void CreditsState::unload(void)
     mRestarter.unlink();
 
     // Stop the background music.
-	SSerror err = SoundManager::getInstance().stopEnvSound(
+    mm::SSerror err = mm::SoundManager::getInstance().stopEnvSound(
 			*mSounds.getSound(SS_BACKGROUND_MUSIC));
-	ASSERT(err == SSerror::SS_NO_ERROR);
+	ASSERT(err == mm::SSerror::SS_NO_ERROR);
 }
 
 

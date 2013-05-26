@@ -38,6 +38,8 @@ typedef unsigned long ulong;
 typedef unsigned char uchar;
 typedef ALuint ALBuffer;
 
+namespace mm {
+
 
 /* Generic sound buffer */
 struct SoundBuffer
@@ -246,5 +248,6 @@ StreamOGGSoundBuffer::restart()
 	}
 }
 
+}
 
 #endif /* SOUNDBUFFER_H_ */

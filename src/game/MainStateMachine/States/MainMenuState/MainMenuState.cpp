@@ -128,7 +128,7 @@ MainMenuState::VideoState MainMenuState::getVideoState(void)
 ////////////////////////////////////////////////////////////////////////////////
 void MainMenuState::updateStateMachine(void)
 {
-	static SoundManager& sMgr(SoundManager::getInstance());
+	static mm::SoundManager& sMgr(mm::SoundManager::getInstance());
 
 	// check that we have state to update
 	if(!mActualState) return;
@@ -172,7 +172,7 @@ void MainMenuState::configureOvEffectManager(void)
 void MainMenuState::configureSoundManager(void)
 {
 	std::vector<const TiXmlElement *> states;
-	SoundManager& sMgr = SoundManager::getInstance();
+	mm::SoundManager& sMgr = mm::SoundManager::getInstance();
 
 	// Gather the sound names for the menu states from the config.xml file.
 	mXmlHelper.getFirstElements(states);
@@ -211,9 +211,9 @@ void MainMenuState::configureSoundManager(void)
 			continue;
 		}
 
-		SSbuftype buffType = BufferBuilder::bestBufferType(soundFilePath);
-		SSerror err = sMgr.loadSound(*sound, SSformat::SS_NOTHING, buffType);
-		ASSERT(err == SSerror::SS_NO_ERROR);
+		mm::SSbuftype buffType = mm::BufferBuilder::bestBufferType(soundFilePath);
+		mm::SSerror err = sMgr.loadSound(*sound, mm::SSformat::SS_NOTHING, buffType);
+		ASSERT(err == mm::SSerror::SS_NO_ERROR);
 	}
 
 	// Load some sources into the SoundManager to play these sounds.
@@ -226,7 +226,7 @@ void MainMenuState::configureVideoAPI(void)
 {
 	// Construct video player api
 	if(mVideoPlayerAPI == 0){
-		mVideoPlayerAPI = new VideoPlayerAPI;
+		mVideoPlayerAPI = new mm::VideoPlayerAPI;
 	}
 	ASSERT(mVideoPlayerAPI);
 
@@ -325,7 +325,7 @@ MainMenuState::MainMenuState() :
 ////////////////////////////////////////////////////////////////////////////////
 MainMenuState::~MainMenuState()
 {
-	SoundManager& sMgr(SoundManager::getInstance());
+    mm::SoundManager& sMgr(mm::SoundManager::getInstance());
 
 	// TODO: Remove all the memory and resources used by this state
 	// calling exit()

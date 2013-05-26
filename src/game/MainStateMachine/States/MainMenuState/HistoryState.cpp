@@ -149,11 +149,11 @@ void HistoryState::beforeUpdate(void)
 	mSlidePlayer->show();
 
 	// Start the background music in looping mode.
-	SSerror err = SoundManager::getInstance().playEnvSound(
+	mm::SSerror err = mm::SoundManager::getInstance().playEnvSound(
 			*mSounds.getSound(SS_BACKGROUND_MUSIC),	// Music filename
 			BACKGROUND_MUSIC_VOLUME,				// Playback volume
 			true);									// Looping activated
-	ASSERT(err == SSerror::SS_NO_ERROR);
+	ASSERT(err == mm::SSerror::SS_NO_ERROR);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -197,9 +197,9 @@ void HistoryState::unload(void)
 	}
 
     // Stop the background music.
-	SSerror err = SoundManager::getInstance().stopEnvSound(
+	mm::SSerror err = mm::SoundManager::getInstance().stopEnvSound(
 			*mSounds.getSound(SS_BACKGROUND_MUSIC));
-	ASSERT(err == SSerror::SS_NO_ERROR);
+	ASSERT(err == mm::SSerror::SS_NO_ERROR);
 }
 
 
@@ -208,8 +208,8 @@ void HistoryState::unload(void)
 
 void HistoryState::operator()(CbMenuButton * b, CbMenuButton::ButtonID id)
 {
-	SSerror err(SSerror::SS_NO_ERROR);
-	SoundManager& sMgr(SoundManager::getInstance());
+    mm::SSerror err(mm::SSerror::SS_NO_ERROR);
+    mm::SoundManager& sMgr(mm::SoundManager::getInstance());
 
     if (mState == STATE_HIDING || mState == STATE_EXITING) {
     	// Someone already pressed an escape button, ignore following commands.
@@ -221,7 +221,7 @@ void HistoryState::operator()(CbMenuButton * b, CbMenuButton::ButtonID id)
 	{
 		sMgr.stopEnvSound(*mSounds.getSound(SS_MOUSE_CLICK));
 		err = sMgr.playEnvSound(*mSounds.getSound(SS_MOUSE_CLICK));
-		ASSERT(err == SSerror::SS_NO_ERROR);
+		ASSERT(err == mm::SSerror::SS_NO_ERROR);
 		mState = STATE_HIDING;
 		this->hideToExit();
 	}
@@ -230,7 +230,7 @@ void HistoryState::operator()(CbMenuButton * b, CbMenuButton::ButtonID id)
 	{
 		sMgr.stopEnvSound(*mSounds.getSound(SS_MOUSE_CLICK));
 		err = sMgr.playEnvSound(*mSounds.getSound(SS_MOUSE_CLICK));
-		ASSERT(err == SSerror::SS_NO_ERROR);
+		ASSERT(err == mm::SSerror::SS_NO_ERROR);
 		mSlidePlayer->prev();
 	}
 	else if(b == mButtons[mm_states::HistoryState::nextButton].getButton()
@@ -238,7 +238,7 @@ void HistoryState::operator()(CbMenuButton * b, CbMenuButton::ButtonID id)
 	{
 		sMgr.stopEnvSound(*mSounds.getSound(SS_MOUSE_CLICK));
 		err = sMgr.playEnvSound(*mSounds.getSound(SS_MOUSE_CLICK));
-		ASSERT(err == SSerror::SS_NO_ERROR);
+		ASSERT(err == mm::SSerror::SS_NO_ERROR);
 		mSlidePlayer->next();
 	}
 	else

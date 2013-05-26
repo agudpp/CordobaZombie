@@ -22,6 +22,7 @@
 #define  MAX_WAV_FILE_SIZE	(1<<20)  // 1 MB
 #define  MAX_OGG_FILE_SIZE	(1<<18)  // 256 KB
 
+namespace mm {
 
 class BufferBuilder
 {
@@ -161,6 +162,7 @@ private:
 	streamBufferFromOGG(StreamOGGSoundBuffer *buffer);
 };
 
+}
 
 #endif /* BUFFERBUILDER_H_ */
 

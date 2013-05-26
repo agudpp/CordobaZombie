@@ -16,6 +16,8 @@
 #include "LSoundSource.h"
 #include "DebugUtil.h"
 
+namespace mm {
+
 ////////////////////////////////////////////////////////////////////////////////
 LSoundSource::LSoundSource() : SoundSource()
 { /* Inherited constructor suffices. */ }
@@ -230,4 +232,6 @@ LSoundSource::restart(const Ogre::Real& gain,
 
 	ASSERT(alGetError() == AL_NO_ERROR);
 	return result;
+}
+
 }

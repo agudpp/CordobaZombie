@@ -73,8 +73,8 @@ MainState::~MainState()
 void
 MainState::operator()(CbMenuButton *button, CbMenuButton::ButtonID id)
 {
-	SSerror err(SSerror::SS_NO_ERROR);
-	SoundManager& sMgr(SoundManager::getInstance());
+    mm::SSerror err(mm::SSerror::SS_NO_ERROR);
+    mm::SoundManager& sMgr(mm::SoundManager::getInstance());
 
     ASSERT(mMenuButtonsEff.size() == NUMBER_BUTTONS);
     if (mState == Exiting) {
@@ -112,7 +112,7 @@ MainState::operator()(CbMenuButton *button, CbMenuButton::ButtonID id)
         ASSERT(false);
     }
 
-    ASSERT(err == SSerror::SS_NO_ERROR);
+    ASSERT(err == mm::SSerror::SS_NO_ERROR);
     exitState();
 }
 
@@ -155,11 +155,11 @@ MainState::beforeUpdate(void)
     }
 
 	// Start the background music in looping mode
-	SSerror err = SoundManager::getInstance().playEnvSound(
+    mm::SSerror err = mm::SoundManager::getInstance().playEnvSound(
 			*mSounds.getSound(SS_BACKGROUND_MUSIC),	// Music filename
 			BACKGROUND_MUSIC_VOLUME,				// Playback volume
 			true);									// Looping activated
-	ASSERT(err == SSerror::SS_NO_ERROR);
+	ASSERT(err == mm::SSerror::SS_NO_ERROR);
 
     mState = Looping;
     mReturnEvent = Event::Done;
@@ -198,9 +198,9 @@ MainState::unload(void)
     }
 
 	// Stop the background music
-	SSerror err = SoundManager::getInstance().stopEnvSound(
+    mm::SSerror err = mm::SoundManager::getInstance().stopEnvSound(
 			*mSounds.getSound(SS_BACKGROUND_MUSIC));
-	ASSERT(err == SSerror::SS_NO_ERROR);
+	ASSERT(err == mm::SSerror::SS_NO_ERROR);
 }
 
 

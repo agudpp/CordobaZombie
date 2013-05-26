@@ -64,6 +64,8 @@ fileExists(std::string fname)
 #define  NUM_PARALLEL_SOUNDS  1<<6  /* 64 */
 
 
+namespace mm {
+
 
 ////////////////////////////////////////////////////////////////////////////////
 SoundManager::SoundManager() : mCam(0)
@@ -1234,3 +1236,4 @@ SoundManager::fadeInSound(SoundAPI& sAPI, const Ogre::Real& time)
 	return SSerror::SS_NO_ERROR;
 }
 
+}

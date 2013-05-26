@@ -212,7 +212,7 @@ protected:
 		SS_BACKGROUND_MUSIC	// Background music for this state
 	};
 
-	SoundFamilyTable		mSounds;
+	mm::SoundFamilyTable		mSounds;
 };
 
 

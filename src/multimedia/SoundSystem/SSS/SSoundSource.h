@@ -17,6 +17,8 @@
 
 #include "SoundSource.h"
 
+namespace mm {
+
 class SSoundSource : public SoundSource
 {
 	friend class SoundManager;
@@ -79,5 +81,6 @@ private:
 	unsigned int mFirstBuffer;					// First buffer in playing queue
 };
 
+}
 
 #endif /* SSOUNDSOURCE_H_ */

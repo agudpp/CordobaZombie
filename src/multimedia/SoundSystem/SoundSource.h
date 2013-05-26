@@ -31,6 +31,7 @@
 #  error "Unsupported platform, aborting compilation."
 #endif
 
+namespace mm {
 
 typedef ALuint ALSource;
 
@@ -226,5 +227,6 @@ inline SSsrctype SoundSource::getType() { return mType; }
 ////////////////////////////////////////////////////////////////////////////////
 inline bool SoundSource::getRepeat() { return mRepeat; }
 
+}
 
 #endif /* SOUNDSOURCE_H_ */

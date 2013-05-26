@@ -293,11 +293,11 @@ void Test::testFollowSound(void){
 Test::Test()
 {
 
-	SoundManager& sMgr = SoundManager::getInstance();
-	ASSERT(SSerror::SS_NO_ERROR == sMgr.loadSound(ZOMB_SND_GRNT_A));
-	ASSERT(SSerror::SS_NO_ERROR == sMgr.loadSound(ZOMB_SND_GRNT_B));
+    mm::SoundManager& sMgr = mm::SoundManager::getInstance();
+	ASSERT(mm::SSerror::SS_NO_ERROR == sMgr.loadSound(ZOMB_SND_GRNT_A));
+	ASSERT(mm::SSerror::SS_NO_ERROR == sMgr.loadSound(ZOMB_SND_GRNT_B));
 
-    ASSERT(sMgr.addLSoundSources(50) == SSerror::SS_NO_ERROR);
+    ASSERT(sMgr.addLSoundSources(50) == mm::SSerror::SS_NO_ERROR);
     
 
 

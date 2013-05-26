@@ -11,6 +11,7 @@
 #include "DebugUtil.h"
 #include "SoundFamilyTable.h"
 
+namespace mm {
 
 ////////////////////////////////////////////////////////////////////////////////
 void
@@ -53,3 +54,4 @@ SoundFamilyTable::addSounds(SSsoundCode sc, const Ogre::String* sounds, uint siz
 	}
 }
 
+}

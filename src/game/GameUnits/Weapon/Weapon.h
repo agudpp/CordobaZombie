@@ -171,7 +171,7 @@ protected:
     int             mType;
     Hit_t           mHit;
     GameUnit        *mOwner;
-    SoundAPI        mSAPI;
+    mm::SoundAPI    mSAPI;
     float           mAnimVelocityFactor;
     Signal          mSignal;
     // TODO: Effect		*mEffect;

@@ -358,7 +358,7 @@ public:
 	/**
 	 * Return a reference to the GameUnit's SoundAPI.
 	 */
-	inline SoundAPI& getSoundAPI();
+	inline mm::SoundAPI& getSoundAPI();
 
 	/**
 	 * Attaches the GameUnit's SceneNode to the SoundAPI.
@@ -410,8 +410,8 @@ protected:
 public:
 	/* XXX	Es al pedo hacer una intefaz para manipular los sonidos.     *
 	 *		No añade nada, e interpone otra capa de llamada a funciones. */
-	SoundAPI					mSAPI;
-	SoundFamilyTable			mSounds;
+	mm::SoundAPI				mSAPI;
+	mm::SoundFamilyTable		mSounds;
 };
 
 
@@ -665,7 +665,7 @@ inline float GameUnit::distToActualTarget(void){
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-inline SoundAPI& GameUnit::getSoundAPI() { return mSAPI; }
+inline mm::SoundAPI& GameUnit::getSoundAPI() { return mSAPI; }
 
 ////////////////////////////////////////////////////////////////////////////////
 inline void GameUnit::configureSoundAPI() { mSAPI.setSceneNode(getSceneNode());}

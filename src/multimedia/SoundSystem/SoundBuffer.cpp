@@ -17,6 +17,7 @@
 #include "SoundBuffer.h"
 
 
+namespace mm {
 
 ////////////////////////////////////////////////////////////////////////////////
 long long int
@@ -126,3 +127,4 @@ StreamOGGSoundBuffer::filler(ALBuffer& buf, size_t size, bool repeat)
 	return ((long long int)pcmData.size());
 }
 
+}

@@ -17,6 +17,7 @@
 #include "SSoundSource.h"
 #include "DebugUtil.h"
 
+namespace mm {
 
 ////////////////////////////////////////////////////////////////////////////////
 SSoundSource::SSoundSource() :
@@ -355,5 +356,5 @@ SSoundSource::restart(const Ogre::Real& gain,
 	return SSerror::SS_NO_ERROR;
 }
 
-
+}
 
