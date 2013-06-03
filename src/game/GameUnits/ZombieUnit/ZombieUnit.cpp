@@ -14,9 +14,9 @@
 
 ZombieSMTTable		*ZombieUnit::mSMTT = 0;
 ZombieQueue			*ZombieUnit::mQueue = 0;
-billboard::BillboardBatery *ZombieUnit::mBloodBatery = 0;
-billboard::BillboardManager &ZombieUnit::mBillboardMngr =
-    billboard::BillboardManager::instance();
+effects::BillboardBatery *ZombieUnit::mBloodBatery = 0;
+effects::BillboardManager &ZombieUnit::mBillboardMngr =
+    effects::BillboardManager::instance();
 
 const float  ZombieUnit::MAX_RADIUS_VISIBILITY = ZOMBIE_MAX_VISIBILITY_DIST;
 
@@ -274,7 +274,7 @@ ZombieSMTTable
 
 ////////////////////////////////////////////////////////////////////////////////
 void
-ZombieUnit::setBillboardBBlood(billboard::BillboardBatery *bbb)
+ZombieUnit::setBillboardBBlood(effects::BillboardBatery *bbb)
 {
 	ASSERT(bbb);
 	mBloodBatery = bbb;

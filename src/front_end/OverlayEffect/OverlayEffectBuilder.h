@@ -113,7 +113,7 @@ private:
 	buildSlide(const TiXmlElement& txe);
 
 private:
-	XMLHelper mHelper;
+	core::XMLHelper mHelper;
 };
 
 

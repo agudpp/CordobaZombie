@@ -13,7 +13,7 @@
 #include <OgreVector3.h>
 #include <OgreMaterial.h>
 
-#include <DebugUtil/DebugUtil.h>
+#include <debug/DebugUtil.h>
 
 #include "GameUnits/GameObject.h"
 #include "CollectableObjTypes.h"

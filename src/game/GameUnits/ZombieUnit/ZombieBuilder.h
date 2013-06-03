@@ -41,7 +41,7 @@ public:
      * normal zombies and all the other zombies.
      */
     void
-    configure(c_p::CollisionManager *cm, billboard::BillboardBatery *bbb,
+    configure(c_p::CollisionManager *cm, effects::BillboardBatery *bbb,
         ZombieQueue *q);
 
     /**
@@ -57,7 +57,7 @@ private:
     buildNormalZombie(const TiXmlElement *elem);
 
 private:
-    XMLHelper mHelper;
+    core::XMLHelper mHelper;
 };
 
 #endif /* ZOMBIEBUILDER_H_ */

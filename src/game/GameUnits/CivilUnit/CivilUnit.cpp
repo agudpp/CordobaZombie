@@ -7,7 +7,7 @@
 
 #include "CivilUnit.h"
 
-#include <CollisionSystem/CollisionTypedefs.h>
+#include <collision/CollisionTypedefs.h>
 #include <SelectionSystem/SelectionType.h>
 
 #include "GameUnitDefines.h"

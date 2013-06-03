@@ -12,8 +12,8 @@
 #include <SelectionSystem/SelectionType.h>
 
 PlayerSMTTable *PlayerUnit::mSMTT = 0;
-billboard::BillboardManager &PlayerUnit::mBillboardMngr =
-    billboard::BillboardManager::instance();
+effects::BillboardManager &PlayerUnit::mBillboardMngr =
+    effects::BillboardManager::instance();
 
 const float  PlayerUnit::UPDATE_PATH_TIME = 0.5f;
 

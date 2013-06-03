@@ -17,12 +17,12 @@
 
 #include <OgreBillboard.h>
 
-#include <BillboardManager/BillboardWrapper.h>
+#include <billboards/BillboardWrapper.h>
 #include <SelectionSystem/SelectionData.h>
 #include <SelectionSystem/SelectionType.h>
 #include <SelectionSystem/SelectionManager.h>
 #include <GlobalObjects/GlobalObjects.h>
-#include <DebugUtil/DebugUtil.h>
+#include <debug/DebugUtil.h>
 #include <Math/CommonMath.h>
 #include <MouseCursor/MouseCursor.h>
 
@@ -141,7 +141,7 @@ private:
 private:
 
     // Helper typedefs
-    typedef std::vector<billboard::BillboardWrapper> BillboardVec;
+    typedef std::vector<effects::BillboardWrapper> BillboardVec;
 
 
 	IInputState *mActualState;

@@ -8,7 +8,7 @@
 
 #include "InputStateMachine.h"
 
-#include <BillboardManager/BillboardManager.h>
+#include <billboards/BillboardManager.h>
 #include <SelectionSystem/SelectionType.h>
 #include <SelectionSystem/SelectionManager.h>
 #include <SelectionSystem/SelectableObject.h>
@@ -145,7 +145,7 @@ InputStateMachine::InputStateMachine(selection::SelectionManager &selManager,
     mMoveBillboards.resize(3);
     mMoveBillbardVisible.resize(3, false);
     for (size_t i = 0, size = mMoveBillbardVisible.size(); i < size; ++i) {
-        mMoveBillboards[i] = billboard::BillboardManager::instance().getNewBillboard(0);
+        mMoveBillboards[i] = effects::BillboardManager::instance().getNewBillboard(0);
     }
 }
 
@@ -218,7 +218,7 @@ InputStateMachine::selectionChanged(const selection::SelectionData &selData)
                     // TODO: check if we have to change this way to get the
                     // billboards?
                     mMoveBillboards[numBillboards] =
-                        billboard::BillboardManager::instance().getNewBillboard(0);
+                        effects::BillboardManager::instance().getNewBillboard(0);
                 }
             }
         }

@@ -13,11 +13,11 @@
 #include <boost/signal.hpp>
 #include <boost/signals/slot.hpp>
 
-#include <DebugUtil/DebugUtil.h>
+#include <debug/DebugUtil.h>
 #include <Math/CommonMath.h>
 #include <GameUnits/GameUnitDefines.h>
-#include <SoundSystem/SoundAPI.h>
-#include <CollisionSystem/CollisionManager.h>
+#include <sound/SoundAPI.h>
+#include <collision/CollisionManager.h>
 
 #include "Shoot/Shoot.h"
 #include "WeaponIDs.h"
@@ -111,8 +111,8 @@ public:
     /**
      * Get/Set the effect (TODO)
      */
-    //inline Effect* getEffect(void) const;
-    //inline void setEffect(Effect *e);
+    //inline effects::Effect* getEffect(void) const;
+    //inline void setEffect(effects::Effect *e);
 
     ////////////////////////////////////////////////////////////////////////////
     //						ACTIONS OF THE WEAPON							////
@@ -174,7 +174,7 @@ protected:
     mm::SoundAPI    mSAPI;
     float           mAnimVelocityFactor;
     Signal          mSignal;
-    // TODO: Effect		*mEffect;
+    // TODO: effects::Effect		*mEffect;
 
     static ShootContainer	*mShootCont;
     static c_p::CollisionResult	mCollResult;

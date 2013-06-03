@@ -23,7 +23,7 @@
 #include <GameUnits/CollectableObject/CollectableObject.h>
 #include <InputManager/IInputState.h>
 #include <SelectionSystem/SelectionManager.h>
-#include <BillboardManager/BMBuilder.h>
+#include <billboards/BMBuilder.h>
 #include <GameUnits/Weapon/WeaponBuilder.h>
 #include <GameUnits/PlayerUnit/Backpack/BackpackItemBuilder.h>
 
@@ -76,13 +76,13 @@ Test::Test() :
     mInputManager->setCameraController(&mCamController);
 
     // Remove this will be deprecated soon
-    billboard::BillboardManager &bminstance = billboard::BillboardManager::instance();
+    effects::BillboardManager &bminstance = effects::BillboardManager::instance();
 //    bminstance.createSet(50,
-//                         "BillboardManager/Atlas",
+//                         "billboards/Atlas",
 //                         3,
 //                         2);
     boost::shared_ptr<TiXmlDocument> doc(Common::Util::loadXmlDocument("BillboardSample.xml"));
-    billboard::BMBuilder::configure(doc->RootElement(), bminstance);
+    effects::BMBuilder::configure(doc->RootElement(), bminstance);
 
     bminstance.setBounds(Ogre::AxisAlignedBox(
                          Ogre::Vector3(-9999.9f,-9999.9f,-9999.9f),

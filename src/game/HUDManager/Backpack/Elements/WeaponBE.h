@@ -12,7 +12,7 @@
 #include <GameUnits/Weapon/Weapon.h>
 #include <GameUnits/PlayerUnit/Backpack/BackpackItem.h>
 #include <MenuSystem/GUI/Button/MenuButton.h>
-#include <DebugUtil/DebugUtil.h>
+#include <debug/DebugUtil.h>
 
 #include "../BackpackElement.h"
 

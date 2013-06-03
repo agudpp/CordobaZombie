@@ -168,7 +168,7 @@ private:
 	f_e::OverlayEffectManager		mOvEffManager;
 	mm::VideoPlayerAPI					*mVideoPlayerAPI;
 	CallbackReceiber                mCbReceiver;
-	XMLHelper                       mXmlHelper;
+	core::XMLHelper                       mXmlHelper;
 	std::set<Ogre::String>			mSoundsFilenames;
 };
 

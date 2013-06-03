@@ -78,7 +78,7 @@ void buildButtons(const TiXmlElement root,
 	;
 	for(int i = 0, size = names.size(); i < size; ++i){
 		const TiXmlElement *bElem =
-				XMLHelper::findChild(elem, names[i].c_str());
+				core::XMLHelper::findChild(elem, names[i].c_str());
 
 #ifdef DEBUG
 		if(!bElem){

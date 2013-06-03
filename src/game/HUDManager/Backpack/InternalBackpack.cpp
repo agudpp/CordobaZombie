@@ -9,7 +9,7 @@
 
 #include <boost/bind.hpp>
 
-#include <DebugUtil/DebugUtil.h>
+#include <debug/DebugUtil.h>
 #include <GameUnits/PlayerUnit/Backpack/Backpack.h>
 #include <GameUnits/PlayerUnit/PlayerUnit.h>
 

@@ -17,7 +17,7 @@
 #include <OgreString.h>
 #include <OgreConfigFile.h>
 // Local
-#include <DebugUtil/DebugUtil.h>
+#include <debug/DebugUtil.h>
 #include <MainStateMachine/SystemLoader/SystemLoader.h>
 #include <Util/Util.h>
 #include <GlobalObjects/GlobalObjects.h>

@@ -10,7 +10,7 @@
 #include <OgreOverlayManager.h>
 #include <OgreOverlayContainer.h>
 
-#include <DebugUtil/DebugUtil.h>
+#include <debug/DebugUtil.h>
 #include <tinyxml/tinyxml.h>
 #include <XMLHelper/XMLHelper.h>
 #include <GameUnits/PlayerUnit/Backpack/BackpackDefines.h>
@@ -178,7 +178,7 @@ BackpackElementBuilder::load(const Ogre::String& xmlFile)
     clear();
 
     // read and open the xml
-    XMLHelper xmlHelper;
+    core::XMLHelper xmlHelper;
     xmlHelper.setFilename(xmlFile);
     xmlHelper.openXml();
 

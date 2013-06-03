@@ -61,7 +61,7 @@ void PreGameState::enter(const MainMachineInfo &info)
 	mPreGamePath = levelPath + PREGAMEDIRNAME;
 
 	// Load resources
-	XMLHelper xmlhelper;
+	core::XMLHelper xmlhelper;
 	xmlhelper.setFilename("config.xml");
 	xmlhelper.openXml();
 	const TiXmlElement *config = xmlhelper.getRootElement();

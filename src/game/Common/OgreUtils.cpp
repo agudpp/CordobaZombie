@@ -10,26 +10,12 @@
 #include <stdlib.h>
 #include <vector>
 
-#include <Math/CommonMath.h>
+#include <OgreQuaternion.h>
+#include <OgreStringConverter.h>
 
-// TODO: remove this
-/* Multiplatform auxiliary function */
-#if defined(_WIN32) || defined(CYGWIN)
-static inline bool
-fileExists(std::string fname)
-{
-    return System::IO::File::Exists(fname);
-}
-#elif defined(linux) || defined(_linux) || defined(__linux) || defined(__linux__)
-#  include <unistd.h>
-static inline bool
-fileExists(std::string fname)
-{
-    return !access(fname.c_str(), R_OK);
-}
-#else
-#  error "Unsupported platform. ABORTING COMPILATION."
-#endif
+#include <Math/CommonMath.h>
+#include <OS/OSUtils.h>
+
 
 // Helper methods
 //
@@ -410,7 +396,7 @@ getResourcePath(const Ogre::String& resourceGroup,
         for (it = files->begin(); it < files->end(); it++) {
             /* Compose file absolute path */
             sNameFullPath.append(it->archive->getName() + "/" + resourceName);
-            if (fileExists(sNameFullPath)) {
+            if (core::fs::fileExists(sNameFullPath.c_str())) {
                 break;
             } else {
                 sNameFullPath.clear();

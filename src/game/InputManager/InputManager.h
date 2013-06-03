@@ -10,7 +10,7 @@
 
 #include <cstdlib>
 
-#include <DebugUtil/DebugUtil.h>
+#include <debug/DebugUtil.h>
 #include <GlobalObjects/GlobalObjects.h>
 #include <Math/CommonMath.h>
 #include <MouseCursor/MouseCursor.h>

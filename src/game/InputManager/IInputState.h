@@ -14,10 +14,10 @@
 #include <OgreSceneQuery.h>
 #include <OgreVector3.h>
 
-#include <DebugUtil/DebugUtil.h>
+#include <debug/DebugUtil.h>
 #include <GlobalObjects/GlobalObjects.h>
-#include <CollisionSystem/CollisionTypedefs.h>
-#include <CollisionSystem/CollisionManager.h>
+#include <collision/CollisionTypedefs.h>
+#include <collision/CollisionManager.h>
 #include <MouseCursor/MouseCursor.h>
 #include <LevelManager/LevelManager.h>
 #include <SelectionSystem/SelectableObject.h>

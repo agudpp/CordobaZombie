@@ -107,7 +107,7 @@ ZombieBuilder::setFilename(const Ogre::String &fname)
 ////////////////////////////////////////////////////////////////////////////////
 void
 ZombieBuilder::configure(c_p::CollisionManager *cm,
-    billboard::BillboardBatery *bbb, ZombieQueue *q)
+    effects::BillboardBatery *bbb, ZombieQueue *q)
 {
     if (bbb)
         ZombieUnit::setBillboardBBlood(bbb);

@@ -12,7 +12,7 @@
 
 #include <GlobalObjects/GlobalObjects.h>
 #include <SelectionSystem/SelectionType.h>
-#include <CollisionSystem/CollisionTypedefs.h>
+#include <collision/CollisionTypedefs.h>
 
 Ogre::MaterialPtr CollectableObject::sSelMaterial;
 

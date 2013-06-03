@@ -7,7 +7,7 @@
 
 #include "PlayerUnitBuilder.h"
 
-#include <DebugUtil/DebugUtil.h>
+#include <debug/DebugUtil.h>
 #include <GlobalObjects/GlobalObjects.h>
 #include <Math/CommonMath.h>
 #include <GameUnits/GameObject.h>

@@ -11,9 +11,9 @@
 #include <vector>
 #include <set>
 
-#include <BillboardManager/BillboardManager.h>
-#include <BillboardManager/BillboardBatery.h>
-#include <BillboardManager/BillboardWrapper.h>
+#include <billboards/BillboardManager.h>
+#include <billboards/BillboardBatery.h>
+#include <billboards/BillboardWrapper.h>
 
 #include "ZombieDefs.h"
 #include "FSM/StateMachine.h"
@@ -159,7 +159,7 @@ public:
 	/**
 	 * Set the Blood BillboardBatery
 	 */
-	static void setBillboardBBlood(billboard::BillboardBatery *bbb);
+	static void setBillboardBBlood(effects::BillboardBatery *bbb);
 
 	/**
 	 * Set the ZombieQueue
@@ -258,13 +258,13 @@ private:
 	TargetList						mTargets;
 	const Ogre::SceneNode			*mSoundTarget;
 	GameUnit						*mSpreader;
-	billboard::BillboardWrapper		mSelBillboard;
+	effects::BillboardWrapper		mSelBillboard;
 
 	// The transition table used by all the zombies
 	static ZombieSMTTable		*mSMTT;
 	static ZombieQueue			*mQueue;
-	static billboard::BillboardBatery		*mBloodBatery;
-	static billboard::BillboardManager &mBillboardMngr;
+	static effects::BillboardBatery		*mBloodBatery;
+	static effects::BillboardManager &mBillboardMngr;
 };
 
 

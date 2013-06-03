@@ -35,8 +35,8 @@ void IState::setStateMachineCb(EventCallback *cb)
 void IState::parseVideoRange(const TiXmlElement *xml, VideoRange &vr) const
 {
 	ASSERT(xml);
-	XMLHelper::parseFloat(xml, "start", vr.start);
-	XMLHelper::parseFloat(xml, "end", vr.end);
+	core::XMLHelper::parseFloat(xml, "start", vr.start);
+	core::XMLHelper::parseFloat(xml, "end", vr.end);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -85,7 +85,7 @@ void IState::parseCbMenuButton(const TiXmlElement *xml,
 void IState::getVideoRangesFromXML(std::vector<VideoRange> &vr) const
 {
 	// get the TiXmlElement from the document with the associated name
-	const TiXmlElement *elem = XMLHelper::findChild(mRootElement, mName.c_str());
+	const TiXmlElement *elem = core::XMLHelper::findChild(mRootElement, mName.c_str());
 
 #ifdef DEBUG
 	if (elem == 0) {
@@ -167,7 +167,7 @@ void IState::buildButtons(std::vector<f_e::MenuButtonEffect> &buttons,
 {
 	if(names.empty()) return;
 
-	const TiXmlElement *elem = XMLHelper::findChild(mRootElement, mName.c_str());
+	const TiXmlElement *elem = core::XMLHelper::findChild(mRootElement, mName.c_str());
 	ASSERT(elem);
 
 	// get the CBMenuButtons config if we have
@@ -178,7 +178,7 @@ void IState::buildButtons(std::vector<f_e::MenuButtonEffect> &buttons,
 	// now find all the names and buttons
 	const int size = names.size();
 	for(int i = 0; i < size; ++i){
-		const TiXmlElement *bElem = XMLHelper::findChild(elem, names[i].c_str());
+		const TiXmlElement *bElem = core::XMLHelper::findChild(elem, names[i].c_str());
 
 #ifdef DEBUG
 		if(!bElem){
@@ -201,7 +201,7 @@ void IState::buildButtons(std::vector<f_e::MenuButtonEffect> &buttons,
  */
 const TiXmlElement *IState::getXmlElement(void) const
 {
-	return XMLHelper::findChild(
+	return core::XMLHelper::findChild(
 	        mRootElement,
 	        mName.c_str(),
 	        "name");

@@ -61,7 +61,7 @@ private:
     createRemoteBomb(const TiXmlElement *elem);
 
 private:
-    XMLHelper mHelper;
+    core::XMLHelper mHelper;
 };
 
 #endif /* BOMBBUILDER_H_ */

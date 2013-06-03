@@ -11,8 +11,8 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include <BillboardManager/BillboardManager.h>
-#include <BillboardManager/BillboardWrapper.h>
+#include <billboards/BillboardManager.h>
+#include <billboards/BillboardWrapper.h>
 
 #include "FSM/StateMachine.h"
 #include "GameUnit.h"
@@ -424,7 +424,7 @@ private:
     int                             mAttackingBehavior;
     ZombieUnitVec                   mNearbyZombies;
     PlayerWorldContext              mWorldContext;
-    billboard::BillboardWrapper     mSelBillboard;
+    effects::BillboardWrapper     mSelBillboard;
     float                           mUpdatePathTime;
     Bomb                            *mActualBomb;
     CollectableObject               *mTargetColObject;
@@ -437,7 +437,7 @@ private:
 
 
     // The billboard Manager used by all the units
-    static	billboard::BillboardManager &mBillboardMngr;
+    static	effects::BillboardManager &mBillboardMngr;
 
     // The transition table used by all the players.. if we will use a unique
     // otherwise we have to delete this

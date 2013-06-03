@@ -75,7 +75,7 @@ private:
     getWeaponID(const Ogre::String &name);
 
 private:
-    XMLHelper mHelper;
+    core::XMLHelper mHelper;
     ShootContainer mShoots;
 };
 

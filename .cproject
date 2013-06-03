@@ -54,6 +54,13 @@
 									<listOptionValue builtIn="false" value="/usr/lib/gcc/x86_64-linux-gnu/4.4/include/"/>
 									<listOptionValue builtIn="false" value="/usr/include/gnu"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CordobaZombie/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CordobaZombie/src/3rd_party_libs}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CordobaZombie/src/core}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CordobaZombie/src/effects}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CordobaZombie/src/game}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CordobaZombie/src/io_interfaces}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CordobaZombie/src/multimedia}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CordobaZombie/src/resource_manager}&quot;"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.preprocessor.def.1570417059" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="DEBUG"/>
@@ -92,6 +99,12 @@
 									<listOptionValue builtIn="false" value="/usr/lib/gcc/x86_64-linux-gnu/4.4/include/"/>
 									<listOptionValue builtIn="false" value="/usr/include/gnu"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CordobaZombie/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CordobaZombie/src/core}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CordobaZombie/src/effects}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CordobaZombie/src/game}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CordobaZombie/src/io_interfaces}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CordobaZombie/src/multimedia}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CordobaZombie/src/resource_manager}&quot;"/>
 								</option>
 								<option id="gnu.c.compiler.option.preprocessor.def.symbols.969097811" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="DEBUG"/>
@@ -132,6 +145,12 @@
 									<listOptionValue builtIn="false" value="/usr/lib/gcc/x86_64-linux-gnu/4.4/include/"/>
 									<listOptionValue builtIn="false" value="/usr/include/gnu"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CordobaZombie/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CordobaZombie/src/core}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CordobaZombie/src/effects}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CordobaZombie/src/game}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CordobaZombie/src/io_interfaces}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CordobaZombie/src/multimedia}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CordobaZombie/src/resource_manager}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.1317598714" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 							</tool>
@@ -192,6 +211,12 @@
 									<listOptionValue builtIn="false" value="/usr/lib/gcc/x86_64-linux-gnu/4.4/include/"/>
 									<listOptionValue builtIn="false" value="/usr/include/gnu"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CordobaZombie/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CordobaZombie/src/core}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CordobaZombie/src/effects}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CordobaZombie/src/game}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CordobaZombie/src/io_interfaces}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CordobaZombie/src/multimedia}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CordobaZombie/src/resource_manager}&quot;"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.preprocessor.def.1216377349" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__GXX_EXPERIMENTAL_CXX0X__"/>
@@ -225,6 +250,12 @@
 									<listOptionValue builtIn="false" value="/usr/lib/gcc/x86_64-linux-gnu/4.4/include/"/>
 									<listOptionValue builtIn="false" value="/usr/include/gnu"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CordobaZombie/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CordobaZombie/src/core}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CordobaZombie/src/effects}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CordobaZombie/src/game}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CordobaZombie/src/io_interfaces}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CordobaZombie/src/multimedia}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CordobaZombie/src/resource_manager}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.2131463687" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
@@ -260,6 +291,12 @@
 									<listOptionValue builtIn="false" value="/usr/lib/gcc/x86_64-linux-gnu/4.4/include/"/>
 									<listOptionValue builtIn="false" value="/usr/include/gnu"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CordobaZombie/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CordobaZombie/src/core}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CordobaZombie/src/effects}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CordobaZombie/src/game}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CordobaZombie/src/io_interfaces}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CordobaZombie/src/multimedia}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CordobaZombie/src/resource_manager}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.243602743" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 							</tool>

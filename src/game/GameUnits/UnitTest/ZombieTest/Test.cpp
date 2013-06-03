@@ -65,7 +65,7 @@ void Test::createRealZombies(void)
 	ZombieUnit::setSMTransitionTable(tt);
 
 	// create the batery for the zombies
-	static billboard::BillboardBatery bbb;
+	static effects::BillboardBatery bbb;
 	bbb.createSet(20, "Billboard/ZombieBlood", 10);
 	ZombieUnit::setBillboardBBlood(&bbb);
 

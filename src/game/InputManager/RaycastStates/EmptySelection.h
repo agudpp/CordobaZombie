@@ -9,7 +9,7 @@
 #define EMPTYSELECTION_H_
 
 #include <InputManager/IInputState.h>
-#include <CollisionSystem/CollisionTypedefs.h>
+#include <collision/CollisionTypedefs.h>
 
 namespace selection {
 class SelectionManager;
