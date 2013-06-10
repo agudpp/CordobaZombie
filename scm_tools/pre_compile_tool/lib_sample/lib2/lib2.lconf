@@ -1,0 +1,3 @@
+name = lib2
+local_deps = lib1
+external_deps = boost_system boost_filesystem ogre openal
