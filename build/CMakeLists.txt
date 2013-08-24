@@ -65,6 +65,10 @@ if (NOT OGRE_BUILD_PLATFORM_IPHONE)
 		set(Boost_USE_STATIC_LIBS ${OGRE_STATIC})
 	endif ()
 	if (MINGW)
+		# set this paths for windows only..
+		SET(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} $ENV{OGRE_HOME}/boost)
+		#SET(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} $ENV{OGRE_HOME}/boost/lib)
+
 		# this is probably a bug in CMake: the boost find module tries to look for
 		# boost libraries with name libboost_*, but CMake already prefixes library
 		# search names with "lib". This is the workaround.
@@ -109,7 +113,7 @@ link_directories(${THIRD_PARTY_LIBS}/lib)
 ## Common flags
 add_definitions(-DDEBUG -g)
 add_definitions(-std=c++11)  # C++11 standard
-set(COMMON_LIBRARIES boost_signals boost_system)
+set(COMMON_LIBRARIES boost_system)
 if(WIN32)
 # Specific windows flags here
 endif(WIN32)
