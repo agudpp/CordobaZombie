@@ -25,6 +25,8 @@
 									<listOptionValue builtIn="false" value="/home/agustin/programacion/ogre/ogre_src_v1-8-1/OgreMain/include"/>
 									<listOptionValue builtIn="false" value="/usr/local/include/OIS"/>
 									<listOptionValue builtIn="false" value="/usr/include/c++/4.7/"/>
+									<listOptionValue builtIn="false" value="/usr/include/"/>
+									<listOptionValue builtIn="false" value="/usr/local/include"/>
 								</option>
 								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.653366568" languageId="org.eclipse.cdt.core.assembly" languageName="Assembly" sourceContentType="org.eclipse.cdt.core.asmSource" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
 							</tool>
@@ -39,6 +41,8 @@
 									<listOptionValue builtIn="false" value="/usr/include/OIS"/>
 									<listOptionValue builtIn="false" value="/usr/include/c++/4.7/"/>
 									<listOptionValue builtIn="false" value="&quot;${CZ01_THIRD_PARTY}/include&quot;"/>
+									<listOptionValue builtIn="false" value="/usr/include/"/>
+									<listOptionValue builtIn="false" value="/usr/local/include"/>
 								</option>
 								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.353508028" languageId="org.eclipse.cdt.core.g++" languageName="GNU C++" sourceContentType="org.eclipse.cdt.core.cxxSource,org.eclipse.cdt.core.cxxHeader" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
 							</tool>
@@ -47,6 +51,8 @@
 									<listOptionValue builtIn="false" value="/home/agustin/programacion/ogre/ogre_src_v1-8-1/OgreMain/include"/>
 									<listOptionValue builtIn="false" value="/usr/local/include/OIS"/>
 									<listOptionValue builtIn="false" value="/usr/include/c++/4.7/"/>
+									<listOptionValue builtIn="false" value="/usr/include/"/>
+									<listOptionValue builtIn="false" value="/usr/local/include"/>
 								</option>
 								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.367890690" languageId="org.eclipse.cdt.core.gcc" languageName="GNU C" sourceContentType="org.eclipse.cdt.core.cSource,org.eclipse.cdt.core.cHeader" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
 							</tool>
