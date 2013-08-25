@@ -10,6 +10,9 @@
 
 #include <types/BoolCountingMask.h>
 
+#include "WayPointDefines.h"
+
+
 namespace gps {
 
 // Forward
@@ -32,11 +35,16 @@ struct WayPointPath {
     };
 
     core::uint32_t size;
-    WayPointNode* node[MAX_PATH_SIZE];
+    Vertex node[MAX_PATH_SIZE];
 };
 
 class WayPointAStar
 {
+    // we will define the maximum number of nodes that we can visit before we
+    // get to the goal.
+    //
+    static const unsigned int MAX_NUM_NODES_TO_VISIT = 1024;
+
 public:
     WayPointAStar();
     ~WayPointAStar();
@@ -50,17 +58,19 @@ public:
     setGraph(const WayPointGraph* graph);
 
     // @brief Perform the A* algorithm given 2 nodes (start, end).
-    // @param start     The first node from where we start.
-    // @param end       The last node where we want to go (end).
-    // @param path      The resulting path to be filled
+    // @param startIndex    The first node from where we start (index).
+    // @param endIndex      The last node where we want to go (end) (index).
+    // @param path          The resulting path to be filled
     // @return WayPointPath::Type
     //
     WayPointPath::Type
-    getPath(const WayPointNode& start, const WayPointNode& end, WayPointPath& path);
+    getPath(const index_t startIndex, const index_t endIndex, WayPointPath& path);
 
 private:
     const WayPointNode* mNodes;
-    core::BoolCountingMask mMask;
+    unsigned int mNodesCount;
+    core::BoolCountingMask mClosedSet;
+    core::BoolCountingMask mOpenSetChecker;
 };
 
 } /* namespace gps */

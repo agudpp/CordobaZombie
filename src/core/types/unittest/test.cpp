@@ -14,12 +14,14 @@
 #include <types/basics.h>
 #include <types/StackVector.h>
 #include <types/StackQueue.h>
+#include <types/StackPriorityQueue.h>
 #include <types/BoolCountingMask.h>
 
 using namespace core;
 
 typedef StackVector<int, 512> SV512;
 typedef StackQueue<int, 512> SQ512;
+typedef StackPriorityQueue<int, 512> SPQ512;
 
 
 // helper method that creates a set from a StackVector
@@ -135,6 +137,10 @@ TEST(StackQueue)
         CHECK_EQUAL(start, q.back());
     }
 
+    for (int i = 0; i < 500; ++i) {
+        CHECK_EQUAL(i, q[i]);
+    }
+
     int total = 499;
     while (!q.empty()) {
         const int i = q.back();
@@ -151,6 +157,29 @@ TEST(StackQueue)
         const int i = q.front();
         q.pop_front();
         CHECK_EQUAL(total++, i);
+    }
+}
+
+TEST(StackPriorityQueue)
+{
+    SPQ512 q;
+
+    CHECK(q.empty());
+    CHECK(!q.full());
+
+    q.push(545);
+    for (int i = 0; i < 100; ++i) {
+        q.push(i);
+        CHECK_EQUAL(545, q.top());
+    }
+
+    q.pop();
+    int cont = 99;
+    while (!q.empty()) {
+        const int current = q.top();
+        q.pop();
+        CHECK_EQUAL(cont, current);
+        --cont;
     }
 }
 
