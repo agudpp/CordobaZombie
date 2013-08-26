@@ -286,7 +286,12 @@ bool
 AnimPlayer::loadEntity(const std::string& meshName)
 {
     mNode = mSceneMgr->getRootSceneNode()->createChildSceneNode();
-    mEntity = mSceneMgr->createEntity(meshName.c_str());
+    try {
+        mEntity = mSceneMgr->createEntity(meshName.c_str());
+    } catch(...) {
+        debugERROR("Mesh %s not found!\n", meshName.c_str());
+        return false;
+    }
     mNode->attachObject(mEntity);
 
     // try to load the animations now

@@ -29,12 +29,13 @@ struct PriorityNodeCmp {
     // @brief Compare less operator
     //
     inline bool
-    operator<(const gps::index_t& a, const gps::index_t& b) const
+    operator()(const gps::index_t& a, const gps::index_t& b) const
     {
         return (gValue[a] + fValue[a]) >= (gValue[b] + fValue[b]);
     }
 };
-
+float* PriorityNodeCmp::gValue = 0;
+float* PriorityNodeCmp::fValue = 0;
 
 // @brief Define the heuristic_function here for two nodes
 //
@@ -90,8 +91,8 @@ WayPointAStar::getPath(const index_t startIndex,
     }
 
     // get the nodes
-    WayPointNode& startNode = mNodes[startIndex];
-    WayPointNode& endNode = mNodes[endIndex];
+    const WayPointNode& startNode = mNodes[startIndex];
+    const WayPointNode& endNode = mNodes[endIndex];
 
     // now we will execute the A* algorithm.
     // Create the data structures needed.
@@ -100,9 +101,8 @@ WayPointAStar::getPath(const index_t startIndex,
     //
     float g_score[MAX_NUM_NODES_TO_VISIT];
     float f_score[MAX_NUM_NODES_TO_VISIT];
-    PriorityNodeCmp cmp;
-    cmp.gValue = g_score;
-    cmp.fValue = f_score;
+    PriorityNodeCmp::gValue = g_score;
+    PriorityNodeCmp::fValue = f_score;
     core::StackPriorityQueue<index_t, MAX_NUM_NODES_TO_VISIT, PriorityNodeCmp> openSet;
     // note that the above cameFromMap it is not necessary to be initialized each
     // time since we will only set the values we need
@@ -113,9 +113,6 @@ WayPointAStar::getPath(const index_t startIndex,
     mClosedSet.newRound();
     mOpenSetChecker.newRound();
 
-    // clear the resulting path
-    path.size = 0;
-
     // init the main values.
     g_score[startIndex] = 0;
     f_score[startIndex] = heuristic_function(startNode, endNode);
@@ -124,7 +121,7 @@ WayPointAStar::getPath(const index_t startIndex,
     // now start to move from start to end
     while (!openSet.empty()) {
         const index_t currentIndex = openSet.top();
-        WayPointNode& currentNode = mNodes[currentIndex];
+        const WayPointNode& currentNode = mNodes[currentIndex];
 
         if (currentIndex == endIndex) {
             // done
@@ -141,7 +138,7 @@ WayPointAStar::getPath(const index_t startIndex,
         // now we will iterate for each neighbor of the current node
         for (unsigned int i = 0, size = currentNode.neighborsCount; i < size; ++i) {
             const index_t neighborIndex = currentNode.neighbors[i];
-            WayPointNode& neighborNode = mNodes[neighborIndex];
+            const WayPointNode& neighborNode = mNodes[neighborIndex];
 
             // here we should do any checking with the current neighbor, for example
             // if we test the max radius that is able to pass from currentNode
@@ -181,6 +178,25 @@ WayPointAStar::getPath(const index_t startIndex,
             }
         }
     }
+
+    // clear the resulting path
+    path.size = 0;
+
+    // reconstruct the path now in the inverse order
+    index_t index = endIndex;
+    index_t current = cameFromMap[index];
+    while (current != startIndex && path.size < WayPointPath::MAX_PATH_SIZE) {
+        ASSERT(cameFromMap[index] < mNodesCount);
+        current = cameFromMap[index];
+        path.node[path.size] = mNodes[current].position;
+        ++path.size;
+    }
+
+    if (current != startIndex) {
+        // we couldn't get the path?
+        return WayPointPath::Type::IMPOSSIBLE;
+    }
+    return WayPointPath::Type::NORMAL;
 }
 
 } /* namespace gps */

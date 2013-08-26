@@ -20,24 +20,6 @@ namespace gps {
 class WayPointGraph;
 class WayPointNode;
 
-
-// Useful classes
-//
-
-struct WayPointPath {
-    // some useful defines
-    //
-    static const unsigned int MAX_PATH_SIZE = 25;
-
-    enum Type {
-        SAME_POINT = 0, // startPoint = endPoint
-        IMPOSSIBLE,     // there is no possible path from start -> end
-    };
-
-    core::uint32_t size;
-    Vertex node[MAX_PATH_SIZE];
-};
-
 class WayPointAStar
 {
     // we will define the maximum number of nodes that we can visit before we
@@ -69,8 +51,8 @@ public:
 private:
     const WayPointNode* mNodes;
     unsigned int mNodesCount;
-    core::BoolCountingMask mClosedSet;
-    core::BoolCountingMask mOpenSetChecker;
+    core::BoolCountingMask<> mClosedSet;
+    core::BoolCountingMask<> mOpenSetChecker;
 };
 
 } /* namespace gps */

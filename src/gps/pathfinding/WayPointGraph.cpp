@@ -51,18 +51,33 @@ WayPointGraph::WayPointGraph()
 WayPointGraph::~WayPointGraph()
 {
     // remove the memory if we need
-    mNode.freeMemory();
+    mNodes.freeMemory();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 bool
 WayPointGraph::build(const std::vector<WayPointNode>& nodes)
 {
-    mNode.freeMemory();
+    mNodes.freeMemory();
 
     // now we will allocate the needed memory for the container
-    mNodes.data = malloc(nodes.size() * sizeof(WayPointNode));
+    mNodes.data = static_cast<WayPointNode*>(malloc(nodes.size() * sizeof(WayPointNode)));
     std::memcpy(mNodes.data, &(nodes[0]), nodes.size() * sizeof(WayPointNode));
+    mNodes.size = nodes.size();
+
+    // check that all the nodes contain valid indices
+    //
+    return containValidInfo();
+}
+
+bool
+WayPointGraph::build(const WPNodeStackVec& nodes)
+{
+    mNodes.freeMemory();
+
+    // now we will allocate the needed memory for the container
+    mNodes.data = static_cast<WayPointNode*>(malloc(nodes.size() * sizeof(WayPointNode)));
+    std::memcpy(mNodes.data, nodes.begin(), nodes.size() * sizeof(WayPointNode));
     mNodes.size = nodes.size();
 
     // check that all the nodes contain valid indices
@@ -74,7 +89,7 @@ WayPointGraph::build(const std::vector<WayPointNode>& nodes)
 bool
 WayPointGraph::build(const std::string& filename)
 {
-    mNode.freeMemory();
+    mNodes.freeMemory();
 
     // read the file
     std::ifstream file(filename.c_str(), std::ifstream::in | std::ifstream::binary);
@@ -84,27 +99,29 @@ WayPointGraph::build(const std::string& filename)
         return false;
     }
 
+    // check the size and read all the information into the mem
+    file.seekg(0, file.end);
+    int length = file.tellg();
+    file.seekg(0, file.beg);
+
     // read the header first
     Header header;
-    file.read(&header, sizeof(Header));
+    file.read(reinterpret_cast<char*>(&header), sizeof(Header));
     if (std::strcmp(header.info, "WPG1") != 0) {
         debugERROR("Invalid graph version or header\n");
         return false;
     }
 
-    // check the size and read all the information into the mem
-    file.seekg(0, file.end);
-    unsigned int length = file.tellg() - sizeof(Header);
-    file.seekg(0, file.beg + sizeof(Header));
-    mNodes.data = malloc(length);
+    length -= sizeof(Header);
+    mNodes.data = static_cast<WayPointNode*>(malloc(length));
     mNodes.size = length / sizeof(WayPointNode);
-    file.read(mNodes.data, length);
+    file.read(reinterpret_cast<char*>(mNodes.data), length);
 
     // check that is a valid information
     if (!containValidInfo()) {
         debugERROR("The file %s contains invalid information but correct header?\n",
             filename.c_str());
-        mNode.freeMemory();
+        mNodes.freeMemory();
         return false;
     }
 
@@ -116,7 +133,7 @@ WayPointGraph::build(const std::string& filename)
 bool
 WayPointGraph::save(const std::string& filename) const
 {
-    if (mNode.data == 0 || mNode.size == 0) {
+    if (mNodes.data == 0 || mNodes.size == 0) {
         debugWARNING("No graph information to save?\n");
         return false;
     }
@@ -138,7 +155,7 @@ WayPointGraph::save(const std::string& filename) const
     file.write(h.info, sizeof(Header));
 
     // save the nodes info
-    file.write(mNodes.data, mNodes.size * sizeof(WayPointNode));
+    file.write(reinterpret_cast<char*>(mNodes.data), mNodes.size * sizeof(WayPointNode));
     file.close();
 
     return true;

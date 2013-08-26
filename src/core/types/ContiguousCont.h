@@ -53,7 +53,7 @@ struct ContiguousContainer {
     freeMemory(void)
     {
         if (data != 0) {
-            free(data); size = data = 0;
+            free(data); size = 0; data = 0;
         }
     }
 

@@ -9,9 +9,11 @@
 #define WAYPOINTGRAPH_H_
 
 #include <cstring>
+#include <vector>
 
 #include <debug/DebugUtil.h>
 #include <types/ContiguousCont.h>
+#include <types/StackVector.h>
 
 #include "WayPointDefines.h"
 
@@ -60,6 +62,7 @@ struct WayPointNode {
 // some useful typedefs
 //
 typedef core::ContiguousContainer<WayPointNode> WPNodeCont;
+typedef core::StackVector<WayPointNode, WPG_MAX_NUM_NODES> WPNodeStackVec;
 
 class WayPointGraph
 {
@@ -67,12 +70,18 @@ public:
     WayPointGraph();
     ~WayPointGraph();
 
+    ////////////////////////////////////////////////////////////////////////////
+
     // @brief Construct the Graph from a list of WayPointNodes
     // @param nodes     The list of nodes
     // @return true on success | false otherwise
     //
     bool
     build(const std::vector<WayPointNode>& nodes);
+    bool
+    build(const WPNodeStackVec& nodes);
+
+    ////////////////////////////////////////////////////////////////////////////
 
     // @brief Load the graph from an already saved file.
     // @param filename  The filename where the graph is

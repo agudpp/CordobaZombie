@@ -88,7 +88,9 @@ template <unsigned int MAX_SIZE>
 inline void
 BitMatrix<MAX_SIZE>::build(unsigned int numCols, unsigned int numRows)
 {
-    ASSERT(mNumCols * mNumRows < MAX_SIZE);
+    mNumCols = numCols;
+    mNumRows = numRows;
+    ASSERT((mNumCols * mNumRows) < MAX_SIZE);
     mMatrix.reset();
 }
 
@@ -104,7 +106,7 @@ inline void
 BitMatrix<MAX_SIZE>::set(unsigned int col, unsigned int row, bool val)
 {
     unsigned int i = toIndex(col,row);
-    ASSERT(i < mNumCols * mNumRows);
+    ASSERT(i < (mNumCols * mNumRows));
     mMatrix[i] = val;
 }
 
@@ -113,7 +115,7 @@ inline bool
 BitMatrix<MAX_SIZE>::get(unsigned int col, unsigned int row) const
 {
     unsigned int i = toIndex(col,row);
-    ASSERT(i < mNumCols * mNumRows);
+    ASSERT(i < (mNumCols * mNumRows));
     return mMatrix[i];
 }
 

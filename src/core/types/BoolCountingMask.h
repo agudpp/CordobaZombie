@@ -25,7 +25,7 @@ namespace core {
 //        do some performance tests
 //
 
-template <typename T = core::uint16_t>
+template <class T = core::uint16_t>
 class BoolCountingMask
 {
 public:
