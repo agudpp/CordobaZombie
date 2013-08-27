@@ -36,7 +36,7 @@
 
 
 // The xml file for this tool
-// <PathfindingTool scene="file.scene" waypoints="waypoints.txt" />
+// <PathfindingTool scene="file.scene" graphFile="graph.wpg" />
 //
 #define PATHFINDING_TOOL_XML_FILE    "PathfindingTool.xml"
 
@@ -68,13 +68,13 @@ private:
     //        filename.
     // @param xmlFName  The xml filename
     // @param scene     The .scene filename
-    // @param waypoints The waypoints filename
+    // @param graphFile The graph filename
     // @return true on success | false otherwise
     //
     bool
     parseXML(const std::string& xmlFName,
              std::string& scene,
-             std::string& waypoints) const;
+             std::string& graphFile) const;
 
     // @brief Load the .scene
     // @param scene     The scene filename to load.
@@ -83,12 +83,12 @@ private:
     bool
     loadScene(const std::string& scene);
 
-    // @brief Load the waypoints and show them into the the level
-    // @param file      The filename containing the waypoints information
+    // @brief Load the graph and show them into the the level
+    // @param file      The filename containing the graph information
     // @return true on success | false otherwise
     //
     bool
-    loadWaypoints(const std::string& file);
+    loadGraph(const std::string& file);
 
     // @brief Build the WayPointGraph using the already parsed waypoints.
     // @return true on success | false otherwise

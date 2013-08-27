@@ -401,7 +401,7 @@ namespace tool {
 bool
 PathfindingTool::parseXML(const std::string& xmlFName,
                           std::string& scene,
-                          std::string& waypoints) const
+                          std::string& graphFile) const
 {
     std::shared_ptr<TiXmlDocument> doc(core::XMLHelper::loadXmlDocument(xmlFName.c_str()));
     if (doc.get() == 0) {
@@ -410,7 +410,7 @@ PathfindingTool::parseXML(const std::string& xmlFName,
     }
 
     // we could read the file properly, get the element we want
-    // <PathfindingTool scene="file.scene" waypoints="waypoints.txt" />
+    // <PathfindingTool scene="file.scene" graphFile="graph.wpg" />
     //
     const TiXmlElement* root = doc->RootElement();
     if (!root) {
@@ -425,15 +425,15 @@ PathfindingTool::parseXML(const std::string& xmlFName,
     }
 
     // check now for the value we want
-    if (root->Attribute("scene") == 0 || root->Attribute("waypoints") == 0) {
-        debugERROR("scene or waypoints attributes not found in the xml file... "
+    if (root->Attribute("scene") == 0 || root->Attribute("graphFile") == 0) {
+        debugERROR("scene or graphFile attributes not found in the xml file... "
             "invalid xml\n");
         return false;
     }
 
     // everything fine
     scene = root->Attribute("scene");
-    waypoints = root->Attribute("waypoints");
+    graphFile = root->Attribute("graphFile");
     return true;
 }
 
@@ -466,7 +466,7 @@ PathfindingTool::loadScene(const std::string& scene)
 
 ////////////////////////////////////////////////////////////////////////////////
 bool
-PathfindingTool::loadWaypoints(const std::string& filename)
+PathfindingTool::loadGraph(const std::string& filename)
 {
     std::ifstream file(filename.c_str(), std::ifstream::in);
 
@@ -476,14 +476,7 @@ PathfindingTool::loadWaypoints(const std::string& filename)
     }
 
     // now parse the info
-    mWaypoints.clear();
-    mWaypoints.reserve(512);
-    gps::Vertex v;
-    while ((file >> v.x) && (file >> v.y)) {
-        mWaypoints.push_back(v);
-    }
-
-    return true;
+    return mGraph.build(filename);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -641,6 +634,9 @@ PathfindingTool::buildingState(void)
     if (mInputHelper.isKeyReleased(input::KeyCode::KC_B)) {
         buildGraphFromGraphic();
         drawGraph(mGraph);
+        mPathfinder.setGraph(&mGraph);
+        sGraphicGraph.removeAll();
+        sCmdHandler.clearAll();
         mGraph.save("graph.wpg");
         mState = State::RunningPathfinding;
         mStatusBar.setText("State: RunningPathfinding", 0.015f);
@@ -650,10 +646,17 @@ PathfindingTool::buildingState(void)
     // check for redo undo and return
     if (mInputHelper.isKeyPressed(input::KeyCode::KC_LCONTROL)) {
         if (mInputHelper.isKeyReleased(input::KeyCode::KC_Z)) {
+            // unselect whatever it is selected
+            if (mLastMovableHit) {
+                GraphicNode* node = sGraphicGraph.getNodeFromMove(mLastMovableHit);
+                node->primitive->setColor(Ogre::ColourValue::Red);
+            }
+            mLastMovableHit = 0;
             if (mInputHelper.isKeyPressed(input::KeyCode::KC_LSHIFT)) {
                 // redo
                 sCmdHandler.redo();
             } else {
+                // undo
                 sCmdHandler.undo();
             }
             // in any case return
@@ -820,7 +823,6 @@ PathfindingTool::PathfindingTool() :
 
     mStatusBar.setPos(0,0.017f);
     mStatusBar.setColor(0, 1, 1, 1.f);
-    mStatusBar.setText("State: BuildingGraph", 0.015f);
 }
 
 PathfindingTool::~PathfindingTool()
@@ -842,12 +844,12 @@ PathfindingTool::loadAditionalData(void)
     while (iter.hasMoreElements()) { iter.getNext()->load(); }
 
     // try to load the xml file
-    std::string scene, waypoints;
-    if (!parseXML(PATHFINDING_TOOL_XML_FILE, scene, waypoints)) {
+    std::string scene, graphFile;
+    if (!parseXML(PATHFINDING_TOOL_XML_FILE, scene, graphFile)) {
         // nothing to do
         return;
     }
-    if (!loadScene(scene) || !loadWaypoints(waypoints)) {
+    if (!loadScene(scene)) {
         // nothing to do
         return;
     }
@@ -856,20 +858,25 @@ PathfindingTool::loadAditionalData(void)
     mRoot->renderOneFrame();
     mSceneMgr->getRootSceneNode()->showBoundingBox(true);
 
-    // build the graph and draw it
-    if (!buildGraph()) {
-        // nothing to do?
-        return;
+    // try to load the graph from a file
+    if (graphFile.empty() || !loadGraph(graphFile)) {
+        // some error occur
+        debugWARNING("No graph could be loaded, you can create a new one now\n");
+        mStatusBar.setText("State: BuildingGraph", 0.015f);
+        mState = State::BuildingGraph;
+    } else {
+        // we could load the graph correctly
+        drawGraph(mGraph);
+        mPathfinder.setGraph(&mGraph);
+        mState = State::RunningPathfinding;
+        mStatusBar.setText("State: RunningPathfinding", 0.015f);
     }
-    drawGraph(mGraph);
-    mPathfinder.setGraph(&mGraph);
 }
 
 /* function called every frame. Use GlobalObjects::lastTimeFrame */
 void
 PathfindingTool::update()
 {
-
     // update the input system
     mInputHelper.update();
 
@@ -901,7 +908,8 @@ PathfindingTool::update()
         buildingState();
         break;
     case State::RunningPathfinding:
-        if (mInputHelper.isKeyReleased(input::KeyCode::KC_1)) {
+        if (mInputHelper.isKeyReleased(input::KeyCode::KC_1) &&
+                mGraph.nodes().size == 0) {
             mState = State::BuildingGraph;
             mStatusBar.setText("State: BuildingGraph", 0.015f);
             return;

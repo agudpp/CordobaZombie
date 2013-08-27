@@ -24,7 +24,7 @@ static const index_t INVALID_INDEX = std::numeric_limits<index_t>::max();
 
 #define WPG_MAX_NUM_NODES       250
 
-#define WPN_MAX_NUM_NEIGHBORS   5
+#define WPN_MAX_NUM_NEIGHBORS   15
 
 
 
