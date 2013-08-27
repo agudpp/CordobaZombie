@@ -3,6 +3,7 @@
 #include <Ogre.h>
 
 #include <tinyxml/tinyxml.h>
+#include <debug/DebugUtil.h>
 
 using namespace std;
 using namespace Ogre;
@@ -607,10 +608,12 @@ DotSceneLoader::processEntity(TiXmlElement *XMLNode, SceneNode *pParent)
         pEntity = mSceneMgr->createEntity(name, meshFile);
         pEntity->setCastShadows(castShadows);
         pParent->attachObject(pEntity);
+        pParent->showBoundingBox(true);
 
         if (!materialFile.empty())
             pEntity->setMaterialName(materialFile);
     } catch (Ogre::Exception &/*e*/) {
+        ASSERT(false);
         LogManager::getSingleton().logMessage(
             "[DotSceneLoader] Error loading an entity!");
     }

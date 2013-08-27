@@ -54,11 +54,13 @@ WPPathfinder::findPath(const core::Vector2& start,
     const index_t startIndex = getClosestWayPoint(start);
     if (startIndex == INVALID_INDEX) {
         // no start waypoint found!
+        debugWARNING("No waypoint found for the start position\n");
         return false;
     }
     const index_t goalIndex = getClosestWayPoint(goal);
     if (goalIndex == INVALID_INDEX) {
         // no goal waypoint found!
+        debugWARNING("No waypoint found for the goal position\n");
         return false;
     }
 
@@ -69,7 +71,7 @@ WPPathfinder::findPath(const core::Vector2& start,
     if (startIndex == goalIndex) {
         path.size = 3;
         path.node[0] = start;
-        path.node[0] = mNodeCont->data[startIndex].position;
+        path.node[1] = mNodeCont->data[startIndex].position;
         path.node[2] = goal;
         return true;
     }
@@ -83,6 +85,7 @@ WPPathfinder::findPath(const core::Vector2& start,
     switch (ret) {
     case WayPointPath::Type::IMPOSSIBLE:
         // nothing to do!
+        debugWARNING("No path found: IMPOSSIBLE\n");
         return false;
         break;
 

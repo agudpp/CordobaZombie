@@ -28,7 +28,7 @@ SelectionHelper::SelectionHelper(Ogre::SceneManager& sm,
 ,   mMouseCursor(mouseCursor)
 ,   mRaySceneQuery(0)
 {
-    mRaySceneQuery = mSceneMngr.createRayQuery(mMouseRay,~0);
+    mRaySceneQuery = mSceneMngr.createRayQuery(mMouseRay,0);
 }
 
 SelectionHelper::~SelectionHelper()
@@ -109,8 +109,10 @@ SelectionHelper::performRaycast(const Ogre::Vector3& pos1,
     mMouseRay.setOrigin(pos1);
     mMouseRay.setDirection(pos2 - pos1);
     mRaySceneQuery->setRay(mMouseRay);
-    mRaySceneQuery->setQueryMask(mask); // all
+    mRaySceneQuery->setQueryMask(mask);
+    //mRaySceneQuery->setQueryTypeMask(mask);
     mRaySceneQuery->setSortByDistance(true, 1); // the first one
+    mRaySceneQuery->clearResults();
 
     // execute the ray and get the results
     Ogre::RaySceneQueryResult& queryResult = mRaySceneQuery->execute();
@@ -118,7 +120,6 @@ SelectionHelper::performRaycast(const Ogre::Vector3& pos1,
         return false;
     }
     result = queryResult.back();
-
     return true;
 }
 

@@ -7,6 +7,8 @@
 
 #include "WayPointAStar.h"
 
+#include <cmath>
+
 #include <debug/DebugUtil.h>
 #include <types/StackPriorityQueue.h>
 #include <types/StackVector.h>
@@ -17,13 +19,28 @@
 //
 namespace {
 
-#define EUCLIDEAN_DISTANCE(p1, p2)  ((p1.x - p2.x) * (p1.x - p2.x) + \
-        (p1.y - p2.y) * (p1.y - p2.y))
+//#define euclidean_distance(p1, p2)  (((p1.x - p2.x) * (p1.x - p2.x) + \
+//         (p1.y - p2.y) * (p1.y - p2.y)))
+
+template<typename vec>
+inline float
+euclidean_distance(const vec& p1, const vec& p2)
+{
+    // @NOTE what we are doing here... we are inventing a function that is not
+    //       necessary the euclidean distance but it seems to be working fine.
+    //       and we are saving some multiplications and sqrt. When trying to use
+    //       the squared distance (instead of the sqrt()) we got some rare problems
+    //       probably rounding problems...
+    //
+    const float a = std::abs(p1.x - p2.x);
+    const float b = std::abs(p1.y - p2.y);
+    //return   std::sqrt((a * a) + (b * b));
+    return a + b;
+}
 
 // Structure used to compare the nodes, this is NOT MULTI-thread!
 //
 struct PriorityNodeCmp {
-    static float* gValue;
     static float* fValue;
 
     // @brief Compare less operator
@@ -31,10 +48,9 @@ struct PriorityNodeCmp {
     inline bool
     operator()(const gps::index_t& a, const gps::index_t& b) const
     {
-        return (gValue[a] + fValue[a]) >= (gValue[b] + fValue[b]);
+        return fValue[a] > fValue[b];
     }
 };
-float* PriorityNodeCmp::gValue = 0;
 float* PriorityNodeCmp::fValue = 0;
 
 // @brief Define the heuristic_function here for two nodes
@@ -42,7 +58,7 @@ float* PriorityNodeCmp::fValue = 0;
 inline float
 heuristic_function(const gps::WayPointNode& n1, const gps::WayPointNode& n2)
 {
-    return EUCLIDEAN_DISTANCE(n1.position, n2.position);
+    return euclidean_distance(n1.position, n2.position);
 }
 
 }
@@ -75,6 +91,7 @@ WayPointAStar::setGraph(const WayPointGraph* graph)
     mNodes = graph->nodes().data;
     mNodesCount = graph->nodes().size;
     mClosedSet.setSize(mNodesCount);
+    mOpenSetChecker.setSize(mNodesCount);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -101,7 +118,6 @@ WayPointAStar::getPath(const index_t startIndex,
     //
     float g_score[MAX_NUM_NODES_TO_VISIT];
     float f_score[MAX_NUM_NODES_TO_VISIT];
-    PriorityNodeCmp::gValue = g_score;
     PriorityNodeCmp::fValue = f_score;
     core::StackPriorityQueue<index_t, MAX_NUM_NODES_TO_VISIT, PriorityNodeCmp> openSet;
     // note that the above cameFromMap it is not necessary to be initialized each
@@ -149,7 +165,7 @@ WayPointAStar::getPath(const index_t startIndex,
             // candidate to be analyzed. We will check the distance using the
             // distance and the heuristic function
             const float tentativeGScore = g_score[currentIndex] +
-                EUCLIDEAN_DISTANCE(currentNode.position, neighborNode.position);
+                euclidean_distance(currentNode.position, neighborNode.position);
 
             // check if we have to skip this node or not
             const bool isNeighborInClosedSet = mClosedSet.isMarked(neighborIndex);
@@ -171,6 +187,7 @@ WayPointAStar::getPath(const index_t startIndex,
                 g_score[neighborIndex] = tentativeGScore;
                 f_score[neighborIndex] = g_score[neighborIndex] +
                     heuristic_function(neighborNode, endNode);
+
                 if (!mOpenSetChecker.isMarked(neighborIndex)) {
                     mOpenSetChecker.mark(neighborIndex);
                     openSet.push(neighborIndex);
@@ -183,17 +200,19 @@ WayPointAStar::getPath(const index_t startIndex,
     path.size = 0;
 
     // reconstruct the path now in the inverse order
-    index_t index = endIndex;
-    index_t current = cameFromMap[index];
+    path.node[(path.size)++] = endNode.position;
+    index_t current = cameFromMap[endIndex];
     while (current != startIndex && path.size < WayPointPath::MAX_PATH_SIZE) {
-        ASSERT(cameFromMap[index] < mNodesCount);
-        current = cameFromMap[index];
+        ASSERT(current < mNodesCount);
         path.node[path.size] = mNodes[current].position;
+        current = cameFromMap[current];
         ++path.size;
     }
+    path.node[(path.size)++] = startNode.position;
 
     if (current != startIndex) {
         // we couldn't get the path?
+        debugWARNING("The path is tooo big?? path.size: %d\n", path.size);
         return WayPointPath::Type::IMPOSSIBLE;
     }
     return WayPointPath::Type::NORMAL;

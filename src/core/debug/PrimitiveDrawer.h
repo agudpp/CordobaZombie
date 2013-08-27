@@ -35,9 +35,9 @@ struct Primitive {
     } obj;
 
     Primitive(Ogre::SceneNode* n = 0, Ogre::Entity* m = 0) :
-        node(n), isManual(false) {obj.ent = m;}
+        node(n), isManual(false) {obj.ent = m; obj.ent->setQueryFlags(0);}
     Primitive(Ogre::SceneNode* n = 0, Ogre::ManualObject* m = 0) :
-        node(n), isManual(true) {obj.manual = m;}
+        node(n), isManual(true) {obj.manual = m; obj.manual->setQueryFlags(0);}
 
     Ogre::SceneNode *node;
 

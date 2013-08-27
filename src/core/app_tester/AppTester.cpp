@@ -144,7 +144,7 @@ AppTester::loadInitialConfig(bool showConfig)
     mWindow = mRoot->initialise(true, "AppTester Window");
 
     // creates a generic sceneManager
-    mSceneMgr = mRoot->createSceneManager(Ogre::ST_EXTERIOR_FAR);
+    mSceneMgr = mRoot->createSceneManager(Ogre::ST_GENERIC);
     if (!mSceneMgr) {
         debugERROR("Could not construct the SceneManager\n");
         return false;
@@ -230,6 +230,7 @@ AppTester::loadInitialConfig(bool showConfig)
     OGRELOG("Creating Camera and CameraHandler");
     mCamera = mSceneMgr->createCamera("Camera");
     mCamera->setQueryFlags(0);
+    mCamera->setVisibilityFlags(0);
 
     // Position it at 500 in Z direction
     //mCamera->setPosition(Ogre::Vector3(0,0,80));

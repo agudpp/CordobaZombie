@@ -299,6 +299,15 @@ PrimitiveDrawer::deletePrimitive(Primitive* primitive)
         return;
     }
 
+    // we should remove the primitive from the sceneManager
+    if (primitive->isManual) {
+        mSceneMngr->destroyManualObject(primitive->obj.manual);
+    } else {
+        mSceneMngr->destroyEntity(primitive->obj.ent);
+    }
+    Ogre::SceneNode* parent = primitive->node->getParentSceneNode();
+    parent->removeAndDestroyChild(primitive->node->getName());
+
     // swap with last
     mPrimitives.back()->id = primitive->id;
     mPrimitives[primitive->id] = mPrimitives.back();

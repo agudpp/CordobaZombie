@@ -73,7 +73,7 @@ public:
     performRaycast(const Ogre::Vector3& pos1,
                    const Ogre::Vector3& pos2,
                    Ogre::RaySceneQueryResultEntry &result,
-                   Ogre::uint32 mask = ~0);
+                   Ogre::uint32 mask);
 
 private:
     Ogre::SceneManager& mSceneMngr;

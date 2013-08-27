@@ -85,7 +85,8 @@ toString(const Ogre::Vector3& pos)
 namespace tool {
 
 // default z value
-static const float startingZ = 35.0f;
+static const float startingZ = 25.0f;
+static const Ogre::uint32 LEVEL_OBJECTS_MASK = 0x1;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -133,12 +134,14 @@ bool
 PathfindingTool::loadScene(const std::string& scene)
 {
     // set the query masks for the movable object
-    Ogre::MovableObject::setDefaultQueryFlags(0xFFFF);
+    Ogre::MovableObject::setDefaultQueryFlags(LEVEL_OBJECTS_MASK);
+    Ogre::Entity::setDefaultQueryFlags(LEVEL_OBJECTS_MASK);
 
     Ogre::DotSceneLoader dsl;
     dsl.parseDotScene(scene,
                       Ogre::ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME,
-                      mSceneMgr);
+                      mSceneMgr,
+                      mSceneMgr->getRootSceneNode()->createChildSceneNode());
 
     // set the zone for where we will be moving on
     Ogre::AxisAlignedBox moveZone(-8000,
@@ -199,8 +202,7 @@ PathfindingTool::buildGraph(void)
             const Ogre::Vector3 wp2(mWaypoints[j].x, mWaypoints[j].y, startingZ);
 
             // check if they can see between them
-            if (!mSelectionHelper.performRaycast(wp1, wp2, entry)) {
-                debugGREEN("adding link\n");
+            if (!mSelectionHelper.performRaycast(wp1, wp2, entry, LEVEL_OBJECTS_MASK)) {
                 wpgb.linkWaypoints(i, j);
             }
         }
@@ -224,7 +226,6 @@ PathfindingTool::drawGraph(const gps::WayPointGraph& graph,
     unsigned int size = graph.nodes().size;
 
     core::PrimitiveDrawer& pd = core::PrimitiveDrawer::instance();
-    debugGREEN("Drawing a graph of size %d\n", size);
     for (unsigned int i = 0; i < size; ++i) {
         const gps::WayPointNode& n = nodes[i];
         for (unsigned int j = 0; j < n.neighborsCount; ++j) {
@@ -260,7 +261,7 @@ PathfindingTool::drawPath(const gps::WayPointPath& path,
     points.resize(path.size);
     for (unsigned int i = 0; i < path.size; ++i) {
         points[i].x = path.node[i].x;
-        points[i].y = path.node[i].x;
+        points[i].y = path.node[i].y;
         points[i].z = startingZ + 0.5;
     }
 
@@ -376,15 +377,15 @@ PathfindingTool::loadAditionalData(void)
         return;
     }
     drawGraph(mGraph);
-
-    // everything fine...
-
+    mPathfinder.setGraph(&mGraph);
 }
 
 /* function called every frame. Use GlobalObjects::lastTimeFrame */
 void
 PathfindingTool::update()
 {
+    core::PrimitiveDrawer& pd = core::PrimitiveDrawer::instance();
+
     // update the input system
     mInputHelper.update();
 
@@ -429,8 +430,9 @@ PathfindingTool::update()
             mSelectedPos.clear();
 
             // draw the path
-            core::PrimitiveDrawer& pd = core::PrimitiveDrawer::instance();
-            pd.deletePrimitive(mVisualPath);
+            if (mVisualPath) {
+                pd.deletePrimitive(mVisualPath);
+            }
             mVisualPath = drawPath(path, pd.getFreshColour());
         }
     }
