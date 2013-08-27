@@ -12,7 +12,7 @@
 
 namespace {
 struct Header {
-    char info[4];
+    char info[5];
 };
 }
 

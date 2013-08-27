@@ -196,6 +196,15 @@ WayPointAStar::getPath(const index_t startIndex,
         }
     }
 
+    // if we finish the algorithm because there wasn't more nodes to analyze then
+    // this means that we couldn't find the path!??
+    //
+    if (openSet.empty()) {
+        // some error happens
+        //
+        return WayPointPath::Type::IMPOSSIBLE;
+    }
+
     // clear the resulting path
     path.size = 0;
 

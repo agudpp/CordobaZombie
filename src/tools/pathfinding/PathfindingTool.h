@@ -45,6 +45,10 @@ namespace tool {
 
 class PathfindingTool : public core::AppTester
 {
+    enum State {
+        BuildingGraph = 0,
+        RunningPathfinding,
+    };
 public:
     PathfindingTool();
 
@@ -92,6 +96,13 @@ private:
     bool
     buildGraph(void);
 
+    // @brief Build the graph using the GraphicGraph already created.
+    //        Once you call this function the GraphicGraph is deleted
+    //        and all the new graph is set
+    //
+    void
+    buildGraphFromGraphic(void);
+
     // @brief Draw a graph into the scene
     // @param graph     The graph we want to draw
     //
@@ -114,6 +125,13 @@ private:
     bool
     pickPoint(Ogre::Vector3& post);
 
+    // @brief State methods
+    //
+    void
+    buildingState(void);
+    void
+    runningPathfinderState(void);
+
 
     void
     handleCameraInput(void);
@@ -126,12 +144,18 @@ private:
     SelectionHelper mSelectionHelper;
     std::vector<gps::Vertex> mWaypoints;
     core::OgreText mMousePosText;
+    core::OgreText mStatusBar;
 
     // graph data
     gps::WayPointGraph mGraph;
     gps::WPPathfinder mPathfinder;
     core::Primitive* mVisualPath;
     core::StackVector<core::Vector2, 2> mSelectedPos;
+
+    // state
+    State mState;
+    Ogre::MovableObject* mLastMovableHit;
+    Ogre::Vector3 mLastHitPos;
 };
 
 }

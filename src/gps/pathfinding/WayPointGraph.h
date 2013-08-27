@@ -102,6 +102,13 @@ public:
     inline const WPNodeCont&
     nodes(void) const;
 
+    // @brief Compare operator.
+    // @param other The other graph to be compared with this one
+    // @return true if they are equal | false otherwise
+    //
+    inline bool
+    operator==(const WayPointGraph& other) const;
+
 private:
     // avoid copying
     //
@@ -163,6 +170,30 @@ inline const WPNodeCont&
 WayPointGraph::nodes(void) const
 {
     return mNodes;
+}
+
+inline bool
+WayPointGraph::operator==(const WayPointGraph& other) const
+{
+    if (mNodes.size != other.mNodes.size) {
+        return false;
+    }
+
+    const WayPointNode* o = other.nodes().data;
+    for (unsigned int i = 0; i < mNodes.size; ++i) {
+        const WayPointNode& a = mNodes[i];
+        const WayPointNode& b = o[i];
+        if (a.position != b.position ||
+            a.neighborsCount != b.neighborsCount) {
+            return false;
+        }
+        for (unsigned int j = 0; j < a.neighborsCount; ++j) {
+            if (a.neighbors[j] != b.neighbors[j]) {
+                return false;
+            }
+        }
+    }
+    return true;
 }
 
 } /* namespace gps */

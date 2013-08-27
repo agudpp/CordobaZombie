@@ -13,6 +13,9 @@
 #include <memory>
 #include <cstring>
 #include <fstream>
+#include <deque>
+#include <map>
+#include <set>
 
 #include <tinyxml/tinyxml.h>
 
@@ -27,6 +30,14 @@
 // helper stuff
 //
 namespace {
+
+
+// default z value
+static const float startingZ = 25.0f;
+static const Ogre::uint32 LEVEL_OBJECTS_MASK = 0x1;
+static const Ogre::uint32 GRAPH_OBJECTS_MASK = 0x2;
+
+
 
 // Construct the mouse input keys we will use
 //
@@ -66,6 +77,10 @@ getKeyboardKeys(void)
     buttons.push_back(input::KeyCode::KC_L);
     buttons.push_back(input::KeyCode::KC_ADD);
     buttons.push_back(input::KeyCode::KC_MINUS);
+    buttons.push_back(input::KeyCode::KC_LCONTROL);
+    buttons.push_back(input::KeyCode::KC_LSHIFT);
+    buttons.push_back(input::KeyCode::KC_Z);
+    buttons.push_back(input::KeyCode::KC_B);
 
     return buttons;
 }
@@ -79,14 +94,307 @@ toString(const Ogre::Vector3& pos)
 }
 
 
+////////////////////////////////////////////////////////////////////////////////
+//                  Helper classes used to build the graph                    //
+////////////////////////////////////////////////////////////////////////////////
+
+// Graphical classes representing the edges and nodes
+//
+class GraphicEdge;
+struct GraphicNode {
+    core::Primitive* primitive;
+    core::Vector2 position;
+    std::set<GraphicEdge*> edges;
+};
+
+struct GraphicEdge {
+    core::Primitive* primitive;
+    GraphicNode* n1;
+    GraphicNode* n2;
+};
+typedef std::shared_ptr<GraphicNode> GraphicNodePtr;
+typedef std::shared_ptr<GraphicEdge> GraphicEdgePtr;
+
+struct GraphicGraph {
+    // create a new node
+    bool createNode(const Ogre::Vector3& p, GraphicNode*& result) {
+        core::Vector2 position(p.x, p.y);
+        core::PrimitiveDrawer& pd = core::PrimitiveDrawer::instance();
+
+        GraphicNodePtr node(new GraphicNode);
+        node->position = position;
+        core::Primitive* prim = pd.createBox(p, Ogre::Vector3(55,55,55), Ogre::ColourValue::Red);
+        node->primitive = prim;
+        prim->obj.manual->setQueryFlags(GRAPH_OBJECTS_MASK);
+
+        // set the pointer to the node
+        Ogre::UserObjectBindings& binding = prim->obj.manual->getUserObjectBindings();
+        binding.setUserAny(Ogre::Any(node.get()));
+        result = node.get();
+        mNodes.push_back(node);
+        return true;
+    }
+
+    // get the Node from a movable object
+    //
+    GraphicNode* getNodeFromMove(Ogre::MovableObject* mo) {
+        ASSERT(mo);
+        const Ogre::Any& any = mo->getUserObjectBindings().getUserAny();
+        if (any.isEmpty()) {
+            // is not one of our objects
+            return 0;
+        }
+        // return the object if is a selectable one
+        return Ogre::any_cast<GraphicNode*>(any);
+    }
+    GraphicEdge* getEdgeFromMove(Ogre::MovableObject* mo) {
+        ASSERT(mo);
+        const Ogre::Any& any = mo->getUserObjectBindings().getUserAny();
+        if (any.isEmpty()) {
+            // is not one of our objects
+            return 0;
+        }
+        // return the object if is a selectable one
+        return Ogre::any_cast<GraphicEdge*>(any);
+    }
+
+    // create a new edge with two nodes
+    bool createEdge(GraphicNode* n1, GraphicNode* n2, GraphicEdge*& result) {
+        ASSERT(n1); ASSERT(n2);
+        int i1 = getIndex(n1, mNodes);
+        int i2 = getIndex(n2, mNodes);
+
+        if (i1 < 0 || i2 < 0) {
+            return false;
+        }
+
+        GraphicEdgePtr edge(new GraphicEdge);
+        edge->n1 = n1;
+        edge->n2 = n2;
+
+        core::PrimitiveDrawer& pd = core::PrimitiveDrawer::instance();
+
+        // check here that the edge wasn't added twice to the same node
+        n1->edges.insert(edge.get());
+        n2->edges.insert(edge.get());
+
+        core::Primitive* prim = pd.createLine(
+            Ogre::Vector3(n1->position.x, n1->position.y, startingZ),
+            Ogre::Vector3(n2->position.x, n2->position.y, startingZ),
+            Ogre::ColourValue::Green);
+        edge->primitive = prim;
+        prim->obj.manual->setQueryFlags(0);
+
+        // set the pointer to the node
+        Ogre::UserObjectBindings& binding = prim->obj.manual->getUserObjectBindings();
+        binding.setUserAny(Ogre::Any(edge.get()));
+        result = edge.get();
+        mEdges.push_back(edge);
+        return true;
+    }
+
+    // remove a node (and all the edges)
+    bool removeNode(GraphicNode* n1) {
+        int index = getIndex(n1, mNodes);
+        if (index < 0) {return false;}
+
+        // we need to remove this and all the edges
+        std::set<GraphicEdge*> toRemove = n1->edges;
+        n1->edges.clear();
+        for (std::set<GraphicEdge*>::iterator it = toRemove.begin(), end = toRemove.end();
+                it != end; ++it) {
+            removeEdge(*it);
+        }
+        core::PrimitiveDrawer& pd = core::PrimitiveDrawer::instance();
+        pd.deletePrimitive(n1->primitive);
+        mNodes.erase(mNodes.begin()+index);
+
+        return true;
+    }
+
+    // remove a edge.
+    bool
+    removeEdge(GraphicEdge* e) {
+        int index = getIndex(e, mEdges);
+        if (index < 0) return false;
+
+        // advise the nodes
+        e->n1->edges.erase(e);
+        e->n2->edges.erase(e);
+
+        core::PrimitiveDrawer& pd = core::PrimitiveDrawer::instance();
+        pd.deletePrimitive(e->primitive);
+
+        mEdges.erase(mEdges.begin()+index);
+        return true;
+    }
+
+    void
+    removeAll(void)
+    {
+        while (!mNodes.empty()) {
+            removeNode(mNodes.back().get());
+        }
+        while (!mEdges.empty()) {
+            removeEdge(mEdges.back().get());
+        }
+    }
+
+    template<typename T>
+    int getIndex(T* e, std::vector<std::shared_ptr<T> >& v)
+    {
+        for (unsigned int i = 0; i < v.size(); ++i) {
+            if (v[i].get() == e) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    std::vector<GraphicNodePtr> mNodes;
+    std::vector<GraphicEdgePtr> mEdges;
+
+};
+
+// ugly static var
+static GraphicGraph sGraphicGraph;
+
+// Command stuff
+//
+struct Command {
+public:
+    virtual ~Command(){};
+
+    // execute the command, return true if it is possible to do an undo
+    virtual bool execute(void) = 0;
+
+    // undo the action, return true if it is possible to do a redo after (execute) again
+    virtual bool undo(void) = 0;
+};
+
+struct CommandHandler {
+    // execute a command
+    //
+    void execute(Command* cmd)
+    {
+        ASSERT(cmd);
+        if (cmd->execute()) {
+            mToUndo.push_front(cmd);
+        } else {
+            delete cmd;
+        }
+    }
+
+    // undo last command executed
+    //
+    void undo(void)
+    {
+        if (mToUndo.empty()) {return;}
+        Command* cmd = mToUndo.front();
+        mToUndo.pop_front();
+        if (cmd->undo()) {
+            mToRedo.push_front(cmd);
+        } else {
+            delete cmd;
+        }
+    }
+
+    // redo last command executed
+    //
+    void redo(void)
+    {
+        if (mToRedo.empty()) {return;}
+        Command* cmd = mToRedo.front();
+        mToRedo.pop_front();
+        if (cmd->execute()){
+            mToUndo.push_front(cmd);
+        } else {
+            delete cmd;
+        }
+    }
+
+    // clear all
+    //
+    void clearAll(void)
+    {
+        while (!mToRedo.empty()) {
+            delete mToRedo.front();
+            mToRedo.pop_front();
+        }
+        while (!mToUndo.empty()) {
+            delete mToUndo.front();
+            mToUndo.pop_front();
+        }
+    }
+
+private:
+    std::deque<Command*> mToUndo;
+    std::deque<Command*> mToRedo;
+};
+
+// ugly static var again!
+static CommandHandler sCmdHandler;
+
+// Define the possible commands here
+//
+struct CreateNodeCmd : Command {
+    Ogre::Vector3 position;
+    GraphicNode* node;
+
+    CreateNodeCmd(const Ogre::Vector3& pos = Ogre::Vector3::ZERO) :
+        position(pos)
+    ,   node(0)
+    {}
+
+    bool execute(void)
+    {
+        ASSERT(node == 0);
+        const bool ret = sGraphicGraph.createNode(position, node);
+        return node != 0 && ret;
+    }
+    bool undo(void)
+    {
+        if (node == 0) {
+            return false;
+        }
+        const bool ret = sGraphicGraph.removeNode(node);
+        node = 0;
+        return ret;
+    }
+};
+struct CreateEdgeCmd : Command {
+    GraphicNode* n1;
+    GraphicNode* n2;
+    GraphicEdge* edge;
+
+    CreateEdgeCmd(GraphicNode* node1, GraphicNode* node2) :
+        n1(node1)
+    ,   n2(node2)
+    ,   edge(0)
+    {}
+
+    bool execute(void)
+    {
+        if (n1 == 0 || n2 == 0) return false;
+
+        ASSERT(edge == 0);
+        const bool ret = sGraphicGraph.createEdge(n1, n2, edge);
+
+        return ret && edge != 0;
+    }
+    bool undo(void)
+    {
+        if (edge == 0) return false;
+        const bool ret = sGraphicGraph.removeEdge(edge);
+        edge = 0;
+        return ret;
+    }
+};
+
 }
 
 
 namespace tool {
-
-// default z value
-static const float startingZ = 25.0f;
-static const Ogre::uint32 LEVEL_OBJECTS_MASK = 0x1;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -135,7 +443,6 @@ PathfindingTool::loadScene(const std::string& scene)
 {
     // set the query masks for the movable object
     Ogre::MovableObject::setDefaultQueryFlags(LEVEL_OBJECTS_MASK);
-    Ogre::Entity::setDefaultQueryFlags(LEVEL_OBJECTS_MASK);
 
     Ogre::DotSceneLoader dsl;
     dsl.parseDotScene(scene,
@@ -203,6 +510,7 @@ PathfindingTool::buildGraph(void)
 
             // check if they can see between them
             if (!mSelectionHelper.performRaycast(wp1, wp2, entry, LEVEL_OBJECTS_MASK)) {
+                // no object intersects between this two elements
                 wpgb.linkWaypoints(i, j);
             }
         }
@@ -210,6 +518,53 @@ PathfindingTool::buildGraph(void)
 
     // now we build the graph
     return wpgb.buildGraph(mGraph);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void
+PathfindingTool::buildGraphFromGraphic(void)
+{
+    // we will get all the nodes and
+    std::map<GraphicNode*, int> indices;
+    mWaypoints.resize(sGraphicGraph.mNodes.size());
+
+    // configure nodes
+    for (unsigned int i = 0, size = sGraphicGraph.mNodes.size(); i < size; ++i) {
+        GraphicNode* gnode = sGraphicGraph.mNodes[i].get();
+        ASSERT(gnode);
+        indices[gnode] = i;
+        mWaypoints[i] = gnode->position;
+    }
+
+    // now create the links
+    gps::WayPointGraphBuilder wpgb;
+    wpgb.setWaypointPosition(mWaypoints);
+    core::BitMatrix<> adjacency;
+    adjacency.build(mWaypoints.size(), mWaypoints.size());
+    adjacency.reset();
+
+    for (unsigned int i = 0, size = sGraphicGraph.mEdges.size(); i < size; ++i) {
+        GraphicEdge* edge = sGraphicGraph.mEdges[i].get();
+        ASSERT(edge);
+        ASSERT(indices.find(edge->n1) != indices.end());
+        ASSERT(indices.find(edge->n2) != indices.end());
+        int n1 = indices[edge->n1];
+        int n2 = indices[edge->n2];
+
+        if (adjacency.get(n1, n2)) {
+            // do nothing
+            continue;
+        }
+        // no object intersects between this two elements
+        wpgb.linkWaypoints(n1, n2);
+        adjacency.set(n1, n2, true);
+        adjacency.set(n2, n1, true);
+    }
+
+    // now we build the graph
+    if (!wpgb.buildGraph(mGraph)) {
+        debugERROR("Error building the Graphic graph!");
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -277,6 +632,124 @@ PathfindingTool::pickPoint(Ogre::Vector3& post)
 
 ////////////////////////////////////////////////////////////////////////////////
 void
+PathfindingTool::buildingState(void)
+{
+
+    // if we press to build the graph we built it and then we remove all the
+    // graphic information
+    //
+    if (mInputHelper.isKeyReleased(input::KeyCode::KC_B)) {
+        buildGraphFromGraphic();
+        drawGraph(mGraph);
+        mGraph.save("graph.wpg");
+        mState = State::RunningPathfinding;
+        mStatusBar.setText("State: RunningPathfinding", 0.015f);
+        return;
+    }
+
+    // check for redo undo and return
+    if (mInputHelper.isKeyPressed(input::KeyCode::KC_LCONTROL)) {
+        if (mInputHelper.isKeyReleased(input::KeyCode::KC_Z)) {
+            if (mInputHelper.isKeyPressed(input::KeyCode::KC_LSHIFT)) {
+                // redo
+                sCmdHandler.redo();
+            } else {
+                sCmdHandler.undo();
+            }
+            // in any case return
+            return;
+        }
+    }
+
+    Ogre::RaySceneQueryResultEntry query;
+    const bool lastRaycast = mSelectionHelper.getFirstRaycasted(query, GRAPH_OBJECTS_MASK);
+
+    if (mInputHelper.isMouseReleased(input::MouseButtonID::MB_Left)) {
+        // create a new node? or select one?
+
+        Ogre::MovableObject* current = 0;
+        if (lastRaycast) {
+            // we select one
+            ASSERT(query.movable);
+            current = query.movable;
+        } else {
+            // we need to create a new one
+            CreateNodeCmd* cmd = new CreateNodeCmd(mLastHitPos);
+            sCmdHandler.execute(cmd);
+            ASSERT(cmd->node->primitive);
+            current = cmd->node->primitive->obj.manual;
+        }
+
+        // in any case we will change the colour of the current selected
+        if (current != mLastMovableHit) {
+            if (mLastMovableHit) {
+                GraphicNode* node = sGraphicGraph.getNodeFromMove(mLastMovableHit);
+                node->primitive->setColor(Ogre::ColourValue::Red);
+            }
+            if (current) {
+                GraphicNode* cnode = sGraphicGraph.getNodeFromMove(current);
+                cnode->primitive->setColor(Ogre::ColourValue::Blue);
+            }
+            mLastMovableHit = current;
+        }
+        return;
+    }
+
+    // check if we are trying to create an edge
+    if (mInputHelper.isMouseReleased(input::MouseButtonID::MB_Right) &&
+        lastRaycast && mLastMovableHit != 0) {
+        // if we are here then we press the right button, we could raycast
+        // an element, and there is something selected before...
+        ASSERT(query.movable);
+        Ogre::MovableObject* current = query.movable;
+        if (current == mLastMovableHit) {
+            return; // nothing to do
+        }
+        // if they are different, we need to create an edge.
+        GraphicNode* n1 = sGraphicGraph.getNodeFromMove(current);
+        GraphicNode* n2 = sGraphicGraph.getNodeFromMove(mLastMovableHit);
+        ASSERT(n1 != 0);    ASSERT(n2 != 0);
+        CreateEdgeCmd* cmd = new CreateEdgeCmd(n1, n2);
+        sCmdHandler.execute(cmd);
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void
+PathfindingTool::runningPathfinderState(void)
+{
+    core::PrimitiveDrawer& pd = core::PrimitiveDrawer::instance();
+
+    // check for positions selections
+    if (mInputHelper.isMouseReleased(input::MouseButtonID::MB_Left) &&
+        mGraph.nodes().size > 0) {
+        // check if is the first or the second position
+        if (mSelectedPos.size() == 0) {
+            // is the first one only
+            mSelectedPos.push_back(core::Vector2(mLastHitPos.x, mLastHitPos.y));
+        } else {
+            mSelectedPos.push_back(core::Vector2(mLastHitPos.x, mLastHitPos.y));
+            // is the second one, we need to do the pathfinding and
+            // show the path
+            gps::WayPointPath path;
+            if (!mPathfinder.findPath(mSelectedPos[0], mSelectedPos[1], path)){
+                mSelectedPos.clear();
+                debugERROR("Path not found\n");
+                return;
+            }
+            mSelectedPos.clear();
+
+            // draw the path
+            if (mVisualPath) {
+                pd.deletePrimitive(mVisualPath);
+            }
+            mVisualPath = drawPath(path, pd.getFreshColour());
+        }
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void
 PathfindingTool::handleCameraInput()
 {
     ///////////////////////////////////////////////////////////////////////////
@@ -303,6 +776,12 @@ PathfindingTool::handleCameraInput()
     if(mInputHelper.isKeyPressed(input::KeyCode::KC_S)) {
         mTranslationVec.y += 1.0f;
     }
+    if(mInputHelper.isKeyPressed(input::KeyCode::KC_ADD)) {
+        mTranslationVec.z -= 5.0f;
+    }
+    if(mInputHelper.isKeyPressed(input::KeyCode::KC_MINUS)) {
+        mTranslationVec.z += 5.0f;
+    }
 
     const float lMouseZ = float(input::Mouse::relZ());
     if (lMouseZ > 0.0f) {
@@ -322,6 +801,8 @@ PathfindingTool::PathfindingTool() :
 ,   mInputHelper(getMouseButtons(), getKeyboardKeys())
 ,   mSelectionHelper(*mSceneMgr, *mCamera, mMouseCursor)
 ,   mVisualPath(0)
+,   mState(State::BuildingGraph)
+,   mLastMovableHit(0)
 {
     // configure the input
     input::Mouse::setMouse(mMouse);
@@ -336,11 +817,15 @@ PathfindingTool::PathfindingTool() :
 
     mMousePosText.setPos(0,0);
     mMousePosText.setColor(0, 1, 1, 1.f);
+
+    mStatusBar.setPos(0,0.017f);
+    mStatusBar.setColor(0, 1, 1, 1.f);
+    mStatusBar.setText("State: BuildingGraph", 0.015f);
 }
 
 PathfindingTool::~PathfindingTool()
 {
-    // TODO Auto-generated destructor stub
+
 }
 
 /* Load additional info */
@@ -384,7 +869,6 @@ PathfindingTool::loadAditionalData(void)
 void
 PathfindingTool::update()
 {
-    core::PrimitiveDrawer& pd = core::PrimitiveDrawer::instance();
 
     // update the input system
     mInputHelper.update();
@@ -402,40 +886,33 @@ PathfindingTool::update()
     handleCameraInput();
 
     // check if we hit some position
-    Ogre::Vector3 hitPos;
-    if (!mSelectionHelper.getPlaneIntersection(hitPos)) {
-        // nothing to do
-        return;
+    if (mSelectionHelper.getPlaneIntersection(mLastHitPos)) {
+        mMousePosText.setText("MapPosition: " + toString(mLastHitPos), 0.015f);
     }
-    mMousePosText.setText("MapPosition: " + toString(hitPos), 0.023f);
 
-
-    // check for positions selections
-    if (mInputHelper.isMouseReleased(input::MouseButtonID::MB_Left) &&
-            mGraph.nodes().size > 0) {
-        // check if is the first or the second position
-        if (mSelectedPos.size() == 0) {
-            // is the first one only
-            mSelectedPos.push_back(core::Vector2(hitPos.x, hitPos.y));
-        } else {
-            mSelectedPos.push_back(core::Vector2(hitPos.x, hitPos.y));
-            // is the second one, we need to do the pathfinding and
-            // show the path
-            gps::WayPointPath path;
-            if (!mPathfinder.findPath(mSelectedPos[0], mSelectedPos[1], path)){
-                mSelectedPos.clear();
-                debugERROR("Path not found\n");
-                return;
-            }
-            mSelectedPos.clear();
-
-            // draw the path
-            if (mVisualPath) {
-                pd.deletePrimitive(mVisualPath);
-            }
-            mVisualPath = drawPath(path, pd.getFreshColour());
+    switch (mState) {
+    case State::BuildingGraph:
+        if (mInputHelper.isKeyReleased(input::KeyCode::KC_2)) {
+            mState = State::RunningPathfinding;
+            mStatusBar.setText("State: RunningPathfinding", 0.015f);
+            return;
         }
+        // else run the state
+        buildingState();
+        break;
+    case State::RunningPathfinding:
+        if (mInputHelper.isKeyReleased(input::KeyCode::KC_1)) {
+            mState = State::BuildingGraph;
+            mStatusBar.setText("State: BuildingGraph", 0.015f);
+            return;
+        }
+        // else run the state
+        runningPathfinderState();
+        break;
+    default:
+        ASSERT(false);
     }
+
 }
 
 }
