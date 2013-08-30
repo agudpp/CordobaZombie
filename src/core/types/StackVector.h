@@ -119,6 +119,7 @@ public:
     inline const T*
     end(void) const;
 
+
 private:
     T mData[MAX_SIZE];
     unsigned int mSize;

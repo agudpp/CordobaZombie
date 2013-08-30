@@ -371,8 +371,9 @@ TEST(CheckMultipleCollisions)
 
     core::StackVector<BB, numRows * numCols> bbs;
     core::StackVector<CO*, numRows * numCols> cobs;
+    core::StackVector<CO*, 4096> cos, cos2;
 
-
+    bool dynamic = false;
     for (unsigned int c = 0; c < numCols; ++c) {
         for (unsigned int r = 0; r < numRows; ++r) {
             const float top = sizeCellY * (r+1) + eps;
@@ -382,7 +383,13 @@ TEST(CheckMultipleCollisions)
 
             bbs.push_back(BB(top, left, bottom, right));
             cobs.push_back(ch.getNewCollObject(~0, bbs.back()));
-            ch.coAddDynamic(cobs.back());
+            // we will add one dynamic one static
+            if (dynamic) {
+                ch.coAddDynamic(cobs.back());
+            } else {
+                ch.coAddStatic(cobs.back());
+            }
+            dynamic = !dynamic;
         }
     }
 
@@ -413,7 +420,56 @@ TEST(CheckMultipleCollisions)
             } else {
                 CHECK_EQUAL(9, result.objects.size());
             }
+            for (unsigned int i = 0; i < result.objects.size(); ++i) {
+                cos.push_back(result.objects[i]);
+            }
         }
+    }
+
+    // now we will move all the dynamic elements with the same translation vector
+    // and then check again the collisions
+    const core::Vector2 tvec(sizeCellX, sizeCellY);
+
+    for (unsigned int i = 0; i < cobs.size(); ++i) {
+        cobs[i]->translate(tvec);
+    }
+
+    for (unsigned int c = 0; c < numCols; ++c) {
+        for (unsigned int r = 0; r < numRows; ++r) {
+            const float top = sizeCellY * (r+1);
+            const float bottom = sizeCellY * r;
+            const float right = sizeCellX * (c+1);
+            const float left = sizeCellX * c;
+            o->setBoundingBox(BB(top, left, bottom, right));
+            o->translate(tvec);
+            CHECK_EQUAL(true, ch.performQuery(o, args, result));
+
+            if (c == 0 || c == (numCols-1)) {
+                if (r == 0 || r == (numRows-1)) {
+                    // corner cases
+                    CHECK_EQUAL(4, result.objects.size());
+                } else {
+                    CHECK_EQUAL(6, result.objects.size());
+                }
+            } else if (r == 0 || r == (numRows-1)) {
+                CHECK_EQUAL(6, result.objects.size());
+            } else {
+                CHECK_EQUAL(9, result.objects.size());
+            }
+            for (unsigned int i = 0; i < result.objects.size(); ++i) {
+                cos2.push_back(result.objects[i]);
+            }
+        }
+    }
+
+    // check that the results are the same? NOTE that we cannot ensure the order
+    // of the results here.. so we will use a set
+    std::set<CO*> checked;
+    for (unsigned int i = 0; i < cos.size(); ++i) {
+        checked.insert(cos[i]);
+    }
+    for (unsigned int i = 0; i < cos2.size(); ++i) {
+        CHECK(checked.find(cos2[i]) != checked.end());
     }
 }
 

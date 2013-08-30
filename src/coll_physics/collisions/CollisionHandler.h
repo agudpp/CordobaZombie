@@ -33,10 +33,8 @@ namespace coll {
 //        time since if you create more than once, you will have undefined behavior
 //        for the collision objects you already create.
 
-// forward
-//
-class CollObject;
 struct PreciseInfo;
+
 
 class CollisionHandler
 {

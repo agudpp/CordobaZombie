@@ -38,7 +38,7 @@ class CollCell
     }
 
 public:
-    CollCell() {};
+    CollCell() : mStaticCount(0) {};
     ~CollCell() {};
 
     // @brief Add / remove a static element from this cell.
@@ -99,13 +99,14 @@ private:
     // @brief Return the associated index of an element in an array or -1 if
     //        wasn't found.
     //
-    template <typename T>
     inline int
-    getIndex(const std::vector<T>& v, const T e) const;
+    getStaticIndex(const CollObject* e) const;
+    inline int
+    getDynamicIndex(const CollObject* e) const;
 
 private:
-    std::vector<CollObject* > mStatics;
-    std::vector<CollObject* > mDynamics;
+    std::vector<CollObject* > mObjects;
+    unsigned int mStaticCount;
 };
 
 
@@ -116,12 +117,19 @@ private:
 // Inline stuff
 //
 
-template <typename T>
 inline int
-CollCell::getIndex(const std::vector<T>& v, const T e) const
+CollCell::getStaticIndex(const CollObject* e) const
 {
-    for (int i = 0, size = v.size(); i < size; ++i) {
-        if (v[i] == e) return i;
+    for (int i = 0; i < mStaticCount; ++i) {
+        if (mObjects[i] == e) return i;
+    }
+    return -1;
+}
+inline int
+CollCell::getDynamicIndex(const CollObject* e) const
+{
+    for (int i = mStaticCount, size = mObjects.size(); i < size; ++i) {
+        if (mObjects[i] == e) return i;
     }
     return -1;
 }
@@ -131,27 +139,54 @@ CollCell::addStatic(CollObject* sco)
 {
     ASSERT(sco);
     ASSERT(!containsStatic(sco));
-    mStatics.push_back(sco);
-    // maintain the order
-    std::sort(mStatics.begin(), mStatics.end(), cmpCollObj);
+    // we will put the element in the last element of the Static elements and
+    // then sort it
+    if (mObjects.size() == mStaticCount){
+        // we can safetly put the element at the end since we have not
+        // dynamic elements
+        mObjects.push_back(sco);
+    } else {
+        // we need to move the first dynamic at the end and put the static
+        // element in the last position of the static elements
+        mObjects.push_back(mObjects[mStaticCount]);
+        mObjects[mStaticCount] = sco;
+    }
+
+    // in any case increase the size of stati objects
+    ++mStaticCount;
+
+    // maintain the order of the static elements only
+    std::sort(mObjects.begin(), mObjects.begin() + mStaticCount, cmpCollObj);
 }
 inline bool
 CollCell::removeStatic(CollObject* sco)
 {
     ASSERT(sco);
-    const int index = getIndex(mStatics, sco);
+    const int index = getStaticIndex(sco);
     if (index < 0) {
         return false;
     }
-    // ugly slow remove but this will maintain the order
-    mStatics.erase(mStatics.begin() + index);
+    ASSERT(mStaticCount > 0);
+    // we will need to:
+    // 1) Swap the current element with the last of the static ones.
+    // 2) Swap the last static with the last dynamic
+    // 3) Pop the last of the array.
+    // 4) Sort again the static elements
+    //
+    --mStaticCount;
+    mObjects[index] = mObjects[mStaticCount];   // 1
+    mObjects[mStaticCount] = mObjects.back();   // 2
+    mObjects.pop_back();                        // 3
+    std::sort(mObjects.begin(),
+              mObjects.begin() + mStaticCount,
+              cmpCollObj);                      // 4
     return true;
 }
 
 inline bool
 CollCell::containsStatic(CollObject* sco) const
 {
-    return getIndex(mStatics, sco) >= 0;
+    return getStaticIndex(sco) >= 0;
 }
 
 
@@ -160,19 +195,21 @@ CollCell::addDynamic(CollObject* dco)
 {
     ASSERT(dco);
     ASSERT(!containsDynamic(dco));
-    mDynamics.push_back(dco);
+    // we will just put it at the end, this will not modify anything of the
+    // static elements
+    mObjects.push_back(dco);
 }
 inline bool
 CollCell::removeDynamic(CollObject* dco)
 {
     ASSERT(dco);
-    const int index = getIndex(mDynamics, dco);
+    const int index = getDynamicIndex(dco);
     if (index < 0) {
         return false;
     }
     // swap with last because the order is not important
-    mDynamics[index] = mDynamics.back();
-    mDynamics.pop_back();
+    mObjects[index] = mObjects.back();
+    mObjects.pop_back();
     return true;
 }
 
@@ -180,7 +217,7 @@ inline bool
 CollCell::containsDynamic(CollObject* dco) const
 {
     ASSERT(dco);
-    return getIndex(mDynamics, dco) >= 0;
+    return getDynamicIndex(dco) >= 0;
 }
 
 inline bool
@@ -194,31 +231,72 @@ CollCell::getCollidingObjects(CollObject* co,
     const unsigned int oldSize = result.size();
 
     // check for static first
-    if ((dt & DetectType::CQ_Statics) && !mStatics.empty()) {
-        for (std::vector<CollObject* >::iterator beg = mStatics.begin(),
-                end = mStatics.end(); beg != end; ++beg) {
-            CollObject* other = *beg;
+    if ((dt & DetectType::CQ_Statics) && mStaticCount > 0) {
+        // we will do not a binary search here but we will start from the middle
+        // and check until we need.
+        const unsigned int middle = mStaticCount >> 1; // = mStaticCount / 2
+        int index = middle;
+        const float &left = co->boundingBox().tl.x;
+        const float &right = co->boundingBox().br.x;
+
+        // move left first
+        CollObject* other = mObjects[index];
+        for (; index >= 0 && (left <= other->boundingBox().br.x); --index) {
+            other = mObjects[index];
             if (other->isCollisionsEnabled() &&   // check if is enable for collisions
                 other != co &&                    // it is not the same object
                 !(bitset[other->id]) &&           // the object was not set already
-                (other->mask() & mask) &&         // matchs with the mask
+                (other->mask() & mask) &&         // matches with the mask
                  other->collideBB(*co) // collide the bb's
                  ) {
                 result.push_back(other); // put this into the resulting vector
                 bitset.mark(other->id);  // mark it to avoid duplications
             }
         }
-    }
 
-    // check for dynamics now
-    if ((dt & DetectType::CQ_Dynamics) && !mDynamics.empty()) {
-        for (std::vector<CollObject* >::iterator beg = mDynamics.begin(),
-                end = mDynamics.end(); beg != end; ++beg) {
+        // move right
+        index = middle+1;
+        if (index < mStaticCount) {
+            other = mObjects[index];
+            for (; index < mStaticCount && (right <= other->boundingBox().tl.x); ++index) {
+                other = mObjects[index];
+                if (other->isCollisionsEnabled() &&   // check if is enable for collisions
+                    other != co &&                    // it is not the same object
+                    !(bitset[other->id]) &&           // the object was not set already
+                    (other->mask() & mask) &&         // matches with the mask
+                     other->collideBB(*co) // collide the bb's
+                     ) {
+                    result.push_back(other); // put this into the resulting vector
+                    bitset.mark(other->id);  // mark it to avoid duplications
+                }
+            }
+        }
+/*
+
+        for (std::vector<CollObject* >::iterator beg = mObjects.begin(),
+                end = mObjects.begin() + mStaticCount; beg != end; ++beg) {
             CollObject* other = *beg;
             if (other->isCollisionsEnabled() &&   // check if is enable for collisions
                 other != co &&                    // it is not the same object
                 !(bitset[other->id]) &&           // the object was not set already
-                (other->mask() & mask) &&         // matchs with the mask
+                (other->mask() & mask) &&         // matches with the mask
+                 other->collideBB(*co) // collide the bb's
+                 ) {
+                result.push_back(other); // put this into the resulting vector
+                bitset.mark(other->id);  // mark it to avoid duplications
+            }
+        }*/
+    }
+
+    // check for dynamics now
+    if ((dt & DetectType::CQ_Dynamics) && (mObjects.size() > mStaticCount)) {
+        for (std::vector<CollObject* >::iterator beg = mObjects.begin() + mStaticCount,
+                end = mObjects.end(); beg != end; ++beg) {
+            CollObject* other = *beg;
+            if (other->isCollisionsEnabled() &&   // check if is enable for collisions
+                other != co &&                    // it is not the same object
+                !(bitset[other->id]) &&           // the object was not set already
+                (other->mask() & mask) &&         // matches with the mask
                  (other->boundingBox().collide(co->boundingBox())) // collide the bb's
                  ) {
                 result.push_back(other); // put this into the resulting vector
@@ -232,8 +310,8 @@ CollCell::getCollidingObjects(CollObject* co,
 inline void
 CollCell::clearAll(void)
 {
-    mStatics.clear();
-    mDynamics.clear();
+    mObjects.clear();
+    mStaticCount = 0;
 }
 
 } /* namespace coll */
