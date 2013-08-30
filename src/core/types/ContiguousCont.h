@@ -36,6 +36,30 @@ struct ContiguousContainer {
         return data[i];
     }
 
+    // @brief Return the memory address to the beginning and the end (end is the
+    //        last element + 1 mem addr).
+    //
+    inline T*
+    begin(void)
+    {
+        return data;
+    }
+    inline const T*
+    begin(void) const
+    {
+        return data;
+    }
+    inline T*
+    end(void)
+    {
+        return data + size;
+    }
+    inline const T*
+    end(void) const
+    {
+        return data + size;
+    }
+
     // @brief build the container from a memory addr
     // @param addr      The memory address
     //

@@ -96,6 +96,20 @@ struct AABB
         br.y = p.y - halfY;
     }
 
+    // get the center position
+    inline void
+    getCenter(Vector2& center) const
+    {
+        center.x = (br.x - tl.x) * 0.5f;
+        center.y = (tl.y - br.y) * 0.5f;
+    }
+    inline Vector2
+    center(void) const
+    {
+        return Vector2((br.x - tl.x) * 0.5f, (tl.y - br.y) * 0.5f);
+    }
+
+
     // check the collision
     inline bool
     collide(const AABB &o) const

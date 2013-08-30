@@ -135,7 +135,7 @@ include_directories( ${OIS_INCLUDE_DIRS}
 	${OGRE_INCLUDE_DIRS}
 	${OGRE_SAMPLES_INCLUDEPATH}
 	${DEV_ROOT_PATH}/core
-	${DEV_ROOT_PATH}/collisions
+	${DEV_ROOT_PATH}/coll_physics
 	${DEV_ROOT_PATH}/megafauna
 	${DEV_ROOT_PATH}/tools
 	${DEV_ROOT_PATH}/ui
