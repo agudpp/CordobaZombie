@@ -15,11 +15,13 @@
 #include <space_partition/StaticMatrixPartition.h>
 #include <types/ContiguousCont.h>
 #include <types/StackQueue.h>
+#include <types/StackVector.h>
 #include <types/BoolCountingMask.h>
 
 #include "CollDefines.h"
 #include "CollCell.h"
 #include "CollObject.h"
+#include "CollPreciseInfo.h"
 
 namespace coll {
 
@@ -29,19 +31,17 @@ namespace coll {
 //        We will hardcode the divisions of the world to create a more transparent
 //        API for the user (this way we can change the implementation of the
 //        space partition algorithm without any modification).
-// @note  LIMITATION: You only can create one instance of this class at the same
-//        time since if you create more than once, you will have undefined behavior
-//        for the collision objects you already create.
+//
 
-struct PreciseInfo;
+struct CollPreciseInfo;
 
 
 class CollisionHandler
 {
     // Define the size of the matrix to be used
     //
-    static const unsigned int NUM_COLS = 20;
-    static const unsigned int NUM_ROWS = 25;
+    static const unsigned int NUM_COLS = 15;
+    static const unsigned int NUM_ROWS = 15;
     static const unsigned int MAX_MATRIX_INDICES = NUM_COLS*NUM_ROWS;
 
     // TODO: BIG LIMITATION WITH THIS! BIG!!! and very memory expensive but
@@ -72,7 +72,7 @@ public:
     getNewCollObject(mask_t mask = ~0,
                      const core::AABB& aabb = core::AABB(),
                      void* userDef = 0,
-                     PreciseInfo* pi = 0);
+                     CollPreciseInfo* pi = 0);
 
     // @brief Delete an existing collision object. After you call this method
     //        the object is destroyed and removed from the collision system.
@@ -97,54 +97,10 @@ public:
     //       and not static ones
     //
 
-    // @brief Update the bounding box of an specific CollObject.
-    // @param co        The coll object.
-    // @param nbb       The new bounding box (note that the bb should be less
-    //                  than the entire world and should fit inside the world).
-    // @note BE CAREFUL calling this method if you have a PreciseInfo structure
-    //       associated, since it could produce wrong behaviors. Only use this
-    //       method when you are using only simple BB objects.
-    //
-    void
-    coUpdateBB(CollObject* co, const core::AABB& nbb);
-
-    // @brief Update the detailed information (PreciseInfo) of an specific CollObject.
-    // @param co        The coll object.
-    // @param pi        The new precise information to be used. If the object
-    //                  has and old one then it will be removed (free) and this
-    //                  method will calculate the new bounding box of the object.
-    //                  The position of the object will be the same.
-    // @note After calling this method, the object will be the owner of the memory
-    //       of the pi, so you should'nt free it.
-    //
-    void
-    coUpdatePreciseInfo(CollObject* co, PreciseInfo* pi);
-
-    // @brief Translate a collision object from the current position to the new
-    //        one
-    // @param co        The collision object to move
-    // @param tvec      The translation vector
-    //
-    void
-    coTranslate(CollObject* co, const core::Vector2& tvec);
-
-    // @brief Set the new position of the object. This position should be inside
-    //        of the world.
-    // @param co        The coll object.
-    // @param npos      The new position.
-    //
-    void
-    coSetPosition(CollObject* co, const core::Vector2& npos);
-
-    // @brief Enable/disable the collisions for an specific object.
-    // @param co        The collision object we want to remove to avoid collisions.
-    // @param enable    Enable the collisions (true = enable / false = disable).
-    //
-    void
-    coEnableCollisions(CollObject* co, bool enable);
-
     // @brief Insert an static collision object (that will not be moved along
     //        the time).
+    //        If for any reason you change the static object position you will
+    //        get undefined behaviors since it will be not updated internally.
     // @param sco       The static collision object
     // @note This method is slow since we are rebuilding the internal structure
     //       of the Handler. So this should be performed offline (non main loop)
@@ -196,6 +152,14 @@ public:
     void
     destroy(void);
 
+    // @brief Update the collision world. This method should be called each frame
+    //        you will perform any query (before performing any query and after
+    //        updating all the collision objects). If you don't update the
+    //        collision world you will get incorrect results when perform queries
+    //
+    void
+    update(void);
+
     ////////////////////////////////////////////////////////////////////////////
     //                  CollisionHandler Queries functions                    //
     ////////////////////////////////////////////////////////////////////////////
@@ -228,6 +192,13 @@ private:
     void
     letAllObjectsFreeAvailable(void);
 
+    // @brief Get the index of a particular element in the mCurrentObjects
+    //        vector.
+    // @return -1 if the element wasn't found, index if we found it.
+    //
+    inline int
+    findObject(CollObject* o);
+
 private:
     // Define the matrix to be used here and the world bounding box
     //
@@ -237,7 +208,9 @@ private:
     // we will use a ContiguousContainer. Note the limitation above
     //
     core::ContiguousContainer<CollObject> mCollObjects;
+    core::StackVector<core::AABB, MAX_NUM_COLLOBJECTS> mOldAABB;
     core::StackQueue<CollObject*, MAX_NUM_COLLOBJECTS> mAvailableObjs;
+    core::StackVector<CollObject*, MAX_NUM_COLLOBJECTS> mCurrentObjects;
 
     // We will use the BoolCountingMask to mark all the elements that were
     // already selected in each query (the result should contain unique elements).
@@ -255,6 +228,15 @@ private:
 // Inline stuff
 //
 
+inline int
+CollisionHandler::findObject(CollObject* o)
+{
+    for (int i = 0, size = mCurrentObjects.size(); i < size; ++i) {
+        if (mCurrentObjects[i] == o) return i;
+    }
+    return -1;
+}
+
 inline bool
 CollisionHandler::exists(const CollObject* co) const
 {
@@ -268,6 +250,8 @@ CollisionHandler::worldBoundingBox(void) const
 {
     return mMatrix.boundingBox();
 }
+
+
 
 
 } /* namespace coll */

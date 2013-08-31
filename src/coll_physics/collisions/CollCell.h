@@ -271,21 +271,6 @@ CollCell::getCollidingObjects(CollObject* co,
                 }
             }
         }
-/*
-
-        for (std::vector<CollObject* >::iterator beg = mObjects.begin(),
-                end = mObjects.begin() + mStaticCount; beg != end; ++beg) {
-            CollObject* other = *beg;
-            if (other->isCollisionsEnabled() &&   // check if is enable for collisions
-                other != co &&                    // it is not the same object
-                !(bitset[other->id]) &&           // the object was not set already
-                (other->mask() & mask) &&         // matches with the mask
-                 other->collideBB(*co) // collide the bb's
-                 ) {
-                result.push_back(other); // put this into the resulting vector
-                bitset.mark(other->id);  // mark it to avoid duplications
-            }
-        }*/
     }
 
     // check for dynamics now

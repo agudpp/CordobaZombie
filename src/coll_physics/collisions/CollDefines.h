@@ -29,14 +29,6 @@ typedef core::uint16_t mask_t;
 typedef core::uint16_t index_t;
 
 
-// More precise information for collisions... we will define this here to
-// avoid circular dependencies in the header files
-
-struct PreciseInfo {
-    // TODO: add here
-};
-
-
 // We will define the different type of queries results / arguments here.
 //
 static const unsigned int MAX_QUERY_RESULT = 45;

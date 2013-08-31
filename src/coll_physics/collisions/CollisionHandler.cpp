@@ -9,6 +9,9 @@
 
 #include <bitset>
 
+#include <Box2D/Collision/b2Collision.h>
+#include <Box2D/Collision/Shapes/b2Shape.h>
+
 #include "CollObject.h"
 
 
@@ -95,6 +98,12 @@ checkForIntersections(const core::AABB& obb,
     }
 }
 
+
+////////////////////////////////////////////////////////////////////////////////
+// Box2D Functions
+//
+
+
 }
 
 
@@ -111,11 +120,11 @@ CollisionHandler::letAllObjectsFreeAvailable(void)
     while (beg != end) {
         beg->reset();
         beg->id = i++;
-        beg->flags.beingTracked = false;
         beg->flags.enabled = true;
         mAvailableObjs.push_back(beg);
         ++beg;
     }
+    mCurrentObjects.clear();
 }
 
 
@@ -124,15 +133,12 @@ CollisionHandler::letAllObjectsFreeAvailable(void)
 ////////////////////////////////////////////////////////////////////////////////
 CollisionHandler::CollisionHandler()
 {
-    // set that all the CollObject will use this instance of the CollisionHandler
-    //
-    CollObject::setCollisionHandler(this);
-
     // allocate the memory needed
     mCollObjects.size = MAX_NUM_COLLOBJECTS;
     mCollObjects.data = new CollObject[MAX_NUM_COLLOBJECTS];
     letAllObjectsFreeAvailable();
     mMask.setSize(MAX_NUM_COLLOBJECTS);
+    mOldAABB.resize(MAX_NUM_COLLOBJECTS);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -150,7 +156,7 @@ CollObject*
 CollisionHandler::getNewCollObject(mask_t mask,
                                    const core::AABB& aabb,
                                    void* userDef,
-                                   PreciseInfo* pi)
+                                   CollPreciseInfo* pi)
 {
     if (mAvailableObjs.empty()) {
         debugWARNING("You are asking for more collision objects that we expect: "
@@ -162,7 +168,6 @@ CollisionHandler::getNewCollObject(mask_t mask,
     CollObject* obj = mAvailableObjs.front();
     mAvailableObjs.pop_front();
 
-    obj->flags.beingTracked = false;
     obj->setMask(mask);
     obj->setUserDef(userDef);
     obj->setBoundingBox(aabb);
@@ -177,9 +182,6 @@ CollisionHandler::deleteCollObject(CollObject* co)
 {
     ASSERT(co);
     ASSERT(exists(co));
-
-    // we are not tracking this object anymore
-    co->flags.beingTracked = false;
 
     // we will remove the element from the current cells
     core::StackVector<CollCell*, MAX_MATRIX_INDICES> cells;
@@ -199,6 +201,13 @@ CollisionHandler::deleteCollObject(CollObject* co)
     // Precise info if needed and put the poniter into the available queue
     co->reset();
     mAvailableObjs.push_back(co);
+
+    // remove it from the current objects
+    const int index = findObject(co);
+    if (index >= 0) {
+        mCurrentObjects.disorder_remove(index);
+    }
+
     ASSERT(!exists(co));
 }
 
@@ -207,95 +216,6 @@ CollisionHandler::deleteCollObject(CollObject* co)
 //                          CollObject functions                          //
 ////////////////////////////////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////////////////////////
-void
-CollisionHandler::coUpdateBB(CollObject* co, const core::AABB& nbb)
-{
-    ASSERT(co);
-    ASSERT(exists(co));
-
-    if (!(co->flags.beingTracked)) {
-        // we only need to update the bounding box and nothing else
-        co->mAABB = nbb;
-        nbb.getCenter(co->mCenter);
-        return;
-    }
-
-    core::StackVector<IndexFlagPair, MAX_MATRIX_INDICES> indices;
-    checkForIntersections(co->boundingBox(),
-                          nbb,
-                          mMatrix,
-                          indices);
-    // now remove the element from the current indices and add it where it is
-    // needed
-    IndexFlagPair* beg = indices.begin(), *end = indices.end();
-    while (beg != end) {
-        CollCell& cell = mMatrix.getCell(beg->index);
-        switch (beg->state) {
-        case IndexFlagPair::State::REMOVE:
-            // we need to remove it
-            cell.removeDynamic(co);
-            break;
-        case IndexFlagPair::State::MAINTAIN:
-            // do nothing
-            break;
-        case IndexFlagPair::State::ADD:
-            // we need to add it
-            cell.addDynamic(co);
-            break;
-        }
-        ++beg;
-    }
-
-    // set the new bounding box and center position
-    co->mAABB = nbb;
-    nbb.getCenter(co->mCenter);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-void
-CollisionHandler::coUpdatePreciseInfo(CollObject* co, PreciseInfo* pi)
-{
-    // take into account the co->flags.beingTracked flag.
-    ASSERT(false && "TODO: we need to implement this..."); // TODO
-}
-
-////////////////////////////////////////////////////////////////////////////////
-void
-CollisionHandler::coTranslate(CollObject* co, const core::Vector2& tvec)
-{
-    ASSERT(co);
-    ASSERT(exists(co));
-
-    // we will just call the updateBB
-    core::AABB nbb = co->mAABB;
-    nbb.translate(tvec);
-    coUpdateBB(co, nbb);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-void
-CollisionHandler::coSetPosition(CollObject* co, const core::Vector2& npos)
-{
-    ASSERT(co);
-    ASSERT(exists(co));
-
-    coTranslate(co, npos - co->center());
-}
-
-////////////////////////////////////////////////////////////////////////////////
-void
-CollisionHandler::coEnableCollisions(CollObject* co, bool enable)
-{
-    ASSERT(co);
-    ASSERT(exists(co));
-
-    // we can remove the elements here, but we will use a flag instead..
-    // Note that this will let the co inside of the cells and will decrease
-    // the performance when checking in other rounds
-    //
-    co->flags.enabled = enable;
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 void
@@ -303,11 +223,6 @@ CollisionHandler::coAddStatic(CollObject* sco)
 {
     ASSERT(sco);
     ASSERT(exists(sco));
-
-    // if the object is already being tracked, we have to do nothing
-    if (sco->flags.beingTracked) {
-        return;
-    }
 
     // check if the element already exists in the cell
     core::StackVector<CollCell*, MAX_MATRIX_INDICES> cells;
@@ -318,8 +233,12 @@ CollisionHandler::coAddStatic(CollObject* sco)
         }
     }
 
-    // this object is tracked now
-    sco->flags.beingTracked = true;
+
+    sco->flags.enabled = true;
+
+    // note that we don't need to analyze any static object because it is impossible
+    // that it can change (if not, is not an static object).
+    //
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -329,11 +248,6 @@ CollisionHandler::coRemoveStatic(CollObject* sco)
     ASSERT(sco);
     ASSERT(exists(sco));
 
-    // check if the object is being tracked
-    if (!(sco->flags.beingTracked)) {
-        return;
-    }
-
     // check if the element already exists in the cell
     core::StackVector<CollCell*, MAX_MATRIX_INDICES> cells;
     mMatrix.getCells(sco->boundingBox(), cells);
@@ -341,8 +255,8 @@ CollisionHandler::coRemoveStatic(CollObject* sco)
         (*beg)->removeStatic(sco);
     }
 
-    // the object is not tracked anymore
-    sco->flags.beingTracked = false;
+
+    sco->flags.enabled = false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -351,11 +265,6 @@ CollisionHandler::coAddDynamic(CollObject* dco)
 {
     ASSERT(dco);
     ASSERT(exists(dco));
-
-    // check if the object is being tracked
-    if (dco->flags.beingTracked) {
-        return; // nothing to do
-    }
 
     // check if the element already exists in the cell
     core::StackVector<CollCell*, MAX_MATRIX_INDICES> cells;
@@ -366,8 +275,17 @@ CollisionHandler::coAddDynamic(CollObject* dco)
         }
     }
 
-    // the object now is being tracked
-    dco->flags.beingTracked = true;
+    // add the object to analyze it
+    ASSERT(findObject(dco) < 0);
+    mCurrentObjects.push_back(dco);
+
+    // enable collisions
+    dco->flags.enabled = true;
+
+    // we will also add the last bounding box of this object used when we add
+    // it in the cells
+    //
+    mOldAABB[dco->id] = dco->boundingBox();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -377,20 +295,22 @@ CollisionHandler::coRemoveDynamic(CollObject* dco)
     ASSERT(dco);
     ASSERT(exists(dco));
 
-    // check if the object is being tracked
-    if (!(dco->flags.beingTracked)) {
-        return; // nothing to do
-    }
-
     // check if the element already exists in the cell
     core::StackVector<CollCell*, MAX_MATRIX_INDICES> cells;
-    mMatrix.getCells(dco->boundingBox(), cells);
+    mMatrix.getCells(mOldAABB[dco->id], cells);
     for (CollCell** beg = cells.begin(), **end = cells.end(); beg != end; ++beg) {
         (*beg)->removeDynamic(dco);
     }
 
-    // this object now is being tracked
-    dco->flags.beingTracked = false;
+    // disable collisions
+    dco->flags.enabled = false;
+
+    // remove it from the current objects to analyze
+    const int index = findObject(dco);
+    ASSERT(index >= 0);
+    if (index >= 0) {
+        mCurrentObjects.disorder_remove(index);
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -421,6 +341,53 @@ CollisionHandler::destroy(void)
     letAllObjectsFreeAvailable();
 }
 
+////////////////////////////////////////////////////////////////////////////////
+void
+CollisionHandler::update(void)
+{
+    // we will check each of the objects we need to update and perform the
+    // needed operations.
+    //
+    CollObject** objBeg = mCurrentObjects.begin(), **objEnd = mCurrentObjects.end();
+    core::StackVector<IndexFlagPair, MAX_MATRIX_INDICES> indices;
+    while (objBeg != objEnd) {
+        ASSERT(objBeg);
+        CollObject* current = *objBeg;
+        if (current->flags.dirty) {
+            // we need to update this one
+            indices.clear();
+            checkForIntersections(mOldAABB[current->id],
+                                  current->boundingBox(),
+                                  mMatrix,
+                                  indices);
+            // now remove the element from the current indices and add it where it is
+            // needed
+            IndexFlagPair* item = indices.begin(), *itemEnd = indices.end();
+            while (item != itemEnd) {
+                CollCell& cell = mMatrix.getCell(item->index);
+                switch (item->state) {
+                case IndexFlagPair::State::REMOVE:
+                    // we need to remove it
+                    cell.removeDynamic(current);
+                    break;
+                case IndexFlagPair::State::MAINTAIN:
+                    // do nothing
+                    break;
+                case IndexFlagPair::State::ADD:
+                    // we need to add it
+                    cell.addDynamic(current);
+                    break;
+                }
+                ++item;
+            }
+
+            current->flags.dirty = false;
+            mOldAABB[current->id] = current->boundingBox();
+        }
+        ++objBeg;
+    }
+}
+
 ////////////////////////////////////////////////////////////////////////////
 //                  CollisionHandler Queries functions                    //
 ////////////////////////////////////////////////////////////////////////////
@@ -439,7 +406,7 @@ CollisionHandler::performQuery(CollObject* co,
     result.points.clear();
 
     // check if this object is ready to perform a query
-    if (!(co->isCollisionsEnabled()) || !(co->flags.beingTracked)) {
+    if (!(co->isCollisionsEnabled())) {
         debugWARNING("You are trying to get the collision objects that collide with"
             " a disabled one or that is not being tracked by the Handler!\n");
         return false;

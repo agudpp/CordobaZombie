@@ -32,6 +32,45 @@ typedef coll::QueryResult QR;
 typedef core::AABB BB;
 
 
+// TODO: REMOVE THIS SHIT
+//
+#include <Box2D/Collision/Shapes/b2PolygonShape.h>
+#include <Box2D/Collision/b2Collision.h>
+
+
+TEST(TestBox2D)
+{
+    b2Manifold manifold;
+    b2Vec2 vertices[3];
+    vertices[0].Set(0.0f, 0.0f);
+    vertices[1].Set(15.0f, 3.0f);
+    vertices[2].Set(10.0f, 10.0f);
+    int32 count = 3;
+    b2PolygonShape polygon;
+    polygon.Set(vertices, count);
+
+    vertices[0].Set(-2.0f, 5.0f);
+    vertices[1].Set(17.0f, 6.5f);
+    vertices[2].Set(0.0f, 12.0f);
+    b2PolygonShape polygon2;
+    polygon2.Set(vertices, count);
+
+    b2Transform t;
+    t.SetIdentity();
+    b2CollidePolygons(&manifold, &polygon, t, &polygon2, t);
+    CHECK(manifold.pointCount > 0);
+    CHECK(b2TestOverlap(&polygon, 0, &polygon2, 0, t, t));
+
+
+    // move one polygon outside
+    b2Transform t2;
+    t2.Set(b2Vec2(100,100), 0);
+    b2CollidePolygons(&manifold, &polygon, t, &polygon2, t2);
+    CHECK(manifold.pointCount == 0);
+    CHECK(!b2TestOverlap(&polygon, 0, &polygon2, 0, t, t2));
+}
+
+
 
 // Simple graph checking with one agent
 //
@@ -147,6 +186,7 @@ TEST(CheckUpdateBB)
 
     // move it outside the collision zone
     o2->setBoundingBox(BB(15,0,11,10));
+    ch.update(); // simulate one frame
     CHECK_EQUAL(false, ch.performQuery(o2, args, r));
     CHECK_EQUAL(0, r.objects.size());
     CHECK_EQUAL(false, ch.performQuery(o, args, r));
@@ -154,6 +194,7 @@ TEST(CheckUpdateBB)
 
     // put it again in the collision zone
     o2->setBoundingBox(BB(6,4,5,5));
+    ch.update(); // simulate one frame
     CHECK_EQUAL(true, ch.performQuery(o2, args, r));
     CHECK_EQUAL(1, r.objects.size());
     CHECK_EQUAL(o, r.objects.back());
@@ -246,6 +287,7 @@ TEST(CheckTranslating_NewPos)
 
     // move it outside the collision zone
     o2->translate(core::Vector2(20,20));
+    ch.update(); // simulate one frame
     CHECK_EQUAL(false, ch.performQuery(o2, args, r));
     CHECK_EQUAL(0, r.objects.size());
     CHECK_EQUAL(false, ch.performQuery(o, args, r));
@@ -253,6 +295,7 @@ TEST(CheckTranslating_NewPos)
 
     // put it again in the collision zone
     o->setPosition(o->position() + core::Vector2(20,20));
+    ch.update(); // simulate one frame
     CHECK_EQUAL(true, ch.performQuery(o2, args, r));
     CHECK_EQUAL(1, r.objects.size());
     CHECK_EQUAL(o, r.objects.back());
@@ -373,7 +416,7 @@ TEST(CheckMultipleCollisions)
     core::StackVector<CO*, numRows * numCols> cobs;
     core::StackVector<CO*, 4096> cos, cos2;
 
-    bool dynamic = false;
+    bool dynamic = true;
     for (unsigned int c = 0; c < numCols; ++c) {
         for (unsigned int r = 0; r < numRows; ++r) {
             const float top = sizeCellY * (r+1) + eps;
@@ -389,7 +432,9 @@ TEST(CheckMultipleCollisions)
             } else {
                 ch.coAddStatic(cobs.back());
             }
-            dynamic = !dynamic;
+            // the new implmementation does not support update static objects
+            // and that is correct
+            // dynamic = !dynamic;
         }
     }
 
@@ -406,6 +451,7 @@ TEST(CheckMultipleCollisions)
             const float right = sizeCellX * (c+1);
             const float left = sizeCellX * c;
             o->setBoundingBox(BB(top, left, bottom, right));
+            ch.update(); // simulate one frame
             CHECK_EQUAL(true, ch.performQuery(o, args, result));
 
             if (c == 0 || c == (numCols-1)) {
@@ -442,6 +488,7 @@ TEST(CheckMultipleCollisions)
             const float left = sizeCellX * c;
             o->setBoundingBox(BB(top, left, bottom, right));
             o->translate(tvec);
+            ch.update(); // simulate one frame
             CHECK_EQUAL(true, ch.performQuery(o, args, result));
 
             if (c == 0 || c == (numCols-1)) {
