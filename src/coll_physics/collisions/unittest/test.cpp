@@ -19,6 +19,7 @@
 #include <collisions/CollisionHandler.h>
 #include <collisions/CollDefines.h>
 #include <collisions/CollObject.h>
+#include <collisions/CollPreciseInfo.h>
 
 using namespace core;
 
@@ -27,6 +28,7 @@ typedef StackQueue<int, 512> SQ512;
 typedef StackPriorityQueue<int, 512> SPQ512;
 typedef coll::CollisionHandler CH;
 typedef coll::CollObject CO;
+typedef coll::CollPreciseInfo CPI;
 typedef coll::QueryArgs QA;
 typedef coll::QueryResult QR;
 typedef core::AABB BB;
@@ -61,6 +63,45 @@ TEST(TestBox2D)
     CHECK(manifold.pointCount > 0);
     CHECK(b2TestOverlap(&polygon, 0, &polygon2, 0, t, t));
 
+
+    // get two collObjects and make them collide
+    CH ch;
+    BB bb(20,0,0,20);
+    QA args;
+    QR r;
+
+    CO* o1 = ch.getNewCollObject();
+    CO* o2 = ch.getNewCollObject();
+    CO* o3 = ch.getNewCollObject();
+
+    core::Vector2 verts[3];
+    verts[0] = core::Vector2(1.0f, 0.0f);
+    verts[1] = core::Vector2(15.0f, 3.0f);
+    verts[2] = core::Vector2(10.0f, 10.0f);
+    CPI* cp1 = CPI::createPolygonPrecise(verts, 3);
+    o1->setPreciseInfo(cp1);
+
+    verts[0] = core::Vector2(-2.0f, 5.0f);
+    verts[1] = core::Vector2(17.0f, 6.5f);
+    verts[2] = core::Vector2(0.0f, 12.0f);
+    CPI* cp2 = CPI::createPolygonPrecise(verts, 3);
+    o2->setPreciseInfo(cp2);
+
+    CHECK(o1->collideBB(*o2));
+    CHECK(o1->collidePrecise(*o2));
+    CHECK(o2->collideBB(*o1));
+    CHECK(o2->collidePrecise(*o1));
+
+    // create a empty collision object (without precise info)
+    o3->setBoundingBox(BB(12,-4,0,-0.5));
+    CHECK(o1->collideBB(*o3) == false);
+    CHECK(o1->collidePrecise(*o3) == false);
+    CHECK(o2->collideBB(*o3));
+    CHECK(o2->collidePrecise(*o3));
+    CHECK(o3->collideBB(*o1) == false);
+    CHECK(o3->collidePrecise(*o1) == false);
+    CHECK(o3->collideBB(*o2));
+    CHECK(o3->collidePrecise(*o2));
 
     // move one polygon outside
     b2Transform t2;

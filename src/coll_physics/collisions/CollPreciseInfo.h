@@ -34,6 +34,37 @@ class CollisionHandler;
 
 struct CollPreciseInfo
 {
+public:
+    // @brief Here we will define the methods used to construct the CollPreciseInfo
+    //        structures since we cannot construct this kind of objects in
+    //        any way, we should respect some conditions:
+    //        - We will move all the vertices to be in a relative position from
+    //          the (0,0) point that will be the middle of the bounding box.
+    //        - The bounding box should cover all the possible position of the
+    //          element (in any rotation).
+    //
+    //        We will define a list of constructors to construct different types
+    //        of shapes (b2shapes).
+    //
+
+
+    // @brief Construct a PolyShape given a list of points forming the polygon.
+    //        The points should be in counter clockwise winding (reverse order).
+    //        Also they should respect the b2PolygonShape constraints (read the
+    //        b2Manual for that)
+    // @param vertices  The vertices conforming the polygon (the last will be
+    //                  linked with the first one).
+    // @param count     The number of vertices conforming the polygon
+    // @returns 0 on error, the CollPreciseInfo allocated object.
+    // @note that we will move the shape to the center (0,0) and create a
+    //       translation vector for this.
+    //
+    static CollPreciseInfo*
+    createPolygonPrecise(const core::Vector2* vertices, unsigned int count);
+
+    // TODO: implement createCircle, createChain, createEdge
+    //
+
 private:
     friend class CollObject;
     friend class CollisionHandler;
@@ -43,10 +74,10 @@ private:
     // The box2D shape
     b2Shape* shape;
 
-
-    CollPreciseInfo(b2Shape* s = 0) :
+    CollPreciseInfo(b2Shape* s) :
         shape(s)
     {
+        ASSERT(s);
         transform.SetIdentity();
     }
     ~CollPreciseInfo()
@@ -63,6 +94,8 @@ private:
     //
     inline void
     setPosition(const core::Vector2& pos);
+    inline core::Vector2
+    position(void);
     inline void
     setAngle(float angle);
 
@@ -116,6 +149,11 @@ CollPreciseInfo::setPosition(const core::Vector2& pos)
     transform.p.x = pos.x;
     transform.p.y = pos.y;
 }
+inline core::Vector2
+CollPreciseInfo::position(void)
+{
+    return core::Vector2(transform.p.x, transform.p.y);
+}
 inline void
 CollPreciseInfo::setAngle(float angle)
 {
@@ -145,14 +183,19 @@ inline bool
 CollPreciseInfo::checkOverlap(const core::AABB& bb) const
 {
     ASSERT(shape);
-    // TODO: probably this could be improved
+    // TODO: probably this could be improved since bb is an axis aligned bounding
+    //       box... here we are creating a polygon structure unnecessarily
     b2PolygonShape b2BoundingBox;
     b2Transform t;
-    t.q.SetIdentity();
-    b2BoundingBox.SetAsBox(bb.getWidth() * 0.5, bb.getHeight() * 0.5);
-    const core::Vector2 center = bb.center();
-    t.p.x = center.x;
-    t.p.y = center.y;
+    t.SetIdentity();
+    b2Vec2 vertices[4];
+    vertices[0].Set(bb.tl.x, bb.tl.y);
+    vertices[1].Set(bb.tl.x, bb.br.y);
+    vertices[2].Set(bb.br.x, bb.br.y);
+    vertices[3].Set(bb.br.x, bb.tl.y);
+    b2BoundingBox.Set(vertices, 4);
+    debugRED("checkOverlap: top: %f, left: %f, bottom: %f, right: %f\n",
+                    bb.tl.y, bb.tl.x, bb.br.y, bb.br.x);
     return b2TestOverlap(shape, 0, &b2BoundingBox, 0, transform, t);
 }
 

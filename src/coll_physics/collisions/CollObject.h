@@ -232,9 +232,14 @@ inline void
 CollObject::configureBB(float width, float height, const core::Vector2& pos)
 {
     ASSERT(mPinfo == 0);
-    mAABB.setSize(width, height);
+    const float halfW = width * 0.5;
+    const float halfH = height * 0.5;
+
     // we need to update the position of the bb taking into account its size
-    mAABB.setPosition(pos - core::Vector2(width * 0.5f, height * 0.5f));
+    mAABB.tl.x = pos.x - halfW;
+    mAABB.br.x = pos.x + halfW;
+    mAABB.tl.y = pos.y + halfH;
+    mAABB.br.y = pos.y - halfH;
     flags.dirty = true;
 }
 
@@ -281,9 +286,7 @@ CollObject::setPreciseInfo(CollPreciseInfo* pi)
     // we need to calculate the size of the new bounding box
     core::AABB bb;
     pi->getMaximumBB(bb);
-
-    // set the correct position
-    configureBB(bb.getWidth(), bb.getHeight(), mAABB.center());
+    mAABB = bb;
     mPinfo = pi;
     flags.dirty = true;
 }
