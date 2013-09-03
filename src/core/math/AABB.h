@@ -100,13 +100,13 @@ struct AABB
     inline void
     getCenter(Vector2& center) const
     {
-        center.x = (br.x - tl.x) * 0.5f;
-        center.y = (tl.y - br.y) * 0.5f;
+        center.x = (br.x + tl.x) * 0.5f;
+        center.y = (tl.y + br.y) * 0.5f;
     }
     inline Vector2
     center(void) const
     {
-        return Vector2((br.x - tl.x) * 0.5f, (tl.y - br.y) * 0.5f);
+        return Vector2((br.x + tl.x) * 0.5f, (tl.y + br.y) * 0.5f);
     }
 
 

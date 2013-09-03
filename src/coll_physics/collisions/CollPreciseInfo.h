@@ -62,7 +62,16 @@ public:
     static CollPreciseInfo*
     createPolygonPrecise(const core::Vector2* vertices, unsigned int count);
 
-    // TODO: implement createCircle, createChain, createEdge
+    // @brief Construct a Circle shape for a given radius and will set its position
+    //        where the parameter position indicates.
+    // @param radius    The radius of the circle to be used.
+    // @param position  The position of the circle.
+    // @returns 0 on error | the CollPreciseInfo object on success.
+    //
+    static CollPreciseInfo*
+    createCirclePrecise(float radius, const core::Vector2& position);
+
+    // TODO: implement createChain, createEdge
     //
 
 private:

@@ -7,7 +7,7 @@
 
 #include "CollPreciseInfo.h"
 
-
+#include <Box2D/Collision/Shapes/b2CircleShape.h>
 
 
 
@@ -22,6 +22,8 @@ calculateBoundingBox(const core::Vector2* vertices, unsigned int count)
 {
     ASSERT(count > 0);
     core::AABB result;
+    result.tl = vertices[0];
+    result.br = vertices[0];
     for (unsigned int i = 0; i < count; ++i) {
         const core::Vector2& c = vertices[i];
         result.increaseToContain(c);
@@ -62,6 +64,22 @@ CollPreciseInfo::createPolygonPrecise(const core::Vector2* vertices, unsigned in
 
     // set the transformation
     result->setPosition(center);
+
+    return result;
+}
+
+CollPreciseInfo*
+CollPreciseInfo::createCirclePrecise(float radius, const core::Vector2& position)
+{
+    if (radius <= 0.f) {
+        debugERROR("Invalid radius: %f\n", radius);
+        return 0;
+    }
+
+    b2CircleShape* shape = new b2CircleShape;
+    shape->m_radius = radius;
+    CollPreciseInfo* result = new CollPreciseInfo(shape);
+    result->setPosition(position);
 
     return result;
 }

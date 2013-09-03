@@ -326,6 +326,8 @@ inline void
 CollObject::setAngle(const float angle)
 {
     if (mPinfo) {
+        debugERROR("We are not currently supporting this because the maximum AABB "
+            "is not the real maximum AABB\n");
         mPinfo->setAngle(angle);
     }
 }

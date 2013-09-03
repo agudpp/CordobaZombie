@@ -8,9 +8,11 @@
 #include <algorithm>
 #include <vector>
 #include <set>
+#include <cmath>
 
 #include <UnitTest++/UnitTest++.h>
 
+#include <math/FloatComp.h>
 #include <types/basics.h>
 #include <types/StackVector.h>
 #include <types/StackQueue.h>
@@ -20,6 +22,7 @@
 #include <collisions/CollDefines.h>
 #include <collisions/CollObject.h>
 #include <collisions/CollPreciseInfo.h>
+#include <collisions/CollPreciseInfoBuilder.h>
 
 using namespace core;
 
@@ -29,6 +32,7 @@ typedef StackPriorityQueue<int, 512> SPQ512;
 typedef coll::CollisionHandler CH;
 typedef coll::CollObject CO;
 typedef coll::CollPreciseInfo CPI;
+typedef coll::CollPreciseInfoBuilder CPIB;
 typedef coll::QueryArgs QA;
 typedef coll::QueryResult QR;
 typedef core::AABB BB;
@@ -582,6 +586,121 @@ TEST(CheckArgumentQueries)
     debugERROR("TODO\n");
 }
 
+
+
+////////////////////////////////////////////////////////////////////////////////
+
+// Try to build different circles from a cloud of points
+TEST(CheckCollPreciseInfoBuilderCircle)
+{
+    {
+        core::Vector2 verts[6];
+        const float step6 = (2*M_PI) / 6;
+        for (int i = 0; i < 6; ++i) {
+            verts[i].x = 50.f * std::cos(i * step6);
+            verts[i].y = 50.f * std::sin(i * step6);
+        }
+
+        CPIB b;
+        b.setInfo(verts, 6, 0.1f);
+        CHECK_EQUAL(CPIB::Type::PIT_CIRCLE, b.getBestType());
+        CHECK_EQUAL(true, core::fcomp_equal(b.getRadius(), 50.f));
+    }
+    {
+        core::Vector2 verts[16];
+        const float step6 = (2*M_PI) / 16;
+        for (int i = 0; i < 16; ++i) {
+
+            verts[i].x = 150.f * std::cos(i * step6) + 0.01;
+            verts[i].y = 150.f * std::sin(i * step6) + 0.01;
+        }
+
+        CPIB b;
+        b.setInfo(verts, 16, 0.1f);
+        CHECK_EQUAL(CPIB::Type::PIT_CIRCLE, b.getBestType());
+        CHECK_EQUAL(true, core::fcomp_equal(b.getRadius(), 150.f));
+    }
+}
+
+// Try to build different AABB from a cloud of points
+TEST(CheckCollPreciseInfoBuilderAABB)
+{
+    {
+        // check a perfect AABB
+        core::Vector2 verts[4] = {
+            {0,0},
+            {10,0},
+            {10,10},
+            {0,10},
+        };
+
+        CPIB b;
+        b.setInfo(verts, 4, 0.1f);
+        CHECK_EQUAL(CPIB::Type::PIT_SIMPLE_AABB, b.getBestType());
+        const core::AABB& bb = b.getBoundingBox();
+        CHECK(core::fcomp_equal(bb.tl.x, 0));
+        CHECK(core::fcomp_equal(bb.tl.y, 10));
+        CHECK(core::fcomp_equal(bb.br.y, 0));
+        CHECK(core::fcomp_equal(bb.br.x, 10));
+    }
+    {
+        // little difference
+        core::Vector2 verts[4] = {
+            {0.1f, -0.1f},
+            {9.9f, 0.1f},
+            {10.1f, 10.1f},
+            {-0.1f, 9.9f},
+        };
+        CPIB b;
+        b.setInfo(verts, 4, 0.1f);
+        CHECK_EQUAL(CPIB::Type::PIT_SIMPLE_AABB, b.getBestType());
+        const core::AABB& bb = b.getBoundingBox();
+        CHECK(core::fcomp_equal(bb.tl.x, -0.1f));
+        CHECK(core::fcomp_equal(bb.tl.y, 10.1f));
+        CHECK(core::fcomp_equal(bb.br.y, -0.1f));
+        CHECK(core::fcomp_equal(bb.br.x, 10.1f));
+    }
+    {
+        // multiple points but occupying almost all the area
+        core::Vector2 verts[8] = {
+            {0.f, 0.f},
+            {5.f, 0.1f},
+            {10.f, 0.f},
+            {15.f, 0.3f},
+            {15.4f, 18.f},
+            {15.f, 25.f},
+            {7.f, 24.9f},
+            {0.1f, 24.8f},
+        };
+        CPIB b;
+        b.setInfo(verts, 8, 0.1f);
+        CHECK_EQUAL(CPIB::Type::PIT_SIMPLE_AABB, b.getBestType());
+        const core::AABB& bb = b.getBoundingBox();
+        CHECK(core::fcomp_equal(bb.tl.x, 0.f));
+        CHECK(core::fcomp_equal(bb.tl.y, 25.f));
+        CHECK(core::fcomp_equal(bb.br.y, 0.f));
+        CHECK(core::fcomp_equal(bb.br.x, 15.4f));
+    }
+
+    {
+        // create an invalid BB and check that we are not getting that
+        core::Vector2 verts[4] = {
+            {0.f, 15.f},
+            {20.0f, 0.f},
+            {30.0f, 14.0f},
+            {13.0f, 30.0f},
+        };
+        CPIB b;
+        b.setInfo(verts, 4, 0.1f);
+        CHECK(CPIB::Type::PIT_SIMPLE_AABB != b.getBestType());
+    }
+}
+
+// Try to build different a polygon structure from a cloud of points
+TEST(CheckCollPreciseInfoBuilderPolygon)
+{
+
+}
 
 
 int
