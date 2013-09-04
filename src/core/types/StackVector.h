@@ -108,6 +108,12 @@ public:
     inline void
     disorder_remove(unsigned int i);
 
+    // @brief Erase an element from the array maintaining the order
+    // @param i         The i-th element we wanto to remove (i < size).
+    //
+    inline void
+    erase(unsigned int i);
+
     // @brief Returns the pointers for the begin position and the end position
     //
     inline T*
@@ -263,6 +269,21 @@ StackVector<T,MAX_SIZE>::disorder_remove(unsigned int i)
     ASSERT(i < mSize);
     mData[i] = back();
     pop_back();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+template <typename T, unsigned int MAX_SIZE>
+inline void
+StackVector<T,MAX_SIZE>::erase(unsigned int i)
+{
+    ASSERT(i < mSize);
+    //std::memcpy(mData + i, mData + i + 1, sizeof(T) * (mSize - i));
+    T* beg = begin() + i, *last = end() - 1;
+    while (beg != last) {
+        *beg = *(beg+1);
+        ++beg;
+    }
+    --mSize;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

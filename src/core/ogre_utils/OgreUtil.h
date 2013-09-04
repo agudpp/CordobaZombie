@@ -38,7 +38,20 @@ getMeshInformation(const Ogre::Mesh* const mesh,
                    unsigned long* indices,
                    const Ogre::Matrix4& transform = Ogre::Matrix4::IDENTITY);
 
-
+// @brief Remove all the duplicated vertices and re-organize the triangles to
+//        maintain the same structure.
+// @param vertices      The list of vertices to manipulate
+// @param vCount        The number of vertices
+// @param indices       The indices conforming the triangles
+// @param iCount        The number of indices
+// @note that we will modify that values, so if you cannot modify them do a
+//       copy before calling this method.
+//
+void
+removeDuplicated(Ogre::Vector3* vertices,
+                 unsigned int& vCount,
+                 unsigned long* indices,
+                 unsigned int& iCount);
 
 } /* namespace OgreUtil */
 } /* namespace core */

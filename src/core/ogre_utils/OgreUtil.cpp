@@ -10,13 +10,30 @@
 #include <OgreSubMesh.h>
 #include <OgreMesh.h>
 
+#include <set>
+#include <bitset>
+#include <cmath>
+
 #include <debug/DebugUtil.h>
+#include <types/StackVector.h>
+#include <math/FloatComp.h>
 
 
 // Helper methods
 //
 namespace {
 
+// @brief Check if two vertices are equal or not using an epsilon as the
+//        maximum squared distance between these two vertices to be considered
+//        them as equals
+//
+inline bool
+areVerticesEqual(const Ogre::Vector3& v1,
+                 const Ogre::Vector3& v2,
+                 float epsilon = FLOAT_COMP_THRESHOLD)
+{
+    return (v1.squaredDistance(v2) < epsilon);
+}
 
 }
 
@@ -149,6 +166,96 @@ getMeshInformation(const Ogre::Mesh* const mesh,
     }
 
     return true;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void
+removeDuplicated(Ogre::Vector3* vertices,
+                 unsigned int& vCount,
+                 unsigned long* indices,
+                 unsigned int& iCount)
+{
+    ASSERT(vertices);
+    ASSERT(indices);
+    if (vCount == 0) {
+        debugWARNING("You are trying to remove duplicated from a empty list?\n");
+        return;
+    }
+
+    // We will do an slow algorithm here but easy to implement.
+    //
+    ASSERT(vCount < 1024 && "To much vertices?\n");
+    core::StackVector<unsigned int, 1024> modifiedIndices;
+    core::StackVector<Ogre::Vector3, 1024> verts;
+    std::set<unsigned int> toRemove;
+    modifiedIndices.resize(vCount);
+    for (unsigned int i = 0; i < vCount; ++i) {
+        modifiedIndices[i] = i;
+    }
+
+    // copy the verts
+    for (unsigned int i = 0; i < vCount; ++i) {
+        verts.push_back(vertices[i]);
+    }
+
+    // now we will remove all the vertices we consider equal
+    for (unsigned int i = 0; i < vCount; ++i) {
+        for (unsigned int j = i+1; j < vCount; ++j) {
+            if (areVerticesEqual(verts[i], verts[j])) {
+                // we will remove this position and let the index to be pointing
+                // to the ith element since is the same than this one (jth).
+                modifiedIndices[j] = std::min(modifiedIndices[i], modifiedIndices[j]);
+                if (modifiedIndices[j] < modifiedIndices[i]) {
+                    modifiedIndices[i] = modifiedIndices[j];
+                    toRemove.insert(i);
+                }
+                toRemove.insert(j);
+            }
+        }
+    }
+
+    // now we will remove each vertex from the array and update for each case
+    // the indices
+    unsigned int offset = 0;
+    for (std::set<unsigned int>::iterator it = toRemove.begin(), endIt = toRemove.end();
+            it != endIt; ++it) {
+        const unsigned int currentIndex = *it - offset;
+        verts.erase(currentIndex);
+
+        // now update the modified indices for each case
+        unsigned int begin = *it+1;
+        for (; begin < modifiedIndices.size(); ++begin) {
+            if (modifiedIndices[begin] >= currentIndex) {
+                modifiedIndices[begin] -= 1;
+            }
+        }
+        ++offset;
+    }
+
+    // now we will remove all the vertices that are duplicated, to do this we
+    unsigned int newVCount = vCount - toRemove.size();
+#ifdef DEBUG
+    // we will ensure that all the vertices are pointing to the first newVCount
+    // vertices
+    //
+    for (unsigned int i = 0; i < vCount; ++i) {
+        if (modifiedIndices[i] >= newVCount) {
+            debugRED("modifiedIndices[%d]: %d, newVCount: %d\n", i, modifiedIndices[i], newVCount);
+        }
+        ASSERT(modifiedIndices[i] < newVCount);
+    }
+#endif
+    // we will update the triangles also, to point to the unique indices
+    for (unsigned int i = 0; i < iCount; ++i) {
+        ASSERT(indices[i] < vCount);
+        ASSERT(modifiedIndices[indices[i]] < newVCount);
+        indices[i] = modifiedIndices[indices[i]];
+    }
+
+    // now we update the indices
+    vCount = newVCount;
+    // copy again the memory into vertices
+    std::memcpy(vertices, verts.begin(), sizeof(Ogre::Vector3) * vCount);
 }
 
 
