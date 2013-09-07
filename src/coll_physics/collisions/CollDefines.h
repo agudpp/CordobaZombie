@@ -48,7 +48,8 @@ enum DetectType {
 
 enum PrecisionType {
     CQ_BoundingBox          = (1 << 0), // Bounding box only
-    CQ_CollPoints           = (1 << 1), // Detect collision points also
+    CQ_PreciseCheck         = (1 << 1), // Overlapping check using precise info
+    CQ_CollPoints           = (1 << 2), // Detect collision points also
 };
 
 struct QueryArgs {

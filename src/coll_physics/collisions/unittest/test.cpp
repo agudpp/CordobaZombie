@@ -583,7 +583,10 @@ TEST(CheckDynamicStaticCollisions)
 // check different argument queries (for more precision information)
 TEST(CheckArgumentQueries)
 {
-    debugERROR("TODO\n");
+    // Check for precise overlappings
+
+
+    debugERROR("TODO: other collisions types, with points\n");
 }
 
 
@@ -699,7 +702,133 @@ TEST(CheckCollPreciseInfoBuilderAABB)
 // Try to build different a polygon structure from a cloud of points
 TEST(CheckCollPreciseInfoBuilderPolygon)
 {
+    CH ch;
+    QA args;
+    QR result;
+    BB bb(200,0,0,200);
+    CPIB b(&ch);
 
+    ch.setWorldBoundingBox(bb);
+
+    // Test one triangle and a bb
+    //  1) Move the triangle
+    //  2) Move the bb
+    core::Vector2 tri1[3] = {
+        {5,5},
+        {20,8},
+        {15,20},
+    };
+    core::Vector2 bb1[4] = {
+        {25,8},
+        {35,8},
+        {35,20},
+        {25,20}
+    };
+
+    b.setInfo(tri1, 3, 0.1f);
+    CHECK_EQUAL(CPIB::Type::PIT_POLYGON, b.getBestType());
+    CO* otri1 = b.constructCollObject();
+    CHECK(otri1 != 0);
+
+    b.setInfo(bb1, 4, 0.1f);
+    CHECK_EQUAL(CPIB::Type::PIT_SIMPLE_AABB, b.getBestType());
+    CO* obb1 = b.constructCollObject();
+    CHECK(obb1 != 0);
+
+    // add them and check for collisions, should be false
+    ch.coAddDynamic(otri1);
+    ch.coAddDynamic(obb1);
+    CHECK_EQUAL(false, ch.performQuery(obb1, args, result));
+    CHECK_EQUAL(false, ch.performQuery(otri1, args, result));
+
+    args.ptype = coll::PrecisionType::CQ_PreciseCheck;
+    CHECK_EQUAL(false, ch.performQuery(obb1, args, result));
+    CHECK_EQUAL(false, ch.performQuery(otri1, args, result));
+
+    // move the polygon and check again
+    otri1->translate(core::Vector2(7,0));
+    ch.update();
+    args.ptype = coll::PrecisionType::CQ_BoundingBox;
+    CHECK_EQUAL(true, ch.performQuery(obb1, args, result));
+    CHECK_EQUAL(1, result.objects.size());
+    CHECK_EQUAL(otri1, result.objects.back());
+    CHECK_EQUAL(true, ch.performQuery(otri1, args, result));
+    CHECK_EQUAL(1, result.objects.size());
+    CHECK_EQUAL(obb1, result.objects.back());
+
+    args.ptype = coll::PrecisionType::CQ_PreciseCheck;
+    CHECK_EQUAL(true, ch.performQuery(obb1, args, result));
+    CHECK_EQUAL(1, result.objects.size());
+    CHECK_EQUAL(otri1, result.objects.back());
+    CHECK_EQUAL(true, ch.performQuery(otri1, args, result));
+    CHECK_EQUAL(1, result.objects.size());
+    CHECK_EQUAL(obb1, result.objects.back());
+
+    // move it a little bit up and they shouldn't collide anymore, only with bb
+    otri1->translate(core::Vector2(0,-9));
+    ch.update();
+    args.ptype = coll::PrecisionType::CQ_BoundingBox;
+    CHECK_EQUAL(true, ch.performQuery(obb1, args, result));
+    CHECK_EQUAL(1, result.objects.size());
+    CHECK_EQUAL(otri1, result.objects.back());
+    CHECK_EQUAL(true, ch.performQuery(otri1, args, result));
+    CHECK_EQUAL(1, result.objects.size());
+    CHECK_EQUAL(obb1, result.objects.back());
+
+    args.ptype = coll::PrecisionType::CQ_PreciseCheck;
+    CHECK_EQUAL(false, ch.performQuery(obb1, args, result));
+    CHECK_EQUAL(false, ch.performQuery(otri1, args, result));
+
+    // remove the bounding box
+    ch.coRemoveDynamic(obb1);
+    otri1->translate(core::Vector2(-7, 9)); // put the triangle1 in the same pos
+
+    // test a triangle and another triangle
+    //  1) Move the triangle 1
+    //  2) Move the triangle 2
+    core::Vector2 tri2[3] = {
+        {6,18},
+        {22,19},
+        {15,40},
+    };
+
+    b.setInfo(tri2, 3, 0.1f);
+    CHECK_EQUAL(CPIB::Type::PIT_POLYGON, b.getBestType());
+    CO* otri2 = b.constructCollObject();
+    CHECK(otri2 != 0);
+    ch.coAddDynamic(otri2);
+
+    // they should collide now
+    ch.update();
+    args.ptype = coll::PrecisionType::CQ_BoundingBox;
+    CHECK_EQUAL(true, ch.performQuery(otri1, args, result));
+    CHECK_EQUAL(1, result.objects.size());
+    CHECK_EQUAL(otri2, result.objects.back());
+    CHECK_EQUAL(true, ch.performQuery(otri2, args, result));
+    CHECK_EQUAL(1, result.objects.size());
+    CHECK_EQUAL(otri1, result.objects.back());
+
+    args.ptype = coll::PrecisionType::CQ_PreciseCheck;
+    CHECK_EQUAL(true, ch.performQuery(otri1, args, result));
+    CHECK_EQUAL(1, result.objects.size());
+    CHECK_EQUAL(otri2, result.objects.back());
+    CHECK_EQUAL(true, ch.performQuery(otri2, args, result));
+    CHECK_EQUAL(1, result.objects.size());
+    CHECK_EQUAL(otri1, result.objects.back());
+
+    // move a little bit to detect the bb collisions but not precise
+    otri2->translate(core::Vector2(-8, 0));
+    args.ptype = coll::PrecisionType::CQ_BoundingBox;
+    CHECK_EQUAL(true, ch.performQuery(otri1, args, result));
+    CHECK_EQUAL(1, result.objects.size());
+    CHECK_EQUAL(otri2, result.objects.back());
+    CHECK_EQUAL(true, ch.performQuery(otri2, args, result));
+    CHECK_EQUAL(1, result.objects.size());
+    CHECK_EQUAL(otri1, result.objects.back());
+
+    args.ptype = coll::PrecisionType::CQ_PreciseCheck;
+    CHECK_EQUAL(false, ch.performQuery(otri1, args, result));
+    CHECK_EQUAL(false, ch.performQuery(otri2, args, result));
 }
 
 

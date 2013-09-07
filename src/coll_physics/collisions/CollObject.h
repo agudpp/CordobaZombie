@@ -84,6 +84,19 @@ public:
     inline void
     setPreciseInfo(CollPreciseInfo* pi);
 
+    // @brief Destroy the current precise info (this is the same that
+    //        call setPreciseInfo(0).
+    //
+    inline void
+    destroyPreciseInfo(void);
+
+    // @brief Return the ID identifying this element in the associated
+    //        CollisionHandler (where it was created). This ID is unique
+    //        and should be between [0, collHandler.MaxNumObjects)
+    // @returns the unique ID
+    //
+    inline index_t
+    ID(void) const;
 
     ////////////////////////////////////////////////////////////////////////////
     // Movement functions
@@ -290,6 +303,17 @@ CollObject::setPreciseInfo(CollPreciseInfo* pi)
     mPinfo = pi;
     flags.dirty = true;
 }
+inline void
+CollObject::destroyPreciseInfo(void)
+{
+    setPreciseInfo(0);
+}
+
+inline index_t
+CollObject::ID(void) const
+{
+    return id;
+}
 
 ////////////////////////////////////////////////////////////////////////////
 // Movement functions
@@ -319,6 +343,9 @@ CollObject::translate(const core::Vector2& tvec)
     // already translated to be in the center position (contains the offset).
     //
     mAABB.translate(tvec);
+    if (mPinfo) {
+        mPinfo->setPosition(mAABB.center());
+    }
     flags.dirty = true;
 }
 

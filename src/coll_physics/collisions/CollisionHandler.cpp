@@ -171,7 +171,9 @@ CollisionHandler::getNewCollObject(mask_t mask,
     obj->setMask(mask);
     obj->setUserDef(userDef);
     obj->setBoundingBox(aabb);
-    obj->setUserDef(pi);
+    if (pi) {
+        obj->setPreciseInfo(pi);
+    }
 
     return obj;
 }
@@ -422,9 +424,21 @@ CollisionHandler::performQuery(CollObject* co,
     }
 
     // now we should check if we need to do a more precise checking
-    if (args.ptype & PrecisionType::CQ_CollPoints) {
-        // yes we should
-        ASSERT(false && "We need to implement this!!!!"); // TODO
+    if (args.ptype & PrecisionType::CQ_PreciseCheck) {
+        if (args.ptype & PrecisionType::CQ_CollPoints) {
+            // yes we should
+            ASSERT(false && "We need to implement this!!!!"); // TODO
+        } else {
+            // we only need to check for overlappings, it is a little more easy
+            QueryResultVec& objs = result.objects;
+            for (unsigned int i = 0; i < objs.size(); ++i) {
+                if (!(objs[i]->collidePrecise(*co))) {
+                    // remove this one
+                    objs.disorder_remove(i);
+                    --i;
+                }
+            }
+        }
     }
 
     return !result.objects.empty();

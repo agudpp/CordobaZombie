@@ -50,6 +50,12 @@ struct Primitive {
         ASSERT(node);
         node->setVisible(visible);
     }
+    inline void
+    flipVisibility()
+    {
+        ASSERT(node);
+        return node->flipVisibility();
+    }
 
     // @brief Set an specific color for this Primitive
     // @param color     The RGBA values to be set (between 0 and 1)
@@ -62,6 +68,15 @@ struct Primitive {
     //
     void
     setAlpha(Ogre::Real alpha);
+
+    // @brief translate the primitive
+    // @param t     The translation vector
+    inline void
+    translate(const Ogre::Vector3& t)
+    {
+        ASSERT(node);
+        node->translate(t);
+    }
 
     // internal purposes
     unsigned int id;

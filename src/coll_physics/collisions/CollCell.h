@@ -232,6 +232,23 @@ CollCell::getCollidingObjects(CollObject* co,
 
     // check for static first
     if ((dt & DetectType::CQ_Statics) && mStaticCount > 0) {
+        for (std::vector<CollObject* >::iterator beg = mObjects.begin(),
+                end = mObjects.begin() + mStaticCount; beg != end; ++beg) {
+            CollObject* other = *beg;
+            if (other->isCollisionsEnabled() &&   // check if is enable for collisions
+                other != co &&                    // it is not the same object
+                !(bitset[other->id]) &&           // the object was not set already
+                (other->mask() & mask) &&         // matches with the mask
+                 (other->boundingBox().collide(co->boundingBox())) // collide the bb's
+                 ) {
+                result.push_back(other); // put this into the resulting vector
+                bitset.mark(other->id);  // mark it to avoid duplications
+            }
+        }
+
+
+        /*
+         *  TODO: this shit is not working properly!
         // we will do not a binary search here but we will start from the middle
         // and check until we need.
         const unsigned int middle = mStaticCount >> 1; // = mStaticCount / 2
@@ -270,7 +287,7 @@ CollCell::getCollidingObjects(CollObject* co,
                     bitset.mark(other->id);  // mark it to avoid duplications
                 }
             }
-        }
+        }*/
     }
 
     // check for dynamics now

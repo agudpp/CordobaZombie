@@ -14,6 +14,9 @@
 #include <math/AABB.h>
 
 #include "CollPreciseInfo.h"
+#include "CollisionHandler.h"
+
+
 
 
 namespace coll {
@@ -26,6 +29,11 @@ namespace coll {
 //        We will also give some helper functions to check if the object could
 //        be mapped into a BB without losing too much precision.
 //
+
+
+// Forward
+//
+class CollObject;
 
 class CollPreciseInfoBuilder
 {
@@ -41,7 +49,10 @@ public:
 
 
 public:
-    CollPreciseInfoBuilder();
+    // Construct the builder with the current handler to be used to build the
+    // collision objects
+    //
+    CollPreciseInfoBuilder(CollisionHandler* ch = 0);
     ~CollPreciseInfoBuilder();
 
     // @brief Set a list of vertices to analyze that conform the collision object.
@@ -67,7 +78,7 @@ public:
     void
     setInfo(const core::Vector2* vertices,
             unsigned int count,
-            float errFactor = 5.f);
+            float errFactor = 0.1f);
 
     // @brief Get which is the best type of box2D shape used for this or if we
     //        just can use a simple AABB or other thing.
@@ -97,6 +108,17 @@ public:
     //
     CollPreciseInfo*
     constructPreciseInfo(void) const;
+
+    // @brief Construct a collision object using the associated collision handler
+    //        and return the correct object.
+    //        This means if the object is not only an AABB we will construct its
+    //        PreciseInfo and associate it to the resulting CollObject.
+    // @returns the collObject associated to the CollisionHandler on success
+    //          | 0 otherwise
+    // @note that the mask will be set to ~0 and user define = 0
+    //
+    CollObject*
+    constructCollObject(void) const;
 
 
 private:
@@ -185,6 +207,7 @@ private:
     float mRadius;
     const core::Vector2* mVertices;
     unsigned int mCount;
+    CollisionHandler* mCollHandler;
 };
 
 

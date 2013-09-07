@@ -89,6 +89,12 @@ public:
     inline bool
     exists(const CollObject* co) const;
 
+    // @brief Return the maximum number of objects that we can track at the same
+    //        time (statics + dynamic).
+    //
+    inline unsigned int
+    maxNumberObjects(void) const;
+
     ////////////////////////////////////////////////////////////////////////////
     //                          CollObject functions                          //
     ////////////////////////////////////////////////////////////////////////////
@@ -243,6 +249,12 @@ CollisionHandler::exists(const CollObject* co) const
     ASSERT(co);
     return co->id < mCollObjects.size &&
         (&(mCollObjects[co->id]) == co);
+}
+
+inline unsigned int
+CollisionHandler::maxNumberObjects(void) const
+{
+    return MAX_NUM_COLLOBJECTS;
 }
 
 inline const core::AABB&

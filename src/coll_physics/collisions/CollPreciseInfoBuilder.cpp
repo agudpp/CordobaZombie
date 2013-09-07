@@ -11,6 +11,8 @@
 
 #include <debug/DebugUtil.h>
 
+#include "CollObject.h"
+
 namespace coll {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -111,15 +113,11 @@ CollPreciseInfoBuilder::isCircle(const core::Vector2* vertices,
 
     // we now check for the error
     float maxError = maxDist - minDist;
-    debugGREEN("maxDist: %f, minDist: %f, maxError: %f, sqredErr: %f\n",
-        maxDist, minDist, maxError, sqredErr);
     if (maxError <= sqredErr) {
         // now we have to check if the distance between different points is almost
         // the same... if not, we cannot ensure that this is a circle...
         getMinDistancesBetweenPoints(vertices, count, maxDist, minDist);
         maxError = maxDist - minDist;
-        debugGREEN("SECOND: maxDist: %f, minDist: %f, maxError: %f, sqredErr: %f\n",
-            maxDist, minDist, maxError, sqredErr);
         if (maxError <= sqredErr) {
             // we can consider this object as if it were a circle
             mType = Type::PIT_CIRCLE;
@@ -146,10 +144,11 @@ CollPreciseInfoBuilder::isAABB(const core::Vector2* vertices,
     //
 
     float xMult = 0, yMult = 0;
-    for (unsigned int i = 0, size = count - 1; i < count; ++i) {
+    for (unsigned int i = 0, size = count - 1; i < size; ++i) {
         xMult += vertices[i].x * vertices[i+1].y;
         yMult += vertices[i].y * vertices[i+1].x;
     }
+
     xMult += vertices[count-1].x * vertices[0].y;
     yMult += vertices[count-1].y * vertices[0].x;
 
@@ -159,9 +158,6 @@ CollPreciseInfoBuilder::isAABB(const core::Vector2* vertices,
     ASSERT(polyArea > 0);
     const float factor = (bbArea - polyArea) / bbArea;
 
-
-    debugBLUE("polyArea: %f, bbArea: %f, factor*factor: %f, sqrdErr: %f\n",
-        polyArea, bbArea, factor*factor, sqredErr);
     if ((factor*factor) <= sqredErr) {
         // we can ensure that the object will be well fitted into an AABB.
         mType = Type::PIT_SIMPLE_AABB;
@@ -175,9 +171,10 @@ CollPreciseInfoBuilder::isAABB(const core::Vector2* vertices,
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-CollPreciseInfoBuilder::CollPreciseInfoBuilder() :
+CollPreciseInfoBuilder::CollPreciseInfoBuilder(CollisionHandler* ch) :
     mVertices(0)
 ,   mCount(0)
+,   mCollHandler(ch)
 {
 
 }
@@ -208,7 +205,6 @@ CollPreciseInfoBuilder::setInfo(const core::Vector2* vertices,
 
     // we will calculate the BB and the distances for the vertices
     mBB = calculateBB(vertices, count);
-    std::cout << "BoundingBox calculated: " << mBB << std::endl;
 
     // check if it is a AABB
     if (isAABB(vertices, count, errFactor)) {
@@ -239,11 +235,43 @@ CollPreciseInfoBuilder::constructPreciseInfo(void) const
 
     // try to build the object then
     if (mType == Type::PIT_CIRCLE) {
+        debugGREEN("Constructing a Precise Info circle object!\n");
         return CollPreciseInfo::createCirclePrecise(mRadius, mBB.center());
     } else if (mType == Type::PIT_POLYGON) {
+        debugGREEN("Constructing a Precise Info polygon object!\n");
         return CollPreciseInfo::createPolygonPrecise(mVertices, mCount);
     }
 
+}
+
+////////////////////////////////////////////////////////////////////////////////
+CollObject*
+CollPreciseInfoBuilder::constructCollObject(void) const
+{
+    if (mVertices == 0 || mCount == 0) {
+        debugERROR("No vertices where set to build this object\n");
+        return 0;
+    }
+
+    if (mCollHandler == 0) {
+        debugERROR("No collisionHandler set to construct objects!\n");
+        return 0;
+    }
+
+    // check if we have to build only with and AABB or with precise info
+    const bool constructPrecise = mType != Type::PIT_SIMPLE_AABB;
+    CollPreciseInfo* pi = 0;
+    if (constructPrecise) {
+        pi = constructPreciseInfo();
+        if (pi == 0) {
+            return 0;
+        }
+    } else {
+        debugGREEN("Constructing a simple AABB object!\n");
+    }
+
+    CollObject* result = mCollHandler->getNewCollObject(~0, mBB, 0, pi);
+    return result;
 }
 
 } /* namespace coll */

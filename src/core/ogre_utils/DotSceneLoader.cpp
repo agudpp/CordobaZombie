@@ -608,7 +608,6 @@ DotSceneLoader::processEntity(TiXmlElement *XMLNode, SceneNode *pParent)
         pEntity = mSceneMgr->createEntity(name, meshFile);
         pEntity->setCastShadows(castShadows);
         pParent->attachObject(pEntity);
-        pParent->showBoundingBox(true);
 
         if (!materialFile.empty())
             pEntity->setMaterialName(materialFile);
