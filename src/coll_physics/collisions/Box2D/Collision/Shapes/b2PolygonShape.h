@@ -30,6 +30,13 @@ class b2PolygonShape : public b2Shape
 public:
 	b2PolygonShape();
 
+	// added method to construct this polygon to be a box (with a dummy
+	// parameter just to differentiate the other constructor. This method
+	// will construct the polygon as a box with a size of 5x5, that should be
+	// changed later calling updateBox().
+	//
+	b2PolygonShape(bool box);
+
 	/// Implement b2Shape.
 	b2Shape* Clone(b2BlockAllocator* allocator) const;
 
@@ -40,6 +47,13 @@ public:
 	/// It is assumed that the exterior is the the right of each edge.
 	/// The count must be in the range [3, b2_maxPolygonVertices].
 	void Set(const b2Vec2* vertices, int32 vertexCount);
+
+	// This method will be used to update the positions of the box, without doing
+	// all the other stuff.
+	// @param tl    The top left vertex
+	// @param br    The bottom right vertex
+	//
+	inline void updateBox(const b2Vec2& tl, const b2Vec2& br);
 
 	/// Build vertices to represent an axis-aligned box.
 	/// @param hx the half-width.
@@ -84,6 +98,24 @@ inline b2PolygonShape::b2PolygonShape()
 	m_radius = b2_polygonRadius;
 	m_vertexCount = 0;
 	m_centroid.SetZero();
+}
+
+inline b2PolygonShape::b2PolygonShape(bool box)
+{
+    m_type = e_polygon;
+    m_radius = b2_polygonRadius;
+    m_vertexCount = 0;
+    m_centroid.SetZero();
+    SetAsBox(5,5);
+}
+
+inline void
+b2PolygonShape::updateBox(const b2Vec2& tl, const b2Vec2& br)
+{
+    m_vertices[0].Set(tl.x, br.y);
+    m_vertices[1].Set(br.x, br.y);
+    m_vertices[2].Set(br.x, tl.y);
+    m_vertices[3].Set(tl.x, tl.y);
 }
 
 inline const b2Vec2& b2PolygonShape::GetVertex(int32 index) const

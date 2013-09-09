@@ -192,18 +192,9 @@ inline bool
 CollPreciseInfo::checkOverlap(const core::AABB& bb) const
 {
     ASSERT(shape);
-    // TODO: probably this could be improved since bb is an axis aligned bounding
-    //       box... here we are creating a polygon structure unnecessarily
-    // issue: #00107
-    b2PolygonShape b2BoundingBox;
-    b2Transform t;
-    t.SetIdentity();
-    b2Vec2 vertices[4];
-    vertices[0].Set(bb.tl.x, bb.tl.y);
-    vertices[1].Set(bb.tl.x, bb.br.y);
-    vertices[2].Set(bb.br.x, bb.br.y);
-    vertices[3].Set(bb.br.x, bb.tl.y);
-    b2BoundingBox.Set(vertices, 4);
+    static b2PolygonShape b2BoundingBox(true); // construct the bb
+    static b2Transform t(b2Vec2(0,0), b2Rot(0));
+    b2BoundingBox.updateBox(b2Vec2(bb.tl.x, bb.tl.y), b2Vec2(bb.br.x, bb.br.y));
     return b2TestOverlap(shape, 0, &b2BoundingBox, 0, transform, t);
 }
 

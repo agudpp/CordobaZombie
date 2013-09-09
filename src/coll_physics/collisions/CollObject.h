@@ -84,8 +84,7 @@ public:
     inline void
     setPreciseInfo(CollPreciseInfo* pi);
 
-    // @brief Destroy the current precise info (this is the same that
-    //        call setPreciseInfo(0).
+    // @brief Destroy the current precise info.
     //
     inline void
     destroyPreciseInfo(void);
@@ -97,6 +96,17 @@ public:
     //
     inline index_t
     ID(void) const;
+
+    // @brief Check if this CollObject is already on the collision world or not
+    //
+    inline bool
+    isInCollisionWorld(void) const;
+
+    // @brief Check if this object is static or dynamic. Note that this will only
+    //        be valid if the object was already added to the collision world.
+    //
+    inline bool
+    isStatic(void) const;
 
     ////////////////////////////////////////////////////////////////////////////
     // Movement functions
@@ -171,6 +181,8 @@ private:
     struct Flags {
         unsigned char enabled : 1;
         unsigned char dirty : 1;
+        unsigned char isStatic : 1;
+        unsigned char onWorld : 1;
     };
 
     // constructor / destructor
@@ -306,7 +318,7 @@ CollObject::setPreciseInfo(CollPreciseInfo* pi)
 inline void
 CollObject::destroyPreciseInfo(void)
 {
-    setPreciseInfo(0);
+    delete mPinfo; mPinfo = 0;
 }
 
 inline index_t
@@ -314,6 +326,19 @@ CollObject::ID(void) const
 {
     return id;
 }
+
+inline bool
+CollObject::isInCollisionWorld(void) const
+{
+    return flags.onWorld;
+}
+
+inline bool
+CollObject::isStatic(void) const
+{
+    return flags.isStatic;
+}
+
 
 ////////////////////////////////////////////////////////////////////////////
 // Movement functions

@@ -237,6 +237,8 @@ CollisionHandler::coAddStatic(CollObject* sco)
 
 
     sco->flags.enabled = true;
+    sco->flags.onWorld = true;
+    sco->flags.isStatic = true;
 
     // note that we don't need to analyze any static object because it is impossible
     // that it can change (if not, is not an static object).
@@ -257,7 +259,7 @@ CollisionHandler::coRemoveStatic(CollObject* sco)
         (*beg)->removeStatic(sco);
     }
 
-
+    sco->flags.onWorld = false;
     sco->flags.enabled = false;
 }
 
@@ -283,6 +285,8 @@ CollisionHandler::coAddDynamic(CollObject* dco)
 
     // enable collisions
     dco->flags.enabled = true;
+    dco->flags.onWorld = true;
+    dco->flags.isStatic = false;
 
     // we will also add the last bounding box of this object used when we add
     // it in the cells
@@ -306,6 +310,7 @@ CollisionHandler::coRemoveDynamic(CollObject* dco)
 
     // disable collisions
     dco->flags.enabled = false;
+    dco->flags.onWorld = false;
 
     // remove it from the current objects to analyze
     const int index = findObject(dco);
@@ -355,7 +360,7 @@ CollisionHandler::update(void)
     while (objBeg != objEnd) {
         ASSERT(objBeg);
         CollObject* current = *objBeg;
-        if (current->flags.dirty) {
+        if (current->flags.dirty && current->flags.enabled) {
             // we need to update this one
             indices.clear();
             checkForIntersections(mOldAABB[current->id],
