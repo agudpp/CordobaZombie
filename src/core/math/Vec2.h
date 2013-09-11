@@ -230,6 +230,23 @@ struct Vector2
         return rotateRadians(DEG_TO_RAD_FAC * degrees);
     }
 
+    // @brief truncate the length to an specific one if and only if the current
+    //        length is greater than len.
+    // @param maxSqrLen   The max squared length to truncate.
+    //
+    inline void
+    truncate(float maxSqrLen)
+    {
+        const float sqrLen = squaredLength();
+        if (sqrLen < maxSqrLen) return;
+//        const float newLen = (maxSqrLen/sqrLen);
+//        x *= newLen;
+//        y *= newLen;
+        normalize();
+        x *= maxSqrLen;
+        y *= maxSqrLen;
+    }
+
     // For debugging printing
     //
     inline friend std::ostream& operator<<(std::ostream& o, const Vector2& v)

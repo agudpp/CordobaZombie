@@ -44,6 +44,8 @@ struct WayPointPath {
 
     core::uint32_t size;
     Vertex node[MAX_PATH_SIZE];
+
+    WayPointPath() : size(0) {}
 };
 
 }

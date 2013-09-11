@@ -8,13 +8,18 @@
 #ifndef COLLPRECISEINFO_H_
 #define COLLPRECISEINFO_H_
 
-#include <Box2D/Collision/Shapes/b2Shape.h>
-#include <Box2D/Collision/Shapes/b2PolygonShape.h>
-#include <Box2D/Common/b2Math.h>
+#include <collisions/Box2D/Collision/Shapes/b2Shape.h>
+#include <collisions/Box2D/Collision/Shapes/b2CircleShape.h>
+#include <collisions/Box2D/Collision/Shapes/b2PolygonShape.h>
+#include <collisions/Box2D/Collision/b2Distance.h>
+#include <collisions/Box2D/Common/b2Math.h>
+
 
 #include <math/Vec2.h>
 #include <math/AABB.h>
 #include <debug/DebugUtil.h>
+
+#include "CollDefines.h"
 
 namespace coll {
 
@@ -83,6 +88,10 @@ private:
     // The box2D shape
     b2Shape* shape;
 
+    // some static values used in the other methods
+    static b2PolygonShape b2BoundingBox; // construct the bb
+    static b2Transform identityTransf;
+
     CollPreciseInfo(b2Shape* s) :
         shape(s)
     {
@@ -133,8 +142,37 @@ private:
     // @brief Check if this shape collide with another one returning a list
     //        of points.
     // @param other     The other shape we want to check against
-    // @param
-    // TODO:
+    // @param result    The resulting list of collision points
+    // @return true if there are intersection points, false otherwise
+    //
+    inline bool
+    collidePoints(const CollPreciseInfo& other, CollPointVec& result) const;
+    inline bool
+    collidePoints(const core::AABB& other, CollPointVec& result) const;
+
+
+    // @brief Check if a point is inside the shape
+    // @param point     The point to test
+    // @return true if it is | false otherwise
+    //
+    inline bool
+    testPoint(const core::Vector2& point) const;
+
+    // @brief Get the closest point between a point (with a radius) and this
+    //        shape.
+    // @param center    The center of the circle
+    // @param radius    The radius of the circle (not squared).
+    // @param closestA  The closest point from this shape
+    // @param closestB  The closest point from the circle
+    // @param distance  The distance between both shapes
+    //
+    inline void
+    closestPoint(const core::Vector2& center,
+                 const float radius,
+                 core::Vector2& closestA,
+                 core::Vector2& closestB,
+                 float& distance) const;
+
 
 private:
     // avoid copying
@@ -173,10 +211,7 @@ CollPreciseInfo::setAngle(float angle)
 ////////////////////////////////////////////////////////////////////////////////
 // Box2D methods
 
-// @brief Check if this shapes overlaps with another (they are intersecting)
-// @param other     The other shape we want to check against.
-// @return true if they overlap, false otherwise
-//
+////////////////////////////////////////////////////////////////////////////////
 inline bool
 CollPreciseInfo::checkOverlap(const CollPreciseInfo& other) const
 {
@@ -184,18 +219,112 @@ CollPreciseInfo::checkOverlap(const CollPreciseInfo& other) const
     return b2TestOverlap(shape, 0, other.shape, 0, transform, other.transform);
 }
 
-// @brief Check if this shape overlaps with a bounding box or not.
-// @param bb        The bounding box we want to check against
-// @return true if overlaps the bb | false otherwise
-//
+////////////////////////////////////////////////////////////////////////////////
 inline bool
 CollPreciseInfo::checkOverlap(const core::AABB& bb) const
 {
     ASSERT(shape);
-    static b2PolygonShape b2BoundingBox(true); // construct the bb
-    static b2Transform t(b2Vec2(0,0), b2Rot(0));
     b2BoundingBox.updateBox(b2Vec2(bb.tl.x, bb.tl.y), b2Vec2(bb.br.x, bb.br.y));
-    return b2TestOverlap(shape, 0, &b2BoundingBox, 0, transform, t);
+    return b2TestOverlap(shape, 0, &b2BoundingBox, 0, transform, identityTransf);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+inline bool
+CollPreciseInfo::collidePoints(const CollPreciseInfo& other, CollPointVec& result) const
+{
+    // TODO: we are not supporting other type right now other than polygon
+    ASSERT(shape && shape->m_type == b2Shape::Type::e_polygon);
+    ASSERT(other.shape && other.shape->m_type == b2Shape::Type::e_polygon);
+
+    b2Manifold manifold;
+    b2PolygonShape* poly1 = static_cast<b2PolygonShape*>(shape);
+    b2PolygonShape* poly2 = static_cast<b2PolygonShape*>(other.shape);
+    b2CollidePolygons(&manifold,
+                      poly1, transform,
+                      poly2, other.transform);
+
+    result.clear();
+    if (manifold.pointCount == 0) {
+        // nothing to do
+        return false;
+    }
+    // transform to global coordinate
+    b2WorldManifold wm;
+    wm.Initialize(&manifold, transform, poly1->m_radius, other.transform, poly2->m_radius);
+    result.resize(manifold.pointCount);
+    for (unsigned int i = 0; i < manifold.pointCount; ++i) {
+        const b2Vec2& wp = wm.points[i];
+        result[i].x = wp.x; result[i].y = wp.y;
+    }
+    return true;
+}
+inline bool
+CollPreciseInfo::collidePoints(const core::AABB& bb, CollPointVec& result) const
+{
+    // TODO: we are not supporting other type right now other than polygon
+    ASSERT(shape && shape->m_type == b2Shape::Type::e_polygon);
+
+    b2BoundingBox.updateBox(b2Vec2(bb.tl.x, bb.tl.y), b2Vec2(bb.br.x, bb.br.y));
+
+    b2Manifold manifold;
+    b2PolygonShape* poly1 = static_cast<b2PolygonShape*>(shape);
+    b2CollidePolygons(&manifold,
+                      poly1, transform,
+                      &b2BoundingBox, identityTransf);
+
+    result.clear();
+    if (manifold.pointCount == 0) {
+        // nothing to do
+        return false;
+    }
+    // transform to global coordinate
+    b2WorldManifold wm;
+    wm.Initialize(&manifold,
+                  transform, poly1->m_radius,
+                  identityTransf, b2BoundingBox.m_radius);
+    result.resize(manifold.pointCount);
+    for (unsigned int i = 0; i < manifold.pointCount; ++i) {
+        const b2Vec2& wp = wm.points[i];
+        result[i].x = wp.x; result[i].y = wp.y;
+    }
+    return true;
+}
+
+inline bool
+CollPreciseInfo::testPoint(const core::Vector2& point) const
+{
+    ASSERT(shape);
+    return shape->TestPoint(transform, b2Vec2(point.x, point.y));
+}
+
+inline void
+CollPreciseInfo::closestPoint(const core::Vector2& center,
+                              const float radius,
+                              core::Vector2& closestA,
+                              core::Vector2& closestB,
+                              float& distance) const
+{
+    ASSERT(shape);
+    b2CircleShape circle;
+    circle.m_radius = radius;
+    circle.m_p = b2Vec2(center.x, center.y);
+
+    b2DistanceOutput output;
+    b2DistanceInput input;
+    b2SimplexCache cache;
+    cache.count = 0;
+    input.proxyA.Set(shape, 0);
+    input.transformA = transform;
+    input.proxyB.Set(&circle, 0);
+    input.transformB = identityTransf;
+
+    b2Distance(&output, &cache, &input);
+    closestA.x = output.pointA.x;
+    closestA.y = output.pointA.y;
+    closestB.x = output.pointB.x;
+    closestB.y = output.pointB.y;
+    distance = output.distance;
+
 }
 
 } /* namespace coll */

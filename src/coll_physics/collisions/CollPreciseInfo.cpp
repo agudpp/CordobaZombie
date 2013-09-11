@@ -35,6 +35,9 @@ calculateBoundingBox(const core::Vector2* vertices, unsigned int count)
 
 namespace coll {
 
+b2PolygonShape CollPreciseInfo::b2BoundingBox(true);
+b2Transform CollPreciseInfo::identityTransf(b2Vec2(0,0), b2Rot(0));
+
 
 CollPreciseInfo*
 CollPreciseInfo::createPolygonPrecise(const core::Vector2* vertices, unsigned int count)

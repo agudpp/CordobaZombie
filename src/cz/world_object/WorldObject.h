@@ -148,6 +148,8 @@ public:
     sqrRadius(void) const;
     inline const coll::CollObject&
     collisionObject(void) const;
+    inline coll::CollObject*
+    collisionObjectPtr(void);
 
     // @brief Set / get the masks to be used for this object in the 2D world
     // @param mask      The mask to be used
@@ -392,6 +394,11 @@ WorldObject::collisionObject(void) const
 {
     ASSERT(mCollObj);
     return *mCollObj;
+}
+inline coll::CollObject*
+WorldObject::collisionObjectPtr(void)
+{
+    return mCollObj;
 }
 
 inline void

@@ -53,6 +53,7 @@
 									<listOptionValue builtIn="false" value="/usr/include/c++/4.7/bits"/>
 									<listOptionValue builtIn="false" value="/usr/include/c++/4.7/i686-linux-gnu"/>
 									<listOptionValue builtIn="false" value="/usr/include/c++/4.7/backward"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CordobaZombie0.1/src/cz}&quot;"/>
 								</option>
 								<option id="org.eclipse.cdt.build.core.settings.holder.symbols.951097239" name="Symbols" superClass="org.eclipse.cdt.build.core.settings.holder.symbols" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="DEBUG=1"/>

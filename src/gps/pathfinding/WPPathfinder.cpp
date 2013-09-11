@@ -50,6 +50,14 @@ WPPathfinder::findPath(const core::Vector2& start,
     // reset output data
     path.size = 0;
 
+    ///////////////////////////
+    debugERROR("TODO: remove this\n");
+    path.size = 2;
+    path.node[0] = start;
+    path.node[1] = goal;
+    return true;
+    ///////////////////////////
+
     // get the closest waypoints for the given positions
     const index_t startIndex = getClosestWayPoint(start);
     if (startIndex == INVALID_INDEX) {

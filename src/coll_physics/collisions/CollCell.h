@@ -90,6 +90,24 @@ public:
                         QueryResultVec& result,
                         core::BoolCountingMask<>& bitset);
 
+    // @brief Return all the collision objects that collide against a particular
+    //        point.
+    // @param point     The point to test against.
+    // @param dt        The detection type parameter (filter)
+    // @param mask      The mask to be used
+    // @param result    The resulting vector with the objects that collide with
+    //                  co and satisfy the parameters.
+    // @param bitset    The bitset used to avoid duplicated items
+    // @returns true if some element collide with co, false otherwise
+    // @note This method WILL NOT REMOVE THE PREVIOUS results of result.
+    //
+    inline bool
+    getCollidingObjects(const core::Vector2& point,
+                        DetectType dt,
+                        mask_t mask,
+                        QueryResultVec& result,
+                        core::BoolCountingMask<>& bitset);
+
     // @brief Clear the cell removing all its elements.
     //
     inline void
@@ -300,6 +318,47 @@ CollCell::getCollidingObjects(CollObject* co,
                 !(bitset[other->id]) &&           // the object was not set already
                 (other->mask() & mask) &&         // matches with the mask
                  (other->boundingBox().collide(co->boundingBox())) // collide the bb's
+                 ) {
+                result.push_back(other); // put this into the resulting vector
+                bitset.mark(other->id);  // mark it to avoid duplications
+            }
+        }
+    }
+    return oldSize != result.size();
+}
+
+inline bool
+CollCell::getCollidingObjects(const core::Vector2& point,
+                              DetectType dt,
+                              mask_t mask,
+                              QueryResultVec& result,
+                              core::BoolCountingMask<>& bitset)
+{
+    const unsigned int oldSize = result.size();
+
+    if ((dt & DetectType::CQ_Statics) && mStaticCount > 0) {
+        for (std::vector<CollObject* >::iterator beg = mObjects.begin(),
+            end = mObjects.begin() + mStaticCount; beg != end; ++beg) {
+            CollObject* other = *beg;
+            if (other->isCollisionsEnabled() &&   // check if is enable for collisions
+                !(bitset[other->id]) &&           // the object was not set already
+                (other->mask() & mask) &&         // matches with the mask
+                (other->boundingBox().checkPointInside(point)) // the point is inside
+                 ) {
+                result.push_back(other); // put this into the resulting vector
+                bitset.mark(other->id);  // mark it to avoid duplications
+            }
+        }
+    }
+    // check for dynamics now
+    if ((dt & DetectType::CQ_Dynamics) && (mObjects.size() > mStaticCount)) {
+        for (std::vector<CollObject* >::iterator beg = mObjects.begin() + mStaticCount,
+                end = mObjects.end(); beg != end; ++beg) {
+            CollObject* other = *beg;
+            if (other->isCollisionsEnabled() &&   // check if is enable for collisions
+                !(bitset[other->id]) &&           // the object was not set already
+                (other->mask() & mask) &&         // matches with the mask
+                (other->boundingBox().checkPointInside(point)) // the point is inside
                  ) {
                 result.push_back(other); // put this into the resulting vector
                 bitset.mark(other->id);  // mark it to avoid duplications

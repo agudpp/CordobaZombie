@@ -7,6 +7,8 @@
 
 #include "WorldObject.h"
 
+#include <debug/PrimitiveDrawer.h>
+
 namespace cz {
 
 coll::CollisionHandler* WorldObject::sCollHandler = 0;
@@ -16,6 +18,7 @@ WorldObject::WorldObject() :
 ,   mNode(0)
 ,   mSqrRadius(0)
 ,   mHeight(0)
+,   mCollObj(0)
 {
     ASSERT(sCollHandler);
 
@@ -48,9 +51,11 @@ WorldObject::setCollisionInformation(coll::CollPreciseInfo* pi,
     }
 
     // now we will calculate the radius of the object
-    const float h = mCollObj->boundingBox().getHeight() / 2.f,
-                w = mCollObj->boundingBox().getWidth() / 2.f;
-    mSqrRadius = h*h + w*w;
+    mSqrRadius = mCollObj->boundingBox().calculateSquaredRadius();
+    core::PrimitiveDrawer& pd = core::PrimitiveDrawer::instance();
+    core::Primitive* p = pd.createBox(mCollObj->boundingBox(), pd.getFreshColour());
+    p->node->getParentSceneNode()->removeChild(p->node);
+    mNode->addChild(p->node);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -58,8 +63,9 @@ void
 WorldObject::WorldObject::setCollisionType(bool isStatic)
 {
     ASSERT(sCollHandler);
-    ASSERT(mCollObj->isInCollisionWorld() == false);
-
+    ASSERT(mCollObj);
+    ASSERT(!mCollObj->isInCollisionWorld());
+    debugBLUE("\n");
     if (isStatic) {
         sCollHandler->coAddStatic(mCollObj);
     } else {
@@ -72,7 +78,6 @@ void
 WorldObject::removeFromCollWorld(void)
 {
     ASSERT(sCollHandler);
-    ASSERT(mCollObj->isInCollisionWorld());
 
     if (mCollObj->isStatic()) {
         sCollHandler->coRemoveStatic(mCollObj);

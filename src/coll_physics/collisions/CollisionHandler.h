@@ -179,6 +179,17 @@ public:
     bool
     performQuery(CollObject* co, const QueryArgs& args, QueryResult& result);
 
+    // @brief Perform a point query.
+    // @param point     The point where we want to perform the query.
+    // @param args      The query args
+    // @param result    The query results.
+    // @return true on success and if we intersect some object | false otherwise
+    //
+    bool
+    performQuery(const core::Vector2& point,
+                 const QueryArgs& args,
+                 QueryResult& result);
+
     // TODO: add the other querys here like Bounding box query / Line query /
     //       position query / Sphere query? ... etc.
     //

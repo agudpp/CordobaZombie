@@ -14,8 +14,6 @@ namespace cz {
 //        contains 3 methods (enter, update, exit) and all of them recieve the same
 //        type of argument
 //        They also should be identified by an unique id.
-//        Note that we will not use this class directly since we only want to
-//        show the interface of the states (to avoid unneeded virtuality)
 
 template <typename ArgType, typename IDType = unsigned int>
 struct FSMState
@@ -36,18 +34,18 @@ public:
 
     // @brief Method called when when enter to this state
     //
-    void
-    enter(ArgType);
+    virtual void
+    enter(ArgType) = 0;
 
     // @brief Method called when when update this state
     //
-    void
-    enter(ArgType);
+    virtual void
+    update(ArgType) = 0;
 
     // @brief Method called when when exit this state
     //
-    void
-    enter(ArgType);
+    virtual void
+    exit(ArgType) = 0;
 
 protected:
     IDType mID;

@@ -31,8 +31,8 @@ typedef core::uint16_t index_t;
 
 // We will define the different type of queries results / arguments here.
 //
-static const unsigned int MAX_QUERY_RESULT = 45;
-static const unsigned int MAX_COLL_POINTS = 5;
+static const unsigned int MAX_QUERY_RESULT = 15;
+static const unsigned int MAX_COLL_POINTS = 3;
 
 typedef core::StackVector<CollObject*, MAX_QUERY_RESULT> QueryResultVec;
 typedef core::StackVector<core::Vector2, MAX_COLL_POINTS> CollPointVec;

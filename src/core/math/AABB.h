@@ -158,6 +158,24 @@ struct AABB
         }
     }
 
+
+    // @brief Calculate radius for this bb. This is not fast..
+    //
+    inline float
+    calculateRadius(void) const
+    {
+        return (getHeight() + getWidth()) * 0.5f; // invent a radius XD
+    }
+
+    // @brief Calculate squared radius for this bb. This is not fast..
+    //
+    inline float
+    calculateSquaredRadius(void) const
+    {
+        const float r = calculateRadius(); // invent a radius XD
+        return r*r;
+    }
+
     // For debugging printing
     inline friend std::ostream& operator<<(std::ostream& o, const AABB& aabb)
     {

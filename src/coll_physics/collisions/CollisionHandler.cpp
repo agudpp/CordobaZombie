@@ -225,6 +225,7 @@ CollisionHandler::coAddStatic(CollObject* sco)
 {
     ASSERT(sco);
     ASSERT(exists(sco));
+    ASSERT(!sco->isInCollisionWorld());
 
     // check if the element already exists in the cell
     core::StackVector<CollCell*, MAX_MATRIX_INDICES> cells;
@@ -251,6 +252,7 @@ CollisionHandler::coRemoveStatic(CollObject* sco)
 {
     ASSERT(sco);
     ASSERT(exists(sco));
+    ASSERT(sco->isInCollisionWorld());
 
     // check if the element already exists in the cell
     core::StackVector<CollCell*, MAX_MATRIX_INDICES> cells;
@@ -269,6 +271,7 @@ CollisionHandler::coAddDynamic(CollObject* dco)
 {
     ASSERT(dco);
     ASSERT(exists(dco));
+    ASSERT(!dco->isInCollisionWorld());
 
     // check if the element already exists in the cell
     core::StackVector<CollCell*, MAX_MATRIX_INDICES> cells;
@@ -300,6 +303,7 @@ CollisionHandler::coRemoveDynamic(CollObject* dco)
 {
     ASSERT(dco);
     ASSERT(exists(dco));
+    ASSERT(dco->isInCollisionWorld());
 
     // check if the element already exists in the cell
     core::StackVector<CollCell*, MAX_MATRIX_INDICES> cells;
@@ -448,6 +452,45 @@ CollisionHandler::performQuery(CollObject* co,
 
     return !result.objects.empty();
 }
+
+////////////////////////////////////////////////////////////////////////////////
+bool
+CollisionHandler::performQuery(const core::Vector2& point,
+                               const QueryArgs& args,
+                               QueryResult& result)
+{
+    // clear the result
+    result.objects.clear();
+    result.points.clear();
+
+    // check if we can perform that query
+    if (!mMatrix.isPositionInside(point)) {
+        return false; // no it is
+    }
+
+    // Init the new query and get the cell for that position
+    //
+    mMask.newRound();
+    CollCell& cell = mMatrix.getCell(point);
+    cell.getCollidingObjects(point, args.dtype, args.mask, result.objects, mMask);
+
+    // now we should check if we need to do a more precise checking
+    if (args.ptype & PrecisionType::CQ_PreciseCheck) {
+        // we only need to check for overlappings, it is a little more easy
+        QueryResultVec& objs = result.objects;
+        for (unsigned int i = 0; i < objs.size(); ++i) {
+            if (!(objs[i]->collidePointPrecise(point))) {
+                // remove this one
+                objs.disorder_remove(i);
+                --i;
+            }
+        }
+    }
+
+    return !result.objects.empty();
+}
+
+
 
 // TODO: add the other querys here like Bounding box query / Line query /
 //       position query / Sphere query? ... etc.

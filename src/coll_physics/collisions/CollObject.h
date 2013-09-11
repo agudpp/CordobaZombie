@@ -170,6 +170,44 @@ public:
     inline bool
     collidePrecise(const CollObject& other) const;
 
+    // @brief Get the collisions points between this object and other.
+    //        If none of the objects contain precise information then 0 points
+    //        will be returned
+    // @param other     The other object to be tested
+    // @param result    The resulting vector of intersection points.
+    // @return true if we detect some points intersecting | false otherwise
+    //
+    inline bool
+    collidePoints(const CollObject& other, CollPointVec& result) const;
+
+    // @brief Check if a point is inside of this collision object (checking for
+    //        the precise info only). If this object doesn't contain precise
+    //        info it will return true without checking against the BB.
+    //        If you only want to test against the bb then get the do:
+    //        boundingBox().isPointInside().
+    // @param point     The point to test
+    // @return true if the point is inside of this object | false otherwise
+    //
+    inline bool
+    collidePointPrecise(const core::Vector2& point) const;
+
+    // @brief Get the closest point between a point (with a radius) and this
+    //        shape.
+    //        We should must contain precise information to call this method.
+    // @param center    The center of the circle
+    // @param radius    The radius of the circle (not squared).
+    // @param closestA  The closest point from this shape
+    // @param closestB  The closest point from the circle
+    // @param distance  The distance between both shapes
+    //
+    inline void
+    closestPoint(const core::Vector2& center,
+                 const float radius,
+                 core::Vector2& closestA,
+                 core::Vector2& closestB,
+                 float& distance) const;
+
+
     // @brief Get the collisions points for two given elements.
     // TODO:
 
@@ -209,7 +247,8 @@ private:
     {
         mUserDef = 0;
         delete mPinfo; mPinfo = 0;
-        flags = {0};
+        std::memset(&flags, 0, sizeof(Flags));
+        flags.onWorld = 0;
     }
 
     // avoid copying
@@ -419,6 +458,42 @@ CollObject::collidePrecise(const CollObject& other) const
     }
     // else true
     return true;
+}
+
+inline bool
+CollObject::collidePoints(const CollObject& other, CollPointVec& result) const
+{
+    result.empty();
+    if (mPinfo) {
+        if (other.mPinfo) {
+            return mPinfo->collidePoints(*(other.mPinfo), result);
+        } else {
+            return mPinfo->collidePoints(other.mAABB, result);
+        }
+    } else if (other.mPinfo) {
+        return other.mPinfo->collidePoints(mAABB, result);
+    }
+    return !result.empty();
+}
+
+inline bool
+CollObject::collidePointPrecise(const core::Vector2& point) const
+{
+    if (!mPinfo) {
+        return true;
+    }
+    return mPinfo->testPoint(point);
+}
+
+inline void
+CollObject::closestPoint(const core::Vector2& center,
+                         const float radius,
+                         core::Vector2& closestA,
+                         core::Vector2& closestB,
+                         float& distance) const
+{
+    ASSERT(mPinfo);
+    return mPinfo->closestPoint(center, radius, closestA, closestB, distance);
 }
 
 }

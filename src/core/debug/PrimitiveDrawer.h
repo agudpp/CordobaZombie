@@ -20,6 +20,8 @@
 #include <OgreMaterial.h>
 
 #include <types/basics.h>
+#include <math/Vec2.h>
+#include <math/AABB.h>
 
 #include "DebugUtil.h"
 
@@ -108,6 +110,15 @@ public:
     Primitive*
     createBox(const Ogre::Vector3& center,
               const Ogre::Vector3& sizes,
+              const Ogre::ColourValue& color = Ogre::ColourValue::White);
+
+    // @brief Create a new box2D object
+    // @param bb        The bounding box to draw
+    // @param color     The color to be used
+    // @return the allocated Primitive* (DO NOT DELETE manually this memory)
+    //
+    Primitive*
+    createBox(const core::AABB& bb,
               const Ogre::ColourValue& color = Ogre::ColourValue::White);
 
     // @brief Create a finite plane object (with normal pointing Y+)

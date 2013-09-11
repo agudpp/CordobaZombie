@@ -27,7 +27,7 @@ public:
     // do almost anything
     //
     inline FSMMachine(TableType& table);
-    inline ~FSMMachine() {};
+    inline ~FSMMachine();
 
     // @brief Set the reference to be used for this particular table
     // param ref    The reference to be passed to each state
@@ -112,7 +112,9 @@ inline void
 FSMMachine<StateType,StateArgType,EventType,TableType>::changeState(StateType* newState)
 {
     ASSERT(newState);
-    mActualState->exit(mRef);
+    if (mActualState) {
+        mActualState->exit(mRef);
+    }
     mLastState = mActualState;
     mActualState = newState;
     mActualState->enter(mRef);
@@ -173,10 +175,11 @@ template <typename StateType,
 inline void
 FSMMachine<StateType,StateArgType,EventType,TableType>::reset(void)
 {
-    ASSERT(mTable.mainState());
-
-    mLastEvent = 0;
-    changeState(mTable.mainState());
+    if (mActualState) {
+        mActualState->exit(mRef);
+    }
+    mActualState = 0;
+    mLastState = 0;
 }
 
 template <typename StateType,

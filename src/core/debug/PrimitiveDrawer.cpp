@@ -120,6 +120,17 @@ PrimitiveDrawer::createBox(const Ogre::Vector3& center,
 
 ////////////////////////////////////////////////////////////////////////////////
 Primitive*
+PrimitiveDrawer::createBox(const core::AABB& bb,
+                           const Ogre::ColourValue& color)
+{
+    core::Vector2 center = bb.center();
+    Ogre::Vector3 c(center.x, center.y, 0);
+    Ogre::Vector2 dim(bb.getWidth(), bb.getHeight());
+    return createPlane(c, dim, color);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+Primitive*
 PrimitiveDrawer::createPlane(const Ogre::Vector3& center,
                              const Ogre::Vector2& dims,
                              const Ogre::ColourValue& color)
