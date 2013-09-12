@@ -206,59 +206,49 @@ repealingForce(coll::CollisionHandler* collHandler,
         // now we will check/obtain the detailed information if and only if
         // the object contain precise information
         if (other->preciseInfo()) {
-            // What we will do here is a little tricky. We will get the closest
-            // distance between this object (obstacle) and the agent, this way
-            // we can get the point that is closest to the agent, and that way
-            // we can set the radius of the obstacle as if it where that point.
-            // Note that this way we are always putting a new radius to the same
-            // object bat this is not important because we are calculating the
-            // avoidance vector on the fly.
+            // Box2D has a problem that is when we are close enough with the
+            // object (we intersect it) the closestB point is the one that is
+            // OK and not the closestA. So to fix this we need to implement a
+            // repealing force using closestB (the intersection ponit in the agent
+            // radius).
             //
-            core::Vector2 closestA, dummyVec;
+            core::Vector2 closestA, closestB;
             float distance;
             other->closestPoint(agent.position,
                                 agentRadius,
                                 closestA,
-                                dummyVec,
+                                closestB,
                                 distance);
 
             // if distance is more than 0 then no collision need to be performed
             if (distance <= 0) {
-                // get the radius of the obstacle?
-                obstacle.sqrRadius = closestA.squaredLength();
+                // Get the repealing force from the collision point and the
+                // agent center
+                //
+                auxVec = agent.position - closestB;
+                // get the squared distance of that force that should be less
+                // than the agent sqr radius (because above we ensure that
+                // distance <= 0 ==> we are colliding ==> the object is inside
+                // of the agent).
+                //
+                const float sqrDistance = auxVec.squaredLength();
+                ASSERT(sqrDistance < agent.sqrRadius);
 
-                // now calculate the repealing force
-                calcRepealingForce(agent,
-                                   obstacle,
-                                   moveDist,
-                                   auxVec);
+                // the factor will be related with the proportional distance of
+                // the collision point inside of the agent radius.
+                //
+                float factor = (agent.sqrRadius - sqrDistance) / agent.sqrRadius;
+
+                // if is an static object we will increase this force to avoid
+                // that other agents push us to the interior of the obstacle
+                if (obstacle.isStatic) {
+                    factor *= 3.f;
+                }
+                auxVec.normalize();
+                auxVec *= (factor * moveDist);
+
                 result += auxVec;
             }
-
-            /*// TODO: for now we will just test for overlapping and we will create
-            //       a repealing vector to move the object outside of the
-            //       collision object. This should be improved for other
-            //       type of objects
-            //       Note that we are also assuming that objects with precise
-            //       information are static! and that is not right!
-            //
-            if (collObj->collidePrecise(*other)) {
-                // we will repeal with the the full force for now.
-                core::Vector2 repForce = center - other->center();
-                repForce.normalize();
-                repForce *= maxStaticRepealingForce;
-                result += repForce;
-            }*/
-
-            // contain precise information, we need to get the points
-            /*if (collObj->collidePoints(*other, pointsVec)) {
-                // iterate over all the points and add them
-                for (core::Vector2* beg = pointsVec.begin(), *end = pointsVec.end();
-                        beg != end; ++beg) {
-                    getRepealingForce(center, collRadius, *beg, auxVec);
-                    result += auxVec;
-                }
-            }*/
         } else {
             // set the radius for this obstacle
             obstacle.sqrRadius = other->boundingBox().calculateSquaredRadius();
