@@ -26,16 +26,16 @@ namespace {
 //      ZA_NORMAL_DIE1,
 //      ZA_NORMAL_DIE2,
 static const char* ZA_ANIMS[] = {
-    "corre1",
+    "corre",
     "corre2",
-    /*"golpe_hombrod",
+    "golpe_hombrod",
     "golpe_hombroi",
     "cae",
     "arrastra",
     "muere_arrastra",
     "muere_cabeza",
     "muere_normal1",
-    "muere_normal2",*/
+    "muere_normal2",
     0
 };
 

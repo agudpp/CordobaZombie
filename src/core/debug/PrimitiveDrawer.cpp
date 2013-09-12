@@ -187,6 +187,9 @@ PrimitiveDrawer::createSphere(const Ogre::Vector3& center,
     node->setPosition(center);
 
     PrimitivePtr sphere(new Primitive(node, ent));
+    sphere->setColor(color);
+    sphere->id = mPrimitives.size();
+    mPrimitives.push_back(sphere);
 
     debugERROR("We are not setting the radius of the sphere here... fix this\n");
 

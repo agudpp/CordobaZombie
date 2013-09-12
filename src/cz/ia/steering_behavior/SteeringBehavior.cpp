@@ -222,16 +222,18 @@ repealingForce(coll::CollisionHandler* collHandler,
                                 dummyVec,
                                 distance);
 
-            // get the radius of the obstacle?
-            dummyVec = obstacle.position + closestA;
-            obstacle.sqrRadius = dummyVec.squaredLength();
+            // if distance is more than 0 then no collision need to be performed
+            if (distance <= 0) {
+                // get the radius of the obstacle?
+                obstacle.sqrRadius = closestA.squaredLength();
 
-            // now calculate the repealing force
-            calcRepealingForce(agent,
-                               obstacle,
-                               moveDist,
-                               auxVec);
-            result += auxVec;
+                // now calculate the repealing force
+                calcRepealingForce(agent,
+                                   obstacle,
+                                   moveDist,
+                                   auxVec);
+                result += auxVec;
+            }
 
             /*// TODO: for now we will just test for overlapping and we will create
             //       a repealing vector to move the object outside of the

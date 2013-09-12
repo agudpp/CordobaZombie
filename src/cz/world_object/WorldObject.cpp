@@ -65,7 +65,7 @@ WorldObject::WorldObject::setCollisionType(bool isStatic)
     ASSERT(sCollHandler);
     ASSERT(mCollObj);
     ASSERT(!mCollObj->isInCollisionWorld());
-    debugBLUE("\n");
+
     if (isStatic) {
         sCollHandler->coAddStatic(mCollObj);
     } else {

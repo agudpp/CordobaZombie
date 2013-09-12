@@ -29,8 +29,9 @@
 #include <input/InputHelper.h>
 #include <types/basics.h>
 
-// camera
+// utils
 #include <utils/SatelliteCamera.h>
+#include <utils/SelectionHelper.h>
 
 // pathfinding
 #include <pathfinding/WayPointGraph.h>
@@ -158,6 +159,7 @@ private:
     input::InputHelper mInputHelper;
     core::OgreText mMousePosText;
     core::OgreText mStatusBar;
+    SelectionHelper mSelectionHelper;
 
     // graph data
     gps::WayPointGraph mGraph;
@@ -170,6 +172,14 @@ private:
 
     core::StackVector<cz::ZombieUnit*, 100> mZombies;
     cz::ZombieUnit mZombie;
+
+    coll::CollObject* mShapeColl;
+    core::Primitive* mShape;
+    core::Primitive* mCircle;
+    float mCircleRadius;
+    core::Primitive* mPoint1;
+    core::Primitive* mPoint2;
+
 };
 
 }

@@ -596,7 +596,7 @@ inline void
 WorldObject::lookAt(const Ogre::Vector3& pos)
 {
     ASSERT(mNode);
-    mNode->lookAt(pos, Ogre::SceneNode::TS_WORLD);
+    mNode->lookAt(pos, Ogre::SceneNode::TS_WORLD, Ogre::Vector3::UNIT_Y);
     updateDirectionFromNode();
 }
 

@@ -164,7 +164,7 @@ struct AABB
     inline float
     calculateRadius(void) const
     {
-        return (getHeight() + getWidth()) * 0.5f; // invent a radius XD
+        return (getHeight() + getWidth()) * 0.25f; // invent a radius XD
     }
 
     // @brief Calculate squared radius for this bb. This is not fast..

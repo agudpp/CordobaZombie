@@ -232,18 +232,6 @@ ZombieMovementTool::createCollObjects(const std::string& scene)
     // create the scene node for all the childs
     mCollObjectsNode = mSceneMgr->getRootSceneNode()->createChildSceneNode();
 
-    // set the zone for where we will be moving on
-    Ogre::AxisAlignedBox moveZone(-8000,
-                                  -8000,
-                                  50,
-                                  8000,
-                                  8000,
-                                  8000);
-
-    // configure the velocity taking into account the size of the level
-    mSatelliteCamera.configure(moveZone, 10);
-
-
     // read the .scene and export the information into a file
     if (!coll::CollStaticWorldLoader::exportFromScene(scene,
                                                       mSceneMgr,
@@ -267,11 +255,6 @@ ZombieMovementTool::createCollObjects(const std::string& scene)
     worldBB.br.y -= worldDelta;
     worldBB.br.x += worldDelta;
     mCollHandler.setWorldBoundingBox(worldBB);
-    std::cout << "WorldSize: " << worldBB <<std::endl;
-    debugERROR("remove return\n");
-    return true;
-
-
 
     // create the collision objects and show them
     core::PrimitiveDrawer& pd = core::PrimitiveDrawer::instance();
@@ -347,10 +330,10 @@ ZombieMovementTool::createZombies(void)
     mZombie.moveTo(core::Vector2(0,0));*/
 
 
-    mZombies.resize(100);
+    mZombies.resize(50);
     for (unsigned int i = 0; i < mZombies.size(); ++i) {
         Ogre::SceneNode* node = mSceneMgr->getRootSceneNode()->createChildSceneNode();
-        Ogre::Entity* ent = mSceneMgr->createEntity("tronco.mesh");
+        Ogre::Entity* ent = mSceneMgr->createEntity("zombie.mesh");
         mZombies[i] = new cz::ZombieUnit;
         cz::ZombieUnit& z = *mZombies[i];
         z.configure(node, ent);
@@ -421,12 +404,17 @@ ZombieMovementTool::ZombieMovementTool() :
     core::AppTester(cz::GlobalData::lastTimeFrame)
 ,   mData()
 ,   mTimeFrame(cz::GlobalData::lastTimeFrame)
+,   mSelectionHelper(*mSceneMgr, *mCamera, mMouseCursor)
 ,   mPathfinder(mData.pathfinder)
 ,   mCollHandler(mData.collHandler)
 ,   mSatelliteCamera(mCamera, mSceneMgr, mTimeFrame)
 ,   mInputHelper(getMouseButtons(), getKeyboardKeys())
 {
     ASSERT(cz::GlobalData::collHandler);
+
+    // configure the plane for the seleciton system
+    Ogre::Plane basePlane(Ogre::Vector3::UNIT_Z, 0.0f);
+    mSelectionHelper.setBaseIntersectionPlane(basePlane);
 
     // configure the input
     input::Mouse::setMouse(mMouse);
@@ -455,6 +443,17 @@ ZombieMovementTool::~ZombieMovementTool()
 void
 ZombieMovementTool::loadAditionalData(void)
 {
+    // set the zone for where we will be moving on
+    Ogre::AxisAlignedBox moveZone(-8000,
+                                  -8000,
+                                  50,
+                                  8000,
+                                  8000,
+                                  8000);
+
+    // configure the velocity taking into account the size of the level
+    mSatelliteCamera.configure(moveZone, 10);
+
     // TODO: ugly way to load all the fonts at the beginning
     Ogre::ResourceManager::ResourceMapIterator iter =
         Ogre::FontManager::getSingleton().getResourceIterator();
@@ -493,6 +492,77 @@ ZombieMovementTool::loadAditionalData(void)
 
     // create zombies
     createZombies();
+
+//    // TODO: remove this
+//    debugERROR("REMOVE THIS!\n");
+//    // create the shape
+//    core::AABB worldBB(3000,-3000,-3000,3000);
+//    mCollHandler.setWorldBoundingBox(worldBB);
+//
+//    // create the collision objects and show them
+//    core::PrimitiveDrawer& pd = core::PrimitiveDrawer::instance();
+//    coll::CollPreciseInfoBuilder builder(&mCollHandler);
+//    core::StackVector<core::Vector2, 6> li;
+//    std::vector<Ogre::Vector3> points;
+//    points.reserve(512);
+//    li.push_back(core::Vector2(0,0));
+//    li.push_back(core::Vector2(400,200));
+//    li.push_back(core::Vector2(60,400));
+//    li.push_back(core::Vector2(-300,200));
+//    li.push_back(core::Vector2(-150,100));
+//    for (unsigned int i = 0; i < li.size(); ++i) {
+//        core::Vector2& current = li[i];
+//        points.push_back(Ogre::Vector3(current.x, current.y, 0));
+//    }
+//    core::Vector2& current = li[0];
+//    points.push_back(Ogre::Vector3(current.x, current.y, 0));
+//    core::Primitive* p = pd.createMultiline(points);
+//    mPrimitives.push_back(TmpPrimitiveColor(p, pd.getFreshColour()));
+//    // create the collision object for this one
+//    builder.setInfo(li.begin(), li.size());
+//    mShapeColl = builder.constructCollObject();
+//    ASSERT(mShapeColl != 0);
+//    // NOTE Dangerous this, we are assuming we are not reallocating memory
+//    // in mPrimitives.
+//    mShapeColl->setUserDef(&(mPrimitives.back()));
+//    mPrimitives.back().collObj = mShapeColl;
+//    mShape = p;
+//    // add this collision object to the handler as static object
+//    mCollHandler.coAddStatic(mShapeColl);
+//
+//    // create the circle shape only
+//    mCircleRadius = 150.f;
+//    const float step6 = (2*M_PI) / 6;
+//    points.resize(7);
+//    for (int i = 0; i < 6; ++i) {
+//        points[i].x = mCircleRadius * std::cos(i * step6);
+//        points[i].y = mCircleRadius * std::sin(i * step6);
+//        points[i].z = 0;
+//    }
+//    points[6] = points[0];
+//    mCircle = pd.createMultiline(points, Ogre::ColourValue::Blue);
+//
+//    mPoint1 = pd.createSphere(Ogre::Vector3::ZERO, 15, Ogre::ColourValue::Green);
+//    mPoint2 = pd.createSphere(Ogre::Vector3::ZERO, 15, Ogre::ColourValue::Green);
+//
+//    // we will create a bounding box and show it also
+//    core::AABB circleBB(points[0].x, points[0].y, points[0].x, points[0].y);
+//    for (int i = 0; i < points.size(); ++i) {
+//        circleBB.increaseToContain(core::Vector2(points[i].x, points[i].y));
+//    }
+//    core::Primitive* cbb = pd.createBox(circleBB, Ogre::ColourValue::Red);
+//    cbb->node->translate(0,0,-1);
+//    cbb->node->getParentSceneNode()->removeChild(cbb->node);
+//    mCircle->node->addChild(cbb->node);
+//    const float radiusBB = circleBB.calculateRadius();
+//    core::Primitive* rbb = pd.createLine(Ogre::Vector3::ZERO,
+//                                         Ogre::Vector3(radiusBB, 0,0),
+//                                         Ogre::ColourValue::White);
+//    rbb->node->translate(0,0,1);
+//    rbb->node->getParentSceneNode()->removeChild(rbb->node);
+//    mCircle->node->addChild(rbb->node);
+
+
 }
 
 /* function called every frame. Use GlobalObjects::lastTimeFrame */
@@ -531,6 +601,37 @@ ZombieMovementTool::update()
             }
         }
     }
+
+
+    // here we will handle the raycast and draw the shapes
+//    ASSERT(mCircle);
+//    ASSERT(mPoint1);
+//    ASSERT(mPoint2);
+//    ASSERT(mShapeColl);
+//    core::PrimitiveDrawer& pd = core::PrimitiveDrawer::instance();
+//    static Ogre::Vector3 lastHit;
+//    Ogre::Vector3 pointInPlane;
+//    if (!mSelectionHelper.getPlaneIntersection(pointInPlane)) {
+//        return;
+//    }
+//    if (lastHit == pointInPlane) {
+//        return;
+//    }
+//    lastHit = pointInPlane;
+//    // move the circle to the intersection point
+//    mCircle->node->setPosition(pointInPlane);
+//
+//    // calculate the closest points for a and b
+//    core::Vector2 pa,pb;
+//    const core::Vector2 circleCenter(pointInPlane.x, pointInPlane.y);
+//    float dist;
+//    mShapeColl->closestPoint(circleCenter,
+//                             mCircleRadius,
+//                             pa, pb, dist);
+//    // move the coll points
+//    std::cout << "PA: " << pa << "\tPB: " << pb << "\tdist: " << dist << std::endl;
+//    mPoint1->node->setPosition(Ogre::Vector3(pa.x, pa.y, 0));
+//    mPoint2->node->setPosition(Ogre::Vector3(pb.x, pb.y, 0));
 
 }
 
