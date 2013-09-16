@@ -65,11 +65,11 @@ OrbitCamera::OrbitCamera(Ogre::Camera* camera,
     mCamYNode = mCamXNode->createChildSceneNode();
     mZoomNode = mCamYNode->createChildSceneNode();
 
-    mZoomNode->setPosition(0.f, 0.f, -100.f);
+    mZoomNode->setPosition(0.f, 0.f, 100.f);
     mZoomNode->lookAt(mCamXNode->getPosition(), Ogre::Node::TS_WORLD);
 
     mFreeNode = rootNode->createChildSceneNode();
-    mFreeNode->setPosition(0.f, 0.f, -100.f);
+    mFreeNode->setPosition(0.f, 0.f, 100.f);
     mFreeNode->lookAt(mCamXNode->getPosition(), Ogre::Node::TS_WORLD);
 
     const Ogre::Vector3 distVec = mCamXNode->getPosition() - mZoomNode->getPosition();

@@ -77,11 +77,11 @@ OrbitCamera::rotateCamera(const Ogre::Radian yaw, const Ogre::Radian pitch)
 {
     switch (mCamType) {
     case CameraType::FreeFly:
-        mFreeNode->yaw(yaw, Ogre::Node::TS_WORLD);
+        mFreeNode->roll(yaw, Ogre::Node::TS_WORLD);
         mFreeNode->pitch(pitch);
         break;
     case CameraType::Orbit:
-        mCamXNode->yaw(yaw, Ogre::Node::TS_WORLD);
+        mCamXNode->roll(yaw, Ogre::Node::TS_WORLD);
         mCamYNode->pitch(pitch);
         break;
     default:

@@ -69,6 +69,7 @@ PrimitiveDrawer::~PrimitiveDrawer()
 Primitive*
 PrimitiveDrawer::createBox(const Ogre::Vector3& center,
                            const Ogre::Vector3& sizes,
+                           const Ogre::Vector3& offset,
                            const Ogre::ColourValue& color)
 {
     Ogre::MaterialPtr newMat = mBaseMat->clone(OgreNameGen::getFreshName());
@@ -83,16 +84,16 @@ PrimitiveDrawer::createBox(const Ogre::Vector3& center,
 
     // create the different vertices, first the top four and then the bottom
     // four
-    manual->position(Ogre::Vector3(halfSize.x, halfSize.y, halfSize.z));
-    manual->position(Ogre::Vector3(-halfSize.x, halfSize.y, halfSize.z));
-    manual->position(Ogre::Vector3(-halfSize.x, halfSize.y, -halfSize.z));
-    manual->position(Ogre::Vector3(halfSize.x, halfSize.y, -halfSize.z));
+    manual->position(Ogre::Vector3(halfSize.x, halfSize.y, halfSize.z) + offset);
+    manual->position(Ogre::Vector3(-halfSize.x, halfSize.y, halfSize.z) + offset);
+    manual->position(Ogre::Vector3(-halfSize.x, halfSize.y, -halfSize.z) + offset);
+    manual->position(Ogre::Vector3(halfSize.x, halfSize.y, -halfSize.z) + offset);
 
     // bottom
-    manual->position(Ogre::Vector3(halfSize.x, -halfSize.y, halfSize.z));
-    manual->position(Ogre::Vector3(-halfSize.x, -halfSize.y, halfSize.z));
-    manual->position(Ogre::Vector3(-halfSize.x, -halfSize.y, -halfSize.z));
-    manual->position(Ogre::Vector3(halfSize.x, -halfSize.y, -halfSize.z));
+    manual->position(Ogre::Vector3(halfSize.x, -halfSize.y, halfSize.z) + offset);
+    manual->position(Ogre::Vector3(-halfSize.x, -halfSize.y, halfSize.z) + offset);
+    manual->position(Ogre::Vector3(-halfSize.x, -halfSize.y, -halfSize.z) + offset);
+    manual->position(Ogre::Vector3(halfSize.x, -halfSize.y, -halfSize.z) + offset);
 
     // set the triangles
     manual->triangle(2, 1, 0); manual->triangle(0, 3, 2);   // top
@@ -116,6 +117,14 @@ PrimitiveDrawer::createBox(const Ogre::Vector3& center,
     mPrimitives.push_back(box);
 
     return box.get();
+}
+
+Primitive*
+PrimitiveDrawer::createBox(const Ogre::Vector3& center,
+                           const Ogre::Vector3& sizes,
+                           const Ogre::ColourValue& color)
+{
+    return createBox(center, sizes, Ogre::Vector3::ZERO, color);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -186,12 +195,17 @@ PrimitiveDrawer::createSphere(const Ogre::Vector3& center,
     node->attachObject(ent);
     node->setPosition(center);
 
+    // set the scale
+    const float r = ent->getBoundingRadius();
+    const float factor = radius / r;
+    node->setScale(factor, factor, factor);
+
     PrimitivePtr sphere(new Primitive(node, ent));
     sphere->setColor(color);
     sphere->id = mPrimitives.size();
     mPrimitives.push_back(sphere);
 
-    debugERROR("We are not setting the radius of the sphere here... fix this\n");
+    debugWARNING("We are scaling the node of the sphere to match with the radius\n");
 
     return sphere.get();
 }

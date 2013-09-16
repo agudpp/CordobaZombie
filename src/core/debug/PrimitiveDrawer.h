@@ -105,8 +105,15 @@ public:
     // @param position  The center position of the box
     // @param sizes     The sizes of the box
     // @param color     The color to be used
+    // @param offset    Move each vertex the offset value (this way the box
+    //                  will not be centered).
     // @return the allocated Primitive* (DO NOT DELETE manually this memory)
     //
+    Primitive*
+    createBox(const Ogre::Vector3& center,
+              const Ogre::Vector3& sizes,
+              const Ogre::Vector3& offset,
+              const Ogre::ColourValue& color = Ogre::ColourValue::White);
     Primitive*
     createBox(const Ogre::Vector3& center,
               const Ogre::Vector3& sizes,
