@@ -57,6 +57,9 @@ getKeyboardKeys(void)
     buttons.push_back(input::KeyCode::KC_DOWN);
     buttons.push_back(input::KeyCode::KC_RIGHT);
     buttons.push_back(input::KeyCode::KC_UP);
+    buttons.push_back(input::KeyCode::KC_LSHIFT);
+    buttons.push_back(input::KeyCode::KC_RSHIFT);
+    buttons.push_back(input::KeyCode::KC_0);
     buttons.push_back(input::KeyCode::KC_1);
     buttons.push_back(input::KeyCode::KC_2);
     buttons.push_back(input::KeyCode::KC_E);
@@ -137,6 +140,30 @@ drawBone(const Ogre::Bone *bone, const Ogre::SceneNode* node)
 }
 
 
+// @brief print the bone names of an entity
+//
+inline void
+printBoneNames(Ogre::Entity* ent)
+{
+    if (ent == 0) {
+        debugBLUE("Null entity\n");
+        return;
+    }
+    Ogre::SkeletonInstance* skeleton = ent->getSkeleton();
+    if (!skeleton) {
+        debugBLUE("ent %s has no skeleton\n", ent->getName().c_str());
+        return;
+    }
+
+    Ogre::Skeleton::BoneIterator boneIt = skeleton->getBoneIterator();
+    unsigned int i = 0;
+    while(boneIt.hasMoreElements()) {
+        Ogre::Bone* bone = boneIt.getNext();
+        debugBLUE("Bone[%d]: %s\n", i, bone->getName().c_str());
+        ++i;
+    }
+}
+
 
 }
 
@@ -202,7 +229,7 @@ void
 TestingBullet::configureBullet(void)
 {
     // set gravity
-    mDynamicWorld.setGravity(btVector3(0,0,-10));
+    mDynamicWorld.setGravity(btVector3(0,0,-50));
 
     // create scene
     btCollisionShape* groundShape =
@@ -367,7 +394,7 @@ void
 TestingBullet::createEntityAndShowBones(void)
 {
     Ogre::SceneNode* node = mSceneMgr->getRootSceneNode()->createChildSceneNode();
-    Ogre::Entity* ent = mSceneMgr->createEntity("zombiecortado.mesh");
+    Ogre::Entity* ent = mSceneMgr->createEntity("zombie.mesh");
 
     node->attachObject(ent);
     node->translate(100,150,125);
@@ -392,18 +419,24 @@ TestingBullet::createEntityAndShowBones(void)
 //        mBones.push_back(pd.createSphere(bp, 3, Ogre::ColourValue::Red));
     }
     Ogre::SkeletonInstance* s = skeleton;
-    drawBone(s->getBone("Bip01 Head"), node);
-    drawBone(s->getBone("Bip01 Neck"), node);
-    drawBone(s->getBone("Bip01 L Clavicle"), node);
-    drawBone(s->getBone("Bip01 L UpperArm"), node);
-    drawBone(s->getBone("Bip01 R Clavicle"), node);
-    drawBone(s->getBone("Bip01 R UpperArm"), node);
-    drawBone(s->getBone("Bip01 Spine"), node);
-    drawBone(s->getBone("Bip01 Pelvis"), node);
-    drawBone(s->getBone("Bip01 L Thigh"), node);
-    drawBone(s->getBone("Bip01 L Calf"), node);
-    drawBone(s->getBone("Bip01 R Thigh"), node);
-    drawBone(s->getBone("Bip01 R Calf"), node);
+    drawBone(s->getBone("B_HEAD"), node);
+    drawBone(s->getBone("B_NECK"), node);
+    drawBone(s->getBone("B_CLAVICLE_R"), node);
+    drawBone(s->getBone("B_UPPER_ARM_R"), node);
+    drawBone(s->getBone("B_FORE_ARM_R"), node);
+    drawBone(s->getBone("B_HAND_R"), node);
+    drawBone(s->getBone("B_THIGH_R"), node);
+    drawBone(s->getBone("B_CALF_R"), node);
+    drawBone(s->getBone("B_FOOT_R"), node);
+    drawBone(s->getBone("B_CLAVICLE_L"), node);
+    drawBone(s->getBone("B_UPPER_ARM_L"), node);
+    drawBone(s->getBone("B_FORE_ARM_L"), node);
+    drawBone(s->getBone("B_HAND_L"), node);
+    drawBone(s->getBone("B_THIGH_L"), node);
+    drawBone(s->getBone("B_CALF_L"), node);
+    drawBone(s->getBone("B_FOOT_L"), node);
+    drawBone(s->getBone(" B_SPINE"), node);
+    drawBone(s->getBone("B_PELVIS"), node);
 
 //    mAnimState = ent->getAnimationState("corre2");
 //    mAnimState->setEnabled(true);
@@ -442,39 +475,53 @@ TestingBullet::createRagdoll(Ogre::SkeletonInstance* s, Ogre::SceneNode* sn)
 {
     mRagdoll.setDynamicWorld(&mDynamicWorld);
 
-//    physics::BodyPartInfoVec bp;
-//    bp.push_back(physics::BodyPartInfo("Bip01 Neck", "Bip01 Head", 3, 3)); // head
-//    bp.push_back(physics::BodyPartInfo("Bip01 L Clavicle", "Bip01 L UpperArm", 3, 3)); // BP_UPPER_ARM_L
-//    bp.push_back(physics::BodyPartInfo("Bip01 L UpperArm", "Bip01 L Forearm", 3, 3)); // BP_FORE_ARM_L
-//    bp.push_back(physics::BodyPartInfo("Bip01 R Clavicle", "Bip01 R UpperArm", 3, 3)); // BP_UPPER_ARM_R
-//    bp.push_back(physics::BodyPartInfo("Bip01 R UpperArm", "Bip01 R Forearm", 3, 3)); // BP_FORE_ARM_R
-//    bp.push_back(physics::BodyPartInfo("Bip01 Spine", "Bip01 Neck", 3, 3)); // SPINE
-//    bp.push_back(physics::BodyPartInfo("Bip01 Pelvis", "Bip01 Spine", 3, 3)); // PELVIS
-//    bp.push_back(physics::BodyPartInfo("Bip01 L Thigh", "Bip01 L Calf", 3, 3)); // BP_THIGH_L
-//    bp.push_back(physics::BodyPartInfo("Bip01 L Calf", "Bip01 L Foot", 3, 3)); // BP_LEG_L
-//    bp.push_back(physics::BodyPartInfo("Bip01 R Thigh", "Bip01 R Calf", 3, 3)); // BP_THIGH_R
-//    bp.push_back(physics::BodyPartInfo("Bip01 R Calf", "Bip01 R Foot", 3, 3)); // BP_LEG_R
+    // old names
+//    table[physics::BonesID::B_HEAD] = s->getBone("Bip01 Head");
+//    table[physics::BonesID::B_NECK] = s->getBone("Bip01 Neck");
+//    table[physics::BonesID::B_CLAVICLE_R] = s->getBone("Bip01 R Clavicle");
+//    table[physics::BonesID::B_CLAVICLE_L] = s->getBone("Bip01 L Clavicle");
+//    table[physics::BonesID::B_UPPER_ARM_R] = s->getBone("Bip01 R UpperArm");
+//    table[physics::BonesID::B_UPPER_ARM_L] = s->getBone("Bip01 L UpperArm");
+//    table[physics::BonesID::B_FORE_ARM_R] = s->getBone("Bip01 R Forearm");
+//    table[physics::BonesID::B_FORE_ARM_L] = s->getBone("Bip01 L Forearm");
+//    table[physics::BonesID::B_HAND_R] = s->getBone("Bip01 R Hand");
+//    table[physics::BonesID::B_HAND_L] = s->getBone("Bip01 L Hand");
+//    table[physics::BonesID::B_SPINE] = s->getBone("Bip01 Spine");
+//    table[physics::BonesID::B_PELVIS] = s->getBone("Bip01 Pelvis");
+//    table[physics::BonesID::B_THIGH_R] = s->getBone("Bip01 R Thigh");
+//    table[physics::BonesID::B_THIGH_L] = s->getBone("Bip01 L Thigh");
+//    table[physics::BonesID::B_CALF_R] = s->getBone("Bip01 R Calf");
+//    table[physics::BonesID::B_CALF_L] = s->getBone("Bip01 L Calf");
+//    table[physics::BonesID::B_FOOT_R] = s->getBone("Bip01 R Foot");
+//    table[physics::BonesID::B_FOOT_L] = s->getBone("Bip01 L Foot");
 
-    physics::BoneTable table;
+
     table.resize(table.max_size());
-    table[physics::BonesID::B_HEAD] = s->getBone("Bip01 Head");
-    table[physics::BonesID::B_NECK] = s->getBone("Bip01 Neck");
-    table[physics::BonesID::B_CLAVICLE_R] = s->getBone("Bip01 R Clavicle");
-    table[physics::BonesID::B_CLAVICLE_L] = s->getBone("Bip01 L Clavicle");
-    table[physics::BonesID::B_UPPER_ARM_R] = s->getBone("Bip01 R UpperArm");
-    table[physics::BonesID::B_UPPER_ARM_L] = s->getBone("Bip01 L UpperArm");
-    table[physics::BonesID::B_FORE_ARM_R] = s->getBone("Bip01 R Forearm");
-    table[physics::BonesID::B_FORE_ARM_L] = s->getBone("Bip01 L Forearm");
-    table[physics::BonesID::B_HAND_R] = s->getBone("Bip01 R Hand");
-    table[physics::BonesID::B_HAND_L] = s->getBone("Bip01 L Hand");
-    table[physics::BonesID::B_SPINE] = s->getBone("Bip01 Spine");
-    table[physics::BonesID::B_PELVIS] = s->getBone("Bip01 Pelvis");
-    table[physics::BonesID::B_THIGH_R] = s->getBone("Bip01 R Thigh");
-    table[physics::BonesID::B_THIGH_L] = s->getBone("Bip01 L Thigh");
-    table[physics::BonesID::B_CALF_R] = s->getBone("Bip01 R Calf");
-    table[physics::BonesID::B_CALF_L] = s->getBone("Bip01 L Calf");
-    table[physics::BonesID::B_FOOT_R] = s->getBone("Bip01 R Foot");
-    table[physics::BonesID::B_FOOT_L] = s->getBone("Bip01 L Foot");
+    table[physics::BonesID::B_HEAD] = s->getBone("B_HEAD");
+    table[physics::BonesID::B_NECK] = s->getBone("B_NECK");
+    table[physics::BonesID::B_CLAVICLE_R] = s->getBone("B_CLAVICLE_R");
+    table[physics::BonesID::B_CLAVICLE_L] = s->getBone("B_CLAVICLE_L");
+    table[physics::BonesID::B_UPPER_ARM_R] = s->getBone("B_UPPER_ARM_R");
+    table[physics::BonesID::B_UPPER_ARM_L] = s->getBone("B_UPPER_ARM_L");
+    table[physics::BonesID::B_FORE_ARM_R] = s->getBone("B_FORE_ARM_R");
+    table[physics::BonesID::B_FORE_ARM_L] = s->getBone("B_FORE_ARM_L");
+    table[physics::BonesID::B_HAND_R] = s->getBone("B_HAND_R");
+    table[physics::BonesID::B_HAND_L] = s->getBone("B_HAND_L");
+    table[physics::BonesID::B_SPINE] = s->getBone(" B_SPINE");
+//    table[physics::BonesID::B_SPINE1] = s->getBone("Spine1");
+    table[physics::BonesID::B_PELVIS] = s->getBone("B_PELVIS");
+    table[physics::BonesID::B_THIGH_R] = s->getBone("B_THIGH_R");
+    table[physics::BonesID::B_THIGH_L] = s->getBone("B_THIGH_L");
+    table[physics::BonesID::B_CALF_R] = s->getBone("B_CALF_R");
+    table[physics::BonesID::B_CALF_L] = s->getBone("B_CALF_L");
+    table[physics::BonesID::B_FOOT_R] = s->getBone("B_FOOT_R");
+    table[physics::BonesID::B_FOOT_L] = s->getBone("B_FOOT_L");
+//    table[physics::BonesID::B_HEAD_NUB] = s->getBone("Bip01 HeadNub");
+//    table[physics::BonesID::B_BIP01_ROOT] = s->getBone("Bip01");
+//    table[physics::BonesID::B_TOE0_L] = s->getBone("Bip01 L Toe0");
+//    table[physics::BonesID::B_TOE0_NUB_L] = s->getBone("Bip01 L Toe0Nub");
+//    table[physics::BonesID::B_TOE0_R] = s->getBone("Bip01 R Toe0");
+//    table[physics::BonesID::B_TOE0_NUB_R] = s->getBone("Bip01 R Toe0Nub");
 
     std::cout << " Building ragdoll: " << mRagdoll.buildFromSkeleton(table, sn) << std::endl;
     mHeadNode = mRagdoll.head;
@@ -502,6 +549,47 @@ TestingBullet::createSampleScene(void)
 
 ////////////////////////////////////////////////////////////////////////////////
 void
+TestingBullet::handleRagdollInput()
+{
+    ///////////////////////////////////////////////////////////////////////////
+    // CAMERA
+    //  float lCoeff = 200.0f * Common::GlobalObjects::lastTimeFrame;
+    Ogre::Vector3 mTranslationVec = Ogre::Vector3::ZERO;
+
+    if (mInputHelper.isKeyPressed(input::KeyCode::KC_RSHIFT)) {
+        if(mInputHelper.isKeyPressed(input::KeyCode::KC_UP)) {
+            mTranslationVec.y -= 1.0f;
+        }
+        if(mInputHelper.isKeyPressed(input::KeyCode::KC_DOWN)) {
+            mTranslationVec.y += 1.0f;
+        }
+    } else {
+        if(mInputHelper.isKeyPressed(input::KeyCode::KC_UP)) {
+            mTranslationVec.z -= 1.0f;
+        }
+        if(mInputHelper.isKeyPressed(input::KeyCode::KC_DOWN)) {
+            mTranslationVec.z += 1.0f;
+        }
+    }
+
+    if(mInputHelper.isKeyPressed(input::KeyCode::KC_LEFT)) {
+        mTranslationVec.x -= 1.0f;
+    }
+    if(mInputHelper.isKeyPressed(input::KeyCode::KC_RIGHT)) {
+        mTranslationVec.x += 1.0f;
+    }
+
+
+
+    if(mTranslationVec != Ogre::Vector3::ZERO) {
+        mHeadNode->applyCentralImpulse(btVector3(mTranslationVec.x,
+                                                 mTranslationVec.y,
+                                                 mTranslationVec.z));
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void
 TestingBullet::handleCameraInput()
 {
     ///////////////////////////////////////////////////////////////////////////
@@ -520,20 +608,16 @@ TestingBullet::handleCameraInput()
     // MOUSE
     const OIS::MouseState& lMouseState = mMouse->getMouseState();
 
-    if(mInputHelper.isKeyPressed(input::KeyCode::KC_LEFT) ||
-        mInputHelper.isKeyPressed(input::KeyCode::KC_A)) {
+    if(mInputHelper.isKeyPressed(input::KeyCode::KC_A)) {
         mTranslationVec.x -= 1.0f;
     }
-    if(mInputHelper.isKeyPressed(input::KeyCode::KC_RIGHT) ||
-        mInputHelper.isKeyPressed(input::KeyCode::KC_D)) {
+    if(mInputHelper.isKeyPressed(input::KeyCode::KC_D)) {
         mTranslationVec.x += 1.0f;
     }
-    if(mInputHelper.isKeyPressed(input::KeyCode::KC_UP) ||
-        mInputHelper.isKeyPressed(input::KeyCode::KC_W)) {
+    if(mInputHelper.isKeyPressed(input::KeyCode::KC_W)) {
         mTranslationVec.z -= 1.0f;
     }
-    if(mInputHelper.isKeyPressed(input::KeyCode::KC_DOWN) ||
-        mInputHelper.isKeyPressed(input::KeyCode::KC_S)) {
+    if(mInputHelper.isKeyPressed(input::KeyCode::KC_S)) {
         mTranslationVec.z += 1.0f;
     }
 
@@ -613,14 +697,16 @@ TestingBullet::loadAditionalData(void)
 //    createSampleScene();
 
 //    createEntityAndShowBones();
-//
+
     Ogre::SceneNode* node = mSceneMgr->getRootSceneNode()->createChildSceneNode();
-    Ogre::Entity* ent = mSceneMgr->createEntity("zombiecortado.mesh");
+    Ogre::Entity* ent = mSceneMgr->createEntity("zombie.mesh");
     mModelNode = node;
     node->attachObject(ent);
-    node->translate(100,150,125);
+    node->translate(0,0,10);
+    node->pitch(Ogre::Radian(M_PI_2), Ogre::Node::TS_WORLD);
     Ogre::SkeletonInstance* skeleton = ent->getSkeleton();
     createRagdoll(skeleton, node);
+    printBoneNames(ent);
 
     // everything fine...
 
@@ -642,7 +728,10 @@ TestingBullet::update()
 
     // apply a force to the box up
     if (mInputHelper.isKeyReleased(input::KeyCode::KC_SPACE)) {
-        mHeadNode->applyCentralImpulse(btVector3(0,0,100));
+        // apply a big impulse in the head
+        mHeadNode->applyCentralImpulse(btVector3(0, -800,100));
+
+//        mHeadNode->applyCentralImpulse(btVector3(0,0,100));
 //        mHand.mRigidBody->applyCentralImpulse(btVector3(0,0,100));
 //        mDynamicWorld.removeRigidBody(mHand.mRigidBody);
 //        mDynamicWorld.removeRigidBody(mArm.mRigidBody);
@@ -657,12 +746,18 @@ TestingBullet::update()
 //        mDynamicWorld.addRigidBody(mHand.mRigidBody);
 //        mDynamicWorld.addRigidBody(mArm.mRigidBody);
     }
+    if (mInputHelper.isKeyReleased(input::KeyCode::KC_0)) {
+        mRagdoll.setEnable(false);
+        mModelNode->setPosition(0,0,150);
+        mRagdoll.configureRagdoll(table, mModelNode);
+        mRagdoll.setEnable(true);
+        mRagdollNeedToUpdate = true;
+    }
     if (mInputHelper.isKeyReleased(input::KeyCode::KC_ADD)) {
         mModelNode->flipVisibility();
     }
     if (mInputHelper.isKeyReleased(input::KeyCode::KC_MINUS)) {
-        Ogre::Vector3 zeroPos = Ogre::Vector3::ZERO - (mModelNode->getPosition());
-        mBoxBoneInfo.back().bone->_setDerivedPosition(zeroPos);
+        mHeadNode->applyCentralImpulse(btVector3(0,-4000,1000));
     }
 
     // if click shoot a box
@@ -685,7 +780,12 @@ TestingBullet::update()
 
     // update the camera
     handleCameraInput();
+    handleRagdollInput();
     mDynamicWorld.stepSimulation(mTimeFrame, 10);
+
+    if (mRagdoll.isEnabled() && mRagdollNeedToUpdate) {
+        mRagdollNeedToUpdate = mRagdoll.update();
+    }
 
     // animate the player skeleton
 //    Ogre::Skeleton::BoneIterator boneIt = mSkeleton->getBoneIterator();

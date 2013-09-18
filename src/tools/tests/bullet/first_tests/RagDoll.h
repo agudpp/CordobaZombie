@@ -36,6 +36,7 @@ enum BodyPartID {
     BP_UPPER_ARM_R,
     BP_FORE_ARM_R,
     BP_SPINE,
+    BP_PELVIS,
     BP_THIGH_L,
     BP_LEG_L,
     BP_THIGH_R,
@@ -66,34 +67,18 @@ enum BonesID {
     B_FOOT_R,
     B_FOOT_L,
 
+    // this will be the completely unused bones
+//    B_SPINE1,
+//    B_HEAD_NUB,
+//    B_BIP01_ROOT,
+//    B_TOE0_L,
+//    B_TOE0_NUB_L,
+//    B_TOE0_R,
+//    B_TOE0_NUB_R,
+
     B_COUNT
 };
 
-// The structure used to map bones -> BodyPart
-struct BodyPartInfo {
-    std::string rootBoneName;     // The root bone that represent the bodypart
-    std::string childBoneName;    // The associated child bone
-    float height;                 // The height of the box representing the bp
-    float width;                  // The width of the box representing the bp
-    float mass;                   // The associated mass to this bodypart
-
-    BodyPartInfo(const std::string& rootB,
-                 const std::string& childB,
-                 float h,
-                 float w,
-                 float m = 2.f) :
-        rootBoneName(rootB)
-    ,   childBoneName(childB)
-    ,   height(h)
-    ,   width(w)
-    ,   mass(m)
-    {}
-
-    BodyPartInfo()
-    {}
-};
-
-typedef core::StackVector<BodyPartInfo, BP_MAX> BodyPartInfoVec;
 typedef core::StackVector<Ogre::Bone*, BonesID::B_COUNT> BoneTable;
 
 
@@ -103,24 +88,22 @@ typedef core::StackVector<Ogre::Bone*, BonesID::B_COUNT> BoneTable;
 //
 class RagDollUpdater : public btMotionState {
 public:
-
     // Global variables for this class
     //
-    Ogre::Bone *bone;
-    Ogre::SceneNode* parentNode;
     btTransform transform;
-    btVector3 offset;
+    bool dirty;
+#ifdef DEBUG
+    core::Primitive* primitive;
+#endif
 
 
-    RagDollUpdater() : bone(0), parentNode(0) {}
 
-    // @brief reset the values
-    //
-    inline void
-    reset(void)
-    {
-        bone = 0; parentNode = 0;
-    }
+    RagDollUpdater() :
+        dirty(false)
+#ifdef DEBUG
+    ,   primitive(0)
+#endif
+    {}
 
     // @brief Used by bullet
     //
@@ -135,56 +118,19 @@ public:
     virtual void
     setWorldTransform(const btTransform &worldTrans)
     {
-        /*ASSERT(bone);
-        ASSERT(parentNode);
-        // TODO: here we need to transform from world to local.
-        //
-        const btQuaternion& rot = worldTrans.getRotation();
-        bone->setOrientation(rot.w(), rot.x(), rot.y(), rot.z());
-        const btVector3& pos = worldTrans.getOrigin();
-        bone->setPosition(pos.x(), pos.y(), pos.z());
-        transform = worldTrans;*/
+        dirty = true;
+        transform = worldTrans;
 
 #ifdef DEBUG
+        if (!primitive) {
+            return;
+        }
         const btQuaternion& rot = worldTrans.getRotation();
         primitive->node->setOrientation(rot.w(), rot.x(), rot.y(), rot.z());
         const btVector3& pos = worldTrans.getOrigin();
         primitive->node->setPosition(pos.x(), pos.y(), pos.z());
 #endif
     }
-
-    // @brief get the global position/orientation for this particular object
-    //
-    inline Ogre::Vector3
-    worldPosition(void)
-    {
-        return globalOgrePosition(bone, parentNode);
-    }
-    inline Ogre::Quaternion
-    worldOrientation(void)
-    {
-        return globalOgreRotation(bone, parentNode);
-    }
-
-    // Helper methods
-    //
-    static inline Ogre::Quaternion
-    globalOgreRotation(const Ogre::Bone *bone, const Ogre::SceneNode* parentNode)
-    {
-        return parentNode->_getDerivedOrientation() * bone->_getDerivedOrientation();
-    }
-    static inline Ogre::Vector3
-    globalOgrePosition(const Ogre::Bone *bone, const Ogre::SceneNode* parentNode)
-    {
-        return parentNode->getPosition() + parentNode->getOrientation() *
-            bone->_getDerivedPosition();
-    }
-
-#ifdef DEBUG
-public:
-    core::Primitive* primitive;
-#endif
-
 };
 
 
@@ -194,6 +140,7 @@ class RagDoll
     //
     enum BodyConstraints {
         BC_SPINE_HEAD = 0,
+        BC_SPINE_PELVIS,
         BC_LEFT_SHOULDER,
         BC_LEFT_ELBOW,
         BC_RIGHT_SHOULDER,
@@ -238,7 +185,7 @@ public:
     // @param parentNode    The parence scene node of the skeleton
     //
     void
-    configureRagdoll(const core::StackVector<Ogre::Bone*, BP_MAX>& bones,
+    configureRagdoll(const BoneTable& bones,
                      Ogre::SceneNode* parentNode);
 
     // @brief Enable / disable this ragdoll to start modifying the current
@@ -252,15 +199,29 @@ public:
     void
     setEnable(bool enable);
 
+    // @brief Check if this ragdoll is enabled or not
+    //
+    inline bool
+    isEnabled(void) const;
+
     // @brief Remove all the data from this class and free the memory.
     //
     void
     clear(void);
 
+    // @brief Update the ragdoll. This method will update the associated skeleton
+    //        using the current position of the ragdoll.
+    // @return true if the ragdoll should need to be updated anymore | false if not.
+    //
+    bool
+    update(void);
+
     // TODO: remove this
     btRigidBody *head;
 
 private:
+
+    typedef core::StackVector<unsigned short, 6> AdditionalOffsets;
 
     // Helper internal classes
     //
@@ -270,6 +231,15 @@ private:
         Ogre::Bone* bone;
         btVector3 offset;
         RagDollUpdater motionState;
+        AdditionalOffsets childJoints;
+    };
+
+    struct BoneChildOffset {
+        Ogre::Bone* bone;
+        btVector3 offset;
+
+        BoneChildOffset(Ogre::Bone* b, const btVector3& o) : bone(b), offset(o){}
+        BoneChildOffset() : bone(0) {};
     };
 
     struct TempBoneInfo {
@@ -336,6 +306,14 @@ private:
     btDynamicsWorld* mDynamicWorld;
     core::StackVector<RagdollBoneInfo, BP_MAX> mRagdollBones;
     core::StackVector<btTypedConstraint*, BC_COUNT> mConstraints;
+    // in the mAdditionalOffsets vector we will put the child offset for some
+    // of the bones that are not being tracked by the physics engine but are
+    // child of some other bone that it is tracked.
+    // This offsets will be relative to the rigid body position and not to the
+    // bone position.
+    core::StackVector<BoneChildOffset, BonesID::B_COUNT - BP_MAX> mAdditionalOffsets;
+    Ogre::SceneNode* mParentNode;
+    bool mEnabled;
 
 };
 
@@ -357,6 +335,12 @@ inline btDynamicsWorld*
 RagDoll::dynamicWorld() const
 {
     return mDynamicWorld;
+}
+
+inline bool
+RagDoll::isEnabled(void) const
+{
+    return mEnabled;
 }
 
 } /* namespace physics */

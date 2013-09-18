@@ -96,6 +96,9 @@ private:
     createSampleScene(void);
 
     void
+    handleRagdollInput(void);
+
+    void
     handleCameraInput(void);
 
 private:
@@ -160,6 +163,8 @@ private:
     core::StackVector<core::Primitive*, 45> mBones;
     Ogre::AnimationState* mAnimState;
     physics::RagDoll mRagdoll;
+    bool mRagdollNeedToUpdate;
+    physics::BoneTable table;
     btRigidBody* mHeadNode;
 };
 
