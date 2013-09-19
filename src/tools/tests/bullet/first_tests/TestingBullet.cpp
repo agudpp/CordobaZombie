@@ -807,9 +807,9 @@ TestingBullet::loadAditionalData(void)
     createRagdoll(skeleton, node);
     printBoneNames(ent);
     printAnimations(ent);
-    mAnimState = ent->getAnimationState("corre");
-    mAnimState->setEnabled(true);
-    mAnimState->setLoop(true);
+//    mAnimState = ent->getAnimationState("corre");
+//    mAnimState->setEnabled(true);
+//    mAnimState->setLoop(true);
     // everything fine...
 
     createRagdollInstances();
@@ -881,13 +881,16 @@ TestingBullet::update()
         force *= 6600;
         btVector3 btForce(force.x, force.y, force.z);
 //        box->mRigidBody->applyCentralImpulse(btForce);
-        mAnimState->setEnabled(false);
+        if (mAnimState) mAnimState->setEnabled(false);
         mRagdoll.setEnable(false);
-        mModelNode->setPosition(camPos);
+//        mModelNode->setPosition(camPos);
+
+        mRagdoll.resetBones(table);
+
         mRagdoll.configureRagdoll(table, mModelNode);
         mRagdoll.setEnable(true);
         mRagdollNeedToUpdate = true;
-        mHeadNode->applyCentralImpulse(btForce);
+//        mHeadNode->applyCentralImpulse(btForce);
     }
 
     if (mAnimState && mAnimState->getEnabled()) {

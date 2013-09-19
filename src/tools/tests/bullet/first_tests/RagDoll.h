@@ -237,7 +237,7 @@ public:
 
 private:
 
-    typedef core::StackVector<unsigned short, 6> AdditionalOffsets;
+    typedef core::StackVector<unsigned short, 3> AdditionalOffsets;
 
     // Helper internal classes
     //

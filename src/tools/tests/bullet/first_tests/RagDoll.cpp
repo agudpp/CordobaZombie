@@ -43,13 +43,14 @@ bbFrom2Pos(const Ogre::Vector3& p1,
 inline Ogre::Quaternion
 globalOgreRotation(const Ogre::Bone *bone, const Ogre::SceneNode* parentNode)
 {
-    return parentNode->_getDerivedOrientation() * bone->_getDerivedOrientation();
+    return parentNode->_getDerivedOrientation() *
+        (bone->getParent() ? bone->_getDerivedOrientation() : bone->getOrientation());
 }
 inline Ogre::Vector3
 globalOgrePosition(const Ogre::Bone *bone, const Ogre::SceneNode* parentNode)
 {
     return parentNode->getPosition() + parentNode->getOrientation() *
-        bone->_getDerivedPosition();
+        (bone->getParent() ? bone->_getDerivedPosition() : bone->getPosition());
 }
 
 // @brief Transform ogre quaternion into bullet quaternion
@@ -107,16 +108,20 @@ obtainGlobalInfo(const Ogre::Bone *bone,
 // @param rb            The rigid body to configure
 // @param bone          The bone we will extract the information
 // @param parentNode    The parent scene node
+// @param localOffset   The local offset of the rigid body
 //
 inline void
 configureRigidBody(btRigidBody& rb,
                    const Ogre::Bone* bone,
-                   const Ogre::SceneNode* parentNode)
+                   const Ogre::SceneNode* parentNode,
+                   const btVector3& localOffset)
 {
     // calculate the rotation and global position for this bone
     btTransform& transform = rb.getWorldTransform();
     transform.setOrigin(ogreToBullet(globalOgrePosition(bone, parentNode)));
     transform.setRotation(ogreToBullet(globalOgreRotation(bone, parentNode)));
+    // move the offset using the current transformation
+    transform.setOrigin(transform * localOffset);
 }
 
 
@@ -194,11 +199,6 @@ RagDoll::buildRagdollBoneInfo(const TempBoneInfoVec& boneInfo)
                       halfSize,
                       bodyPartMass * 0.1f,
                       *bi);
-
-    // the childs
-//    bi->childJoints.push_back(mAdditionalOffsets.size());
-//    mAdditionalOffsets.push_back(BoneChildOffset(boneInfo[B_HEAD_NUB].bone ,
-//        boneInfo[B_HEAD].toLocal(boneInfo[B_HEAD_NUB].worldPos) + bi->offset));
 
     ////////////////////////////////////////////////////////////////////////////
     // construct the BP_UPPER_ARM_L
@@ -285,9 +285,9 @@ RagDoll::buildRagdollBoneInfo(const TempBoneInfoVec& boneInfo)
     ////////////////////////////////////////////////////////////////////////////
     // construct the BP_SPINE
     // this is the "TORSO" and should be the size from the spine to the neck
-    // and height = from one upper arm to the another one
+    // and height = from one thigh to the other one
     bi = &mRagdollBones[BodyPartID::BP_SPINE];
-    height = boneInfo[B_UPPER_ARM_R].worldPos.distance(boneInfo[B_UPPER_ARM_L].worldPos);
+    height = boneInfo[B_THIGH_L].worldPos.distance(boneInfo[B_THIGH_R].worldPos) * 1.15f;
     width = height * 0.3f;
     d1 = boneInfo[B_SPINE].worldPos.distance(boneInfo[B_NECK].worldPos);
     p3 = (boneInfo[B_SPINE].worldPos + boneInfo[B_NECK].worldPos) * 0.5f; // position of the shape
@@ -311,12 +311,6 @@ RagDoll::buildRagdollBoneInfo(const TempBoneInfoVec& boneInfo)
     bi->childJoints.push_back(mAdditionalOffsets.size());
     mAdditionalOffsets.push_back(BoneChildOffset(boneInfo[B_CLAVICLE_L].bone ,
         boneInfo[B_SPINE].toLocal(boneInfo[B_CLAVICLE_L].worldPos) + bi->offset));
-//    bi->childJoints.push_back(mAdditionalOffsets.size());
-//    mAdditionalOffsets.push_back(BoneChildOffset(boneInfo[B_SPINE1].bone ,
-//        boneInfo[B_SPINE].toLocal(boneInfo[B_SPINE1].worldPos) + bi->offset));
-//    bi->childJoints.push_back(mAdditionalOffsets.size());
-//    mAdditionalOffsets.push_back(BoneChildOffset(boneInfo[B_BIP01_ROOT].bone ,
-//        boneInfo[B_SPINE].toLocal(boneInfo[B_BIP01_ROOT].worldPos) + bi->offset));
 
     ////////////////////////////////////////////////////////////////////////////
     // construct the BP_PELVIS
@@ -392,12 +386,6 @@ RagDoll::buildRagdollBoneInfo(const TempBoneInfoVec& boneInfo)
     bi->childJoints.push_back(mAdditionalOffsets.size());
     mAdditionalOffsets.push_back(BoneChildOffset(boneInfo[B_FOOT_L].bone,
         boneInfo[B_CALF_L].toLocal(boneInfo[B_FOOT_L].worldPos) + bi->offset));
-//    bi->childJoints.push_back(mAdditionalOffsets.size());
-//    mAdditionalOffsets.push_back(BoneChildOffset(boneInfo[B_TOE0_L].bone ,
-//        boneInfo[B_CALF_L].toLocal(boneInfo[B_TOE0_L].worldPos) + bi->offset));
-//    bi->childJoints.push_back(mAdditionalOffsets.size());
-//    mAdditionalOffsets.push_back(BoneChildOffset(boneInfo[B_TOE0_NUB_L].bone ,
-//        boneInfo[B_CALF_L].toLocal(boneInfo[B_TOE0_NUB_L].worldPos) + bi->offset));
 
     ////////////////////////////////////////////////////////////////////////////
     // construct the BP_LEG_R
@@ -421,11 +409,6 @@ RagDoll::buildRagdollBoneInfo(const TempBoneInfoVec& boneInfo)
     bi->childJoints.push_back(mAdditionalOffsets.size());
     mAdditionalOffsets.push_back(BoneChildOffset(boneInfo[B_FOOT_R].bone,
         boneInfo[B_CALF_R].toLocal(boneInfo[B_FOOT_R].worldPos) + bi->offset));
-//    mAdditionalOffsets.push_back(BoneChildOffset(boneInfo[B_TOE0_R].bone ,
-//        boneInfo[B_CALF_L].toLocal(boneInfo[B_TOE0_R].worldPos) + bi->offset));
-//    bi->childJoints.push_back(mAdditionalOffsets.size());
-//    mAdditionalOffsets.push_back(BoneChildOffset(boneInfo[B_TOE0_NUB_R].bone ,
-//        boneInfo[B_CALF_L].toLocal(boneInfo[B_TOE0_NUB_R].worldPos) + bi->offset));
 
 
     return true;
@@ -559,7 +542,6 @@ RagDoll::setConstraints(const TempBoneInfoVec& boneInfo)
     ////////////////////////////////////////////////////////////////////////////
     // pelvis and thigh r, the same here
     localA.setIdentity(); localB.setIdentity();
-//    localA.getBasis().setEulerZYX(0,0,M_PI);
     localA.getOrigin() = mRagdollBones[BodyPartID::BP_PELVIS].offset +
          boneInfo[B_PELVIS].toLocal(boneInfo[B_THIGH_R].worldPos);
     localB.getBasis().setEulerZYX(0,0,-M_PI);
@@ -736,58 +718,58 @@ RagDoll::configureRagdoll(const BoneTable& bones,
     bi = &mRagdollBones[BP_HEAD];
     bi->bone = bones[B_HEAD];
     bi->motionState.dirty = true;
+    configureRigidBody(*bi->rigidBody, bi->bone, parentNode, -bi->offset);
     bi->motionState.setWorldTransform(bi->rigidBody->getWorldTransform());
-    configureRigidBody(*bi->rigidBody, bi->bone, parentNode);
     bi = &mRagdollBones[BP_UPPER_ARM_L];
     bi->bone = bones[B_UPPER_ARM_L];
     bi->motionState.dirty = true;
+    configureRigidBody(*bi->rigidBody, bi->bone, parentNode, -bi->offset);
     bi->motionState.setWorldTransform(bi->rigidBody->getWorldTransform());
-    configureRigidBody(*bi->rigidBody, bi->bone, parentNode);
     bi = &mRagdollBones[BP_FORE_ARM_L];
     bi->bone = bones[B_FORE_ARM_L];
     bi->motionState.dirty = true;
+    configureRigidBody(*bi->rigidBody, bi->bone, parentNode, -bi->offset);
     bi->motionState.setWorldTransform(bi->rigidBody->getWorldTransform());
-    configureRigidBody(*bi->rigidBody, bi->bone, parentNode);
     bi = &mRagdollBones[BP_UPPER_ARM_R];
     bi->bone = bones[B_UPPER_ARM_R];
     bi->motionState.dirty = true;
+    configureRigidBody(*bi->rigidBody, bi->bone, parentNode, -bi->offset);
     bi->motionState.setWorldTransform(bi->rigidBody->getWorldTransform());
-    configureRigidBody(*bi->rigidBody, bi->bone, parentNode);
     bi = &mRagdollBones[BP_FORE_ARM_R];
     bi->bone = bones[B_FORE_ARM_R];
     bi->motionState.dirty = true;
+    configureRigidBody(*bi->rigidBody, bi->bone, parentNode, -bi->offset);
     bi->motionState.setWorldTransform(bi->rigidBody->getWorldTransform());
-    configureRigidBody(*bi->rigidBody, bi->bone, parentNode);
     bi = &mRagdollBones[BP_SPINE];
     bi->bone = bones[B_SPINE];
     bi->motionState.dirty = true;
+    configureRigidBody(*bi->rigidBody, bi->bone, parentNode, -bi->offset);
     bi->motionState.setWorldTransform(bi->rigidBody->getWorldTransform());
-    configureRigidBody(*bi->rigidBody, bi->bone, parentNode);
     bi = &mRagdollBones[BP_THIGH_L];
     bi->bone = bones[B_THIGH_L];
     bi->motionState.dirty = true;
+    configureRigidBody(*bi->rigidBody, bi->bone, parentNode, -bi->offset);
     bi->motionState.setWorldTransform(bi->rigidBody->getWorldTransform());
-    configureRigidBody(*bi->rigidBody, bi->bone, parentNode);
     bi = &mRagdollBones[BP_LEG_L];
     bi->bone = bones[B_CALF_L];
     bi->motionState.dirty = true;
+    configureRigidBody(*bi->rigidBody, bi->bone, parentNode, -bi->offset);
     bi->motionState.setWorldTransform(bi->rigidBody->getWorldTransform());
-    configureRigidBody(*bi->rigidBody, bi->bone, parentNode);
     bi = &mRagdollBones[BP_THIGH_R];
     bi->bone = bones[B_THIGH_R];
     bi->motionState.dirty = true;
+    configureRigidBody(*bi->rigidBody, bi->bone, parentNode, -bi->offset);
     bi->motionState.setWorldTransform(bi->rigidBody->getWorldTransform());
-    configureRigidBody(*bi->rigidBody, bi->bone, parentNode);
     bi = &mRagdollBones[BP_LEG_R];
     bi->bone = bones[B_CALF_R];
     bi->motionState.dirty = true;
+    configureRigidBody(*bi->rigidBody, bi->bone, parentNode, -bi->offset);
     bi->motionState.setWorldTransform(bi->rigidBody->getWorldTransform());
-    configureRigidBody(*bi->rigidBody, bi->bone, parentNode);
     bi = &mRagdollBones[BP_PELVIS];
     bi->bone = bones[B_PELVIS];
     bi->motionState.dirty = true;
+    configureRigidBody(*bi->rigidBody, bi->bone, parentNode, -bi->offset);
     bi->motionState.setWorldTransform(bi->rigidBody->getWorldTransform());
-    configureRigidBody(*bi->rigidBody, bi->bone, parentNode);
 
 }
 
@@ -940,20 +922,6 @@ RagDoll::update(void)
             needToUpdate = true;
         }
     }
-
-    // code to set the position of a bone and orientation from world coords
-    //http://www.ogre3d.org/forums/viewtopic.php?f=2&t=43151
-
-    //        Ogre::SceneNode* parent = mpSceneMgr->getSceneNode(snname); // node of the entity that has the skeleton
-    //        Ogre::Vector3 parentPos = parent->_getDerivedPosition(); // node local pos
-    //        Ogre::Quaternion parentRot = parent->_getDerivedOrientation(); // node local ori
-    //        Ogre::Quaternion parentInv = parentRot.inverse(); // node local ori
-    //        Ogre::Vector3 bonePos = parentInv * (worldBonePos - parentPos);
-    //        bone->_setDerivedPosition(bonePos);
-    //        Ogre::Quaternion boneQuat = worldBoneRot.Inverse() * parentRot; // equiv to ("boneQuat = worldQuat / parentQuat")
-    //        bone->_setDerivedOrientation(boneQuat);
-
-
 
     return needToUpdate;
 }
