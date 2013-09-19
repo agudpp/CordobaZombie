@@ -95,6 +95,12 @@ private:
     void
     createSampleScene(void);
 
+    // @brief create ragdolls and entities tables
+    //
+    void
+    createRagdollInstances(void);
+
+
     void
     handleRagdollInput(void);
 
@@ -163,6 +169,15 @@ private:
     core::StackVector<core::Primitive*, 45> mBones;
     Ogre::AnimationState* mAnimState;
     physics::RagDoll mRagdoll;
+
+    struct RagdollInfo {
+        physics::RagDoll ragdoll;
+        physics::BoneTable table;
+        Ogre::SceneNode* node;
+        Ogre::Entity* ent;
+        bool needToUpdate;
+    };
+    core::StackVector<RagdollInfo, 40> mRagdolls;
     bool mRagdollNeedToUpdate;
     physics::BoneTable table;
     btRigidBody* mHeadNode;

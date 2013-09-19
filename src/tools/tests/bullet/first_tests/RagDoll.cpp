@@ -680,8 +680,19 @@ RagDoll::buildFromSkeleton(const BoneTable& ogreBones,
         return false;
     }
 
-    debugERROR("TODO REMOVE HTIS\n");
-    head = mRagdollBones[BP_SPINE].rigidBody;
+    // configure the initial position/rotation of each bone relative not in
+    // world coordinates
+    //
+    mInitialInfo.clear();
+    for (Ogre::Bone* b : ogreBones) {
+        if (b->getParent()){
+            mInitialInfo.push_back(InitialStateBoneInfo(b->_getDerivedPosition(),
+                                                        b->_getDerivedOrientation()));
+        } else {
+            mInitialInfo.push_back(InitialStateBoneInfo(b->getPosition(),
+                                                        b->getOrientation()));
+        }
+    }
 
 //#ifdef DEBUG
 //    createPrimitives();
@@ -782,6 +793,27 @@ RagDoll::configureRagdoll(const BoneTable& bones,
 
 ////////////////////////////////////////////////////////////////////////////////
 void
+RagDoll::resetBones(BoneTable& bones)
+{
+    ASSERT(bones.size() == mInitialInfo.size());
+    InitialStateBoneInfo* bi = mInitialInfo.begin(), *bie = mInitialInfo.end();
+    Ogre::Bone** bone = bones.begin(), **bonee = bones.end();
+    while(bone != bonee) {
+        if ((*bone)->getParent()) {
+            (*bone)->_setDerivedOrientation(bi->rotation);
+            (*bone)->_setDerivedPosition(bi->position);
+        } else {
+            (*bone)->setOrientation(bi->rotation);
+            (*bone)->setPosition(bi->position);
+        }
+        (*bone)->setManuallyControlled(false);
+        ++bone;
+        ++bi;
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void
 RagDoll::setEnable(bool enable)
 {
     if (enable == mEnabled) {
@@ -791,6 +823,10 @@ RagDoll::setEnable(bool enable)
     // now we need to check if we have to enable / disable
     if (enable) {
         for (RagdollBoneInfo& bi : mRagdollBones) {
+            // clear first all the possible forces to avoid
+            bi.rigidBody->clearForces();
+            bi.rigidBody->setAngularVelocity(btVector3(0,0,0));
+            bi.rigidBody->setLinearVelocity(btVector3(0,0,0));
             mDynamicWorld->addRigidBody(bi.rigidBody);
             bi.bone->setManuallyControlled(true);
         }
@@ -803,14 +839,13 @@ RagDoll::setEnable(bool enable)
     } else {
         for (RagdollBoneInfo& bi : mRagdollBones) {
             mDynamicWorld->removeRigidBody(bi.rigidBody);
-            bi.bone->setManuallyControlled(false);
         }
         for (btTypedConstraint* c : mConstraints) {
             mDynamicWorld->removeConstraint(c);
         }
-        for (BoneChildOffset& co : mAdditionalOffsets) {
-            co.bone->setManuallyControlled(false);
-        }
+//        for (BoneChildOffset& co : mAdditionalOffsets) {
+//            co.bone->setManuallyControlled(false);
+//        }
     }
 
     mEnabled = enable;
@@ -849,7 +884,7 @@ RagDoll::update(void)
 
     // we will update the position of the sceneNode to match with the spine
     mParentNode->setPosition(
-        bulletToOgre(mRagdollBones[BP_SPINE].motionState.transform.getOrigin()));
+        bulletToOgre(mRagdollBones[BP_PELVIS].motionState.transform.getOrigin()));
 
     // we will update the position of each bone of the current skeleton
     const btVector3 parentPos = ogreToBullet(mParentNode->_getDerivedPosition());

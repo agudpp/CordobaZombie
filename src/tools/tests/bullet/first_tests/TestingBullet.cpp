@@ -77,7 +77,8 @@ getKeyboardKeys(void)
 tests::BulletObject*
 createBulletObject(const Ogre::AxisAlignedBox& bb,
                    float mass,
-                   btDiscreteDynamicsWorld* world)
+                   btDiscreteDynamicsWorld* world,
+                   const btVector3& rotAngle = btVector3(0,0,0))
 {
     core::PrimitiveDrawer& pd = core::PrimitiveDrawer::instance();
     core::Primitive* handPrim = pd.createBox(bb.getCenter(), bb.getSize(), pd.getFreshColour());
@@ -96,6 +97,7 @@ createBulletObject(const Ogre::AxisAlignedBox& bb,
         handShape->calculateLocalInertia(mass,localInertia);
     }
     startTransform.setOrigin(btVector3(center.x,center.y,center.z));
+    startTransform.getBasis().setEulerZYX(rotAngle.x(), rotAngle.y(), rotAngle.z());
     result->setWorldTransform(startTransform);
     btRigidBody::btRigidBodyConstructionInfo handrbInfo(mass,result,handShape,localInertia);
     btRigidBody* handbody = new btRigidBody(handrbInfo);
@@ -162,6 +164,53 @@ printBoneNames(Ogre::Entity* ent)
         debugBLUE("Bone[%d]: %s\n", i, bone->getName().c_str());
         ++i;
     }
+}
+
+// @brief Print the animation names for an entity
+//
+inline void
+printAnimations(Ogre::Entity* ent)
+{
+    Ogre::AnimationStateSet* animSet = ent->getAllAnimationStates();
+    if (animSet == 0) {
+        debugYELLOW("No animations found for %s\n", ent->getName().c_str());
+        return;
+    }
+    Ogre::AnimationStateIterator animIt = animSet->getAnimationStateIterator();
+    unsigned int i = 0;
+    while (animIt.hasMoreElements()) {
+        debugYELLOW("Anim[%d]: %s\n", i, animIt.getNext()->getAnimationName().c_str());
+        ++i;
+    }
+}
+
+// @brief load a table from an entity
+// @param ent
+// @param table
+//
+void
+loadTable(Ogre::Entity* ent, physics::BoneTable& table)
+{
+    Ogre::SkeletonInstance* s = ent->getSkeleton();
+    table.resize(table.max_size());
+    table[physics::BonesID::B_HEAD] = s->getBone("B_HEAD");
+    table[physics::BonesID::B_NECK] = s->getBone("B_NECK");
+    table[physics::BonesID::B_CLAVICLE_R] = s->getBone("B_CLAVICLE_R");
+    table[physics::BonesID::B_CLAVICLE_L] = s->getBone("B_CLAVICLE_L");
+    table[physics::BonesID::B_UPPER_ARM_R] = s->getBone("B_UPPER_ARM_R");
+    table[physics::BonesID::B_UPPER_ARM_L] = s->getBone("B_UPPER_ARM_L");
+    table[physics::BonesID::B_FORE_ARM_R] = s->getBone("B_FORE_ARM_R");
+    table[physics::BonesID::B_FORE_ARM_L] = s->getBone("B_FORE_ARM_L");
+    table[physics::BonesID::B_HAND_R] = s->getBone("B_HAND_R");
+    table[physics::BonesID::B_HAND_L] = s->getBone("B_HAND_L");
+    table[physics::BonesID::B_SPINE] = s->getBone(" B_SPINE");
+    table[physics::BonesID::B_PELVIS] = s->getBone("B_PELVIS");
+    table[physics::BonesID::B_THIGH_R] = s->getBone("B_THIGH_R");
+    table[physics::BonesID::B_THIGH_L] = s->getBone("B_THIGH_L");
+    table[physics::BonesID::B_CALF_R] = s->getBone("B_CALF_R");
+    table[physics::BonesID::B_CALF_L] = s->getBone("B_CALF_L");
+    table[physics::BonesID::B_FOOT_R] = s->getBone("B_FOOT_R");
+    table[physics::BonesID::B_FOOT_L] = s->getBone("B_FOOT_L");
 }
 
 
@@ -524,7 +573,7 @@ TestingBullet::createRagdoll(Ogre::SkeletonInstance* s, Ogre::SceneNode* sn)
 //    table[physics::BonesID::B_TOE0_NUB_R] = s->getBone("Bip01 R Toe0Nub");
 
     std::cout << " Building ragdoll: " << mRagdoll.buildFromSkeleton(table, sn) << std::endl;
-    mHeadNode = mRagdoll.head;
+    mHeadNode = mRagdoll.getRigidBody(physics::BodyPartID::BP_PELVIS);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -532,7 +581,7 @@ void
 TestingBullet::createSampleScene(void)
 {
     core::PrimitiveDrawer& pd = core::PrimitiveDrawer::instance();
-    Ogre::Vector3 size(10,10,10);
+    Ogre::Vector3 size(20,20,20);
     float currentZ = 10;
     for (unsigned int i = 0; i < 20; ++i) {
         for (unsigned int j = 0; j < 20; ++j) {
@@ -544,6 +593,55 @@ TestingBullet::createSampleScene(void)
             createBulletObject(bb, 1, &mDynamicWorld);
         }
         currentZ += size.z + 2;
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void
+TestingBullet::createRagdollInstances(void)
+{
+    // create some boxes in the level
+
+    for (unsigned int i = 0; i < 20; ++i) {
+        Ogre::Real x = Ogre::Math::RangeRandom(-400,400);
+        Ogre::Real y = Ogre::Math::RangeRandom(-400,400);
+        Ogre::Real z = Ogre::Math::RangeRandom(20,35);
+        Ogre::Real sx = Ogre::Math::RangeRandom(25,60);
+        Ogre::Real sy = Ogre::Math::RangeRandom(25,60);
+        Ogre::Real sz = Ogre::Math::RangeRandom(100,160);
+        Ogre::Real ax = Ogre::Math::RangeRandom(0,M_2_PI);
+        Ogre::Real ay = Ogre::Math::RangeRandom(0,M_2_PI);
+        Ogre::Real az = Ogre::Math::RangeRandom(0,M_2_PI);
+        Ogre::Vector3 pos(x,y,z);
+        Ogre::Vector3 size(sx,sy,sz);
+        btVector3 angle(ax, ay, az);
+        Ogre::AxisAlignedBox bb(pos - size, pos + size);
+        tests::BulletObject* box = createBulletObject(bb, 0.f, &mDynamicWorld, angle);
+        // rotate some angles
+
+    }
+
+
+
+    mRagdolls.resize(mRagdolls.max_size());
+    for (RagdollInfo& ri : mRagdolls) {
+        ri.node = mSceneMgr->getRootSceneNode()->createChildSceneNode();
+        ri.ent = mSceneMgr->createEntity("zombie.mesh");
+        ri.node->attachObject(ri.ent);
+
+        // set random pos
+        Ogre::Real x = Ogre::Math::RangeRandom(-400,400);
+        Ogre::Real y = Ogre::Math::RangeRandom(-400,400);
+        Ogre::Real z = Ogre::Math::RangeRandom(600,1200);
+        ri.node->setPosition(x,y,z);
+
+        ri.ragdoll.setDynamicWorld(&mDynamicWorld);
+
+        loadTable(ri.ent,ri.table);
+        ri.ragdoll.buildFromSkeleton(ri.table, ri.node);
+        ri.ragdoll.configureRagdoll(ri.table, ri.node);
+        ri.ragdoll.setEnable(true);
+        ri.needToUpdate = true;
     }
 }
 
@@ -667,6 +765,7 @@ TestingBullet::TestingBullet() :
 // Bullet config
 ,   mDispatcher(&mDefConf)
 ,   mDynamicWorld(&mDispatcher, &mBroadPhase, &mSeqSolver, &mDefConf)
+,   mAnimState(0)
 {
     // configure the input
     input::Mouse::setMouse(mMouse);
@@ -707,10 +806,13 @@ TestingBullet::loadAditionalData(void)
     Ogre::SkeletonInstance* skeleton = ent->getSkeleton();
     createRagdoll(skeleton, node);
     printBoneNames(ent);
-
+    printAnimations(ent);
+    mAnimState = ent->getAnimationState("corre");
+    mAnimState->setEnabled(true);
+    mAnimState->setLoop(true);
     // everything fine...
 
-
+    createRagdollInstances();
 }
 
 /* function called every frame. Use GlobalObjects::lastTimeFrame */
@@ -729,7 +831,11 @@ TestingBullet::update()
     // apply a force to the box up
     if (mInputHelper.isKeyReleased(input::KeyCode::KC_SPACE)) {
         // apply a big impulse in the head
-        mHeadNode->applyCentralImpulse(btVector3(0, -800,100));
+        mRagdoll.setEnable(false);
+        mModelNode->setPosition(0,0,10);
+        mRagdoll.resetBones(table);
+        if (mAnimState) mAnimState->setEnabled(true);
+//        mHeadNode->applyCentralImpulse(btVector3(0, -800,100));
 
 //        mHeadNode->applyCentralImpulse(btVector3(0,0,100));
 //        mHand.mRigidBody->applyCentralImpulse(btVector3(0,0,100));
@@ -761,22 +867,32 @@ TestingBullet::update()
     }
 
     // if click shoot a box
-//    if (mInputHelper.isMouseReleased(input::MouseButtonID::MB_Left)) {
-//        Ogre::Vector3 halfSize(6,6,6);
-//        Ogre::Vector3 camPos = mOrbitCamera.getCameraPosition();
-//
+    if (mInputHelper.isMouseReleased(input::MouseButtonID::MB_Left)) {
+        Ogre::Vector3 halfSize(6,6,6);
+        Ogre::Vector3 camPos = mOrbitCamera.getCameraPosition();
+
 //        Ogre::AxisAlignedBox bb(camPos - halfSize, camPos + halfSize);
 //        tests::BulletObject* box = createBulletObject(bb,
 //                                                      3.f,
 //                                                      &mDynamicWorld);
-//
-//        Ogre::Vector3 force(mCamera->getDerivedDirection());
-//        force.normalise();
-//        force *= 2600;
-//        btVector3 btForce(force.x, force.y, force.z);
-//        box->mRigidBody->applyCentralImpulse(btForce);
-//    }
 
+        Ogre::Vector3 force(mCamera->getDerivedDirection());
+        force.normalise();
+        force *= 6600;
+        btVector3 btForce(force.x, force.y, force.z);
+//        box->mRigidBody->applyCentralImpulse(btForce);
+        mAnimState->setEnabled(false);
+        mRagdoll.setEnable(false);
+        mModelNode->setPosition(camPos);
+        mRagdoll.configureRagdoll(table, mModelNode);
+        mRagdoll.setEnable(true);
+        mRagdollNeedToUpdate = true;
+        mHeadNode->applyCentralImpulse(btForce);
+    }
+
+    if (mAnimState && mAnimState->getEnabled()) {
+        mAnimState->addTime(mTimeFrame);
+    }
 
     // update the camera
     handleCameraInput();
@@ -785,6 +901,14 @@ TestingBullet::update()
 
     if (mRagdoll.isEnabled() && mRagdollNeedToUpdate) {
         mRagdollNeedToUpdate = mRagdoll.update();
+    }
+    for (RagdollInfo& ri : mRagdolls) {
+        if (ri.needToUpdate && ri.ragdoll.isEnabled()) {
+            ri.needToUpdate = ri.ragdoll.update();
+            if (!ri.needToUpdate) {
+                ri.ragdoll.setEnable(false);
+            }
+        }
     }
 
     // animate the player skeleton

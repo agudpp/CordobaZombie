@@ -188,6 +188,15 @@ public:
     configureRagdoll(const BoneTable& bones,
                      Ogre::SceneNode* parentNode);
 
+    // @brief Reset the original position and orientation of the bones of an
+    //        skeleton to the main state.
+    //        Note that the BoneTable should belong to an entity with the same
+    //        skeleton than this.
+    // @param boneTable     The bone table to reset its position.
+    //
+    void
+    resetBones(BoneTable& bones);
+
     // @brief Enable / disable this ragdoll to start modifying the current
     //        linked bones.
     //        This will mark all the bones as manuallyModificable and insert
@@ -209,6 +218,15 @@ public:
     void
     clear(void);
 
+    // @brief Get an specific body part information.
+    // @param bpIndex       The body part index.
+    // @return the associated rigid body part.
+    //
+    inline btRigidBody*
+    getRigidBody(BodyPartID bpIndex);
+    inline const btRigidBody*
+    getRigidBody(BodyPartID bpIndex) const;
+
     // @brief Update the ragdoll. This method will update the associated skeleton
     //        using the current position of the ragdoll.
     // @return true if the ragdoll should need to be updated anymore | false if not.
@@ -216,8 +234,6 @@ public:
     bool
     update(void);
 
-    // TODO: remove this
-    btRigidBody *head;
 
 private:
 
@@ -263,6 +279,21 @@ private:
 
     typedef core::StackVector<TempBoneInfo, B_COUNT> TempBoneInfoVec;
 
+    // Structure used to contain the initial state (orientation / rotation) of
+    // the bones of the skeleton
+    //
+    struct InitialStateBoneInfo {
+        Ogre::Vector3 position;
+        Ogre::Quaternion rotation;
+
+        InitialStateBoneInfo(const Ogre::Vector3& p, const Ogre::Quaternion& q) :
+            position(p), rotation(q)
+        {}
+        InitialStateBoneInfo() {};
+    };
+
+    typedef core::StackVector<InitialStateBoneInfo, B_COUNT> InitialStateBoneInfoVec;
+
     // @brief Construct a RagdollBoneInfo from a position, orientation and box
     //        half sizes. We will also address of the boneInfo.motionState
     //        as the motion state pointer to be used.
@@ -306,6 +337,7 @@ private:
     btDynamicsWorld* mDynamicWorld;
     core::StackVector<RagdollBoneInfo, BP_MAX> mRagdollBones;
     core::StackVector<btTypedConstraint*, BC_COUNT> mConstraints;
+    InitialStateBoneInfoVec mInitialInfo;
     // in the mAdditionalOffsets vector we will put the child offset for some
     // of the bones that are not being tracked by the physics engine but are
     // child of some other bone that it is tracked.
@@ -341,6 +373,17 @@ inline bool
 RagDoll::isEnabled(void) const
 {
     return mEnabled;
+}
+
+inline btRigidBody*
+RagDoll::getRigidBody(BodyPartID bpIndex)
+{
+    return mRagdollBones[bpIndex].rigidBody;
+}
+inline const btRigidBody*
+RagDoll::getRigidBody(BodyPartID bpIndex) const
+{
+    return mRagdollBones[bpIndex].rigidBody;
 }
 
 } /* namespace physics */
