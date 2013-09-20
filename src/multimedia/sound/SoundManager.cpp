@@ -513,7 +513,7 @@ SoundManager::update(std::vector<EnvSoundId> *finished,
 				  	  & ( SSplayback::SS_FADING_IN
 				  		| SSplayback::SS_FADING_OUT
 				  		| SSplayback::SS_FADING_OUT_AND_PAUSE)) {
-			fadeUpdate(*as);
+			fadeUpdate(*as, globalTimeFrame);
 		}
 	}
 }

@@ -142,6 +142,7 @@ SoundBuffer::SoundBuffer(SSbuftype buffType) :
 	type(buffType),
 	buffer(0),
 	loaded(false),
+	//format(AL_FORMAT_STEREO16),  // no default format: OpenAL handles channels
 	duration(0.0),
 	chan(0),
 	freq(0)
