@@ -780,7 +780,7 @@ TestingBullet::handleCameraInput()
     const float lMouseX = float(input::Mouse::relX());
     const float lMouseY = float(input::Mouse::relY());
     if (mInputHelper.isMousePressed(input::MouseButtonID::MB_Right)) {
-        const float factor = -0.01 * 1.5f;
+        const float factor = -0.005 * 1.5f;
         mOrbitCamera.rotateCamera(Ogre::Radian(lMouseX * factor),
                                     Ogre::Radian(lMouseY * factor));
     }
@@ -851,7 +851,7 @@ TestingBullet::loadAditionalData(void)
     Ogre::SkeletonInstance* skeleton = ent->getSkeleton();
     createRagdoll(skeleton, node);
     // create primitives for the body table
-    createPrimitives(mRagdoll, table, mModelNode, mBodyPartsPrim);
+//    createPrimitives(mRagdoll, table, mModelNode, mBodyPartsPrim);
     printBoneNames(ent);
     printAnimations(ent);
     printSubEntities(ent);
@@ -883,7 +883,7 @@ TestingBullet::update()
         mRagdoll.setEnable(false);
         mModelNode->setPosition(0,0,10);
         mRagdoll.resetBones(table);
-        if (mAnimState) mAnimState->setEnabled(true);
+//        if (mAnimState) mAnimState->setEnabled(true);
 //        mHeadNode->applyCentralImpulse(btVector3(0, -800,100));
 
 //        mHeadNode->applyCentralImpulse(btVector3(0,0,100));
@@ -921,8 +921,20 @@ TestingBullet::update()
         Ogre::Ray ray = mCamera->getCameraToViewportRay(0.5f, 0.5f);
         physics::BodyPartID bpIntersected;
         if (mRagdoll.getClosestIntersection(table, mModelNode, ray, bpIntersected)) {
-            debugBLUE("Intersected %d\n", bpIntersected);
-            mBodyPartsPrim[bpIntersected]->setColor(Ogre::ColourValue::Red);
+//            debugBLUE("Intersected %d\n", bpIntersected);
+//            mBodyPartsPrim[bpIntersected]->setColor(Ogre::ColourValue::Red);
+            // apply the force as if we hit the zombie
+            Ogre::Vector3 force(mCamera->getDerivedDirection());
+            force.normalise();
+            force *= 600;
+            btVector3 btForce(force.x, force.y, force.z);
+            mRagdoll.setEnable(false);
+            mRagdoll.resetBones(table);
+            mRagdoll.configureRagdoll(table, mModelNode);
+            mRagdoll.setEnable(true);
+            mRagdollNeedToUpdate = true;
+            btRigidBody* bodyImpact = mRagdoll.getRigidBody(bpIntersected);
+            bodyImpact->applyCentralImpulse(btForce);
         }
 
 

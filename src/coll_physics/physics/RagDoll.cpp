@@ -218,7 +218,9 @@ RagDoll::buildRagdollBoneInfo(const TempBoneInfoVec& boneInfo)
     // width and height
     height = width = boneInfo[B_CLAVICLE_L].worldPos.distance(boneInfo[B_CLAVICLE_R].worldPos)*2.f;
     d2 = boneInfo[B_NECK].worldPos.distance2(boneInfo[B_HEAD].worldPos);
-    bi->offset = btVector3(0, 0, 0); // no offset
+    p3 = (boneInfo[B_NECK].worldPos + boneInfo[BP_HEAD].worldPos) * 0.5f; // position of the shape
+    bi->offset = -boneInfo[B_NECK].toLocal(p3) * 2.7f;
+//    bi->offset = btVector3(0, 0, 0); // no offset
     halfSize = btVector3(d2, height, width);
     halfSize *= 0.5f;
     bi->bone = boneInfo[B_HEAD].bone;
