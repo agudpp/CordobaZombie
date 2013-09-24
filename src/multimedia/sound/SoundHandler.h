@@ -20,7 +20,10 @@
 
 #include <vector>
 #include <algorithm>
+
 #include <OgreString.h>
+#include <OgrePrerequisites.h>
+
 #include "SoundEnums.h"
 #include "SoundManager.h"
 #include "SoundSource.h"

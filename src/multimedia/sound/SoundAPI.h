@@ -16,9 +16,11 @@
 
 
 
-#include <Ogre.h>
-#include <OgreVector3.h>
-#include <OgreSceneNode.h>
+#include <OgreString.h>         // Ogre::String
+#include <OgreVector3.h>        // Ogre::Vector3
+#include <OgreSceneNode.h>      // Ogre::SceneNode
+#include <OgrePrerequisites.h>  // Ogre::Real
+
 #include "DebugUtil.h"
 #include "SoundEnums.h"
 #include "SoundManager.h"

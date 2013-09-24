@@ -27,10 +27,12 @@
 #include <deque>
 #include <utility>	// std::pair
 #include <unordered_map>
-#include <OgrePrerequisites.h>	// Ogre::Real
-#include <OgreVector3.h>		// Ogre::Vector3
-#include <OgreString.h>			// Ogre::String
-#include <OgreCamera.h>			// Ogre::Camera
+
+#include <OgrePrerequisites.h>  // Ogre::Real
+#include <OgreVector3.h>        // Ogre::Vector3
+#include <OgreString.h>	        // Ogre::String
+#include <OgreCamera.h>         // Ogre::Camera
+
 #include "SoundEnums.h"
 #include "SoundSource.h"
 

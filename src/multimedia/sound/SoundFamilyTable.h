@@ -26,7 +26,9 @@
 
 #include <vector>
 #include <cstdlib>  // RAND_MAX
+
 #include <OgreString.h>
+
 #include "DebugUtil.h"
 #include "SoundEnums.h"
 

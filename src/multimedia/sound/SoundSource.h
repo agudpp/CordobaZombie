@@ -15,9 +15,9 @@
 #ifndef SOUNDSOURCE_H_
 #define SOUNDSOURCE_H_
 
-#include <Ogre.h>
-#include <OgreVector3.h>    // Ogre::Vector3
-#include <OgreSceneNode.h>  // Ogre::SceneNode
+#include <OgreVector3.h>        // Ogre::Vector3
+#include <OgrePrerequisites.h>  // Ogre::Real
+
 #include "SoundEnums.h"
 #include "SoundBuffer.h"
 
