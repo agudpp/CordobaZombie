@@ -141,6 +141,7 @@ include_directories( ${OIS_INCLUDE_DIRS}
 	${DEV_ROOT_PATH}/ui
 	${DEV_ROOT_PATH}/io_interfaces
 	${DEV_ROOT_PATH}/gps
+	${DEV_ROOT_PATH}/multimedia
 	${DEV_ROOT_PATH}/cz
 )
 
