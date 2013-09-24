@@ -12,6 +12,7 @@
 #include <OgreSceneNode.h>
 #include <OgreSkeletonInstance.h>
 #include <OgreBone.h>
+#include <OgreRay.h>
 
 #include <bullet/btBulletDynamicsCommon.h>
 
@@ -255,14 +256,16 @@ public:
     //        responsibility of the ragdoll to check raycasting intersections
     //        (return the list of OBB of each body part and test outside,
     //         issue #0123)
-    // @param rOrigin       The ray origin
-    // @param rDir          The ray direction (not need to be normalized).
+    // @param bones         The bones associated to the skeleton instance
+    // @param parentNode    The parent scene node.
+    // @param ray           The ogre ray
     // @param bpIntersected The closest BodyPartID that intersects against the ray.
     // @return true if there are intersections | false otherwise
     //
     bool
-    getClosestIntersection(const Ogre::Vector3& rOrigin,
-                           const Ogre::Vector3& rDir,
+    getClosestIntersection(const BoneTable& bones,
+                           const Ogre::SceneNode* parentNode,
+                           const Ogre::Ray& ray,
                            BodyPartID& bpIntersected) const;
 
     // @brief Update the ragdoll. This method will update the associated skeleton

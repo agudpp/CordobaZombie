@@ -29,7 +29,8 @@
 
 #include <bullet/btBulletDynamicsCommon.h>
 #include "BulletObject.h"
-#include "RagDoll.h"
+#include <physics/RagDoll.h>
+#include <cursor/MouseCursor.h>
 
 
 // The xml file for this tool
@@ -100,6 +101,14 @@ private:
     void
     createRagdollInstances(void);
 
+    // @brief Create ragdolls body parts primitives
+    //
+    void
+    createPrimitives(const physics::RagDoll& ragdoll,
+                     const physics::BoneTable& table,
+                     const Ogre::SceneNode* parentNode,
+                     core::StackVector<core::Primitive*, physics::BodyPartID::BP_MAX>& primitives);
+
 
     void
     handleRagdollInput(void);
@@ -114,6 +123,7 @@ private:
     tool::OrbitCamera mOrbitCamera;
     core::OgreTextTable mTextTable;
     input::InputHelper mInputHelper;
+    ui::MouseCursor mMouseCursor;
 
     // bullet
     btDefaultCollisionConfiguration mDefConf;
@@ -180,6 +190,7 @@ private:
     core::StackVector<RagdollInfo, 40> mRagdolls;
     bool mRagdollNeedToUpdate;
     physics::BoneTable table;
+    core::StackVector<core::Primitive*,physics::BodyPartID::BP_MAX> mBodyPartsPrim;
     btRigidBody* mHeadNode;
 };
 

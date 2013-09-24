@@ -130,19 +130,19 @@ set(HDRS
 set(SRCS
 )
 
-# global include directories
+# global include directories 
+# (only one depth from the src/ path)
+#
 include_directories( ${OIS_INCLUDE_DIRS}
 	${OGRE_INCLUDE_DIRS}
 	${OGRE_SAMPLES_INCLUDEPATH}
 	${DEV_ROOT_PATH}/core
 	${DEV_ROOT_PATH}/coll_physics
-	${DEV_ROOT_PATH}/megafauna
 	${DEV_ROOT_PATH}/tools
 	${DEV_ROOT_PATH}/ui
 	${DEV_ROOT_PATH}/io_interfaces
 	${DEV_ROOT_PATH}/gps
 	${DEV_ROOT_PATH}/cz
-	${DEV_ROOT_PATH}/physics
 )
 
 # Include all the other specific files

@@ -18,6 +18,7 @@
 #include <tinyxml/tinyxml.h>
 
 #include <xml/XMLHelper.h>
+#include <physics/BulletUtils.h>
 
 
 
@@ -654,6 +655,34 @@ TestingBullet::createRagdollInstances(void)
     }
 }
 
+void
+TestingBullet::createPrimitives(const physics::RagDoll& ragdoll,
+                                const physics::BoneTable& table,
+                                const Ogre::SceneNode* parentNode,
+                                core::StackVector<core::Primitive*,
+                                                  physics::BodyPartID::BP_MAX>&
+                                                      primitives)
+{
+    primitives.clear();
+    physics::RagDoll::OBBInfoVec obbs;
+    ragdoll.getBodyPartsOBB(table, parentNode, obbs);
+
+    core::PrimitiveDrawer& pd = core::PrimitiveDrawer::instance();
+    primitives.resize(obbs.size());
+
+    unsigned int i = 0;
+    for (physics::RagDoll::OBBInfo& ob : obbs) {
+        const Ogre::Vector3 size = physics::BulletUtils::bulletToOgre(ob.extents) * 2.f;
+        primitives[i] =
+            pd.createBox(physics::BulletUtils::bulletToOgre(ob.worldTransform.getOrigin()),
+                         size,
+                         pd.getFreshColour());
+        primitives[i]->node->setOrientation(
+            physics::BulletUtils::bulletToOgre(ob.worldTransform.getRotation()));
+        ++i;
+    }
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 void
 TestingBullet::handleRagdollInput()
@@ -781,6 +810,13 @@ TestingBullet::TestingBullet() :
     input::Keyboard::setKeyboard(mKeyboard);
     setUseDefaultInput(false);
 
+    // configure the mouse cursor
+    mMouseCursor.setCursor(ui::MouseCursor::Cursor::NORMAL_CURSOR);
+    mMouseCursor.setVisible(true);
+    mMouseCursor.setWindowDimensions(mWindow->getWidth(), mWindow->getHeight());
+    mMouseCursor.updatePosition(mWindow->getWidth() / 2,
+                                mWindow->getHeight() / 2);
+
 }
 
 TestingBullet::~TestingBullet()
@@ -814,6 +850,8 @@ TestingBullet::loadAditionalData(void)
     node->pitch(Ogre::Radian(M_PI_2), Ogre::Node::TS_WORLD);
     Ogre::SkeletonInstance* skeleton = ent->getSkeleton();
     createRagdoll(skeleton, node);
+    // create primitives for the body table
+    createPrimitives(mRagdoll, table, mModelNode, mBodyPartsPrim);
     printBoneNames(ent);
     printAnimations(ent);
     printSubEntities(ent);
@@ -822,7 +860,8 @@ TestingBullet::loadAditionalData(void)
 //    mAnimState->setLoop(true);
     // everything fine...
 
-    createRagdollInstances();
+
+//    createRagdollInstances();
 }
 
 /* function called every frame. Use GlobalObjects::lastTimeFrame */
@@ -878,28 +917,37 @@ TestingBullet::update()
 
     // if click shoot a box
     if (mInputHelper.isMouseReleased(input::MouseButtonID::MB_Left)) {
-        Ogre::Vector3 halfSize(6,6,6);
-        Ogre::Vector3 camPos = mOrbitCamera.getCameraPosition();
+        // Perform a raycast to hit some bodypart
+        Ogre::Ray ray = mCamera->getCameraToViewportRay(0.5f, 0.5f);
+        physics::BodyPartID bpIntersected;
+        if (mRagdoll.getClosestIntersection(table, mModelNode, ray, bpIntersected)) {
+            debugBLUE("Intersected %d\n", bpIntersected);
+            mBodyPartsPrim[bpIntersected]->setColor(Ogre::ColourValue::Red);
+        }
 
-//        Ogre::AxisAlignedBox bb(camPos - halfSize, camPos + halfSize);
-//        tests::BulletObject* box = createBulletObject(bb,
-//                                                      3.f,
-//                                                      &mDynamicWorld);
 
-        Ogre::Vector3 force(mCamera->getDerivedDirection());
-        force.normalise();
-        force *= 6600;
-        btVector3 btForce(force.x, force.y, force.z);
-//        box->mRigidBody->applyCentralImpulse(btForce);
-        if (mAnimState) mAnimState->setEnabled(false);
-        mRagdoll.setEnable(false);
-//        mModelNode->setPosition(camPos);
-
-        mRagdoll.resetBones(table);
-
-        mRagdoll.configureRagdoll(table, mModelNode);
-        mRagdoll.setEnable(true);
-        mRagdollNeedToUpdate = true;
+//        Ogre::Vector3 halfSize(6,6,6);
+//        Ogre::Vector3 camPos = mOrbitCamera.getCameraPosition();
+//
+////        Ogre::AxisAlignedBox bb(camPos - halfSize, camPos + halfSize);
+////        tests::BulletObject* box = createBulletObject(bb,
+////                                                      3.f,
+////                                                      &mDynamicWorld);
+//
+//        Ogre::Vector3 force(mCamera->getDerivedDirection());
+//        force.normalise();
+//        force *= 6600;
+//        btVector3 btForce(force.x, force.y, force.z);
+////        box->mRigidBody->applyCentralImpulse(btForce);
+//        if (mAnimState) mAnimState->setEnabled(false);
+//        mRagdoll.setEnable(false);
+////        mModelNode->setPosition(camPos);
+//
+//        mRagdoll.resetBones(table);
+//
+//        mRagdoll.configureRagdoll(table, mModelNode);
+//        mRagdoll.setEnable(true);
+//        mRagdollNeedToUpdate = true;
 
 //        mHeadNode->applyCentralImpulse(btForce);
     }

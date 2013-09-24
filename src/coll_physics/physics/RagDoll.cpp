@@ -7,10 +7,13 @@
 
 #include "RagDoll.h"
 
+#include <limits>
+
 #include <OgreAxisAlignedBox.h>
-#include <OgreRay.h>
+#include <OgreMath.h>
 
 #include "BulletObject.h"
+#include "BulletUtils.h"
 
 
 
@@ -860,24 +863,65 @@ RagDoll::getBodyPartsOBB(const BoneTable& bones,
 
     // get an configure each obb taking into account the ragdolls and bone position
     // and orientation
-
+    for (unsigned int i = 0; i < mRagdollBones.size(); ++i) {
+        const RagdollBoneInfo& bi = mRagdollBones[i];
+        OBBInfo& ob = obbs[i];
+        configureOBB(ob,
+                     bones[bi.boneID],
+                     parentNode,
+                     *bi.rigidBody,
+                     -bi.offset,
+                     bi.shape);
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 bool
-RagDoll::getClosestIntersection(const Ogre::Vector3& rOrigin,
-                                const Ogre::Vector3& rDir,
+RagDoll::getClosestIntersection(const BoneTable& bones,
+                                const Ogre::SceneNode* parentNode,
+                                const Ogre::Ray& ray,
                                 BodyPartID& bpIntersected) const
 {
     // first of all we will calculate the distance of the ray with each boxShape
     // and check if the distance is less than the extents of the box, if it is
     // we probably are intersecting that box, if not, is not possible.
-    // For all those boxes that we are maybe intersectiong we will convert the
-    // ray into the OBB cordinates system and check using the
-    // Ogre::Math::intersects() method to veryfy that.
+    // For all those boxes that we are maybe intersection we will convert the
+    // ray into the OBB coordinates system and check using the
+    // Ogre::Math::intersects() method to verify that.
     //
+    OBBInfoVec obbs;
+    getBodyPartsOBB(bones, parentNode, obbs);
+    const btVector3 origin = ogreToBullet(ray.getOrigin());
+    const btVector3 dir = ogreToBullet(ray.getDirection());
+    float minDistance = std::numeric_limits<float>::max();
+    bool anyCollision = false;
 
-    return true;
+    for (unsigned int i = 0; i < mRagdollBones.size(); ++i) {
+            const RagdollBoneInfo& bi = mRagdollBones[i];
+            OBBInfo& ob = obbs[i];
+
+            // calculate the distance between the ray and the center of the box
+            // and also the squared extents
+            const float sqrExtent = ob.extents.length2();
+            const float sqrLen =
+                dir.cross(ob.worldTransform.getOrigin() - origin).length2();
+
+            if (sqrLen <= sqrExtent) {
+                // it probably intersect... check for that
+                // transform the ray from world coordinate into a local ray
+                // (local of the current OBB).
+                std::pair<bool, float> result =
+                    BulletUtils::intersects(ob.worldTransform, ob.extents, ray);
+                if (result.first && result.second < minDistance) {
+                    anyCollision = true;
+                    minDistance = result.second;
+                    bpIntersected = BodyPartID(i);
+                }
+            }
+    }
+
+
+    return anyCollision;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
