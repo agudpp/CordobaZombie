@@ -8,6 +8,7 @@
 #include "RagDoll.h"
 
 #include <OgreAxisAlignedBox.h>
+#include <OgreRay.h>
 
 #include "BulletObject.h"
 
@@ -125,6 +126,29 @@ configureRigidBody(btRigidBody& rb,
     transform.setOrigin(transform * localOffset);
 }
 
+// @brief Configure an OBBInfo from a bone, parentNode and rigid body
+// @param obInfo    The OBBInfo object to configure
+// @param bone      The bone
+// @param pNode     The parent node
+// @param rb        The rigid body
+// @param offset    The local rigid body offset.
+// @param shape     The box shape associated
+//
+inline void
+configureOBB(physics::RagDoll::OBBInfo& obInfo,
+             const Ogre::Bone* bone,
+             const Ogre::SceneNode* pNode,
+             const btRigidBody& rb,
+             const btVector3& offset,
+             const btBoxShape* shape)
+{
+    obInfo.worldTransform.setIdentity();
+    obInfo.worldTransform.setOrigin(ogreToBullet(globalOgrePosition(bone, pNode)));
+    obInfo.worldTransform.setRotation(ogreToBullet(globalOgreRotation(bone, pNode)));
+    obInfo.worldTransform.setOrigin(obInfo.worldTransform * offset);
+    obInfo.extents = shape->getHalfExtentsWithoutMargin();
+}
+
 
 }
 
@@ -195,6 +219,7 @@ RagDoll::buildRagdollBoneInfo(const TempBoneInfoVec& boneInfo)
     halfSize = btVector3(d2, height, width);
     halfSize *= 0.5f;
     bi->bone = boneInfo[B_HEAD].bone;
+    bi->boneID = B_HEAD;
     constructBodyPart(boneInfo[B_HEAD].worldPos,
                       boneInfo[B_HEAD].worldRot,
                       halfSize,
@@ -213,6 +238,7 @@ RagDoll::buildRagdollBoneInfo(const TempBoneInfoVec& boneInfo)
     bi->offset = -boneInfo[B_UPPER_ARM_L].toLocal(p3);
     halfSize = btVector3(d1, height, width) * 0.5f;
     bi->bone = boneInfo[B_UPPER_ARM_L].bone;
+    bi->boneID = B_UPPER_ARM_L;
     constructBodyPart(p3,
                       boneInfo[B_UPPER_ARM_L].worldRot,
                       halfSize,
@@ -231,6 +257,7 @@ RagDoll::buildRagdollBoneInfo(const TempBoneInfoVec& boneInfo)
     bi->offset = -boneInfo[B_UPPER_ARM_R].toLocal(p3);
     halfSize = btVector3(d1, height, width) * 0.5f;
     bi->bone = boneInfo[B_UPPER_ARM_R].bone;
+    bi->boneID = B_UPPER_ARM_R;
     constructBodyPart(p3,
                       boneInfo[B_UPPER_ARM_R].worldRot,
                       halfSize,
@@ -249,6 +276,7 @@ RagDoll::buildRagdollBoneInfo(const TempBoneInfoVec& boneInfo)
     bi->offset = -boneInfo[B_FORE_ARM_L].toLocal(p3);
     halfSize = btVector3(d1, height, width) * 0.5f;
     bi->bone = boneInfo[B_FORE_ARM_L].bone;
+    bi->boneID = B_FORE_ARM_L;
     constructBodyPart(p3,
                       boneInfo[B_FORE_ARM_L].worldRot,
                       halfSize,
@@ -272,6 +300,7 @@ RagDoll::buildRagdollBoneInfo(const TempBoneInfoVec& boneInfo)
     bi->offset = -boneInfo[B_FORE_ARM_R].toLocal(p3);
     halfSize = btVector3(d1, height, width) * 0.5f;
     bi->bone = boneInfo[B_FORE_ARM_R].bone;
+    bi->boneID = B_FORE_ARM_R;
     constructBodyPart(p3,
                       boneInfo[B_FORE_ARM_R].worldRot,
                       halfSize,
@@ -295,6 +324,7 @@ RagDoll::buildRagdollBoneInfo(const TempBoneInfoVec& boneInfo)
     bi->offset = -boneInfo[B_SPINE].toLocal(p3);
     halfSize = btVector3(d1, height, width) * 0.5f;
     bi->bone = boneInfo[B_SPINE].bone;
+    bi->boneID = B_SPINE;
     constructBodyPart(p3,
                       boneInfo[B_SPINE].worldRot,
                       halfSize,
@@ -323,6 +353,7 @@ RagDoll::buildRagdollBoneInfo(const TempBoneInfoVec& boneInfo)
     bi->offset = -boneInfo[B_PELVIS].toLocal(p3);
     halfSize = btVector3(d1, height, width) * 0.5f;
     bi->bone = boneInfo[B_PELVIS].bone;
+    bi->boneID = B_PELVIS;
     constructBodyPart(p3,
                       boneInfo[B_PELVIS].worldRot,
                       halfSize,
@@ -341,6 +372,7 @@ RagDoll::buildRagdollBoneInfo(const TempBoneInfoVec& boneInfo)
     bi->offset = -boneInfo[B_THIGH_L].toLocal(p3);
     halfSize = btVector3(d1, height, width) * 0.5f;
     bi->bone = boneInfo[B_THIGH_L].bone;
+    bi->boneID = B_THIGH_L;
     constructBodyPart(p3,
                       boneInfo[B_THIGH_L].worldRot,
                       halfSize,
@@ -359,6 +391,7 @@ RagDoll::buildRagdollBoneInfo(const TempBoneInfoVec& boneInfo)
     bi->offset = -boneInfo[B_THIGH_R].toLocal(p3);
     halfSize = btVector3(d1, height, width) * 0.5f;
     bi->bone = boneInfo[B_THIGH_R].bone;
+    bi->boneID = B_THIGH_R;
     constructBodyPart(p3,
                       boneInfo[B_THIGH_R].worldRot,
                       halfSize,
@@ -377,6 +410,7 @@ RagDoll::buildRagdollBoneInfo(const TempBoneInfoVec& boneInfo)
     bi->offset = -boneInfo[B_CALF_L].toLocal(p3);
     halfSize = btVector3(d1, height, width) * 0.5f;
     bi->bone = boneInfo[B_CALF_L].bone;
+    bi->boneID = B_CALF_L;
     constructBodyPart(p3,
                       boneInfo[B_CALF_L].worldRot,
                       halfSize,
@@ -400,6 +434,7 @@ RagDoll::buildRagdollBoneInfo(const TempBoneInfoVec& boneInfo)
     bi->offset = -boneInfo[B_CALF_R].toLocal(p3);
     halfSize = btVector3(d1, height, width) * 0.5f;
     bi->bone = boneInfo[B_CALF_R].bone;
+    bi->boneID = B_CALF_R;
     constructBodyPart(p3,
                       boneInfo[B_CALF_R].worldRot,
                       halfSize,
@@ -711,70 +746,18 @@ RagDoll::configureRagdoll(const BoneTable& bones,
     // set the parent node
     mParentNode = parentNode;
 
-    btVector3 worldPos;
-    btQuaternion worldRot;
-    RagdollBoneInfo* bi;
-
     // set the current bones and its positions in the physics world
-    bi = &mRagdollBones[BP_HEAD];
-    bi->bone = bones[B_HEAD];
-    bi->motionState.dirty = true;
-    configureRigidBody(*bi->rigidBody, bi->bone, parentNode, -bi->offset);
-    bi->motionState.setWorldTransform(bi->rigidBody->getWorldTransform());
-    bi = &mRagdollBones[BP_UPPER_ARM_L];
-    bi->bone = bones[B_UPPER_ARM_L];
-    bi->motionState.dirty = true;
-    configureRigidBody(*bi->rigidBody, bi->bone, parentNode, -bi->offset);
-    bi->motionState.setWorldTransform(bi->rigidBody->getWorldTransform());
-    bi = &mRagdollBones[BP_FORE_ARM_L];
-    bi->bone = bones[B_FORE_ARM_L];
-    bi->motionState.dirty = true;
-    configureRigidBody(*bi->rigidBody, bi->bone, parentNode, -bi->offset);
-    bi->motionState.setWorldTransform(bi->rigidBody->getWorldTransform());
-    bi = &mRagdollBones[BP_UPPER_ARM_R];
-    bi->bone = bones[B_UPPER_ARM_R];
-    bi->motionState.dirty = true;
-    configureRigidBody(*bi->rigidBody, bi->bone, parentNode, -bi->offset);
-    bi->motionState.setWorldTransform(bi->rigidBody->getWorldTransform());
-    bi = &mRagdollBones[BP_FORE_ARM_R];
-    bi->bone = bones[B_FORE_ARM_R];
-    bi->motionState.dirty = true;
-    configureRigidBody(*bi->rigidBody, bi->bone, parentNode, -bi->offset);
-    bi->motionState.setWorldTransform(bi->rigidBody->getWorldTransform());
-    bi = &mRagdollBones[BP_SPINE];
-    bi->bone = bones[B_SPINE];
-    bi->motionState.dirty = true;
-    configureRigidBody(*bi->rigidBody, bi->bone, parentNode, -bi->offset);
-    bi->motionState.setWorldTransform(bi->rigidBody->getWorldTransform());
-    bi = &mRagdollBones[BP_THIGH_L];
-    bi->bone = bones[B_THIGH_L];
-    bi->motionState.dirty = true;
-    configureRigidBody(*bi->rigidBody, bi->bone, parentNode, -bi->offset);
-    bi->motionState.setWorldTransform(bi->rigidBody->getWorldTransform());
-    bi = &mRagdollBones[BP_LEG_L];
-    bi->bone = bones[B_CALF_L];
-    bi->motionState.dirty = true;
-    configureRigidBody(*bi->rigidBody, bi->bone, parentNode, -bi->offset);
-    bi->motionState.setWorldTransform(bi->rigidBody->getWorldTransform());
-    bi = &mRagdollBones[BP_THIGH_R];
-    bi->bone = bones[B_THIGH_R];
-    bi->motionState.dirty = true;
-    configureRigidBody(*bi->rigidBody, bi->bone, parentNode, -bi->offset);
-    bi->motionState.setWorldTransform(bi->rigidBody->getWorldTransform());
-    bi = &mRagdollBones[BP_LEG_R];
-    bi->bone = bones[B_CALF_R];
-    bi->motionState.dirty = true;
-    configureRigidBody(*bi->rigidBody, bi->bone, parentNode, -bi->offset);
-    bi->motionState.setWorldTransform(bi->rigidBody->getWorldTransform());
-    bi = &mRagdollBones[BP_PELVIS];
-    bi->bone = bones[B_PELVIS];
-    bi->motionState.dirty = true;
-    configureRigidBody(*bi->rigidBody, bi->bone, parentNode, -bi->offset);
-    bi->motionState.setWorldTransform(bi->rigidBody->getWorldTransform());
+    for (RagdollBoneInfo* bi = mRagdollBones.begin(), *end = mRagdollBones.end();
+            bi != end; ++bi) {
+        bi->bone = bones[bi->boneID];
+        bi->motionState.dirty = true;
+        configureRigidBody(*bi->rigidBody, bi->bone, parentNode, -bi->offset);
+        bi->motionState.setWorldTransform(bi->rigidBody->getWorldTransform());
+    }
 
     // we will track the global position of the pelvis as reference to move the
     // mParentNode
-    mParentLastPos = mRagdollBones[BP_PELVIS].motionState.transform.getOrigin();
+    mParentLastPos = mRagdollBones[BodyPartID::BP_PELVIS].motionState.transform.getOrigin();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -857,6 +840,44 @@ RagDoll::clear(void)
     }
     mRagdollBones.clear();
     mEnabled = false;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void
+RagDoll::getBodyPartsOBB(const BoneTable& bones,
+                         const Ogre::SceneNode* parentNode,
+                         OBBInfoVec& obbs) const
+{
+    ASSERT(parentNode);
+    ASSERT(!mRagdollBones.empty() && "We need to set first the skeleton");
+
+    if (bones.size() != bones.max_size()) {
+        debugERROR("This bone table is not correct, we need %d and we have %d\n",
+            bones.max_size(), bones.size());
+        return;
+    }
+    obbs.resize(mRagdollBones.size());
+
+    // get an configure each obb taking into account the ragdolls and bone position
+    // and orientation
+
+}
+
+////////////////////////////////////////////////////////////////////////////////
+bool
+RagDoll::getClosestIntersection(const Ogre::Vector3& rOrigin,
+                                const Ogre::Vector3& rDir,
+                                BodyPartID& bpIntersected) const
+{
+    // first of all we will calculate the distance of the ray with each boxShape
+    // and check if the distance is less than the extents of the box, if it is
+    // we probably are intersecting that box, if not, is not possible.
+    // For all those boxes that we are maybe intersectiong we will convert the
+    // ray into the OBB cordinates system and check using the
+    // Ogre::Math::intersects() method to veryfy that.
+    //
+
+    return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

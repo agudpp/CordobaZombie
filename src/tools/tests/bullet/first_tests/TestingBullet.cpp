@@ -184,6 +184,15 @@ printAnimations(Ogre::Entity* ent)
     }
 }
 
+// @brief Print the number of subentities of an entity
+//
+inline void
+printSubEntities(Ogre::Entity* ent)
+{
+    unsigned int count = ent->getNumSubEntities();
+    debugGREEN("entity %s contains %d subentities\n", ent->getName().c_str(), count);
+}
+
 // @brief load a table from an entity
 // @param ent
 // @param table
@@ -284,13 +293,13 @@ TestingBullet::configureBullet(void)
     btCollisionShape* groundShape =
         new btBoxShape(btVector3(btScalar(1520.),
                        btScalar(1550.),
-                       btScalar(1.)));
+                       btScalar(30)));
     //keep track of the shapes, we release memory at exit.
     //make sure to re-use collision shapes among rigid bodies whenever possible!
     mCollisionShapes.push_back(groundShape);
     btTransform groundTransform;
     groundTransform.setIdentity();
-    groundTransform.setOrigin(btVector3(0, 0, 0));
+    groundTransform.setOrigin(btVector3(0, 0, -29.8f));
     {
         btScalar mass(0.);
 
@@ -807,6 +816,7 @@ TestingBullet::loadAditionalData(void)
     createRagdoll(skeleton, node);
     printBoneNames(ent);
     printAnimations(ent);
+    printSubEntities(ent);
 //    mAnimState = ent->getAnimationState("corre");
 //    mAnimState->setEnabled(true);
 //    mAnimState->setLoop(true);
@@ -890,6 +900,7 @@ TestingBullet::update()
         mRagdoll.configureRagdoll(table, mModelNode);
         mRagdoll.setEnable(true);
         mRagdollNeedToUpdate = true;
+
 //        mHeadNode->applyCentralImpulse(btForce);
     }
 

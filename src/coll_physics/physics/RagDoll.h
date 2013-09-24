@@ -154,6 +154,17 @@ class RagDoll
     };
 
 public:
+
+    // Define the list of OBB information
+    //
+    struct OBBInfo {
+        btTransform worldTransform;
+        btVector3 extents;
+    };
+
+    typedef core::StackVector<OBBInfo, BodyPartID::BP_MAX> OBBInfoVec;
+
+public:
     // set the world?
     RagDoll(btDynamicsWorld* bdw = 0);
     ~RagDoll();
@@ -227,6 +238,33 @@ public:
     inline const btRigidBody*
     getRigidBody(BodyPartID bpIndex) const;
 
+    // @brief Return the OBB for each body part in form of boxes. Each entry
+    //        will contain the world btTransform of the box, and the extents
+    //        of the OBB from a given BoneTable.
+    // @param bones         The bones associated to the skeleton instance
+    // @param parentNode    The parent scene node.
+    // @param obbs          The OBBInfoVec for each body part.
+    //
+    void
+    getBodyPartsOBB(const BoneTable& bones,
+                    const Ogre::SceneNode* parentNode,
+                    OBBInfoVec& obbs) const;
+
+    // @brief Check the closest body part that intersects against a ray.
+    //        Probably this should be removed from this class since is not
+    //        responsibility of the ragdoll to check raycasting intersections
+    //        (return the list of OBB of each body part and test outside,
+    //         issue #0123)
+    // @param rOrigin       The ray origin
+    // @param rDir          The ray direction (not need to be normalized).
+    // @param bpIntersected The closest BodyPartID that intersects against the ray.
+    // @return true if there are intersections | false otherwise
+    //
+    bool
+    getClosestIntersection(const Ogre::Vector3& rOrigin,
+                           const Ogre::Vector3& rDir,
+                           BodyPartID& bpIntersected) const;
+
     // @brief Update the ragdoll. This method will update the associated skeleton
     //        using the current position of the ragdoll.
     // @return true if the ragdoll should need to be updated anymore | false if not.
@@ -248,6 +286,7 @@ private:
         btVector3 offset;
         RagDollUpdater motionState;
         AdditionalOffsets childJoints;
+        BonesID boneID; // for the bone table
     };
 
     struct BoneChildOffset {
@@ -335,7 +374,7 @@ private:
 
 private:
     btDynamicsWorld* mDynamicWorld;
-    core::StackVector<RagdollBoneInfo, BP_MAX> mRagdollBones;
+    core::StackVector<RagdollBoneInfo, BodyPartID::BP_MAX> mRagdollBones;
     core::StackVector<btTypedConstraint*, BC_COUNT> mConstraints;
     InitialStateBoneInfoVec mInitialInfo;
     // in the mAdditionalOffsets vector we will put the child offset for some
