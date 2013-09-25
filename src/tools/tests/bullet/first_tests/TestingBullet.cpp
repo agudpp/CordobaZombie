@@ -851,10 +851,13 @@ TestingBullet::loadAditionalData(void)
     Ogre::SkeletonInstance* skeleton = ent->getSkeleton();
     createRagdoll(skeleton, node);
     // create primitives for the body table
-//    createPrimitives(mRagdoll, table, mModelNode, mBodyPartsPrim);
+    // createPrimitives(mRagdoll, table, mModelNode, mBodyPartsPrim);
     printBoneNames(ent);
     printAnimations(ent);
     printSubEntities(ent);
+
+
+
 //    mAnimState = ent->getAnimationState("corre");
 //    mAnimState->setEnabled(true);
 //    mAnimState->setLoop(true);

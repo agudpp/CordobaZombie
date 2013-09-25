@@ -25,7 +25,7 @@ class BulletMotionState : public btMotionState
 {
 public:
     // constructor with the scene node associated
-    BulletMotionState(Ogre::SceneNode* node = 0) : mNode(node) {};
+    BulletMotionState(Ogre::SceneNode* node = 0) : mNode(node), mDirty(false) {};
     virtual
     ~BulletMotionState(){};
 
@@ -43,7 +43,6 @@ public:
     getWorldTransform(btTransform &worldTrans) const
     {
         worldTrans = mTransform;
-
     }
 
     // @brief set the world transform
@@ -51,6 +50,7 @@ public:
     virtual void
     setWorldTransform(const btTransform &worldTrans)
     {
+        mDirty = true;
         mTransform = worldTrans;
         if (mNode) {
             const btQuaternion& rot = worldTrans.getRotation();
@@ -65,9 +65,18 @@ public:
     inline btTransform&
     transform(void) { return mTransform; }
 
+    // @brief check / set if this object is dirty or not
+    //
+    inline bool
+    isDirty(void) const { return mDirty; }
+    inline void
+    setDirty(bool dirty) { mDirty = dirty; }
+
+
 private:
     btTransform mTransform;
     Ogre::SceneNode* mNode;
+    bool mDirty;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -104,6 +113,7 @@ struct BulletObject {
         return rigidBody == other.rigidBody && shape == other.shape &&
             entity == other.entity;
     }
+
 };
 
 
