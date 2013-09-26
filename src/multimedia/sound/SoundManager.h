@@ -46,6 +46,7 @@
 #  error "Unsupported platform. ABORTING COMPILATION."
 #endif
 
+
 namespace mm {
 
 
@@ -177,7 +178,7 @@ public:
 	 ** both of which get updated on each call to SceneManager::update()
 	 **/
 	inline void
-	setCamera(Ogre::Camera* cam);
+	setCamera(const Ogre::Camera* cam);
 
 	/**
 	 ** @brief
@@ -316,9 +317,9 @@ public:
 	 ** MP3 or large OGGs) to refresh their internal buffering mechanisms.
 	 **/
 	void
-	update(std::vector<EnvSoundId> *finished=0,
-			std::vector<EnvSoundId> *paused=0,
-			const float globalTimeFrame);
+	update(const float globalTimeFrame,
+			std::vector<EnvSoundId> *finished=0,
+			std::vector<EnvSoundId> *paused=0);
 
 	/**
 	 ** @brief
@@ -729,7 +730,7 @@ private:
 	typedef std::pair<SoundAPI*, ActiveSound*> UnitSound;
 
 	// Camera from which position and orientation are obtained for update().
-	Ogre::Camera* mCam;
+	const Ogre::Camera* mCam;
 
 	// Sounds loaded in memory at startup.
 	// Buffers can be shared, and remain in memory between plays.
@@ -789,7 +790,7 @@ SoundManager::getInstance()
 
 
 ////////////////////////////////////////////////////////////////////////////////
-inline void SoundManager::setCamera(Ogre::Camera* cam) { mCam = cam; }
+inline void SoundManager::setCamera(const Ogre::Camera* cam) { mCam = cam; }
 
 
 ////////////////////////////////////////////////////////////////////////////////

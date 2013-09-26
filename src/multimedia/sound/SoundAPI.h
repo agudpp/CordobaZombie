@@ -21,7 +21,7 @@
 #include <OgreSceneNode.h>      // Ogre::SceneNode
 #include <OgrePrerequisites.h>  // Ogre::Real
 
-#include "DebugUtil.h"
+#include <debug/DebugUtil.h>
 #include "SoundEnums.h"
 #include "SoundManager.h"
 

@@ -7,6 +7,7 @@
  */
 
 #include <OgreMath.h>
+#include <OgreCamera.h>
 #include <OgreAnimationState.h>
 #include <OgreResourceManager.h>
 #include <OgreFontManager.h>
@@ -68,183 +69,12 @@ getKeyboardKeys(void)
     return buttons;
 }
 
-}
-
-
-namespace tool {
-
-
-const Ogre::ColourValue SoundTest::EntityAnimations::ENABLED_ANIM_COL =
-    Ogre::ColourValue::Green;
-const Ogre::ColourValue SoundTest::EntityAnimations::DISABLED_ANIM_COL =
-    Ogre::ColourValue::Red;
-const Ogre::ColourValue SoundTest::EntityAnimations::SELECTED_ANIM_COL =
-    Ogre::ColourValue::Blue;
-
-
-////////////////////////////////////////////////////////////////////////////////
-void
-SoundTest::EntityAnimations::setText(unsigned int index)
-{
-    ASSERT(index < mAnims.size());
-    Ogre::AnimationState* anim = mAnims[index];
-    const Ogre::ColourValue& color = (anim->getEnabled()) ? ENABLED_ANIM_COL : DISABLED_ANIM_COL;
-    const char* loopStr = anim->getLoop() ? "Looping" : "Not looping";
-
-    // set the text
-    mTable.setText(index+2, "Animation: " + anim->getAnimationName() + " " + loopStr, color);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-SoundTest::EntityAnimations::EntityAnimations(core::OgreTextTable& table) :
-    mTable(table)
-,   mCurrentAnim(0)
-,   mEntity(0)
-{}
-SoundTest::EntityAnimations::~EntityAnimations()
-{
-}
-
-////////////////////////////////////////////////////////////////////////////////
-bool
-SoundTest::EntityAnimations::setEntity(Ogre::Entity* ent)
-{
-    ASSERT(ent);
-    mEntity = ent;
-
-    // first of all we will get all the animations of the entity
-    Ogre::AnimationStateSet* anims = mEntity->getAllAnimationStates();
-    if (!anims) {
-        debugWARNING("The current mesh hasn't animations\n");
-        return false;
-    }
-    Ogre::AnimationStateIterator animIt = anims->getAnimationStateIterator();
-    mAnims.clear();
-    while(animIt.hasMoreElements()){
-        Ogre::AnimationState *anim = animIt.getNext();
-        if (!anim) {
-            break;
-        }
-        mAnims.push_back(anim);
-    }
-
-    if (mAnims.empty()) {
-        debugWARNING("The current mesh hasn't animations\n");
-        return false;
-    }
-
-    // now we will show all the animations and the current name of the mesh
-    // and entity:
-    // 0 -> Entity name
-    // 1 -> Mesh Name
-    //
-    mTable.setNumRows(mAnims.size() + 2, 0.015f, 0, 0);
-    mTable.setText(0, "EntityName: " + mEntity->getName());
-    mTable.setText(1, "MeshName: " + mEntity->getMesh()->getName());
-
-    // for all the other animations we will show their names
-    //
-    for(unsigned int i = 0, size = mAnims.size(); i < size; ++i) {
-        mAnims[i]->setEnabled(false);
-        mAnims[i]->setLoop(false);
-        setText(i);
-    }
-
-    // set the selected row the SELECTED color
-    mCurrentAnim = 0;
-    mTable.setColor(mCurrentAnim+2, SELECTED_ANIM_COL);
-
-    return true;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-void
-SoundTest::EntityAnimations::moveNextAnim(void)
-{
-    // change the color of the current anim to the specific one
-    ASSERT(mCurrentAnim < mAnims.size());
-    Ogre::AnimationState* anim = mAnims[mCurrentAnim];
-    mTable.setColor(mCurrentAnim+2,
-        (anim->getEnabled()) ? ENABLED_ANIM_COL : DISABLED_ANIM_COL);
-    mCurrentAnim = (mCurrentAnim + 1) % mAnims.size();
-    mTable.setColor(mCurrentAnim+2, SELECTED_ANIM_COL);
 
 }
 
-////////////////////////////////////////////////////////////////////////////////
-void
-SoundTest::EntityAnimations::movePrevAnim(void)
-{
-    ASSERT(mCurrentAnim < mAnims.size());
-    Ogre::AnimationState* anim = mAnims[mCurrentAnim];
-    mTable.setColor(mCurrentAnim+2,
-        (anim->getEnabled()) ? ENABLED_ANIM_COL : DISABLED_ANIM_COL);
-
-    if (mCurrentAnim > 0) {
-        --mCurrentAnim;
-    } else {
-        mCurrentAnim = mAnims.size() - 1;
-    }
-    mTable.setColor(mCurrentAnim+2, SELECTED_ANIM_COL);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-void
-SoundTest::EntityAnimations::startCurrentAnim(bool start)
-{
-    ASSERT(mCurrentAnim < mAnims.size());
-    Ogre::AnimationState* anim = mAnims[mCurrentAnim];
-    if (anim->getEnabled() != start) {
-        anim->setTimePosition(0);
-        anim->setEnabled(start);
-        setText(mCurrentAnim);
-    }
-}
-
-bool
-SoundTest::EntityAnimations::isStartedCurrentAnim(void) const
-{
-    ASSERT(mCurrentAnim < mAnims.size());
-    Ogre::AnimationState* anim = mAnims[mCurrentAnim];
-    return anim->getEnabled();
-}
-
-////////////////////////////////////////////////////////////////////////////////
-void
-SoundTest::EntityAnimations::loopCurrentAnim(bool loop)
-{
-    ASSERT(mCurrentAnim < mAnims.size());
-    Ogre::AnimationState* anim = mAnims[mCurrentAnim];
-    if (anim->getLoop() != loop) {
-        anim->setLoop(loop);
-        setText(mCurrentAnim);
-    }
-}
-bool
-SoundTest::EntityAnimations::isLoopCurrentAnim(void) const
-{
-    ASSERT(mCurrentAnim < mAnims.size());
-    Ogre::AnimationState* anim = mAnims[mCurrentAnim];
-    return anim->getLoop();
-}
-
-////////////////////////////////////////////////////////////////////////////////
-void
-SoundTest::EntityAnimations::updateAnims(float timeFrame)
-{
-    for (unsigned int i = 0, size = mAnims.size(); i < size; ++i) {
-        Ogre::AnimationState* anim = mAnims[i];
-        if (anim->getEnabled()) {
-            anim->addTime(timeFrame);
-        }
-    }
-}
 
 
-
-
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
+namespace tests {
 
 ////////////////////////////////////////////////////////////////////////////////
 bool
@@ -282,23 +112,28 @@ SoundTest::parseXML(const std::string& xmlFName, std::string& meshName) const
     return true;
 }
 
+
+
 ////////////////////////////////////////////////////////////////////////////////
-bool
-SoundTest::loadEntity(const std::string& meshName)
-{
-    mNode = mSceneMgr->getRootSceneNode()->createChildSceneNode();
-    try {
-        mEntity = mSceneMgr->createEntity(meshName.c_str());
-    } catch(...) {
-        debugERROR("Mesh %s not found!\n", meshName.c_str());
-        return false;
-    }
-    mNode->attachObject(mEntity);
+//bool
+//SoundTest::loadEntity(const std::string& meshName)
+//{
+//    mNode = mSceneMgr->getRootSceneNode()->createChildSceneNode();
+//    try {
+//        mEntity = mSceneMgr->createEntity(meshName.c_str());
+//    } catch(...) {
+//        debugERROR("Mesh %s not found!\n", meshName.c_str());
+//        return false;
+//    }
+//    mNode->attachObject(mEntity);
+//
+//    // try to load the animations now
+//    return mEntityAnims.setEntity(mEntity);
+//}
 
-    // try to load the animations now
-    return mEntityAnims.setEntity(mEntity);
-}
 
+
+///////////////////////////////////////////////////////////////////////////////
 void
 SoundTest::handleCameraInput()
 {
@@ -365,56 +200,79 @@ SoundTest::handleCameraInput()
 
     // check for the type of camera we want to use
     if (mInputHelper.isKeyPressed(input::KeyCode::KC_1)) {
-        mOrbitCamera.setCameraType(OrbitCamera::CameraType::FreeFly);
+        mOrbitCamera.setCameraType(tool::OrbitCamera::CameraType::FreeFly);
     } else if (mInputHelper.isKeyPressed(input::KeyCode::KC_2)) {
-        mOrbitCamera.setCameraType(OrbitCamera::CameraType::Orbit);
+        mOrbitCamera.setCameraType(tool::OrbitCamera::CameraType::Orbit);
     }
 
 }
 
+
+
+///////////////////////////////////////////////////////////////////////////////
+void
+SoundTest::printDevices(void)
+{
+	std::cout << "Available sound devices:" << std::endl;
+	std::vector<std::string> soundDevices = mSH.getAvailableSoundDevices();
+	for (unsigned int i=0 ; i < soundDevices.size() ; i++) {
+		std::cout << "  ¤ " << soundDevices[i] << std::endl;
+	}
+	std::cout << "Using sound device:" << mSH.getSoundDevice() << std::endl;
+}
+
+
+
+///////////////////////////////////////////////////////////////////////////////
 SoundTest::SoundTest() :
-    core::AppTester(mTimeFrame)
-,   mNode(0)
-,   mEntity(0)
-,   mOrbitCamera(mCamera, mSceneMgr, mTimeFrame)
-,   mEntityAnims(mTextTable)
-,   mInputHelper(getMouseButtons(), getKeyboardKeys())
+    core::AppTester(mTimeFrame),
+    mNode(0),
+    mEntity(0),
+    mOrbitCamera(mCamera, mSceneMgr, mTimeFrame),
+    mInputHelper(getMouseButtons(), getKeyboardKeys()),
+	mSH(mm::SoundHandler::getInstance())
 {
     // configure the input
     input::Mouse::setMouse(mMouse);
     input::Keyboard::setKeyboard(mKeyboard);
     setUseDefaultInput(false);
+
+	// Check initial sound system status is OK
+	testBEGIN("Revisando la creación del SoundHandler.\n");
+	ASSERT(&mSH == &mm::SoundHandler::getInstance());
+	testSUCCESS("SoundHandler creado correctamente.\n");
+
+	// Print some info about the available audio devices.
+	printDevices();
 }
 
+
+
+///////////////////////////////////////////////////////////////////////////////
 SoundTest::~SoundTest()
 {
     // TODO Auto-generated destructor stub
 }
 
-/* Load additional info */
+
+
+///////////////////////////////////////////////////////////////////////////////
 void
 SoundTest::loadAditionalData(void)
 {
-    // TODO: ugly way to load all the fonts at the beginning
+    // Ugly way to load all the fonts at the beginning
     Ogre::ResourceManager::ResourceMapIterator iter =
         Ogre::FontManager::getSingleton().getResourceIterator();
     while (iter.hasMoreElements()) { iter.getNext()->load(); }
 
-    // try to load the xml file
-    std::string meshName;
-    if (!parseXML(ANIM_PLAYER_XML_FILE, meshName)) {
-        // nothing to do
-        return;
-    }
-    if (!loadEntity(meshName)) {
-        // nothing to do
-        return;
-    }
-
+	// Attach the camera to the sound system position
+	mSH.setCamera(mCamera);
     // everything fine...
 }
 
-/* function called every frame. Use GlobalObjects::lastTimeFrame */
+
+
+///////////////////////////////////////////////////////////////////////////////
 void
 SoundTest::update()
 {
@@ -427,23 +285,8 @@ SoundTest::update()
         return;
     }
 
-    // update the animations
-    mEntityAnims.updateAnims(mTimeFrame);
-
-    // check for the input to handle the selection
-    if (mInputHelper.isKeyReleased(input::KeyCode::KC_L)) {
-        mEntityAnims.loopCurrentAnim(!mEntityAnims.isLoopCurrentAnim());
-    }
-    if (mInputHelper.isKeyReleased(input::KeyCode::KC_E)) {
-        mEntityAnims.startCurrentAnim(!mEntityAnims.isStartedCurrentAnim());
-    }
-
-    // check if we want to move to the next/preve anim
-    if (mInputHelper.isKeyReleased(input::KeyCode::KC_ADD)) {
-        mEntityAnims.moveNextAnim();
-    } else if (mInputHelper.isKeyReleased(input::KeyCode::KC_MINUS)) {
-        mEntityAnims.movePrevAnim();
-    }
+    // update the sound system
+    mSH.update(mTimeFrame);
 
     // update the camera
     handleCameraInput();

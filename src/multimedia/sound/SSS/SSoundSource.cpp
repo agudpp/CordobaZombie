@@ -15,7 +15,7 @@
 
 #include <fstream>
 #include "SSoundSource.h"
-#include "DebugUtil.h"
+#include <debug/DebugUtil.h>
 
 namespace mm {
 

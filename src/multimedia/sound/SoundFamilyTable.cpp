@@ -8,7 +8,7 @@
 
 
 #include <cstring>
-#include "DebugUtil.h"
+#include <debug/DebugUtil.h>
 #include "SoundFamilyTable.h"
 
 namespace mm {

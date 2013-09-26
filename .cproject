@@ -34,9 +34,19 @@
 									<listOptionValue builtIn="false" value="&quot;${OGRE_BUILD}/include&quot;"/>
 									<listOptionValue builtIn="false" value="/usr/include/OIS"/>
 									<listOptionValue builtIn="false" value="/usr/include/c++/4.7/bits"/>
+									<listOptionValue builtIn="false" value="&quot;${CBAZ_SRC}/coll_physics&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${CBAZ_SRC}/core&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${CBAZ_SRC}/cz&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${CBAZ_SRC}/gps&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${CBAZ_SRC}/io_interfaces&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${CBAZ_SRC}/multimedia&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${CBAZ_SRC}/tools&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${CBAZ_SRC}/ui&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${THIRD_PARTY_LIBS}/include&quot;"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.preprocessor.def.1295629118" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__GXX_EXPERIMENTAL_CXX0X__=1"/>
+									<listOptionValue builtIn="false" value="DEBUG=1"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1781695688" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
@@ -49,9 +59,19 @@
 									<listOptionValue builtIn="false" value="/usr/include/OIS"/>
 									<listOptionValue builtIn="false" value="/usr/include/c++/4.7/utility"/>
 									<listOptionValue builtIn="false" value="/usr/include/c++/4.7/bits"/>
+									<listOptionValue builtIn="false" value="&quot;${CBAZ_SRC}/coll_physics&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${CBAZ_SRC}/core&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${CBAZ_SRC}/cz&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${CBAZ_SRC}/gps&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${CBAZ_SRC}/io_interfaces&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${CBAZ_SRC}/multimedia&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${CBAZ_SRC}/tools&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${CBAZ_SRC}/ui&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${THIRD_PARTY_LIBS}/include&quot;"/>
 								</option>
 								<option id="gnu.c.compiler.option.preprocessor.def.symbols.1681950668" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__GXX_EXPERIMENTAL_CXX0X__=1"/>
+									<listOptionValue builtIn="false" value="DEBUG=1"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.834750935" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
@@ -60,9 +80,12 @@
 								<option id="gnu.cpp.link.option.libs.1163331653" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" valueType="libs">
 									<listOptionValue builtIn="false" value="OgreMain"/>
 									<listOptionValue builtIn="false" value="OIS"/>
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="vorbis"/>
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="ogg"/>
 								</option>
 								<option id="gnu.cpp.link.option.paths.1001067721" name="Library search path (-L)" superClass="gnu.cpp.link.option.paths" valueType="libPaths">
 									<listOptionValue builtIn="false" value="&quot;${OGRE_BUILD}/lib&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${THIRD_PARTY_LIBS}/lib&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.900298691" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
@@ -78,15 +101,21 @@
 									<listOptionValue builtIn="false" value="/usr/include/OIS"/>
 									<listOptionValue builtIn="false" value="/usr/include/c++/4.7/utility"/>
 									<listOptionValue builtIn="false" value="/usr/include/c++/4.7/bits"/>
+									<listOptionValue builtIn="false" value="&quot;${CBAZ_SRC}/coll_physics&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${CBAZ_SRC}/core&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${CBAZ_SRC}/cz&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${CBAZ_SRC}/gps&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${CBAZ_SRC}/io_interfaces&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${CBAZ_SRC}/multimedia&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${CBAZ_SRC}/tools&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${CBAZ_SRC}/ui&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${THIRD_PARTY_LIBS}/include&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.596393182" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 							</tool>
 						</toolChain>
 					</folderInfo>
 					<fileInfo id="cdt.managedbuild.toolchain.gnu.base.693357123.136240977" name="autogenCmake" rcbsApplicability="disable" resourcePath="src/multimedia/sound/autogenCmake" toolsToInvoke=""/>
-					<fileInfo id="cdt.managedbuild.toolchain.gnu.base.693357123.993677396" name="idea_SoundSystem.cpp" rcbsApplicability="disable" resourcePath="src/multimedia/sound/idea_SoundSystem.cpp" toolsToInvoke="cdt.managedbuild.tool.gnu.cpp.compiler.base.1532648369.1754819652">
-						<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.base.1532648369.1754819652" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.base.1532648369"/>
-					</fileInfo>
 					<sourceEntries>
 						<entry excluding="src/multimedia/sound/idea_SoundSystem.cpp|src/multimedia/sound/autogenCmake" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>

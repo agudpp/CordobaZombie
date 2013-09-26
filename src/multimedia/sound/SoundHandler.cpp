@@ -249,7 +249,7 @@ SoundHandler::update(const float globalTimeFrame)
 	SSerror err(SSerror::SS_NO_ERROR);
 
 	// Update all internal buffers.
-	sSoundManager.update(&mFinishedPlaylists, &mPausedPlaylists, globalTimeFrame);
+	sSoundManager.update(globalTimeFrame, &mFinishedPlaylists, &mPausedPlaylists);
 
 	// Attend playlists which finished a sound.
 	for (uint i=0 ; i < mFinishedPlaylists.size() ; i++) {

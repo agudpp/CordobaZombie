@@ -51,7 +51,7 @@ class SoundHandler
 		std::vector<uint>			mPlayOrder; // Sounds playing order
 		unsigned int				mCurrent;	// Current position in mPlayOrder
 		unsigned int 				mState;		// Repeat/Shuffle/Randomwait
-		float						mSilence;	// Time to wait between sounds (in sec)
+		float						mSilence;	// Wait time between sounds (sec)
 		float						mTimeSinceFinish;
 	};
 
@@ -75,6 +75,8 @@ public:
 	inline static SoundHandler&
 	getInstance();
 
+	/*********************************************************************/
+	/***************    CTOR, DTOR & INITIALIZATIONS    ******************/
 private:
 	/* Prevent the compiler from generating methods to copy the instance: */
 	SoundHandler(SoundHandler const&);    // Don't implement!
@@ -89,6 +91,48 @@ private:
 	 ** all OpenAL sound resources (context, device) */
 	~SoundHandler();
 
+public:
+	/** Lists available sound devices. */
+	std::vector<std::string>
+	getAvailableSoundDevices();
+
+	/**
+	 ** @brief
+	 ** Name of the currently open sound device. There's always one.
+	 **
+	 ** @return
+	 ** Empty string if ALC_ENUMERATION_EXT extension is not present;
+	 ** name of the opened sound device otherwise.
+	 **/
+	std::string
+	getSoundDevice();
+
+	/**
+	 ** @brief
+	 ** Changes current sound device to devName.
+	 **
+	 ** @remarks
+	 ** NULL argument selects default sound device.
+	 ** This destroys current sound context, all playing sounds will be lost.
+	 ** If devName can't be used, nothing is done.
+	 **
+	 ** @return
+	 ** SS_NO_ERROR			Success.
+	 ** SS_INTERNAL_ERROR	Couldn't create context on specified device.
+	 **/
+	SSerror
+	setSoundDevice(std::string* devName);
+
+	/**
+	 ** @brief
+	 ** Set the camera attached to the SoundManager.
+	 **
+	 ** @remarks
+	 ** The camera determines the position and orientation of the listener,
+	 ** both of which get updated on each call to SceneManager::update()
+	 **/
+	inline void
+	setCamera(const Ogre::Camera* cam);
 
 
 	/*********************************************************************/
@@ -104,7 +148,7 @@ public:
 	 **
 	 ** @return
 	 ** List of files which failed to load, with respective error message.
-	 ** File names are separated with UNIX newline characters (i.e., '\n')
+	 ** File names are separated with UNIX newline characters (viz. '\n')
 	 **/
 	Ogre::String
 	loadStreamSounds(const std::vector<Ogre::String>& list);
@@ -119,7 +163,7 @@ public:
 	 **
 	 ** @return
 	 ** List of files which failed to load, with respective error message.
-	 ** File names are separated with UNIX newline characters (i.e., '\n')
+	 ** File names are separated with UNIX newline characters (viz. '\n')
 	 **/
 	Ogre::String
 	loadDirectSounds(const std::vector<Ogre::String>& list);
@@ -136,7 +180,7 @@ public:
 	 ** @return
 	 ** List of files which failed to unload because they were being used
 	 ** by the system, either as Environmental or SoundAPI sounds.
-	 ** File names are separated with UNIX newline characters (i.e., '\n')
+	 ** File names are separated with UNIX newline characters (viz. '\n')
 	 **/
 	Ogre::String
 	unloadSounds(const std::vector<Ogre::String>& list);
@@ -535,6 +579,38 @@ inline SoundHandler::SoundHandler() { /* Nothig to do. */ }
 
 ////////////////////////////////////////////////////////////////////////////////
 inline SoundHandler::~SoundHandler() { shutDown(); }
+
+
+////////////////////////////////////////////////////////////////////////////////
+inline std::vector<std::string>
+SoundHandler::getAvailableSoundDevices()
+{
+	return sSoundManager.getAvailableSoundDevices();
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+inline std::string
+SoundHandler::getSoundDevice()
+{
+	return sSoundManager.getSoundDevice();
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+inline SSerror
+SoundHandler::setSoundDevice(std::string* devName)
+{
+	return sSoundManager.setSoundDevice(devName);
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+inline void
+SoundHandler::setCamera(const Ogre::Camera* cam)
+{
+	sSoundManager.setCamera(cam);
+}
 
 
 ////////////////////////////////////////////////////////////////////////////////

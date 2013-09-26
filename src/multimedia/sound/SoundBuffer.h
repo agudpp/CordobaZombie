@@ -12,13 +12,14 @@
 #define SOUNDBUFFER_H_
 
 
+#include <sys/types.h>  // off_t
 #include <vector>
-#include <sys/types.h>		// off_t
 #include <iostream>
 #include <fstream>
 #include <vorbis/vorbisfile.h>  // OGG-vorbis parsing
-#include "SoundEnums.h"		// SSformat
-#include "DebugUtil.h"
+
+#include <debug/DebugUtil.h>
+#include "SoundEnums.h"
 
 #if defined(_WIN32) || defined(CYGWIN)
 #  include <OpenAL/al.h>
@@ -142,7 +143,7 @@ SoundBuffer::SoundBuffer(SSbuftype buffType) :
 	type(buffType),
 	buffer(0),
 	loaded(false),
-	//format(AL_FORMAT_STEREO16),  // no default format: OpenAL handles channels
+	format(AL_FORMAT_MONO16),
 	duration(0.0),
 	chan(0),
 	freq(0)

@@ -22,7 +22,7 @@
 #include <OgreString.h>
 
 #include "Test.h"
-#include "DebugUtil.h"
+#include <debug/DebugUtil.h>
 
 #include "GameUnitDefines.h"
 #include "CircularFormation.h"

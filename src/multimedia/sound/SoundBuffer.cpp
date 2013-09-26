@@ -13,7 +13,7 @@
 #include <cstdio>   // FILE* family
 #include <vorbis/vorbisfile.h>  // OGG-vorbis parsing
 
-#include "DebugUtil.h"
+#include <debug/DebugUtil.h>
 #include "SoundBuffer.h"
 
 

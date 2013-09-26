@@ -21,7 +21,7 @@
 
 
 #include "AppTester.h"
-#include "DebugUtil.h"
+#include <debug/DebugUtil.h>
 #include "PrimitiveDrawer.h"
 #include "MouseCursor.h"
 #include "LevelManager.h"

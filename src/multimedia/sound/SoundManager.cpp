@@ -18,18 +18,17 @@
  *      Author: Budde, Carlos Esteban.
  */
 
+#include <OgreResourceGroupManager.h>
 
 #include "SoundManager.h"
-
-#include <debug/DebugUtil.h>
-
 #include "SoundEnums.h"
 #include "SoundBuffer.h"
 #include "BufferBuilder.h"
 #include "SoundSource.h"
-#include "LSoundSource.h"
-#include "SSoundSource.h"
+#include "LSS/LSoundSource.h"
+#include "SSS/SSoundSource.h"
 #include "SoundAPI.h"
+#include <debug/DebugUtil.h>
 
 
 /* Multiplatform auxiliary function */
@@ -440,9 +439,9 @@ SoundManager::unloadSound(const Ogre::String& sName)
 
 ////////////////////////////////////////////////////////////////////////////////
 void
-SoundManager::update(std::vector<EnvSoundId> *finished,
-					 std::vector<EnvSoundId> *paused,
-					 const float globalTimeFrame)
+SoundManager::update(const float globalTimeFrame,
+					 std::vector<EnvSoundId> *finished,
+					 std::vector<EnvSoundId> *paused)
 {
 	ActiveSound* as;
 	SSplayback st = SSplayback::SS_FINISHED;

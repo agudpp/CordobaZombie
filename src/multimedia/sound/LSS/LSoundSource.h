@@ -15,7 +15,7 @@
 #ifndef LSOUNDSOURCE_H_
 #define LSOUNDSOURCE_H_
 
-#include "SoundSource.h"
+#include "../SoundSource.h"
 
 namespace mm {
 
