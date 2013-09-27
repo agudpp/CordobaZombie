@@ -92,8 +92,8 @@ getMeshInformation(const Ogre::Mesh* const mesh,
     // check if we have enough space
     if (vCount > maxVertices || iCount > maxIndices) {
         debugERROR("We cannot read all the vertices or indices on the current"
-            " buffers: iCount: %d | %d,\t vCount: %d | %d\n", iCount, maxIndices,
-            vCount, maxVertices);
+            " buffers: iCount: %zu | %zu,\t vCount: %zu | %zu\n",
+            iCount, maxIndices, vCount, maxVertices);
         return false;
     }
 
@@ -291,7 +291,7 @@ getContourVertices(Ogre::Vector3* vertices,
     ASSERT(indices);
 
     if (vCount < 3 || iCount < 3) {
-        debugWARNING("There is nothing to do with %d vertices and %d indices\n",
+        debugWARNING("There is nothing to do with %zu vertices and %zu indices\n",
             vCount, iCount);
         return false;
     }
@@ -331,7 +331,7 @@ getContourVertices(Ogre::Vector3* vertices,
     // we don't support that (now)
     //
     if ((iCount % 3) != 0) {
-        debugERROR("Invalid indices count? we haven't triangles?!: %d\n", iCount);
+        debugERROR("Invalid indices count? we haven't triangles?!: %zu\n", iCount);
         return false;
     }
 
@@ -393,7 +393,7 @@ getContourVertices(Ogre::Vector3* vertices,
 
     if (result.size() != edges.size()) {
         debugERROR("We have some interior contours? This means that the mesh is "
-            "composed for not connected triangle lists, exterior edges: %d and"
+            "composed for not connected triangle lists, exterior edges: %zu and"
             " vertices analyzed: %d\n", edges.size(), result.size());
         return false;
     }
