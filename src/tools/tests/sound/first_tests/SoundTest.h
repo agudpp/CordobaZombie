@@ -34,24 +34,35 @@ class SoundTest : public core::AppTester
 {
 public:
     SoundTest();
+    ~SoundTest();
 
-    // Load additional info
+    /**
+     ** @brief
+     ** Load additional stuff before launching update cycle.
+     **/
     void
-    loadAditionalData(void);
+    loadAdditionalData(void);
 
-    // Function called every frame. Use GlobalObjects::lastTimeFrame
+    /**
+     ** @brief
+     ** Function called every frame. Use GlobalObjects::lastTimeFrame
+     **/
     void
     update();
 
-    ~SoundTest();
-
 private:
-
-    // @brief Read the xml file to check which is the .mesh we want to load.
-    // @param xmlFName  The xml filename
-    // @param meshName  The mesh filename we want to load (entity)
-    // @return true on success | false otherwise
-    //
+    /**
+     ** @brief
+     ** Read the xml file to check which is the .mesh we want to load.
+     **
+     ** @param
+     ** xmlFName: xml filename
+     ** meshName: mesh filename we want to load (entity)
+     **
+     ** @return
+     ** true on success
+     ** false otherwise
+     **/
     bool
     parseXML(const std::string& xmlFName, std::string& meshName) const;
 
@@ -65,7 +76,17 @@ private:
     void
     handleCameraInput(void);
 
-    // @brief Locate and print out available audio devices
+    /**
+     ** @brief
+     ** Interpret keyboard input to handle the sound system.
+     **/
+    void
+    handleSoundInput(void);
+
+    /**
+     ** @brief
+     ** Locate and print out available audio devices
+     **/
     void
     printDevices(void);
 
@@ -77,6 +98,7 @@ private:
     tool::OrbitCamera mOrbitCamera;
     core::OgreTextTable mTextTable;
     input::InputHelper mInputHelper;
+
     // SoundSystem specific members
     mm::SoundHandler&  mSH;
 };

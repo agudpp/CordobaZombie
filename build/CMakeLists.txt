@@ -98,11 +98,11 @@ set (DEV_ROOT_PATH $ENV{CZ01_DEV_PATH})
 set (THIRD_PARTY_LIBS $ENV{CZ01_THIRD_PARTY})
 
 if(NOT DEV_ROOT_PATH)
-  message(SEND_ERROR "you need to set CZ01_DEV_PATH environment variable")
+  message(SEND_ERROR "You need to set CZ01_DEV_PATH environment variable")
 endif()
 
 if(NOT THIRD_PARTY_LIBS)
-  message(SEND_ERROR "you need to set CZ01_THIRD_PARTY environment variable")
+  message(SEND_ERROR "You need to set CZ01_THIRD_PARTY environment variable")
 endif()
 
 # include third party libs and includes directories
