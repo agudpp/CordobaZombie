@@ -15,10 +15,23 @@ namespace coll {
 class CollisionHandler;
 }
 
+namespace Ogre {
+class SceneManager;
+}
+
 namespace cz {
 
 struct GlobalData
 {
+    // Ogre stuff
+    //
+
+    // SceneManager
+    static Ogre::SceneManager* sceneMngr;
+
+    // Own classes
+    //
+
     // Collision handler used
     static coll::CollisionHandler* collHandler;
     // last frame elapsed time

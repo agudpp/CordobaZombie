@@ -9,6 +9,8 @@
 
 namespace cz {
 
+Ogre::SceneManager* GlobalData::sceneMngr = 0;
+
 coll::CollisionHandler* GlobalData::collHandler = 0;
 float GlobalData::lastTimeFrame = 0.f;
 
