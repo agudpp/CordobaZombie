@@ -1052,7 +1052,8 @@ SoundManager::playSound(SoundAPI& sAPI,
 	}
 
 #ifdef DEBUG
-		alSourcef(src->mSource, AL_MAX_DISTANCE, 30.0f);
+	alSourcef(src->mSource, AL_MAX_DISTANCE, MAX_ATTENUATION_DISTANCE);
+	alSourcef(src->mSource, AL_REFERENCE_DISTANCE, HALF_ATTENUATION_DISTANCE);
 #endif
 
 	// Start playback and register sound.

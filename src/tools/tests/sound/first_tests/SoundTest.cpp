@@ -43,29 +43,9 @@ namespace {
 #define  NUM_SSOURCES  NUM_SBUFFERS
 
 
-// Audio files
-//
-#define  NUM_SFILES      6
-#define  START_PLSOUNDS  2
-const char *audioFile[NUM_SFILES] = {
-		"fxA20.ogg",
-		"Siren.ogg",
-		"roar.wav",		// playlist sound #1
-		"fxZ7.ogg",		// playlist sound #2
-		"fxZ9.ogg",		// playlist sound #3
-		"fxM2.ogg"		// playlist sound #4
-};
-
-
 // Playlists
 //
 const Ogre::String playlist1("lista1");
-const Ogre::String playlist2("lista2");
-
-
-// Audio fading (in-out) times
-//
-#define  FADE_TIME  2.5f
 
 }
 
@@ -158,8 +138,8 @@ SoundTest::SoundTest() :
 
 	// Load sounds into the system.
 	// Streaming buffers.
-	sounds.push_back("fxA20.ogg");  // audioFile[0], "water sound"
-	sounds.push_back("Siren.ogg");  // audioFile[1]
+	sounds.push_back("fxA20.ogg");
+	sounds.push_back("Siren.ogg");
 	testBEGIN("Cargando sonidos streaming.\n");
 	fails = mSH.loadStreamSounds(sounds);
 	if (fails.empty()) {
@@ -170,17 +150,17 @@ SoundTest::SoundTest() :
 	}
 	// Loaded buffers.
 	sounds.clear();
-	sounds.push_back("roar.wav");	// audioFile[2]
-	sounds.push_back("fxM2.ogg");	// audioFile[5], "button pressed"
+	sounds.push_back("roar.wav");
+	sounds.push_back("fxM2.ogg");
 	sounds.push_back("fxZ1.ogg");
 	sounds.push_back("fxZ2.ogg");
 	sounds.push_back("fxZ3.ogg");
 	sounds.push_back("fxZ4.ogg");
 	sounds.push_back("fxZ5.ogg");
 	sounds.push_back("fxZ6.ogg");
-	sounds.push_back("fxZ7.ogg");	// audioFile[3], "ferneeeee" variant 2
+	sounds.push_back("fxZ7.ogg");
 	sounds.push_back("fxZ8.ogg");
-	sounds.push_back("fxZ9.ogg");	// audioFile[4], "ole"
+	sounds.push_back("fxZ9.ogg");
 	sounds.push_back("fxZ10.ogg");
 	testBEGIN("Cargando sonidos directos (LOADED)\n");
 	fails = mSH.loadDirectSounds(sounds);
@@ -477,9 +457,9 @@ SoundTest::testPlaylists(void)
 
 	// Create a non-empty playlist
 	testBEGIN("Creando Playlist \"%s\".\n", playlist1.c_str());
-	soundsList.push_back(audioFile[2]);
+	soundsList.push_back("roar.wav");
 	soundsList.push_back("no_existe.mp5");
-	soundsList.push_back(audioFile[3]);
+	soundsList.push_back("fxZ7.ogg");
 	soundsList.push_back("tampoco_existe.ogg");
 	fails = mSH.newPlaylist(playlist1, soundsList);
 	if (!fails.empty() && mSH.existsPlaylist(playlist1)) {

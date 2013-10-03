@@ -8,7 +8,7 @@
 
 #include <map>
 #include <memory>
-#include <cstring>
+#include <ctime>  // time()
 
 #include <OgreMath.h>
 #include <OgreCamera.h>
@@ -23,6 +23,7 @@
 
 #include "SoundTest.h"
 #include <sound/SoundEnums.h>
+#include <sound/SoundAPI.h>
 
 
 
@@ -50,17 +51,27 @@ namespace {
 const char *audioFile[NUM_SFILES] = {
 		"fxA20.ogg",
 		"Siren.ogg",
-		"roar.wav",		// playlist sound #1
-		"fxZ7.ogg",		// playlist sound #2
-		"fxZ9.ogg",		// playlist sound #3
-		"fxM2.ogg"		// playlist sound #4
+		"roar.wav",		// playlist 0 sound 1
+		"fxZ7.ogg",		// playlist 0 sound 2
+		"fxZ9.ogg",		// playlist 1 sound 1
+		"fxM2.ogg"		// playlist 1 sound 2
 };
+
+
+// Punctual (e.g. not environmental) sound playback
+//
+core::Primitive* sirenSphere(0);
+mm::SoundAPI*    sirenSoundAPI(0);
 
 
 // Playlists
 //
-const Ogre::String playlist1("lista1");
-const Ogre::String playlist2("lista2");
+#define  NUM_PLAYLISTS  3
+const Ogre::String playlist[NUM_PLAYLISTS] = {
+		Ogre::String("lista1"),
+		Ogre::String("lista2"),
+		Ogre::String("lista_vacía")
+};
 
 
 // Audio fading (in-out) times
@@ -241,7 +252,16 @@ SoundTest::loadAditionalData(void)
 
 	// Setup world floor
 	if (!loadFloor()) {
-		debugERROR("Errors creating world floor, aborting.\n");
+		debugERROR("Errors creating world floor. ABORTING.\n");
+		exit(EXIT_FAILURE);
+	}
+
+	// Initialize RNG
+	std::srand(time(NULL));
+
+	// Try to play some sounds
+	if (!initSoundsPlayback()) {
+		debugERROR("Errors found when trying to play some sounds. ABORTING.\n");
 		exit(EXIT_FAILURE);
 	}
 }
@@ -313,23 +333,110 @@ SoundTest::parseXML(const std::string& xmlFName, std::string& meshName) const
 
 
 
-////////////////////////////////////////////////////////////////////////////////
-// TODO: reinsert this code?
-//bool
-//SoundTest::loadEntity(const std::string& meshName)
-//{
-//    mNode = mSceneMgr->getRootSceneNode()->createChildSceneNode();
-//    try {
-//        mEntity = mSceneMgr->createEntity(meshName.c_str());
-//    } catch(...) {
-//        debugERROR("Mesh %s not found!\n", meshName.c_str());
-//        return false;
-//    }
-//    mNode->attachObject(mEntity);
-//
-//    // try to load the animations now
-//    return mEntityAnims.setEntity(mEntity);
-//}
+///////////////////////////////////////////////////////////////////////////////
+bool
+SoundTest::initSoundsPlayback(void)
+{
+	mm::SSerror err(mm::SSerror::SS_INTERNAL_ERROR);
+	mm::SSplayback pstate(mm::SSplayback::SS_NONE);
+
+	Ogre::Vector3 sirenLocation(0.0f, 0.0f, 1.5f);
+	Ogre::Real sirenRadius(5.0f);
+
+	Ogre::String fails("");
+	std::vector<Ogre::String> soundsList;
+
+
+	// Play environmental water sound  ////////////////////////////////////////
+	testBEGIN("Iniciando reproducción del sonido ambiente %s.\n", audioFile[0]);
+	// FIXME (direct access to SoundManager) DON'T DO THIS OUTSIDE TESTERS!
+	err = mm::SoundManager::getInstance().playEnvSound(
+			audioFile[0], DEFAULT_ENV_GAIN, true);
+	if (err == mm::SSerror::SS_NO_ERROR) {
+		ASSERT(mm::SoundManager::getInstance().isPlayingEnvSound(audioFile[0]));
+		testSUCCESS("Reproducción iniciada.%s", "\n");
+	} else {
+		testFAIL("Falló.%s","\n");
+		return false;
+	}
+
+	// Setup punctual sound  //////////////////////////////////////////////////
+	testBEGIN("Creando SoundAPI puntual (externa a todo player)\n");
+	ASSERT(!sirenSphere);
+	sirenSphere = core::PrimitiveDrawer::instance().createSphere(
+					sirenLocation, sirenRadius, Ogre::ColourValue::Red);
+	ASSERT(sirenSphere);
+	// FIXME (direct manipulation of SoundAPI) DON'T DO THIS OUTSIDE TESTERS!
+	sirenSoundAPI = new mm::SoundAPI(sirenSphere->node);
+	if (sirenSoundAPI) {
+		testSUCCESS("SoundAPI creada.\n");
+	} else {
+		testFAIL("Falló.\n");
+		return false;
+	}
+
+	// Play punctual sound, using his (detached) SoundAPI  ////////////////////
+	testBEGIN("Iniciando reproducción del sonidos puntual %s.\n", audioFile[1]);
+	err = sirenSoundAPI->play(audioFile[1], true, DEFAULT_UNIT_GAIN);
+	if (err == mm::SSerror::SS_NO_ERROR) {
+		testSUCCESS("Reproducción iniciada.%s", "\n");
+	} else {
+		testFAIL("Falló.\n");
+		return false;
+	}
+
+	// Create three different playlists  //////////////////////////////////////
+	testBEGIN("Creando playlists.\n");
+	soundsList.push_back(audioFile[2]);
+	soundsList.push_back(audioFile[3]);
+	fails = mSH.newPlaylist(playlist[0],
+							soundsList,
+							true,    // Repeat on end
+							true,    // Random order
+							-1.0f);  // Random silence
+	if (!fails.empty()) {
+		testFAIL("Falló.\n");
+		return false;
+	}
+	soundsList.clear();
+	soundsList.push_back(audioFile[4]);
+	soundsList.push_back(audioFile[5]);
+	fails = mSH.newPlaylist(playlist[1],
+							soundsList,
+							true,	// Repeat on end
+							false,	// No random order
+							2.0f);	// 2 seconds silence
+	if (!fails.empty()) {
+		testFAIL("Falló.\n");
+		return false;
+	}
+	soundsList.clear();
+	fails = mSH.newPlaylist(playlist[2], soundsList);  // Add garbage
+	if (!fails.empty()) {
+		testFAIL("Falló.\n");
+		return false;
+	} else if ( !mSH.existsPlaylist(playlist[0]) ||
+				!mSH.existsPlaylist(playlist[1]) ||
+				!mSH.existsPlaylist(playlist[2])) {
+		testFAIL("Falló.\n");
+		return false;
+	}
+	testSUCCESS("Playlists creadas.\n");
+
+	// Start playlists playback  //////////////////////////////////////////////
+	testBEGIN("Iniciando reproducción de playlists.\n");
+	for (int i=0 ; i < NUM_PLAYLISTS ; i++) {
+		err = mSH.startPlaylist(playlist[i]);
+		if (err != mm::SSerror::SS_NO_ERROR) {
+			testFAIL("Falló la reproducción del playlist[%d]. Error: %s\n",
+					i, SSenumStr(err));
+			return false;
+		}
+	}
+	testSUCCESS("Reproducción iniciada.\n");
+
+	return true;
+}
 
 
 

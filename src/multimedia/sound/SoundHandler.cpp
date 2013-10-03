@@ -643,7 +643,11 @@ SoundHandler::startPlaylist(const Ogre::String& name, Playlist *plp)
 	if (!pl) {
 		return SSerror::SS_FILE_NOT_FOUND;
 	} else if (pl->mState & PLAYLIST_PLAYING) {
-		// Playlist is already playing: nothig to do here.
+		// Playlist is already playing: nothing to do here.
+		return SSerror::SS_NO_ERROR;
+	} else if (pl->mList.size() < 1) {
+		// Playlist is empty (sucker):  nothing to do here.
+		debugWARNING("Empty playlist, won't start any playback.\n");
 		return SSerror::SS_NO_ERROR;
 	}
 
