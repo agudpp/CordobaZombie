@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?fileVersion 4.0.0?><cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
+<?fileVersion 4.0.0?>
+
+<cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
 	<storageModule moduleId="org.eclipse.cdt.core.settings">
-		<cconfiguration id="0.605342941">
-			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="0.605342941" moduleId="org.eclipse.cdt.core.settings" name="Default">
+		<cconfiguration id="cdt.managedbuild.toolchain.gnu.base.693357123">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.toolchain.gnu.base.693357123" moduleId="org.eclipse.cdt.core.settings" name="Default">
 				<externalSettings/>
 				<extensions>
-					<extension id="org.eclipse.cdt.core.VCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
@@ -14,86 +16,144 @@
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactName="CordobaZombie0.1" buildProperties="" description="" id="0.605342941" name="Default" parent="org.eclipse.cdt.build.core.prefbase.cfg">
-					<folderInfo id="0.605342941." name="/" resourcePath="">
-						<toolChain id="org.eclipse.cdt.build.core.prefbase.toolchain.1464193083" name="No ToolChain" resourceTypeBasedDiscovery="false" superClass="org.eclipse.cdt.build.core.prefbase.toolchain">
-							<targetPlatform id="org.eclipse.cdt.build.core.prefbase.toolchain.1464193083.1336951011" name=""/>
-							<builder id="org.eclipse.cdt.build.core.settings.default.builder.1346514322" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="Gnu Make Builder" superClass="org.eclipse.cdt.build.core.settings.default.builder"/>
-							<tool id="org.eclipse.cdt.build.core.settings.holder.libs.480038173" name="holder for library settings" superClass="org.eclipse.cdt.build.core.settings.holder.libs"/>
-							<tool id="org.eclipse.cdt.build.core.settings.holder.1341825584" name="Assembly" superClass="org.eclipse.cdt.build.core.settings.holder">
-								<option id="org.eclipse.cdt.build.core.settings.holder.incpaths.23057765" name="Include Paths" superClass="org.eclipse.cdt.build.core.settings.holder.incpaths" valueType="includePath">
-									<listOptionValue builtIn="false" value="/home/agustin/programacion/ogre/ogre_src_v1-8-1/OgreMain/include"/>
-									<listOptionValue builtIn="false" value="/usr/local/include/OIS"/>
-									<listOptionValue builtIn="false" value="/usr/include/c++/4.7/"/>
-									<listOptionValue builtIn="false" value="/usr/include/"/>
-									<listOptionValue builtIn="false" value="/usr/local/include"/>
-									<listOptionValue builtIn="false" value="/usr/include/c++/4.7/bits"/>
-									<listOptionValue builtIn="false" value="/usr/include/c++/4.7/i686-linux-gnu"/>
-									<listOptionValue builtIn="false" value="/usr/include/c++/4.7/backward"/>
-								</option>
-								<option id="org.eclipse.cdt.build.core.settings.holder.symbols.370916046" name="Symbols" superClass="org.eclipse.cdt.build.core.settings.holder.symbols" valueType="definedSymbols">
-									<listOptionValue builtIn="false" value="DEBUG"/>
-								</option>
-								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.653366568" languageId="org.eclipse.cdt.core.assembly" languageName="Assembly" sourceContentType="org.eclipse.cdt.core.asmSource" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
-							</tool>
-							<tool id="org.eclipse.cdt.build.core.settings.holder.1955780193" name="GNU C++" superClass="org.eclipse.cdt.build.core.settings.holder">
-								<option id="org.eclipse.cdt.build.core.settings.holder.incpaths.1271808429" name="Include Paths" superClass="org.eclipse.cdt.build.core.settings.holder.incpaths" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CordobaZombie0.1/src/collisions}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CordobaZombie0.1/src/core}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CordobaZombie0.1/src/io_interfaces}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CordobaZombie0.1/src/tools}&quot;"/>
-									<listOptionValue builtIn="false" value="/usr/local/include/OGRE"/>
+				<configuration artifactName="git" buildProperties="" description="" id="cdt.managedbuild.toolchain.gnu.base.693357123" name="Default" parent="org.eclipse.cdt.build.core.emptycfg">
+					<folderInfo id="cdt.managedbuild.toolchain.gnu.base.693357123.959958628" name="/" resourcePath="">
+						<toolChain id="cdt.managedbuild.toolchain.gnu.base.1109241289" name="cdt.managedbuild.toolchain.gnu.base" superClass="cdt.managedbuild.toolchain.gnu.base">
+							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="cdt.managedbuild.target.gnu.platform.base.454511152" name="Debug Platform" osList="linux,hpux,aix,qnx" superClass="cdt.managedbuild.target.gnu.platform.base"/>
+							<builder id="cdt.managedbuild.target.gnu.builder.base.1754101591" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="Gnu Make Builder" superClass="cdt.managedbuild.target.gnu.builder.base">
+								<outputEntries>
+									<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="outputPath" name=""/>
+								</outputEntries>
+							</builder>
+							<tool id="cdt.managedbuild.tool.gnu.archiver.base.1558767012" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base"/>
+							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.base.1532648369" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.base">
+								<option id="gnu.cpp.compiler.option.include.paths.66288374" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${OGRE_SRC}/OgreMain/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${OGRE_SRC}/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${OGRE_SRC}/Samples/Common/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${OGRE_BUILD}/include&quot;"/>
 									<listOptionValue builtIn="false" value="/usr/include/OIS"/>
-									<listOptionValue builtIn="false" value="/usr/include/c++/4.7/"/>
-									<listOptionValue builtIn="false" value="&quot;${CZ01_THIRD_PARTY}/include&quot;"/>
-									<listOptionValue builtIn="false" value="/usr/include/"/>
-									<listOptionValue builtIn="false" value="/usr/local/include"/>
-									<listOptionValue builtIn="false" value="/CordobaZombie0.1/src/gps"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CordobaZombie0.1/src/ui}&quot;"/>
 									<listOptionValue builtIn="false" value="/usr/include/c++/4.7/bits"/>
-									<listOptionValue builtIn="false" value="/usr/include/c++/4.7/i686-linux-gnu"/>
-									<listOptionValue builtIn="false" value="/usr/include/c++/4.7/backward"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CordobaZombie0.1/src/cz}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${CBAZ_SRC}/coll_physics&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${CBAZ_SRC}/core&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${CBAZ_SRC}/cz&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${CBAZ_SRC}/gps&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${CBAZ_SRC}/io_interfaces&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${CBAZ_SRC}/multimedia&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${CBAZ_SRC}/tools&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${CBAZ_SRC}/ui&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${THIRD_PARTY_LIBS}/include&quot;"/>
 								</option>
-								<option id="org.eclipse.cdt.build.core.settings.holder.symbols.951097239" name="Symbols" superClass="org.eclipse.cdt.build.core.settings.holder.symbols" valueType="definedSymbols">
+								<option id="gnu.cpp.compiler.option.preprocessor.def.1295629118" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="__GXX_EXPERIMENTAL_CXX0X__=1"/>
 									<listOptionValue builtIn="false" value="DEBUG=1"/>
 								</option>
-								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.353508028" languageId="org.eclipse.cdt.core.g++" languageName="GNU C++" sourceContentType="org.eclipse.cdt.core.cxxSource,org.eclipse.cdt.core.cxxHeader" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1781695688" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
-							<tool id="org.eclipse.cdt.build.core.settings.holder.111873541" name="GNU C" superClass="org.eclipse.cdt.build.core.settings.holder">
-								<option id="org.eclipse.cdt.build.core.settings.holder.incpaths.1798261436" name="Include Paths" superClass="org.eclipse.cdt.build.core.settings.holder.incpaths" valueType="includePath">
-									<listOptionValue builtIn="false" value="/home/agustin/programacion/ogre/ogre_src_v1-8-1/OgreMain/include"/>
-									<listOptionValue builtIn="false" value="/usr/local/include/OIS"/>
-									<listOptionValue builtIn="false" value="/usr/include/c++/4.7/"/>
-									<listOptionValue builtIn="false" value="/usr/include/"/>
-									<listOptionValue builtIn="false" value="/usr/local/include"/>
+							<tool id="cdt.managedbuild.tool.gnu.c.compiler.base.375463496" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.base">
+								<option id="gnu.c.compiler.option.include.paths.680764726" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${OGRE_SRC}/OgreMain/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${OGRE_SRC}/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${OGRE_SRC}/Samples/Common/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${OGRE_BUILD}/include&quot;"/>
+									<listOptionValue builtIn="false" value="/usr/include/OIS"/>
+									<listOptionValue builtIn="false" value="/usr/include/c++/4.7/utility"/>
 									<listOptionValue builtIn="false" value="/usr/include/c++/4.7/bits"/>
-									<listOptionValue builtIn="false" value="/usr/include/c++/4.7/i686-linux-gnu"/>
-									<listOptionValue builtIn="false" value="/usr/include/c++/4.7/backward"/>
+									<listOptionValue builtIn="false" value="&quot;${CBAZ_SRC}/coll_physics&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${CBAZ_SRC}/core&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${CBAZ_SRC}/cz&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${CBAZ_SRC}/gps&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${CBAZ_SRC}/io_interfaces&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${CBAZ_SRC}/multimedia&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${CBAZ_SRC}/tools&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${CBAZ_SRC}/ui&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${THIRD_PARTY_LIBS}/include&quot;"/>
 								</option>
-								<option id="org.eclipse.cdt.build.core.settings.holder.symbols.391906533" name="Symbols" superClass="org.eclipse.cdt.build.core.settings.holder.symbols" valueType="definedSymbols">
-									<listOptionValue builtIn="false" value="DEBUG"/>
+								<option id="gnu.c.compiler.option.preprocessor.def.symbols.1681950668" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="__GXX_EXPERIMENTAL_CXX0X__=1"/>
+									<listOptionValue builtIn="false" value="DEBUG=1"/>
 								</option>
-								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.367890690" languageId="org.eclipse.cdt.core.gcc" languageName="GNU C" sourceContentType="org.eclipse.cdt.core.cSource,org.eclipse.cdt.core.cHeader" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.834750935" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
+							</tool>
+							<tool id="cdt.managedbuild.tool.gnu.c.linker.base.1202844104" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.base"/>
+							<tool id="cdt.managedbuild.tool.gnu.cpp.linker.base.458910960" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.base">
+								<option id="gnu.cpp.link.option.libs.1163331653" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" valueType="libs">
+									<listOptionValue builtIn="false" value="OgreMain"/>
+									<listOptionValue builtIn="false" value="OIS"/>
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="vorbis"/>
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="ogg"/>
+								</option>
+								<option id="gnu.cpp.link.option.paths.1001067721" name="Library search path (-L)" superClass="gnu.cpp.link.option.paths" valueType="libPaths">
+									<listOptionValue builtIn="false" value="&quot;${OGRE_BUILD}/lib&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${THIRD_PARTY_LIBS}/lib&quot;"/>
+								</option>
+								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.900298691" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
+									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
+									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
+								</inputType>
+							</tool>
+							<tool id="cdt.managedbuild.tool.gnu.assembler.base.235772439" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.base">
+								<option id="gnu.both.asm.option.include.paths.787770708" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${OGRE_SRC}/OgreMain/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${OGRE_SRC}/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${OGRE_SRC}/Samples/Common/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${OGRE_BUILD}/include&quot;"/>
+									<listOptionValue builtIn="false" value="/usr/include/OIS"/>
+									<listOptionValue builtIn="false" value="/usr/include/c++/4.7/utility"/>
+									<listOptionValue builtIn="false" value="/usr/include/c++/4.7/bits"/>
+									<listOptionValue builtIn="false" value="&quot;${CBAZ_SRC}/coll_physics&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${CBAZ_SRC}/core&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${CBAZ_SRC}/cz&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${CBAZ_SRC}/gps&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${CBAZ_SRC}/io_interfaces&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${CBAZ_SRC}/multimedia&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${CBAZ_SRC}/tools&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${CBAZ_SRC}/ui&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${THIRD_PARTY_LIBS}/include&quot;"/>
+								</option>
+								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.596393182" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 							</tool>
 						</toolChain>
 					</folderInfo>
+					<fileInfo id="cdt.managedbuild.toolchain.gnu.base.693357123.136240977" name="autogenCmake" rcbsApplicability="disable" resourcePath="src/multimedia/sound/autogenCmake" toolsToInvoke=""/>
+					<sourceEntries>
+						<entry excluding="src/multimedia/sound/idea_SoundSystem.cpp|src/multimedia/sound/autogenCmake" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+					</sourceEntries>
 				</configuration>
 			</storageModule>
 			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
 		</cconfiguration>
 	</storageModule>
 	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-		<project id="git.null.1069414364" name="git"/>
+		<project id="git.null.1610347886" name="git"/>
 	</storageModule>
+	<storageModule moduleId="refreshScope" versionNumber="2">
+		<configuration configurationName="Default">
+			<resource resourceType="PROJECT" workspacePath="/git"/>
+		</configuration>
+	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 	<storageModule moduleId="scannerConfiguration">
 		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		<scannerConfigBuildInfo instanceId="0.605342941">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.base.693357123;cdt.managedbuild.toolchain.gnu.base.693357123.959958628;cdt.managedbuild.tool.gnu.cpp.compiler.base.1532648369;cdt.managedbuild.tool.gnu.cpp.compiler.input.1781695688">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP"/>
+			<profile id="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP">
+				<buildOutputProvider>
+					<openAction enabled="true" filePath=""/>
+					<parser enabled="true"/>
+				</buildOutputProvider>
+				<scannerInfoProvider id="specsFile">
+					<runAction arguments="-E -P -v -dD &quot;${plugin_state_location}/specs.cpp&quot; -std=c++11" command="g++" useDefault="true"/>
+					<parser enabled="true"/>
+				</scannerInfoProvider>
+			</profile>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.base.693357123;cdt.managedbuild.toolchain.gnu.base.693357123.959958628;cdt.managedbuild.tool.gnu.c.compiler.base.375463496;cdt.managedbuild.tool.gnu.c.compiler.input.834750935">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC"/>
+		</scannerConfigBuildInfo>
 	</storageModule>
-	<storageModule moduleId="refreshScope" versionNumber="1">
-		<resource resourceType="PROJECT" workspacePath="/CordobaZombie0.1"/>
-	</storageModule>
-	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
+	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
 </cproject>

@@ -27,7 +27,6 @@ endif(WIN32)
  
 if(UNIX)
 	#set(CMAKE_BUILD_TYPE "debug")
-	add_definitions(-DDEBUG)
 	set(CMAKE_MODULE_PATH "/usr/local/lib/OGRE/cmake/;${CMAKE_MODULE_PATH}")
 	set(OGRE_SAMPLES_INCLUDEPATH
 		/usr/local/share/OGRE/samples/Common/include/
@@ -65,10 +64,6 @@ if (NOT OGRE_BUILD_PLATFORM_IPHONE)
 		set(Boost_USE_STATIC_LIBS ${OGRE_STATIC})
 	endif ()
 	if (MINGW)
-		# set this paths for windows only..
-		SET(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} $ENV{OGRE_HOME}/boost)
-		#SET(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} $ENV{OGRE_HOME}/boost/lib)
-
 		# this is probably a bug in CMake: the boost find module tries to look for
 		# boost libraries with name libboost_*, but CMake already prefixes library
 		# search names with "lib". This is the workaround.
@@ -91,90 +86,71 @@ if (NOT OGRE_BUILD_PLATFORM_IPHONE)
 	set(OGRE_LIBRARIES ${OGRE_LIBRARIES} ${Boost_LIBRARIES})
 endif()
 
-################################################################################
-###             Check for local environment variables                        ###
-################################################################################
-set (DEV_ROOT_PATH $ENV{CZ01_DEV_PATH})
-set (THIRD_PARTY_LIBS $ENV{CZ01_THIRD_PARTY})
 
-if(NOT DEV_ROOT_PATH)
-  message(SEND_ERROR "You need to set CZ01_DEV_PATH environment variable")
-endif()
+set (DEV_ROOT_PATH $ENV{ESTRATEGIA2012_DEV_PATH})
 
-if(NOT THIRD_PARTY_LIBS)
-  message(SEND_ERROR "You need to set CZ01_THIRD_PARTY environment variable")
-endif()
+# Customized compilation flags and link libraries
+include(${DEV_ROOT_PATH}/CommonFlags.cmake)
+target_link_libraries(OgreApp ${COMMON_FLAGS})
 
-# include third party libs and includes directories
-include_directories(${THIRD_PARTY_LIBS}/include)
-link_directories(${THIRD_PARTY_LIBS}/lib)
-
-
-## Common flags
-add_definitions(-DDEBUG -g)
-add_definitions(-std=c++11)  # C++11 standard
-set(COMMON_LIBRARIES boost_system)
-if(WIN32)
-# Specific windows flags here
-endif(WIN32)
-if(UNIX)
-# Specific linux flags here
-endif(UNIX)
-
-
-# Define global headers here
-set(HDRS
+set(HDRS		
+	${DEV_ROOT_PATH}/Extras/AppTester/AppTester.h
+	./Test.h
 )
-
-# Define global sources here
+ 
 set(SRCS
+	${DEV_ROOT_PATH}/Extras/AppTester/AppTester.cpp
+	./Test.cpp
+	./main.cpp
 )
-
-# global include directories 
-# (only one depth from the src/ path)
-#
+ 
 include_directories( ${OIS_INCLUDE_DIRS}
 	${OGRE_INCLUDE_DIRS}
 	${OGRE_SAMPLES_INCLUDEPATH}
-	${DEV_ROOT_PATH}/core
-	${DEV_ROOT_PATH}/coll_physics
-	${DEV_ROOT_PATH}/tools
-	${DEV_ROOT_PATH}/ui
-	${DEV_ROOT_PATH}/io_interfaces
-	${DEV_ROOT_PATH}/gps
-	${DEV_ROOT_PATH}/multimedia
-	${DEV_ROOT_PATH}/cz
+	${DEV_ROOT_PATH}/Common/DebugUtil
+	${DEV_ROOT_PATH}/Common
+	${DEV_ROOT_PATH}/Common/tinyxml
+	${DEV_ROOT_PATH}/Common/GlobalObjects
+	${DEV_ROOT_PATH}/Common/QueueContainer
+	${DEV_ROOT_PATH}/Utils/MouseCursor
+	${DEV_ROOT_PATH}
+	${DEV_ROOT_PATH}/Extras/AppTester
 )
 
-# Include all the other specific files
-include(${DEV_ROOT_PATH}/../build/ToCompile.cmake)
-
-################################################################################
-##			Third party libraries				      ##
-################################################################################
-
-# Tinyxml static linkage 
-add_library(tinyxml STATIC IMPORTED)
-# point the imported target at the real file
-set_property(TARGET tinyxml PROPERTY
-                IMPORTED_LOCATION ${THIRD_PARTY_LIBS}/lib/tinyxml.a)
-set(COMMON_LIBRARIES ${COMMON_LIBRARIES} tinyxml)
-
+# Acá incluir todos los paths necesarios para la compilación
+include(${DEV_ROOT_PATH}/SoundSystem/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/CollisionSystem/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/GameUnits/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/IA/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/PathfindingSystem/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/LevelManager/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/BillboardManager/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/UpdatableObjects/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/MenuSystem/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/InputManager/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/SelectionSystem/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/Common/Math/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/Common/Util/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/Common/DebugUtil/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/Common/DotSceneLoader/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/Common/DebugUtil/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/Common/GUIHelper/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/Common/XMLHelper/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/Common/GlobalObjects/AutoGen.cmake)
 
 add_executable(OgreApp WIN32 ${HDRS} ${SRCS})
  
 set_target_properties(OgreApp PROPERTIES DEBUG_POSTFIX _d)
-
-target_link_libraries(OgreApp ${OGRE_LIBRARIES}     # Ogre libs 
-                              ${OIS_LIBRARIES}      # OIS lib
-                              ${COMMON_LIBRARIES}   # Specific libs
-                     )
-
-################################################################################
-##                  Sepecific post compilation stuff                          ##
-################################################################################
-
  
+# add imported target
+add_library(tinyxml STATIC IMPORTED)
+# point the imported target at the real file
+set_property(TARGET tinyxml PROPERTY
+                IMPORTED_LOCATION ${DEV_ROOT_PATH}/Common/tinyxml/tinyxmlpath.a)
+
+target_link_libraries(OgreApp ${OGRE_LIBRARIES} ${OIS_LIBRARIES}
+	${SOUND_LIBRARIES} ${COMMON_LIBRARIES} tinyxml box2D)
+
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/dist/bin)
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/dist/media)
  
