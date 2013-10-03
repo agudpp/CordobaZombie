@@ -42,7 +42,7 @@ public:
      ** Load additional stuff before launching update cycle.
      **/
     void
-    loadAdditionalData(void);
+    loadAditionalData(void);
 
     /**
      ** @brief
@@ -74,6 +74,21 @@ private:
 //    bool
 //    loadEntity(const std::string& meshName);
 
+    /**
+     ** @brief
+     ** Initalize various sounds playback.
+     **
+     ** @return
+     ** true on success
+     ** false otherwise
+     **/
+    bool
+    initSoundsPlayback(void);
+
+    /**
+     ** @brief
+     ** Interpret keyboard & mouse input to handle camera position & orientation
+     **/
     void
     handleCameraInput(void);
 
@@ -96,6 +111,8 @@ private:
      ** Load a plane 2D floor into Ogre world.
      **
      ** @return
+     ** true on success
+     ** false otherwise
      **/
     bool
     loadFloor(void);
@@ -112,6 +129,8 @@ private:
 
     // SoundSystem specific members
     mm::SoundHandler&  mSH;
+//    core::PrimitiveDrawer mSphere1;  // Music of the spheres
+//    core::PrimitiveDrawer mSphere2;
 };
 
 }

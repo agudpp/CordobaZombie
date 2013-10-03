@@ -229,7 +229,7 @@ SoundTest::~SoundTest()
 
 ///////////////////////////////////////////////////////////////////////////////
 void
-SoundTest::loadAdditionalData(void)
+SoundTest::loadAditionalData(void)
 {
     // Ugly way to load all the fonts at the beginning
     Ogre::ResourceManager::ResourceMapIterator iter =
@@ -252,6 +252,8 @@ SoundTest::loadAdditionalData(void)
 void
 SoundTest::update()
 {
+//	static float counter(0.0f);
+
     // update the input system
     mInputHelper.update();
 
@@ -629,7 +631,7 @@ SoundTest::printDevices(void)
 bool
 SoundTest::loadFloor(void)
 {
-    Ogre::Plane p(0.0f, 0.0f, 1.0f, 0.0f);  // normal:(0,0,1) ; distance:0
+    Ogre::Plane p(0.0f, 0.0f, 1.0f, 1.0f);  // normal:(0,0,1) ; distance:1
     Ogre::MeshManager::getSingleton().createPlane("FloorPlane",
         Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, p, 200000,
         200000, 20, 20, true, 1, 9000, 9000, Ogre::Vector3::UNIT_Y);
