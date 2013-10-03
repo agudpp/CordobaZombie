@@ -7,13 +7,13 @@ include(${DEV_ROOT_PATH}/multimedia/sound/AutoGen.cmake)
 
 # Define global sources here
 set(HDRS ${HDRS}
-	${DEV_ROOT_PATH}/tools/tests/sound/first_tests/SoundTest.h
+	${DEV_ROOT_PATH}/tools/tests/sound/soundplay_tests/SoundTest.h
 	${DEV_ROOT_PATH}/tools/utils/OrbitCamera.h
 )
 
 set(SRCS ${SRCS}
-	${DEV_ROOT_PATH}/tools/tests/sound/first_tests/SoundTest.cpp
-	${DEV_ROOT_PATH}/tools/tests/sound/first_tests/main.cpp
+	${DEV_ROOT_PATH}/tools/tests/sound/soundplay_tests/SoundTest.cpp
+	${DEV_ROOT_PATH}/tools/tests/sound/soundplay_tests/main.cpp
 	${DEV_ROOT_PATH}/tools/utils/OrbitCamera.cpp
 )
 

@@ -25,6 +25,7 @@
 #include <types/basics.h>
 #include <utils/OrbitCamera.h>
 #include <input/InputHelper.h>
+#include <cursor/MouseCursor.h>
 #include <sound/SoundHandler.h>
 
 
@@ -90,6 +91,15 @@ private:
     void
     printDevices(void);
 
+    /**
+     ** @brief
+     ** Load a plane 2D floor into Ogre world.
+     **
+     ** @return
+     **/
+    bool
+    loadFloor(void);
+
 private:
     // Generic members
     Ogre::SceneNode *mNode;
@@ -98,6 +108,7 @@ private:
     tool::OrbitCamera mOrbitCamera;
     core::OgreTextTable mTextTable;
     input::InputHelper mInputHelper;
+    ui::MouseCursor mMouseCursor;
 
     // SoundSystem specific members
     mm::SoundHandler&  mSH;

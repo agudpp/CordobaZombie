@@ -18,11 +18,11 @@
 #include <OgreString.h>
 
 #include <tinyxml/tinyxml.h>
-#include <debug/PrimitiveDrawer.h>
 #include <xml/XMLHelper.h>
+#include <debug/PrimitiveDrawer.h>
 
 #include "SoundTest.h"
-#include "sound/SoundEnums.h"
+#include <sound/SoundEnums.h>
 
 
 
@@ -143,10 +143,17 @@ SoundTest::SoundTest() :
 	Ogre::String fails("");
 	std::vector<Ogre::String> sounds;
 
-    // configure the input
+    // Configure input systems
     input::Mouse::setMouse(mMouse);
     input::Keyboard::setKeyboard(mKeyboard);
     setUseDefaultInput(false);
+
+    // Configure the mouse cursor
+    mMouseCursor.setCursor(ui::MouseCursor::Cursor::NORMAL_CURSOR);
+    mMouseCursor.setVisible(true);
+    mMouseCursor.setWindowDimensions(mWindow->getWidth(), mWindow->getHeight());
+    mMouseCursor.updatePosition(mWindow->getWidth() / 2,
+                                mWindow->getHeight() / 2);
 
 	// Check initial sound system status is OK
 	testBEGIN("Revisando la creación del SoundHandler.\n");
@@ -231,7 +238,12 @@ SoundTest::loadAdditionalData(void)
 
 	// Attach the camera to the listener of the sound system
 	mSH.setCamera(mCamera);
-    // everything fine...
+
+	// Setup world floor
+	if (!loadFloor()) {
+		debugERROR("Errors creating world floor, aborting.\n");
+		exit(EXIT_FAILURE);
+	}
 }
 
 
@@ -609,6 +621,30 @@ SoundTest::printDevices(void)
 		std::cout << "  ¤ " << soundDevices[i] << std::endl;
 	}
 	std::cout << "Using sound device:" << mSH.getSoundDevice() << std::endl;
+}
+
+
+
+///////////////////////////////////////////////////////////////////////////////
+bool
+SoundTest::loadFloor(void)
+{
+    Ogre::Plane p(0.0f, 0.0f, 1.0f, 0.0f);  // normal:(0,0,1) ; distance:0
+    Ogre::MeshManager::getSingleton().createPlane("FloorPlane",
+        Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, p, 200000,
+        200000, 20, 20, true, 1, 9000, 9000, Ogre::Vector3::UNIT_Y);
+
+    // Create entity for the floor
+    Ogre::Entity *ent = mSceneMgr->createEntity("floor", "FloorPlane");
+    if(!ent) {
+    	debugERROR("Couldn't create entity for the floor object.\n");
+    	return false;
+    } else {
+		ent->setMaterialName("GrassSample");
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(ent);
+    }
+
+    return true;
 }
 
 
