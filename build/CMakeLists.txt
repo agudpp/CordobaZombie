@@ -143,6 +143,7 @@ include_directories( ${OIS_INCLUDE_DIRS}
 	${DEV_ROOT_PATH}/io_interfaces
 	${DEV_ROOT_PATH}/gps
 	${DEV_ROOT_PATH}/cz
+    ${DEV_ROOT_PATH}/effect
 )
 
 # Include all the other specific files
