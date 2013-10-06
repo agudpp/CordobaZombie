@@ -1051,10 +1051,9 @@ SoundManager::playSound(SoundAPI& sAPI,
 		}
 	}
 
-#ifdef DEBUG
+	// Sound distance fading characteristics (attenuation factors)
 	alSourcef(src->mSource, AL_MAX_DISTANCE, MAX_ATTENUATION_DISTANCE);
-	alSourcef(src->mSource, AL_REFERENCE_DISTANCE, HALF_ATTENUATION_DISTANCE);
-#endif
+	alSourcef(src->mSource, AL_REFERENCE_DISTANCE, MID_ATTENUATION_DISTANCE);
 
 	// Start playback and register sound.
 	err = src->play(buf, gain, sAPI.getPosition(), repeat);

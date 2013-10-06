@@ -46,15 +46,16 @@ namespace {
 
 // Audio files
 //
-#define  NUM_SFILES      6
+#define  NUM_SFILES      7
 #define  START_PLSOUNDS  2
 const char *audioFile[NUM_SFILES] = {
 		"fxA20.ogg",
 		"Siren.ogg",
-		"roar.wav",		// playlist 0 sound 1
-		"fxZ7.ogg",		// playlist 0 sound 2
-		"fxZ9.ogg",		// playlist 1 sound 1
-		"fxM2.ogg"		// playlist 1 sound 2
+		"fxM2.ogg",		// playlist 0 sound 0
+		"fxZ7.ogg",		// playlist 0 sound 1
+		"fxZ9.ogg",		// playlist 1 sound 0
+		"fxZ6.ogg",		// playlist 1 sound 1
+		"roar.wav"		// playlist 1 sound 2
 };
 
 
@@ -392,7 +393,7 @@ SoundTest::initSoundsPlayback(void)
 	fails = mSH.newPlaylist(playlist[0],
 							soundsList,
 							true,    // Repeat on end
-							true,    // Random order
+							false,   // No random order
 							-1.0f);  // Random silence
 	if (!fails.empty()) {
 		testFAIL("Falló.\n");
@@ -401,10 +402,11 @@ SoundTest::initSoundsPlayback(void)
 	soundsList.clear();
 	soundsList.push_back(audioFile[4]);
 	soundsList.push_back(audioFile[5]);
+	soundsList.push_back(audioFile[6]);
 	fails = mSH.newPlaylist(playlist[1],
 							soundsList,
 							true,	// Repeat on end
-							false,	// No random order
+							true,	// Random order
 							2.0f);	// 2 seconds silence
 	if (!fails.empty()) {
 		testFAIL("Falló.\n");

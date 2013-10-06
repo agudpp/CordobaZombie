@@ -47,11 +47,13 @@ class SoundHandler
 		~Playlist(void);
 	public:
 		Ogre::String 				mName;
-		std::vector<Ogre::String>	mList;		// Sounds names list
+		std::vector<Ogre::String>	mList;      // Sounds names list
 		std::vector<uint>			mPlayOrder; // Sounds playing order
-		unsigned int				mCurrent;	// Current position in mPlayOrder
-		unsigned int 				mState;		// Repeat/Shuffle/Randomwait
-		float						mSilence;	// Wait time between sounds (sec)
+		unsigned int				mCurrent;   // Current position in mPlayOrder
+		unsigned int 				mState;     // Repeat/Shuffle/Randomwait
+		// TODO: consider deletion of global state (mGState member)
+		unsigned int				mGState;	// Global handling (play/pause)
+		float						mSilence;   // Wait time between sounds (sec)
 		float						mTimeSinceFinish;
 	};
 
@@ -545,6 +547,8 @@ private:
 	// Playlists state modifiers
 	void setPlaylistState(Playlist *pl, long flags);
 	void unsetPlaylistState(Playlist *pl, long flags);
+	void setPlaylistGlobalState(Playlist *pl, long flags);
+	void unsetPlaylistGlobalState(Playlist *pl, long flags);
 
 
 	/*********************************************************************/
@@ -723,6 +727,20 @@ SoundHandler::setPlaylistState(SoundHandler::Playlist *pl, long flags) {
 inline void
 SoundHandler::unsetPlaylistState(SoundHandler::Playlist *pl, long flags) {
 	pl->mState &= ~flags;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+inline void
+SoundHandler::setPlaylistGlobalState(SoundHandler::Playlist *pl, long flags) {
+	pl->mGState |= flags;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+inline void
+SoundHandler::unsetPlaylistGlobalState(SoundHandler::Playlist *pl, long flags) {
+	pl->mGState &= ~flags;
 }
 
 }

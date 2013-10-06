@@ -44,12 +44,12 @@ namespace mm {
 #define  DEFAULT_UNIT_GAIN	(1.0) // (10.0f*DEFAULT_ENV_GAIN)
 
 
-// Default maximum fade off distance for sounds
-// e.g. no sound will be attenuated further away than this unit
+// Maximum (and middle) distance fade off for sounds
+// e.g. no sound will be attenuated further away than this units
 // See SoundManager::playSound()
 //
-#define  MAX_ATTENUATION_DISTANCE   600.0f
-#define  HALF_ATTENUATION_DISTANCE  0.012*MAX_ATTENUATION_DISTANCE
+#define  MAX_ATTENUATION_DISTANCE  750.0f
+#define  MID_ATTENUATION_DISTANCE  0.015*MAX_ATTENUATION_DISTANCE
 
 
 // Range of randomization (in seconds) for random-silence playbacks
