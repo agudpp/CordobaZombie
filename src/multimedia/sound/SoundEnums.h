@@ -48,8 +48,8 @@ namespace mm {
 // e.g. no sound will be attenuated further away than this units
 // See SoundManager::playSound()
 //
-#define  MAX_ATTENUATION_DISTANCE  750.0f
-#define  MID_ATTENUATION_DISTANCE  0.015*MAX_ATTENUATION_DISTANCE
+#define  MAX_ATTENUATION_DISTANCE  800.0f
+#define  MID_ATTENUATION_DISTANCE  0.017*MAX_ATTENUATION_DISTANCE
 
 
 // Range of randomization (in seconds) for random-silence playbacks
@@ -87,14 +87,14 @@ typedef enum {
 typedef enum {
 	SS_NO_ERROR = 0,
 	SS_NO_MEMORY,
-	SS_NO_SOURCES,			  // No free sources
+	SS_NO_SOURCES,			  // No free sources to start playback
 	SS_NO_BUFFER,             // NULL or invalid buffer parameter
 	SS_INVALID_FILE,	  	  // Unsupported/erroneous file audio format
 	SS_FILE_TOO_SMALL,		  // File size insufficient for streaming playback
-	SS_FILE_NOT_FOUND,		  // Can't load sound, inexistent filename
+	SS_FILE_NOT_FOUND,		  // Inexistent filename (sound not loaded)
 	SS_NO_BUFFER_ATTACHED,	  // Can't play, no buffers attached to source
 	SS_UNINITIALIZED_SOURCE,  // Source not yet registered in AL system
-	SS_INTERNAL_ERROR = (1<<31)
+	SS_INTERNAL_ERROR=(1<<31) // Unspecified error
 } SSerror;
 
 

@@ -116,8 +116,9 @@
 						</toolChain>
 					</folderInfo>
 					<fileInfo id="cdt.managedbuild.toolchain.gnu.base.693357123.136240977" name="autogenCmake" rcbsApplicability="disable" resourcePath="src/multimedia/sound/autogenCmake" toolsToInvoke=""/>
+					<fileInfo id="cdt.managedbuild.toolchain.gnu.base.693357123.1948399414" name="AutoGen.cmake" rcbsApplicability="disable" resourcePath="src/multimedia/sound/AutoGen.cmake" toolsToInvoke=""/>
 					<sourceEntries>
-						<entry excluding="src/multimedia/sound/idea_SoundSystem.cpp|src/multimedia/sound/autogenCmake" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="src/multimedia/sound/AutoGen.cmake|src/multimedia/sound/idea_SoundSystem.cpp|src/multimedia/sound/autogenCmake" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>

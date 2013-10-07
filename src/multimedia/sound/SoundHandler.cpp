@@ -31,37 +31,8 @@ SoundManager& SoundHandler::sSoundManager = SoundManager::getInstance();
 
 
 /******************************************************************************/
-/*************************    AUXILIARY FUNCTIONS    **************************/
+/************************    LOCAL AUXILIARY STUFF    *************************/
 namespace {
-
-inline const char*
-errorMessage(SSerror err)
-{
-	switch (err) {
-	case SSerror::SS_NO_ERROR:
-		return "operation successfull.\n";
-		break;
-	case SSerror::SS_NO_MEMORY:
-		return "insufficient system memory.\n";
-		break;
-	case SSerror::SS_NO_SOURCES:
-		return "no available sources to start playback.\n";
-		break;
-	case SSerror::SS_INVALID_FILE:
-		return "unsupported/bad audio format.\n";
-		break;
-	case SSerror::SS_FILE_NOT_FOUND:
-		return "sound not loaded in the system.\n";
-		break;
-	case SSerror::SS_INTERNAL_ERROR:
-		return "unspecified internal error.\n";
-		break;
-	default:
-		return "WTF? Unspecified BIG FAT internal error (???)\n";
-		break;
-	}
-	return "";
-}
 
 // Playlist states
 typedef enum {
@@ -72,11 +43,7 @@ typedef enum {
 	PLAYLIST_RANDOM_ORDER	= (1ul<<4),
 	PLAYLIST_RANDOM_SILENCE	= (1ul<<5),
 	PLAYLIST_COUNTING_TIME	= (1ul<<6),
-	PLAYLIST_FADING_OUT		= (1ul<<7),
-	PLAYLIST_FADING_IN		= (1ul<<7),
-	PLAYLIST_NONE			= (1ul<<31)
-	// XXX The state "PLAYLIST_PLAYING & ~PLAYLIST_COUNTING_TIME"
-	//     means the playlist was globally paused during a silence.
+	PLAYLIST_FADING_OUT		= (1ul<<7)
 } _playlists_state;
 
 }
@@ -211,7 +178,7 @@ SoundHandler::loadSounds(const std::vector<Ogre::String>& list, SSbuftype bufTyp
 		}
 
 		if (err != SSerror::SS_NO_ERROR) {
-			fails += "File: \"" + list[i] + "\" ; Error: " + errorMessage(err);
+			fails += "File: \"" + list[i] + "\" ; Error: " + SSenumStr(err);
 		}
 	}
 
@@ -253,8 +220,8 @@ SoundHandler::shutDown(void)
 void
 SoundHandler::update(const float globalTimeFrame)
 {
-	/* TODO: check functionality after fixing globalPause(),
-	 * and after reviewing globalPlay(), globalFadeOut() and globalFadeIn()
+	/* TODO: check functionality after reviewing
+	 * 		 globalFadeOut() and globalFadeIn()
 	 */
 
 	Playlist *pl(0);
@@ -288,7 +255,8 @@ SoundHandler::update(const float globalTimeFrame)
 		setPlaylistState(pl, PLAYLIST_PAUSED);
 		unsetPlaylistState(pl, PLAYLIST_PLAYING
 							 | PLAYLIST_STOPPED
-							 | PLAYLIST_COUNTING_TIME);
+							 | PLAYLIST_COUNTING_TIME
+							 | PLAYLIST_FADING_OUT);
 	}
 	mPausedPlaylists.clear();
 
@@ -314,35 +282,22 @@ SoundHandler::update(const float globalTimeFrame)
 void
 SoundHandler::globalPause()
 {
-	/* FIXME: current global pause logic is not working.
-	 * If paused during playlist silence, playback never stops.
-	 */
-
 	// First let the manager update the sound sources
 	sSoundManager.globalPause();
-
 	// Now check the results
 	for (uint i = 0 ; i < mPlaylists.size() ; i++) {
 		Playlist *pl = mPlaylists[i];
 		ASSERT(pl);
 		if (pl->mList.empty()) continue;
-
-		Ogre::String sound = pl->mList[pl->mPlayOrder[pl->mCurrent]];
-		if ( (pl->mState & PLAYLIST_PLAYING) &&
-			!(pl->mState & (PLAYLIST_FADING_OUT | PLAYLIST_FADING_IN))) {
-			ASSERT(sSoundManager.isActiveEnvSound(sound));
-			setPlaylistState(pl, PLAYLIST_PAUSED);
-			unsetPlaylistState(pl, PLAYLIST_PLAYING
-								 | PLAYLIST_STOPPED
-								 | PLAYLIST_COUNTING_TIME);
+		if ((pl->mState & PLAYLIST_PLAYING) &&
+			(pl->mState & PLAYLIST_COUNTING_TIME)) {
+			// Paused during sounds playback
+			unsetPlaylistState(pl, PLAYLIST_COUNTING_TIME);
+		} else if ( (pl->mState & PLAYLIST_STOPPED) &&
+					(pl->mState & PLAYLIST_COUNTING_TIME)) {
+			// Paused during playlist silence
+			unsetPlaylistState(pl, PLAYLIST_COUNTING_TIME);
 		}
-//		if (sSoundManager.isActiveEnvSound(sound) &&
-//			!sSoundManager.isPlayingEnvSound(sound)) {
-//			setPlaylistState(pl, PLAYLIST_PAUSED);
-//			unsetPlaylistState(pl, PLAYLIST_PLAYING
-//								 | PLAYLIST_STOPPED
-//								 | PLAYLIST_COUNTING_TIME);
-//		}
 	}
 }
 
@@ -351,28 +306,25 @@ SoundHandler::globalPause()
 void
 SoundHandler::globalPlay()
 {
-	// TODO: check functionality after fixing globalPause()
-
 	// First let the manager update the sound sources
 	sSoundManager.globalPlay();
-
 	// Now check the results
 	for (uint i = 0 ; i < mPlaylists.size() ; i++) {
 		Playlist *pl = mPlaylists[i];
 		ASSERT(pl);
 		if (pl->mList.empty()) continue;
 		Ogre::String sound = pl->mList[pl->mPlayOrder[pl->mCurrent]];
-
 		if (sSoundManager.isPlayingEnvSound(sound)) {
 			// The source started playback, reflect that in state.
 			setPlaylistState(pl, PLAYLIST_PLAYING
 							   | PLAYLIST_COUNTING_TIME);
 			unsetPlaylistState(pl, PLAYLIST_PAUSED
-								 | PLAYLIST_STOPPED);
-
-		} else if ((pl->mState & PLAYLIST_PLAYING) &&
+								 | PLAYLIST_STOPPED
+								 | PLAYLIST_FADING_OUT);
+		} else if ((pl->mState & PLAYLIST_STOPPED) &&
 					!(pl->mState & PLAYLIST_COUNTING_TIME)) {
-			// Playlist was globally paused during silence: count time again.
+			// Playlist had been globally paused during silence:
+			// start counting time again.
 			setPlaylistState(pl, PLAYLIST_COUNTING_TIME);
 		}
 	}
@@ -392,10 +344,12 @@ SoundHandler::globalStop()
 		if (pl->mList.empty()) continue;
 		Ogre::String sound = pl->mList[pl->mPlayOrder[pl->mCurrent]];
 		ASSERT(!sSoundManager.isActiveEnvSound(sound));
+		pl->mCurrent = 0u;
 		setPlaylistState(pl, PLAYLIST_STOPPED);
 		unsetPlaylistState(pl, PLAYLIST_PLAYING
 							 | PLAYLIST_PAUSED
-							 | PLAYLIST_COUNTING_TIME);
+							 | PLAYLIST_COUNTING_TIME
+							 | PLAYLIST_FADING_OUT);
 	}
 }
 
@@ -491,6 +445,8 @@ SoundHandler::newPlaylist(const Ogre::String& name,
 
 	if (existsPlaylist(name)) {
 		return ("Playlist \"" + name + "\" exists!\n");
+	} else {
+		list.reserve(soundsList.size());
 	}
 
 	// Check requested sounds are available.
@@ -523,7 +479,7 @@ SoundHandler::deletePlaylist(const Ogre::String& name)
 	for (uint i=0 ; i < mPlaylists.size() ; i++) {
 		if (mPlaylists[i]->mName != name)
 			continue;
-		// Playlist found.
+		// else: playlist found
 		Playlist* pl = mPlaylists[i];
 		ASSERT(pl);
 		if (!pl->mList.empty()) {
@@ -553,8 +509,10 @@ SoundHandler::startPlaylist(const Ogre::String& name, Playlist *plp)
 
 	if (!pl) {
 		return SSerror::SS_FILE_NOT_FOUND;
-	} else if (pl->mState & PLAYLIST_PLAYING) {
+	} else if ( (pl->mState & PLAYLIST_PLAYING) &&
+				(pl->mState & PLAYLIST_COUNTING_TIME) ) {
 		// Playlist is already playing: nothing to do here.
+		debugWARNING("Playlist \"%s\" is already playing.\n", name.c_str());
 		return SSerror::SS_NO_ERROR;
 	} else if (pl->mList.size() < 1) {
 		// Playlist is empty (sucker):  nothing to do here.
@@ -581,16 +539,17 @@ SoundHandler::startPlaylist(const Ogre::String& name, Playlist *plp)
 	if (err == SSerror::SS_NO_ERROR) {
 		// Success
 		setPlaylistState(pl, PLAYLIST_PLAYING | PLAYLIST_COUNTING_TIME);
-		unsetPlaylistState(pl, PLAYLIST_PAUSED | PLAYLIST_STOPPED);
+		unsetPlaylistState(pl, PLAYLIST_PAUSED | PLAYLIST_STOPPED | PLAYLIST_FADING_OUT);
 		return err;
 	} else {
 		// Failure
-		debugWARNING("Playlist \"%s\" failed to start: %s", pl->mName.c_str(),
-					SSenumStr(err));
+		debugWARNING("Playlist \"%s\" failed to start: %s\n",
+					pl->mName.c_str(), SSenumStr(err));
 		setPlaylistState(pl, PLAYLIST_STOPPED);
 		unsetPlaylistState(pl, PLAYLIST_PLAYING
 							 | PLAYLIST_PAUSED
-							 | PLAYLIST_COUNTING_TIME);
+							 | PLAYLIST_COUNTING_TIME
+							 | PLAYLIST_FADING_OUT);
 		return SSerror::SS_INTERNAL_ERROR;
 	}
 }
@@ -612,7 +571,8 @@ SoundHandler::pausePlaylist(const Ogre::String& name)
 		setPlaylistState(pl, PLAYLIST_PAUSED);
 		unsetPlaylistState(pl, PLAYLIST_PLAYING
 							 | PLAYLIST_STOPPED
-							 | PLAYLIST_COUNTING_TIME);
+							 | PLAYLIST_COUNTING_TIME
+							 | PLAYLIST_FADING_OUT);
 	}
 }
 
@@ -622,32 +582,38 @@ SoundHandler::pausePlaylist(const Ogre::String& name)
 void
 SoundHandler::stopPlaylist(const Ogre::String& name)
 {
-	SSerror err(SSerror::SS_NO_ERROR);
-	const Ogre::String *sound(0);
 	Playlist *pl = getPlaylist(name);
 
-	if (pl) {
-		sound = &pl->mList[pl->mPlayOrder[pl->mCurrent]];
-		if (sSoundManager.isActiveEnvSound(*sound)) {
-			err = sSoundManager.stopEnvSound(*sound);
-		}
-		if (err == SSerror::SS_NO_ERROR) {
-			// Success
-			pl->mCurrent = 0;
-			pl->mTimeSinceFinish = 0.0f;
-			setPlaylistState(pl, PLAYLIST_STOPPED);
-			unsetPlaylistState(pl, PLAYLIST_PLAYING
-								 | PLAYLIST_PAUSED
-								 | PLAYLIST_COUNTING_TIME
-								 | PLAYLIST_FADING_OUT);
-		} else {
-			// Failure
-			debugERROR("Playlist \"%s\" failed to stop: %s", pl->mName.c_str(),
-						errorMessage(err));
-			unsetPlaylistState(pl, PLAYLIST_PLAYING
-								 | PLAYLIST_PAUSED
-								 | PLAYLIST_STOPPED);
-		}
+	if (!pl) {
+		// Playlist not found
+		debugWARNING("Playlist \"%s\" not found.\n", name.c_str());
+		return;
+	}
+
+	const Ogre::String *sound = &pl->mList[pl->mPlayOrder[pl->mCurrent]];
+	SSerror err(SSerror::SS_NO_ERROR);
+	if (sSoundManager.isActiveEnvSound(*sound)) {
+		err = sSoundManager.stopEnvSound(*sound);
+	}
+
+	if (err == SSerror::SS_NO_ERROR) {
+		// Success
+		pl->mCurrent = 0;
+		pl->mTimeSinceFinish = 0.0f;
+		setPlaylistState(pl, PLAYLIST_STOPPED);
+		unsetPlaylistState(pl, PLAYLIST_PLAYING
+							 | PLAYLIST_PAUSED
+							 | PLAYLIST_COUNTING_TIME
+							 | PLAYLIST_FADING_OUT);
+	} else {
+		// Failure
+		debugERROR("Playlist \"%s\" failed to stop: %s", pl->mName.c_str(),
+					SSenumStr(err));
+		unsetPlaylistState(pl, PLAYLIST_STOPPED
+				 	 	 	 | PLAYLIST_PLAYING
+				 	 	 	 | PLAYLIST_PAUSED
+				 	 	 	 | PLAYLIST_COUNTING_TIME
+							 | PLAYLIST_FADING_OUT);
 	}
 }
 
@@ -686,7 +652,7 @@ SoundHandler::fadeOutPlaylist(const Ogre::String& name,
 	if (err != SSerror::SS_NO_ERROR) {
 		// Failure
 		debugERROR("Playlist \"%s\" fade-out failed: %s", pl->mName.c_str(),
-					errorMessage(err));
+					SSenumStr(err));
 		unsetPlaylistState(pl, PLAYLIST_PLAYING
 							 | PLAYLIST_PAUSED
 							 | PLAYLIST_STOPPED);
@@ -718,7 +684,7 @@ SoundHandler::fadeInPlaylist(const Ogre::String& name,
 	if (err != SSerror::SS_NO_ERROR) {
 		// Failure
 		debugERROR("Playlist \"%s\" fade-in failed: %s", pl->mName.c_str(),
-					errorMessage(err));
+					SSenumStr(err));
 		unsetPlaylistState(pl, PLAYLIST_PLAYING
 							 | PLAYLIST_PAUSED
 							 | PLAYLIST_STOPPED);

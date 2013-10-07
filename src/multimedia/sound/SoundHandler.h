@@ -545,8 +545,8 @@ private:
 	getPlaylist(const Ogre::String& name);
 
 	// Playlists state modifiers
-	void setPlaylistState(Playlist *pl, long flags);
-	void unsetPlaylistState(Playlist *pl, long flags);
+	void setPlaylistState(Playlist *pl, unsigned long flags);
+	void unsetPlaylistState(Playlist *pl, unsigned long flags);
 	void setPlaylistGlobalState(Playlist *pl, long flags);
 	void unsetPlaylistGlobalState(Playlist *pl, long flags);
 
@@ -718,14 +718,14 @@ SoundHandler::getPlaylist(const Ogre::String& name)
 
 ////////////////////////////////////////////////////////////////////////////////
 inline void
-SoundHandler::setPlaylistState(SoundHandler::Playlist *pl, long flags) {
+SoundHandler::setPlaylistState(Playlist *pl, unsigned long flags) {
 	pl->mState |= flags;
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////
 inline void
-SoundHandler::unsetPlaylistState(SoundHandler::Playlist *pl, long flags) {
+SoundHandler::unsetPlaylistState(Playlist *pl, unsigned long flags) {
 	pl->mState &= ~flags;
 }
 
