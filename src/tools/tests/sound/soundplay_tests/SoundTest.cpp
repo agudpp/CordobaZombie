@@ -160,13 +160,6 @@ SoundTest::SoundTest() :
     input::Keyboard::setKeyboard(mKeyboard);
     setUseDefaultInput(false);
 
-    // Configure the mouse cursor
-    mMouseCursor.setCursor(ui::MouseCursor::Cursor::NORMAL_CURSOR);
-    mMouseCursor.setVisible(true);
-    mMouseCursor.setWindowDimensions(mWindow->getWidth(), mWindow->getHeight());
-    mMouseCursor.updatePosition(mWindow->getWidth() / 2,
-                                mWindow->getHeight() / 2);
-
 	// Check initial sound system status is OK
 	testBEGIN("Revisando la creación del SoundHandler.\n");
 	ASSERT(&mSH == &mm::SoundHandler::getInstance());
@@ -540,6 +533,13 @@ SoundTest::handleSoundInput(void)
 				debugBLUE("Global sounds PLAY.%s", "\n");
 			}
     	}
+
+    } else if (mInputHelper.isKeyPressed(input::KeyCode::KC_NUMPAD1)) {
+        	if (!keyPressed) {
+        		keyPressed = true;
+				mSH.globalRestart();
+				debugBLUE("Global sounds RESTART.%s", "\n");
+        	}
 
     } else if (keyPressed) {
     	keyPressed = false;

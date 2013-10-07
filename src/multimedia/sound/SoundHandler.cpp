@@ -43,7 +43,8 @@ typedef enum {
 	PLAYLIST_RANDOM_ORDER	= (1ul<<4),
 	PLAYLIST_RANDOM_SILENCE	= (1ul<<5),
 	PLAYLIST_COUNTING_TIME	= (1ul<<6),
-	PLAYLIST_FADING_OUT		= (1ul<<7)
+	PLAYLIST_GLOBAL_PAUSED	= (1ul<<7),
+	PLAYLIST_FADING_OUT		= (1ul<<8)
 } _playlists_state;
 
 }
@@ -54,7 +55,7 @@ SoundHandler::Playlist::Playlist(const Ogre::String& name) :
 	mName(name),
 	mCurrent(0),
 	mState(PLAYLIST_STOPPED | PLAYLIST_REPEAT),
-	mGState(PLAYLIST_NONE),
+	mGState(PLAYLIST_STOPPED),
 	mSilence(0.0f),
 	mTimeSinceFinish(0.0f)
 {}
@@ -70,7 +71,7 @@ SoundHandler::Playlist::Playlist(const Ogre::String& name,
 	mName(name),
 	mList(list),
 	mCurrent(0),
-	mGState(PLAYLIST_NONE),
+	mGState(PLAYLIST_STOPPED),
 	mSilence(silence),
 	mTimeSinceFinish(0.0f)
 {
@@ -220,7 +221,7 @@ SoundHandler::shutDown(void)
 void
 SoundHandler::update(const float globalTimeFrame)
 {
-	/* TODO: check functionality after reviewing
+	/* TODO: check functionality of update() after reviewing
 	 * 		 globalFadeOut() and globalFadeIn()
 	 */
 
@@ -292,10 +293,12 @@ SoundHandler::globalPause()
 		if ((pl->mState & PLAYLIST_PLAYING) &&
 			(pl->mState & PLAYLIST_COUNTING_TIME)) {
 			// Paused during sounds playback
+			setPlaylistState(pl, PLAYLIST_GLOBAL_PAUSED);
 			unsetPlaylistState(pl, PLAYLIST_COUNTING_TIME);
 		} else if ( (pl->mState & PLAYLIST_STOPPED) &&
 					(pl->mState & PLAYLIST_COUNTING_TIME)) {
 			// Paused during playlist silence
+			setPlaylistState(pl, PLAYLIST_GLOBAL_PAUSED);
 			unsetPlaylistState(pl, PLAYLIST_COUNTING_TIME);
 		}
 	}
@@ -320,12 +323,14 @@ SoundHandler::globalPlay()
 							   | PLAYLIST_COUNTING_TIME);
 			unsetPlaylistState(pl, PLAYLIST_PAUSED
 								 | PLAYLIST_STOPPED
+								 | PLAYLIST_GLOBAL_PAUSED
 								 | PLAYLIST_FADING_OUT);
 		} else if ((pl->mState & PLAYLIST_STOPPED) &&
 					!(pl->mState & PLAYLIST_COUNTING_TIME)) {
 			// Playlist had been globally paused during silence:
 			// start counting time again.
 			setPlaylistState(pl, PLAYLIST_COUNTING_TIME);
+			unsetPlaylistState(pl, PLAYLIST_GLOBAL_PAUSED);
 		}
 	}
 }
@@ -349,6 +354,7 @@ SoundHandler::globalStop()
 		unsetPlaylistState(pl, PLAYLIST_PLAYING
 							 | PLAYLIST_PAUSED
 							 | PLAYLIST_COUNTING_TIME
+							 | PLAYLIST_GLOBAL_PAUSED
 							 | PLAYLIST_FADING_OUT);
 	}
 }
@@ -358,27 +364,35 @@ SoundHandler::globalStop()
 void
 SoundHandler::globalRestart()
 {
-	/* FIXME: check logic, I think it's INCORRECT. We should:
-	 *   1. stop playlists
-	 *   2. remember which ones were playing
-	 *   3. re-shuffle its play order if necessary
-	 *   4. and *then* perform the SoundManager.globalRestart()
-	 */
+	Playlist *pl(0);
 
-	// First let the manager update the sound sources
-	sSoundManager.globalRestart();
-	// Now check the results
+	// First stop currently playing playlists
 	for (uint i = 0 ; i < mPlaylists.size() ; i++) {
-		Playlist *pl = mPlaylists[i];
+		pl = mPlaylists[i];
 		ASSERT(pl);
 		if (pl->mList.empty()) continue;
 		Ogre::String sound = pl->mList[pl->mPlayOrder[pl->mCurrent]];
 		if (sSoundManager.isPlayingEnvSound(sound)) {
-			// The source restarted playback, reflect that in state.
-			setPlaylistState(pl, PLAYLIST_PLAYING
-							   | PLAYLIST_COUNTING_TIME);
-			unsetPlaylistState(pl, PLAYLIST_PAUSED
-								 | PLAYLIST_STOPPED);
+			sSoundManager.stopEnvSound(sound);
+		}
+	}
+
+	// Now use the manager to update general system sounds
+	sSoundManager.globalRestart();
+
+	// Finally restart previously stopped playlists
+	for (uint i = 0 ; i < mPlaylists.size() ; i++) {
+		pl = mPlaylists[i];
+		ASSERT(pl);
+		if (pl->mList.empty()) continue;
+		Ogre::String sound = pl->mList[pl->mPlayOrder[pl->mCurrent]];
+		if (pl->mState & (PLAYLIST_PLAYING |
+						  PLAYLIST_PAUSED |
+						  PLAYLIST_COUNTING_TIME |
+						  PLAYLIST_GLOBAL_PAUSED)) {
+			pl->mCurrent = 0u;
+			unsetPlaylistState(pl, PLAYLIST_PLAYING);
+			startPlaylist(pl->mName,pl);
 		}
 	}
 }
@@ -388,7 +402,7 @@ SoundHandler::globalRestart()
 void
 SoundHandler::globalFadeOut(const Ogre::Real& time, const bool pause)
 {
-	// TODO: check functionality after fixing globalPause()
+	// TODO: check functionality after reviewing individual fades.
 
 	// First let the manager update the sound sources
 	sSoundManager.globalFadeOut(time, pause);
