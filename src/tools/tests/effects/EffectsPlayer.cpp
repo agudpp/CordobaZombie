@@ -17,6 +17,7 @@
 
 #include <debug/PrimitiveDrawer.h>
 #include <xml/XMLHelper.h>
+#include <fx/effects/billboards/BillboardLoader.h>
 
 #include "EffectsPlayer.h"
 
@@ -76,6 +77,19 @@ namespace tests {
 void
 EffectsPlayer::loadBillboardGroups(void)
 {
+    TiXmlDocument* doc = core::XMLHelper::loadXmlDocument("BillboardLoader.xml");
+    if (!doc) {
+        debugERROR("Error loading .xml file\n");
+        return;
+    }
+    if (cz::BillboardLoader::loadAndConfigure(doc->RootElement(), mBillboardGroups)) {
+        debugBLUE("BillboardGroup loaded OK\n");
+    } else {
+        debugERROR("BillboardGroup loaded with some errors\n");
+    }
+    delete doc;
+
+    /*
     cz::BillboardStack* stack1 = new cz::BillboardStack;
     cz::BillboardStack* stack2 = new cz::BillboardStack;
 
@@ -112,7 +126,7 @@ EffectsPlayer::loadBillboardGroups(void)
     mBillboardGroups.addGroup(gi);
     gi.coords = cz::UVCoord(0.f, 1.0f, 0.0f, 1.f);
     gi.stack = stack2;
-    mBillboardGroups.addGroup(gi);
+    mBillboardGroups.addGroup(gi);*/
 
 }
 

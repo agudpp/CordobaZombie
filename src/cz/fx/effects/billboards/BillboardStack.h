@@ -11,6 +11,7 @@
 #include <OgreBillboard.h>
 #include <OgreBillboardSet.h>
 #include <OgreSceneNode.h>
+#include <OgreSceneManager.h>
 
 #include <global_data/GlobalData.h>
 #include <debug/DebugUtil.h>

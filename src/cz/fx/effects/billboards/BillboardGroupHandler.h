@@ -10,6 +10,8 @@
 
 #include <OgreBillboard.h>
 
+#include <set>
+
 #include <types/StackVector.h>
 #include <debug/DebugUtil.h>
 
@@ -44,12 +46,14 @@ public:
 
 public:
     BillboardGroupHandler() {};
-    ~BillboardGroupHandler() {};
+    ~BillboardGroupHandler() {clear();};
 
     // @brief Add new group to be handled by this Handler
     // @param groupInfo     The group information. Note that once you add
     //                      this group it will be identified by the current index
     // @return index        The associated index (ID) of the grupo.
+    // @note All the allocated BillboardStack are now owned by this class. We will
+    //       free its memory when we destroy the class or call clear.
     //
     inline unsigned int
     addGroup(const GroupInfo& groupInfo);
@@ -86,6 +90,12 @@ public:
     inline Ogre::Billboard*
     get(unsigned int gindex, const Ogre::Vector3& pos, const Ogre::Vector3& dvec);
 
+
+private:
+    // avoid copying
+    BillboardGroupHandler(const BillboardGroupHandler&);
+    BillboardGroupHandler& operator=(const BillboardGroupHandler&);
+
 private:
     GroupVec mGroups;
 };
@@ -108,6 +118,17 @@ BillboardGroupHandler::addGroup(const GroupInfo& groupInfo)
 inline void
 BillboardGroupHandler::clear(void)
 {
+    // we need to check and ensure that we are not releasing twice the same
+    // BillboardStack, for that we will use an ugly set
+    // TODO: replace with a own set
+    std::set<BillboardStack*> stacks;
+
+    for (GroupInfo& gi : mGroups) {
+        stacks.insert(gi.stack);
+    }
+    for (auto it = stacks.begin(), end = stacks.end(); it != end; ++it) {
+        delete *it;
+    }
     mGroups.clear();
 }
 

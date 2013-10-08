@@ -91,6 +91,8 @@ public:
     static inline void
     parseInt(const TiXmlElement *elem, const char *attrName, int &result);
     static inline void
+    parseUnsignedInt(const TiXmlElement *elem, const char *attrName, unsigned int &result);
+    static inline void
     parseFloat(const TiXmlElement *elem, const char *attrName, float &result);
     static inline void
     parseBool(const TiXmlElement *elem, const char *attrName, bool &result);
@@ -172,6 +174,18 @@ XMLHelper::parseInt(const TiXmlElement *elem, const char *attrName, int &result)
     }
 #endif
     result = Ogre::StringConverter::parseInt(elem->Attribute(attrName));
+}
+inline void
+XMLHelper::parseUnsignedInt(const TiXmlElement *elem, const char *attrName, unsigned int &result)
+{
+    ASSERT(elem); ASSERT(attrName);
+#ifdef DEBUG
+    if(!elem->Attribute(attrName)) {
+        debugWARNING("Attribute %s not exists in %s\n", attrName, elem->Value());
+        ASSERT(false);
+    }
+#endif
+    result = Ogre::StringConverter::parseUnsignedInt(elem->Attribute(attrName));
 }
 
 inline void
