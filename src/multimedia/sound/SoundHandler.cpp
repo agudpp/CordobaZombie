@@ -602,6 +602,10 @@ SoundHandler::stopPlaylist(const Ogre::String& name)
 		// Playlist not found
 		debugWARNING("Playlist \"%s\" not found.\n", name.c_str());
 		return;
+	} else if (pl->mList.size() < 1) {
+		// Empty playlist
+		debugWARNING("Playlist \"%s\" is empty.\n",  name.c_str());
+		return;
 	}
 
 	const Ogre::String *sound = &pl->mList[pl->mPlayOrder[pl->mCurrent]];
@@ -697,8 +701,8 @@ SoundHandler::fadeInPlaylist(const Ogre::String& name,
 	SSerror err = sSoundManager.fadeInEnvSound(*sound, time);
 	if (err != SSerror::SS_NO_ERROR) {
 		// Failure
-		debugERROR("Playlist \"%s\" fade-in failed: %s", pl->mName.c_str(),
-					SSenumStr(err));
+		debugERROR("Playlist \"%s\" fade-in failed: %s.\n",
+					pl->mName.c_str(), SSenumStr(err));
 		unsetPlaylistState(pl, PLAYLIST_PLAYING
 							 | PLAYLIST_PAUSED
 							 | PLAYLIST_STOPPED);

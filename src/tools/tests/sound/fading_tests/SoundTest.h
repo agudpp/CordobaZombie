@@ -129,8 +129,6 @@ private:
 
     // SoundSystem specific members
     mm::SoundHandler&  mSH;
-//    core::PrimitiveDrawer mSphere1;  // Music of the spheres
-//    core::PrimitiveDrawer mSphere2;
 };
 
 }
