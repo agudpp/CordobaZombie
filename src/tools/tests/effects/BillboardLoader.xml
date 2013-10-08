@@ -1,0 +1,19 @@
+<BillboardGroupInfo>
+    <BillboardStack id="1"
+                    numBillboards="10"
+                    width="15"
+                    height="10"
+                    matName="MouseCursors">
+    </BillboardStack>
+    <BillboardStack id="2"
+                    numBillboards="10"
+                    width="5"
+                    height="7"
+                    matName="blood_particle">
+    </BillboardStack>
+    <Group stackID="1"  u0="0" u1="0.25" v0="0" v1="1" />
+    <Group stackID="1"  u0="0.25" u1="0.50" v0="0" v1="1" />
+    <Group stackID="1"  u0="0.50" u1="0.75" v0="0" v1="1" />
+    <Group stackID="1"  u0="0.75" u1="1.0" v0="0" v1="1" />
+    <Group stackID="2"  u0="0" u1="1" v0="0" v1="1" />
+</BillboardGroupInfo>

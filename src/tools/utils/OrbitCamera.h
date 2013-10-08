@@ -39,6 +39,8 @@ public:
      */
     void
     setCameraType(CameraType type);
+    inline CameraType
+    cameraType(void) const;
 
     inline void
     rotateCamera(const Ogre::Radian yaw, const Ogre::Radian pitch);
@@ -72,6 +74,12 @@ private:
 
 // inline
 //
+inline OrbitCamera::CameraType
+OrbitCamera::cameraType(void) const
+{
+    return mCamType;
+}
+
 inline void
 OrbitCamera::rotateCamera(const Ogre::Radian yaw, const Ogre::Radian pitch)
 {

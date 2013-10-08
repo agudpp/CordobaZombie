@@ -34,6 +34,7 @@
 									<listOptionValue builtIn="false" value="&quot;${OGRE_BUILD}/include&quot;"/>
 									<listOptionValue builtIn="false" value="/usr/include/OIS"/>
 									<listOptionValue builtIn="false" value="/usr/include/c++/4.7/bits"/>
+<<<<<<< HEAD
 									<listOptionValue builtIn="false" value="&quot;${CBAZ_SRC}/coll_physics&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${CBAZ_SRC}/core&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${CBAZ_SRC}/cz&quot;"/>
@@ -43,6 +44,11 @@
 									<listOptionValue builtIn="false" value="&quot;${CBAZ_SRC}/tools&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${CBAZ_SRC}/ui&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${THIRD_PARTY_LIBS}/include&quot;"/>
+=======
+									<listOptionValue builtIn="false" value="/usr/include/c++/4.7/i686-linux-gnu"/>
+									<listOptionValue builtIn="false" value="/usr/include/c++/4.7/backward"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CordobaZombie0.1/src/effect}&quot;"/>
+>>>>>>> effects
 								</option>
 								<option id="gnu.cpp.compiler.option.preprocessor.def.1295629118" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__GXX_EXPERIMENTAL_CXX0X__=1"/>
@@ -59,6 +65,7 @@
 									<listOptionValue builtIn="false" value="/usr/include/OIS"/>
 									<listOptionValue builtIn="false" value="/usr/include/c++/4.7/utility"/>
 									<listOptionValue builtIn="false" value="/usr/include/c++/4.7/bits"/>
+<<<<<<< HEAD
 									<listOptionValue builtIn="false" value="&quot;${CBAZ_SRC}/coll_physics&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${CBAZ_SRC}/core&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${CBAZ_SRC}/cz&quot;"/>
@@ -68,6 +75,12 @@
 									<listOptionValue builtIn="false" value="&quot;${CBAZ_SRC}/tools&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${CBAZ_SRC}/ui&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${THIRD_PARTY_LIBS}/include&quot;"/>
+=======
+									<listOptionValue builtIn="false" value="/usr/include/c++/4.7/i686-linux-gnu"/>
+									<listOptionValue builtIn="false" value="/usr/include/c++/4.7/backward"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CordobaZombie0.1/src/cz}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CordobaZombie0.1/src/effect}&quot;"/>
+>>>>>>> effects
 								</option>
 								<option id="gnu.c.compiler.option.preprocessor.def.symbols.1681950668" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__GXX_EXPERIMENTAL_CXX0X__=1"/>
@@ -75,6 +88,7 @@
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.834750935" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
+<<<<<<< HEAD
 							<tool id="cdt.managedbuild.tool.gnu.c.linker.base.1202844104" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.base"/>
 							<tool id="cdt.managedbuild.tool.gnu.cpp.linker.base.458910960" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.base">
 								<option id="gnu.cpp.link.option.libs.1163331653" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" valueType="libs">
@@ -86,6 +100,19 @@
 								<option id="gnu.cpp.link.option.paths.1001067721" name="Library search path (-L)" superClass="gnu.cpp.link.option.paths" valueType="libPaths">
 									<listOptionValue builtIn="false" value="&quot;${OGRE_BUILD}/lib&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${THIRD_PARTY_LIBS}/lib&quot;"/>
+=======
+							<tool id="org.eclipse.cdt.build.core.settings.holder.111873541" name="GNU C" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<option id="org.eclipse.cdt.build.core.settings.holder.incpaths.1798261436" name="Include Paths" superClass="org.eclipse.cdt.build.core.settings.holder.incpaths" valueType="includePath">
+									<listOptionValue builtIn="false" value="/home/agustin/programacion/ogre/ogre_src_v1-8-1/OgreMain/include"/>
+									<listOptionValue builtIn="false" value="/usr/local/include/OIS"/>
+									<listOptionValue builtIn="false" value="/usr/include/c++/4.7/"/>
+									<listOptionValue builtIn="false" value="/usr/include/"/>
+									<listOptionValue builtIn="false" value="/usr/local/include"/>
+									<listOptionValue builtIn="false" value="/usr/include/c++/4.7/bits"/>
+									<listOptionValue builtIn="false" value="/usr/include/c++/4.7/i686-linux-gnu"/>
+									<listOptionValue builtIn="false" value="/usr/include/c++/4.7/backward"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CordobaZombie0.1/src/effect}&quot;"/>
+>>>>>>> effects
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.900298691" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>

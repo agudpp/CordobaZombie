@@ -1,0 +1,4 @@
+<EffectsPlayer>
+    <ParticleSystem name="particle1" x="0" y="0" z="0"/>
+    <ParticleSystem name="particle2" x="0" y="0" z="0"/>
+</EffectsPlayer>
