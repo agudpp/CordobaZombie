@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <cstdio>
+#include <queue>
 
 extern "C" {
 #include <libavcodec/avcodec.h>
@@ -178,6 +179,10 @@ public:
 
 	inline int		paint_white_screen(void);
 
+	/*
+	 * Get height and width of the loaded video.
+	 */
+	inline int		getSizes(unsigned int &h, unsigned int &w);
 //	inline void		set_visible(bool b);
 
 //	inline bool		is_visible(void);
@@ -335,6 +340,19 @@ inline const char *	VideoPlayer::get_video_name(void){
 	}else{
 		debugWARNING("Attempt to get video name when no video loaded\n");
 		return "No video is beeing played";
+	}
+}
+
+inline int
+VideoPlayer::getSizes(unsigned int &h, unsigned int &w)
+{
+	if(isLoaded){
+		h = pCodecCtx->height;
+		w = pCodecCtx->width;
+		return VIDEO_OK;
+	}else{
+		debugERROR("Can't get sizes as no video is loaded.\n");
+		return VIDEO_ERROR;
 	}
 }
 

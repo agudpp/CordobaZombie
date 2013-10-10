@@ -214,10 +214,10 @@ VideoPlayer::VideoPlayer(VideoBuffer *screen):
 //    //set screen material
 //    mMiniScreen->setMaterial("RttMat");
 
-	if(!mScreen){
-		debugERROR("We didn't get a screen for our videos :S\n");
-		return VIDEO_ERROR;
-	}
+//	if(!mScreen){
+//		debugERROR("We didn't get a screen for our videos :S\n");
+//		return VIDEO_ERROR;
+//	}
 
     // Register all formats and codecs for video
     av_register_all();
@@ -832,7 +832,9 @@ int VideoPlayer::update_video(double tslf){ // FIXME al dope el tslf
 
 		unsigned char * img = pFrameRGB->data[0];
 
-		mScreen->fillBuffer(img, 0, pCodecCtx->width*pCodecCtx->height*3);
+		mScreen->fillBuffer(img,
+				VideoBuffer::Format::RGB,
+				pCodecCtx->width*pCodecCtx->height*3);
 
 
 //		#pragma omp parallel for
@@ -1261,44 +1263,44 @@ void VideoPlayer::print_video_info(void){
 /*
  * Pinta la pantalla de video del color definido por 'R', 'G', 'B'.
  */
-int VideoPlayer::paint_screen(unsigned char R, unsigned char G, unsigned char B)
-{
-
-	if(!rtt_texture.get()){
-		return VIDEO_ERROR;
-	}
-
-	//Actualizar la textura de la pantalla
-//	Ogre::HardwarePixelBufferSharedPtr PixelBuffer =
-//		rtt_texture->getBuffer();
+//int VideoPlayer::paint_screen(unsigned char R, unsigned char G, unsigned char B)
+//{
 //
-//	PixelBuffer->lock(Ogre::HardwareBuffer::HBL_DISCARD);
-
+//	if(!rtt_texture.get()){
+//		return VIDEO_ERROR;
+//	}
+//
+//	//Actualizar la textura de la pantalla
+////	Ogre::HardwarePixelBufferSharedPtr PixelBuffer =
+////		rtt_texture->getBuffer();
+////
+////	PixelBuffer->lock(Ogre::HardwareBuffer::HBL_DISCARD);
+//
+////	unsigned char * pDest =
+////		static_cast<unsigned char*>(PixelBuffer->getCurrentLock().data);
+//
 //	unsigned char * pDest =
-//		static_cast<unsigned char*>(PixelBuffer->getCurrentLock().data);
-
-	unsigned char * pDest =
-			(unsigned char *)malloc(sizeof(unsigned char)*width*height*3);
-
-	int width = defaultwidth, height = defaultheight;
-	if(pCodecCtx){
-		width = pCodecCtx->width;
-		height = pCodecCtx->height;
-	}
-
-	for (size_t i = 0; i <width*height*3; i+=3)
-	{
-		pDest[i] 		= R;
-		pDest[i + 1] 	= G;
-		pDest[i + 2]    = B;
-	}
-
-	mScreen->fillBuffer(pDest,0,width*height*3);
-
-//	PixelBuffer->unlock();
-
-	return VIDEO_OK;
-}
+//			(unsigned char *)malloc(sizeof(unsigned char)*width*height*3);
+//
+//	int width = defaultwidth, height = defaultheight;
+//	if(pCodecCtx){
+//		width = pCodecCtx->width;
+//		height = pCodecCtx->height;
+//	}
+//
+//	for (size_t i = 0; i <width*height*3; i+=3)
+//	{
+//		pDest[i] 		= R;
+//		pDest[i + 1] 	= G;
+//		pDest[i + 2]    = B;
+//	}
+//
+//	mScreen->fillBuffer(pDest,0,width*height*3);
+//
+////	PixelBuffer->unlock();
+//
+//	return VIDEO_OK;
+//}
 
 
 

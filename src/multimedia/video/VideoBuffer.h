@@ -18,53 +18,46 @@ class VideoBuffer
 public:
 
 	/*
-	 * Buffer constructor, 'height' x 'width' define the size of the buffer in
-	 * number of bytes, corresponding to 'height' rows and 'width' columns
-	 * in the data matrix.
+	 * Return codes enumeration for this class methods.
 	 */
-			VideoBuffer(unsigned int height, unsigned int width);
+	enum Codes{
+		ERROR = -1,
+	};
 
 	/*
-	 * Destroyer.
+	 * Frame data formats.
 	 */
-	virtual ~VideoBuffer(void);
+	enum Format{
+		RGB = 0, // 1 Byte R, 1 Byte G, 1 Byte Blue
+		RGBA     // 1 Byte R, 1 Byte G, 1 Byte Blue, 1 Byte Alpha
+	};
+
+
+//	/*
+//	 * Buffer constructor, 'height' x 'width' define the size of the buffer in
+//	 * number of bytes, corresponding to 'height' rows and 'width' columns
+//	 * in the data matrix.
+//	 */
+//			VideoBuffer(void);
+//
+//	/*
+//	 * Destroyer.
+//	 */
+//	virtual
+//	~VideoBuffer(void);
 
 	/*
 	 * Place data from 'source' into the buffer. 'offset' is the starting point
 	 * in the buffer counted as number of bytes. 'size' indicates how much bytes
-	 * should we write into the buffer.
+	 * should we write into the buffer. 'format' identifies the image data
+	 * format as it is in 'source'.
 	 */
-	int
+	virtual int
 	fillBuffer(unsigned char* source = 0,
-				unsigned int offset = 0,
-				unsigned int size = 0);
-
-	/*
-	 * Clear all data from buffer and reset it.
-	 */
-	int		emptyBuffer(void);
-
-	/*
-	 * Get read only access to 'size' bytes of data at 'offset'
-	 * bytes from the beginning of the buffer.
-	 */
-	unsigned char *
-	read(unsigned int offset, unsigned int &size) const;
+				Format format = RGB,
+				unsigned int size = 0) = 0;
 
 
-	/*
-	 * Return codes enumeration for this class methods.
-	 */
-	enum{
-		ERROR = -1,
-	}
-
-private:
-
-	unsigned char *mData;   // Byte data
-	unsigned int mDataSize; // Last byte written index
-	unsigned int mWidth;
-	unsigned int mHeight;
 
 };
 
