@@ -296,9 +296,9 @@ public:
 	/*********************************************************************/
 	/****************    GLOBAL PLAYBACK CONTROLS    *********************/
 public:
-	/** XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX **
-	 * XXX - All these global methods should be accessed through XXX *
-	 * XXX - the stubs implemented in the SoundHandler.          XXX */
+	/** XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX **
+	 * XXX   All these global methods should be accessed     XXX *
+	 * XXX   via the stubs implemented in the SoundHandler.  XXX */
 
 	typedef void* EnvSoundId;
 

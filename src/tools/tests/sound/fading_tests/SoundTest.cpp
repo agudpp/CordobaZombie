@@ -35,7 +35,7 @@ namespace {
 // Number of buffers & sources for direct play
 //
 #define  NUM_LBUFFERS  20
-#define  NUM_LSOURCES  60
+#define  NUM_LSOURCES  25
 
 
 // Number of buffers & sources for streaming
@@ -457,7 +457,7 @@ SoundTest::initSoundsPlayback(void)
 	 * Right now we load hardcoded names of direct/stream sounds,
 	 * until issues #146 and #147 of MantisBT get solved.
 	 */
-	soundsList.push_back("fxZ1.ogg");
+	soundsList.push_back("fxM2.ogg");
 	fails = mSH.newPlaylist(playlist[2], soundsList);
 	if (!fails.empty()) {
 		testFAIL("Falló la creación del nuevo playlist.");

@@ -392,9 +392,13 @@ public:
 	 **
 	 ** @remarks
 	 ** If no playlist "name" exists, nothing is done.
+	 **
+	 ** @param
+	 ** name: name of the playlist, mandatory if @arg "pl" is NULL
+	 **   pl: optional, provide the Playlist pointer to save on search time.
 	 **/
 	void
-	pausePlaylist(const Ogre::String& name);
+	pausePlaylist(const Ogre::String& name, Playlist *pl = 0);
 
 	/**
 	 ** @brief
@@ -407,9 +411,13 @@ public:
 	 **
 	 ** @remarks
 	 ** If no playlist "name" exists, nothing is done.
+	 **
+	 ** @param
+	 ** name: name of the playlist, mandatory if @arg "pl" is NULL
+	 **   pl: optional, provide the Playlist pointer to save on search time.
 	 **/
 	void
-	stopPlaylist(const Ogre::String& name);
+	stopPlaylist(const Ogre::String& name, Playlist *pl = 0);
 
 	/**
 	 ** @brief
@@ -418,13 +426,17 @@ public:
 	 ** @remarks
 	 ** Same effect than stopPlaylist + startPlaylist.
 	 **
+	 ** @param
+	 ** name: name of the playlist, mandatory if @arg "pl" is NULL
+	 **   pl: optional, provide the Playlist pointer to save on search time.
+	 **
 	 ** @return
 	 ** SS_NO_ERROR			Playback successfully restarted.
 	 ** SS_FILE_NOT_FOUND	No playlist "name" found.
 	 ** SS_INTERNAL_ERROR	Unspecified error.
 	 **/
 	SSerror
-	restartPlaylist(const Ogre::String& name);
+	restartPlaylist(const Ogre::String& name, Playlist *pl = 0);
 
 	/**
 	 ** @brief
