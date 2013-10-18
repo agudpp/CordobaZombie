@@ -314,6 +314,18 @@ PrimitiveDrawer::create3DAxis(const Ogre::Vector3& position, Ogre::Real r)
    return axis.get();
 }
 
+////////////////////////////////////////////////////////////////////////////////
+Primitive*
+PrimitiveDrawer::create3DAxis(const Ogre::Vector3& position,
+                              const Ogre::Quaternion& rot,
+                              Ogre::Real r)
+{
+    Primitive* result = create3DAxis(Ogre::Vector3::ZERO, r);
+    result->node->setOrientation(rot);
+    result->node->setPosition(position);
+    return result;
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 void

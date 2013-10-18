@@ -17,6 +17,7 @@ class CollisionHandler;
 
 namespace Ogre {
 class SceneManager;
+class Camera;
 }
 
 namespace cz {
@@ -28,6 +29,8 @@ struct GlobalData
 
     // SceneManager
     static Ogre::SceneManager* sceneMngr;
+    // Camera
+    static Ogre::Camera* camera;
 
     // Own classes
     //

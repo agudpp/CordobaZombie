@@ -17,8 +17,8 @@
 #include <ia/path_handler/PathHandler.h>
 #include <debug/DebugUtil.h>
 #include <global_data/GlobalData.h>
+#include <helpers/AnimTable.h>
 
-#include "AnimTable.h"
 #include "states/ZombieFSMDefs.h"
 
 namespace cz {
