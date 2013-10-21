@@ -14,6 +14,7 @@
 #include <OgreSceneNode.h>
 #include <OgreEntity.h>
 #include <OgreAnimationState.h>
+#include <OgreSceneManager.h>
 
 #include <debug/DebugUtil.h>
 #include <types/StackVector.h>
@@ -280,9 +281,7 @@ private:
 // Inline stuff
 //
 
-inline CrossFireInfo* Weapon::sCrossFire = 0;
-
-static inline void
+inline void
 Weapon::setCrossFireInfo(CrossFireInfo* cfi)
 {
     ASSERT(cfi);
@@ -414,17 +413,19 @@ Weapon::rotEntityOffset(void) const
 inline void
 Weapon::setVisible(bool visible)
 {
-    ASSERT(mNode);
+    ASSERT(mEntity);
     mEntity->setVisible(visible);
 }
 
 inline bool
 Weapon::performAddAmmunition(unsigned short magazines, unsigned short bullets)
 {
-    mInfo.magazineCount = std::min(magazines + mInfo.magazineCount,
-                                   mInfo.maxMagazines);
-    mInfo.bulletsInMagazine = std::min(bullets + mInfo.bulletsInMagazine,
-                                       mInfo.maxBulletsPerMagazine);
+    mInfo.magazineCount =
+        std::min(static_cast<unsigned short>(magazines + mInfo.magazineCount),
+            mInfo.maxMagazines);
+    mInfo.bulletsInMagazine =
+        std::min(static_cast<unsigned short>(bullets + mInfo.bulletsInMagazine),
+            mInfo.maxBulletsPerMagazine);
     return true;
 }
 

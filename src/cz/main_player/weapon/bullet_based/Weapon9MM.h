@@ -24,11 +24,7 @@ class Weapon9MM : public BulletBasedWeapon
         S_COUNT,
     };
 
-    static const char* ANIM_NAMES[S_COUNT] = {
-        "dispara",
-        "recarga",
-        0
-    };
+    static const char* ANIM_NAMES[S_COUNT];
 
 
 public:

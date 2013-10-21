@@ -12,6 +12,13 @@
 
 namespace cz {
 
+const char* Weapon9MM::ANIM_NAMES[S_COUNT] = {
+        "dispara",
+        "recarga",
+        0
+    };
+
+
 Weapon9MM::Weapon9MM() :
     mState(State::S_IDLE)
 {

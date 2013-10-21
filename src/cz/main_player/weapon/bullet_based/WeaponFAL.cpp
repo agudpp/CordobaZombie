@@ -12,6 +12,12 @@
 
 namespace cz {
 
+const char* WeaponFAL::ANIM_NAMES[S_COUNT] = {
+        "dispara",
+        "recarga",
+        0
+    };
+
 WeaponFAL::WeaponFAL() :
         mState(State::S_IDLE)
 {

@@ -5,6 +5,7 @@ include(${DEV_ROOT_PATH}/core/xml/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/io_interfaces/IO_InterfacesAll.cmake)
 include(${DEV_ROOT_PATH}/effect/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/cz/global_data/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/cz/main_player/AutoGen.cmake)
 
 # Define global sources here
 set(HDRS ${HDRS}
