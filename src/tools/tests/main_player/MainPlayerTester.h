@@ -55,12 +55,22 @@ private:
     void
     loadPlayer(void);
 
+    // @brief Handling entity attaching input
+    //
+    void
+    handleAttachingInput(void);
+
     void
     handleCameraInput(void);
 
 private:
     Ogre::SceneNode *mNode;
     Ogre::Entity *mEntity;
+    Ogre::Entity* mWeaponEnt;
+    Ogre::Vector3 mOffsetPos;
+    Ogre::Vector3 mOffsetRot;
+
+
     float mTimeFrame;
     ui::MouseCursor mMouseCursor;
     tool::OrbitCamera mOrbitCamera;
