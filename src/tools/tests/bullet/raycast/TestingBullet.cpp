@@ -284,7 +284,9 @@ TestingBullet::update()
 
     // if click shoot a box
     if (mInputHelper.isMouseReleased(input::MouseButtonID::MB_Left)) {
-        physics::BulletObject* bo = performRaycast();
+        Ogre::Ray ray = mCamera->getCameraToViewportRay(mMouseCursor.getXRelativePos(),
+                                                        mMouseCursor.getYRelativePos());
+        physics::BulletObject* bo = mDynamicWorld.performClosestRay(ray);
         if (bo) {
             bo->motionState.node()->flipVisibility();
         }

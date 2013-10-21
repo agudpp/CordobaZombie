@@ -11,6 +11,8 @@
 #include <vector>
 #include <functional>
 
+#include <OgreRay.h>
+
 #include <bullet/btBulletDynamicsCommon.h>
 
 #include <debug/DebugUtil.h>
@@ -73,6 +75,8 @@ public:
     inline void
     removeObject(BulletObject& bo);
 
+    ////////////////////////////////////////////////////////////////////////////
+
     // @brief Add an BulletObject to be tracked until it stops moving. Note that
     //        we must call the update() method each frame if we want to know
     //        about this.
@@ -90,6 +94,25 @@ public:
     //
     inline void
     stopCheckMovement(BulletObject* bo);
+
+    ////////////////////////////////////////////////////////////////////////////
+
+    // @brief Perform raycast and returns the first BulletObject we intersect
+    //        for the given ray and masks
+    // @param from          Start position of the ray
+    // @param to            End position of the ray
+    // @param filterMask    The mask to be used for filter.
+    // @return BulletObject* that intersects | 0 if not
+    //
+    BulletObject*
+    performClosestRay(const Ogre::Vector3& from,
+                      const Ogre::Vector3& to,
+                      short int filterMask = btBroadphaseProxy::AllFilter) const;
+    inline BulletObject*
+    performClosestRay(const Ogre::Ray& ray,
+                      short int filterMask = btBroadphaseProxy::AllFilter) const;
+
+    ////////////////////////////////////////////////////////////////////////////
 
     // @brief Update the objects we are tracking
     //
@@ -187,6 +210,14 @@ DynamicWorld::stopCheckMovement(BulletObject* bo)
     }
 }
 
+inline BulletObject*
+DynamicWorld::performClosestRay(const Ogre::Ray& ray, short int filterMask) const
+{
+    return performClosestRay(ray.getOrigin(),
+                             ray.getOrigin() + ray.getDirection() * 5000.f,
+                             filterMask);
+}
+
 inline void
 DynamicWorld::update(void)
 {
@@ -197,6 +228,8 @@ DynamicWorld::update(void)
         }
     }
 }
+
+
 
 } /* namespace physics */
 #endif /* DYNAMICWORLD_H_ */
