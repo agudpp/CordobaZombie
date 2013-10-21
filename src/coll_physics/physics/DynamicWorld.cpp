@@ -24,29 +24,28 @@ DynamicWorld::~DynamicWorld()
 
 }
 
-BulletObject*
-DynamicWorld::performClosestRay(const Ogre::Vector3& aFrom,
-                                const Ogre::Vector3& aTo,
-                                short int filterMask) const
+bool
+DynamicWorld::performClosestRay(const RaycastInfo& ri, RaycastResult& result) const
 {
-    const btVector3 from = physics::BulletUtils::ogreToBullet(aFrom);
-    const btVector3 to = physics::BulletUtils::ogreToBullet(aTo);
+    btCollisionWorld::ClosestRayResultCallback rayCallback(ri.from, ri.to);
+    rayCallback.m_collisionFilterMask = ri.filterMask;
 
-    btCollisionWorld::ClosestRayResultCallback rayCallback(from, to);
-    rayCallback.m_collisionFilterMask = filterMask;
-
-    mDynamicWorld.rayTest(from, to, rayCallback);
+    mDynamicWorld.rayTest(ri.from, ri.to, rayCallback);
     if (!rayCallback.hasHit()) {
-        return 0;
+        return false;
     }
     void* ptr = rayCallback.m_collisionObject->getUserPointer();
     if (ptr == 0) {
-        return 0;
+        return false;
     }
 
+    result.worldNormal = rayCallback.m_hitNormalWorld;
+    result.worldPosition = rayCallback.m_hitPointWorld;
+
     // this is dangerous!
-    physics::BulletObject* bo = static_cast<physics::BulletObject*>(ptr);
-    return bo;
+    result.object = static_cast<physics::BulletObject*>(ptr);
+
+    return true;
 }
 
 } /* namespace physics */

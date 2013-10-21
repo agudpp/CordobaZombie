@@ -18,6 +18,7 @@
 #include <debug/DebugUtil.h>
 
 #include "BulletObject.h"
+#include "RaycastInfo.h"
 
 namespace physics {
 
@@ -99,18 +100,12 @@ public:
 
     // @brief Perform raycast and returns the first BulletObject we intersect
     //        for the given ray and masks
-    // @param from          Start position of the ray
-    // @param to            End position of the ray
-    // @param filterMask    The mask to be used for filter.
-    // @return BulletObject* that intersects | 0 if not
+    // @param ri          The raycast information
+    // @param result      The raycast result
+    // @return true if some object was intersected | false otherwise
     //
-    BulletObject*
-    performClosestRay(const Ogre::Vector3& from,
-                      const Ogre::Vector3& to,
-                      short int filterMask = btBroadphaseProxy::AllFilter) const;
-    inline BulletObject*
-    performClosestRay(const Ogre::Ray& ray,
-                      short int filterMask = btBroadphaseProxy::AllFilter) const;
+    bool
+    performClosestRay(const RaycastInfo& ri, RaycastResult& result) const;
 
     ////////////////////////////////////////////////////////////////////////////
 
@@ -208,14 +203,6 @@ DynamicWorld::stopCheckMovement(BulletObject* bo)
         mMovableObjects[i] = mMovableObjects.back();
         mMovableObjects.pop_back();
     }
-}
-
-inline BulletObject*
-DynamicWorld::performClosestRay(const Ogre::Ray& ray, short int filterMask) const
-{
-    return performClosestRay(ray.getOrigin(),
-                             ray.getOrigin() + ray.getDirection() * 5000.f,
-                             filterMask);
 }
 
 inline void

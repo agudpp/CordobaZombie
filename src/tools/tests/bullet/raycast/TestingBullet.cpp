@@ -20,6 +20,7 @@
 #include <xml/XMLHelper.h>
 #include <physics/BulletUtils.h>
 #include <physics/BulletImporter.h>
+#include <physics/RaycastInfo.h>
 
 
 
@@ -286,9 +287,13 @@ TestingBullet::update()
     if (mInputHelper.isMouseReleased(input::MouseButtonID::MB_Left)) {
         Ogre::Ray ray = mCamera->getCameraToViewportRay(mMouseCursor.getXRelativePos(),
                                                         mMouseCursor.getYRelativePos());
-        physics::BulletObject* bo = mDynamicWorld.performClosestRay(ray);
-        if (bo) {
-            bo->motionState.node()->flipVisibility();
+        physics::RaycastResult result;
+        if (mDynamicWorld.performClosestRay(physics::RaycastInfo(ray), result)) {
+            result.object->motionState.node()->flipVisibility();
+            core::PrimitiveDrawer& pd = core::PrimitiveDrawer::instance();
+            Ogre::Vector3 pos = physics::BulletUtils::bulletToOgre(result.worldPosition);
+            Ogre::Vector3 normal = physics::BulletUtils::bulletToOgre(result.worldNormal);
+            pd.createLine(pos, pos + normal * 15.f, pd.getFreshColour());
         }
 
     }
