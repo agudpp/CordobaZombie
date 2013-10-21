@@ -193,6 +193,7 @@ DynamicWorld::update(void)
     for (MovementInfo& mi : mMovableObjects) {
         if (!mi.object->motionState.isDirty()) {
             // we need to advise that this object is not being moved anymore
+            ASSERT(false && "TODO!");
         }
     }
 }
