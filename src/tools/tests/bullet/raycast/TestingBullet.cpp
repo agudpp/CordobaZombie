@@ -18,8 +18,10 @@
 #include <tinyxml/tinyxml.h>
 
 #include <xml/XMLHelper.h>
+#include <ogre_utils/DotSceneLoader.h>
 #include <physics/BulletUtils.h>
 #include <physics/BulletImporter.h>
+#include <physics/BulletLoader.h>
 #include <physics/RaycastInfo.h>
 
 
@@ -38,6 +40,7 @@ getMouseButtons(void)
 
     buttons.push_back(input::MouseButtonID::MB_Left);
     buttons.push_back(input::MouseButtonID::MB_Right);
+    buttons.push_back(input::MouseButtonID::MB_Middle);
 
     return buttons;
 }
@@ -113,21 +116,47 @@ TestingBullet::configureBullet(void)
 void
 TestingBullet::createSampleScene(void)
 {
-    core::PrimitiveDrawer& pd = core::PrimitiveDrawer::instance();
-    Ogre::Vector3 size(20,20,20);
-    float currentZ = 10;
-    for (unsigned int i = 0; i < 20; ++i) {
-        for (unsigned int j = 0; j < 20; ++j) {
-            Ogre::Vector3 min(j*size.x+2,0,currentZ);
-            Ogre::Vector3 max((j+1)*size.x,10,currentZ + size.z);
+//    core::PrimitiveDrawer& pd = core::PrimitiveDrawer::instance();
+//    Ogre::Vector3 size(20,20,20);
+//    float currentZ = 10;
+//    for (unsigned int i = 0; i < 20; ++i) {
+//        for (unsigned int j = 0; j < 20; ++j) {
+//            Ogre::Vector3 min(j*size.x+2,0,currentZ);
+//            Ogre::Vector3 max((j+1)*size.x,10,currentZ + size.z);
+//
+//            Ogre::AxisAlignedBox bb(min, max);
+//            mObjects.push_back(physics::BulletImporter::createBox(bb, 10));
+//            mDynamicWorld.addObject(*mObjects.back());
+//
+//        }
+//        currentZ += size.z + 2;
+//    }
 
-            Ogre::AxisAlignedBox bb(min, max);
-            mObjects.push_back(physics::BulletImporter::createBox(bb, 10));
-            mDynamicWorld.addObject(*mObjects.back());
+    // load the scene
+    Ogre::SceneNode* rootSceneNode = mSceneMgr->getRootSceneNode()->createChildSceneNode();
+    Ogre::DotSceneLoader dsl;
+    dsl.parseDotScene("escena.scene", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
+        mSceneMgr, rootSceneNode);
 
-        }
-        currentZ += size.z + 2;
+    // get all the pairs [SceneNode, entity]
+    physics::BulletLoader::InfoVec info;
+    Ogre::SceneNode::ChildNodeIterator it = rootSceneNode->getChildIterator();
+    while (it.hasMoreElements()) {
+        Ogre::SceneNode* node = static_cast<Ogre::SceneNode*>(it.getNext());
+        // now we assume that we have only one element
+        if (!node->getAttachedObjectIterator().hasMoreElements()) continue;
+        Ogre::Entity* entity = (Ogre::Entity*)node->getAttachedObject(0);
+        ASSERT(entity);
+        info.push_back(physics::BulletLoader::Info(node, entity));
     }
+    physics::BulletLoader::BulletObjectVec bo;
+    physics::BulletLoader* loader = new physics::BulletLoader;
+    loader->construct(info, bo);
+
+    for (physics::BulletObject* o : bo) {
+        mDynamicWorld.addObject(*o);
+    }
+    debugERROR("LEAAAAAAAAAAAAAAAAAAKSSSS for loaderXD\n");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -295,8 +324,25 @@ TestingBullet::update()
             Ogre::Vector3 normal = physics::BulletUtils::bulletToOgre(result.worldNormal);
             pd.createLine(pos, pos + normal * 15.f, pd.getFreshColour());
         }
-
     }
+    if (mInputHelper.isMouseReleased(input::MouseButtonID::MB_Middle)) {
+        Ogre::Ray ray = mCamera->getCameraToViewportRay(mMouseCursor.getXRelativePos(),
+                                                        mMouseCursor.getYRelativePos());
+        const Ogre::Vector3 halfSize(2.5,2.5,2.5);
+        const Ogre::Vector3 camPos = mCamera->getRealPosition();
+        Ogre::AxisAlignedBox bb(camPos - halfSize, camPos + halfSize);
+        physics::BulletObject* bo = physics::BulletImporter::createBox(bb, 10);
+        mDynamicWorld.addObject(*bo);
+
+        Ogre::Vector3 force(mCamera->getDerivedDirection());
+        force.normalise();
+        force *= 1700;
+        btVector3 btForce(force.x, force.y, force.z);
+        bo->rigidBody->applyCentralImpulse(btForce);
+    }
+
+
+
     // update the camera
     handleCameraInput();
 
