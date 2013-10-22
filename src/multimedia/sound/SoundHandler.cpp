@@ -178,10 +178,11 @@ SoundHandler::loadSounds(const std::vector<Ogre::String>& list, SSbuftype bufTyp
 		}
 
 		if (err != SSerror::SS_NO_ERROR) {
-			fails += "File: \"" + list[i] + "\" ; Error: " + SSenumStr(err);
+			fails += "  \""+ list[i] +"\", with error: "+ SSenumStr(err) +"\n";
 		}
 	}
 
+	if (!fails.empty()) fails = "Some files failed to load:\n" + fails;
 	return fails;
 }
 

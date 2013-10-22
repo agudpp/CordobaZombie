@@ -269,7 +269,7 @@ SoundManager::getAvailableSoundDevices()
 std::string
 SoundManager::getSoundDevice()
 {
-	if (!alcIsExtensionPresent(NULL, "ALC_ENUMERATION_EXT")) {
+	if (!alcIsExtensionPresent(0, "ALC_ENUMERATION_EXT")) {
 		debug("%s","Can't retrieve sound devices info. "
 				"Missing extension \"ALC_ENUMERATION_EXT\".\n");
 		return std::string("");
@@ -284,12 +284,10 @@ SoundManager::getSoundDevice()
 SSerror
 SoundManager::setSoundDevice(std::string* devName)
 {
-	ALCcontext* oldContext = NULL;
-	ALCcontext* newContext = NULL;
+	ALCcontext* oldContext(0);
+	ALCcontext* newContext(0);
 	ALCdevice* device = devName ? alcOpenDevice(devName->c_str())
-								: alcOpenDevice(NULL);
-
-	/* To hell with my coding style */
+								: alcOpenDevice(0);
 	if (device) {
 		debug("Opened sound device: %s\n",
 				alcGetString(device, ALC_DEVICE_SPECIFIER));
@@ -304,7 +302,7 @@ SoundManager::setSoundDevice(std::string* devName)
 			goto fail;
 		}
 
-		/* Cleanup old stuff */
+		// Cleanup old stuff.
 		if (oldContext) {
 			bool closeDevice = device != alcGetContextsDevice(oldContext);
 			device = alcGetContextsDevice(oldContext);
@@ -355,9 +353,8 @@ SoundManager::addLSoundSources(unsigned int numSources)
 void
 SoundManager::removeSoundSources(unsigned int numSources)
 {
-	/* TODO: Para un futuro, por ahora no la implementamos. */
-	debugERROR("Función no implementada: %s\n", "SoundManager::removeSoundSources()");
-	ASSERT(false);
+	// TODO: Para un futuro, por ahora no la implementamos.
+	debugERROR("Función no implementada.\n");
 }
 
 
