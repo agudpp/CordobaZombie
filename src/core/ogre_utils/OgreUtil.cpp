@@ -184,9 +184,9 @@ removeDuplicated(Ogre::Vector3* vertices,
 
     // We will do an slow algorithm here but easy to implement.
     //
-    ASSERT(vCount < 1024 && "To much vertices?\n");
-    core::StackVector<unsigned int, 1024> modifiedIndices;
-    core::StackVector<Ogre::Vector3, 1024> verts;
+    ASSERT(vCount < 10000 && "To much vertices?\n");
+    core::StackVector<unsigned int, 10000> modifiedIndices;
+    core::StackVector<Ogre::Vector3, 10000> verts;
     std::set<unsigned int> toRemove;
     modifiedIndices.resize(vCount);
     for (unsigned int i = 0; i < vCount; ++i) {

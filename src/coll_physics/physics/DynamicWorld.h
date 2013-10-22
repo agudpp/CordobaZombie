@@ -11,11 +11,14 @@
 #include <vector>
 #include <functional>
 
+#include <OgreRay.h>
+
 #include <bullet/btBulletDynamicsCommon.h>
 
 #include <debug/DebugUtil.h>
 
 #include "BulletObject.h"
+#include "RaycastInfo.h"
 
 namespace physics {
 
@@ -73,6 +76,8 @@ public:
     inline void
     removeObject(BulletObject& bo);
 
+    ////////////////////////////////////////////////////////////////////////////
+
     // @brief Add an BulletObject to be tracked until it stops moving. Note that
     //        we must call the update() method each frame if we want to know
     //        about this.
@@ -90,6 +95,19 @@ public:
     //
     inline void
     stopCheckMovement(BulletObject* bo);
+
+    ////////////////////////////////////////////////////////////////////////////
+
+    // @brief Perform raycast and returns the first BulletObject we intersect
+    //        for the given ray and masks
+    // @param ri          The raycast information
+    // @param result      The raycast result
+    // @return true if some object was intersected | false otherwise
+    //
+    bool
+    performClosestRay(const RaycastInfo& ri, RaycastResult& result) const;
+
+    ////////////////////////////////////////////////////////////////////////////
 
     // @brief Update the objects we are tracking
     //
@@ -193,9 +211,12 @@ DynamicWorld::update(void)
     for (MovementInfo& mi : mMovableObjects) {
         if (!mi.object->motionState.isDirty()) {
             // we need to advise that this object is not being moved anymore
+            ASSERT(false && "TODO!");
         }
     }
 }
+
+
 
 } /* namespace physics */
 #endif /* DYNAMICWORLD_H_ */
