@@ -13,12 +13,14 @@ include(${DEV_ROOT_PATH}/core/app_tester/AutoGen.cmake)
 set(SRCS
 	${SRCS}
 	${DEV_ROOT_PATH}/multimedia/video/VideoPlayer.cpp
+	${DEV_ROOT_PATH}/multimedia/video/OgreVideoPlayer.cpp
 )
 
 set(HDRS
 	${HDRS}
 	${DEV_ROOT_PATH}/multimedia/video/VideoBuffer.h
 	${DEV_ROOT_PATH}/multimedia/video/VideoPlayer.h
+	${DEV_ROOT_PATH}/multimedia/video/OgreVideoPlayer.h
 	
 )
 

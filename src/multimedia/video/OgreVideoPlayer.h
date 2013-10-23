@@ -29,14 +29,14 @@ public:
 
 public:
 
-	Video(char* path, char* name, double start, double end);
+	Video(const char* path, const char* name, double start, double end);
 
 	~Video();
 
-	inline char*
+	inline const char*
 	getName(void);
 
-	inline char*
+	inline const char*
 	getPath(void);
 
 	inline int
@@ -53,8 +53,8 @@ public:
 
 private:
 
-	int			mStart;
-	int 		mEnd;
+	double		mStart;
+	double 		mEnd;
 	std::string *mPath;
 	std::string *mName;
 };
@@ -129,8 +129,8 @@ class OgreVideoPlayer{
 
 public:
 	enum{
+		ERROR = -10,
 		OK = 0,
-		ERROR,
 		ENDED
 	};
 public:
@@ -152,11 +152,12 @@ public:
 
 	/*
 	 * Add video to playlist. Will be played from second 'start' until
-	 * second 'end'. On success it returns the index of the video in the
-	 * playlist.
+	 * second 'end' or till it ends, whatever happens first. On success it
+	 * returns the index of the video in the playlist. 'path' is the full path
+	 * (with name included, not only directory).
 	 */
 	int
-	queue(char *path, char* name, double start, double end);
+	queue(const char *path, const char* name, double start, double end);
 
 	/*
 	 * Start or continue playing.
@@ -196,11 +197,19 @@ public:
 	inline void
 	setRepeatVideo(bool rep);
 
+
+protected:
+
+	/*
+	 * Loads the next video from the playlist into the videoplayer.
+	 */
+	int loadNext(void);
+
 private:
 
 	mm::VideoPlayer			*mVideoPlayer;
 	mm::OgreVideoScreen 	*mScreen;
-	std::vector<mm::Video>	mPlayList;
+	std::vector<mm::Video*>	mPlayList;
 	bool					mIsPlaying;
 	bool					mRepeatV;
 	bool					mRepeatP;
@@ -216,25 +225,25 @@ private:
 // Video class inline methods
 ///////////////////////////////////////////////////////////////////////////////
 
-inline char*
+inline const char*
 Video::getName(void)
 {
 	ASSERT(mName);
-	return mName.c_str();
+	return mName->c_str();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-inline char*
+inline const char*
 Video::getPath(void)
 {
 	ASSERT(mPath);
-	return mPath.c_str();
+	return mPath->c_str();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 inline int
-Video::setEnd(int end)
+Video::setEnd(double end)
 {
 	if (mStart > end){
 		return ERROR;
@@ -247,7 +256,7 @@ Video::setEnd(int end)
 ///////////////////////////////////////////////////////////////////////////////
 
 inline int
-Video::setStart(int start)
+Video::setStart(double start)
 {
 	if (mEnd < start){
 		return ERROR;

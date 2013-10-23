@@ -10,7 +10,7 @@
 
 #include <app_tester/AppTester.h>
 
-#include "VideoTest.h"
+#include "OgreVideoTest.h"
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #define WIN32_LEAN_AND_MEAN
@@ -29,7 +29,7 @@ extern "C" {
     int main(int argc, char *argv[])
 #endif
     {
-    	core::AppTester *appTester = new tests::VideoTest();
+    	core::AppTester *appTester = new tests::OgreVideoTest();
 
 		appTester->loadAditionalData();
 		if(appTester->run() != 0) {

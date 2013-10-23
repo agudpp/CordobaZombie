@@ -20,12 +20,12 @@ namespace mm{
 ///////////////////////////////////////////////////////////////////////////////
 
 
-Video::Video(char* path, char* name, unsigned int start, unsigned int end):
+Video::Video(const char* path, const char* name, double start, double end):
 	mStart(start),
 	mEnd(end)
 {
-	ASSERT(path != null);
-	ASSERT(name != null);
+	ASSERT(path != NULL);
+	ASSERT(name != NULL);
 	ASSERT(start <= end);
 
 	mPath = new std::string(path);
@@ -53,11 +53,11 @@ Video::~Video()
 // OGRE VIDEO SCREEN CLASS
 ///////////////////////////////////////////////////////////////////////////////
 
-OgreVideoScreen::OgreVideoScreen(Ogre::Real left, Ogre::Real top,
+OgreVideoScreen::OgreVideoScreen(Ogre::Real left,  Ogre::Real top,
 								 Ogre::Real right, Ogre::Real bottom,
 								 Ogre::SceneManager *SCN_MNGR,
 								 unsigned int height,
-								 unsigned int width):
+								 unsigned int width) :
 		mScreen(0),
 		mScreenNode(0),
 		mRenderMaterial(0),
@@ -218,7 +218,7 @@ OgreVideoPlayer::OgreVideoPlayer(	Ogre::Real left,
 	mRepeatV(false),
 	mRepeatP(false)
 {
-	mScreen = new OgreVideoScreen(top,right,bottom,SCN_MNGR,height,width);
+	mScreen = new OgreVideoScreen(left,top,right,bottom,SCN_MNGR,height,width);
 	ASSERT(mScreen);
 	mVideoPlayer = new mm::VideoPlayer(mScreen);
 }
@@ -239,15 +239,20 @@ OgreVideoPlayer::~OgreVideoPlayer(void)
 
 ///////////////////////////////////////////////////////////////////////////////
 int
-OgreVideoPlayer::queue(char* path, char* name, double start, double end)
+OgreVideoPlayer::queue(const char* path, const char* name,
+		double start, double end)
 {
 	//TODO ASSERT's
 
 	Video *video = new Video(path, name, start, end);
-	mPlayList.append(video);
+	mPlayList.push_back(video);
 	// If playlist was empty then load this video.
 	if(mPlayList.size()==1){
-		load(0);
+		if( ERROR == load(0)){
+			return ERROR;
+		}else{
+			play();
+		}
 	}
 	return mPlayList.size()-1;
 }
@@ -257,24 +262,23 @@ OgreVideoPlayer::queue(char* path, char* name, double start, double end)
 int
 OgreVideoPlayer::load(int index){
 
-	if(index >= mPlayList){
+	if(index >= mPlayList.size()){
 		return ERROR;
 	}else{
 		// Get full path to the video
-		Video *video = mPlayList[index];
-		std::string fullPath(video->getPath());
-		fullPath += video->getName();
-
+		mVideo = mPlayList[index];
+		mIndex = index;
 		// Load video player, resize screen and seek for starting point;
 		mVideoPlayer->unload();
-		mVideoPlayer->load(fullPath.c_str());
+		mVideoPlayer->load(mVideo->getPath());
 		unsigned int h = 0, w = 0;
 		mVideoPlayer->getSizes(h,w);
 		mScreen->resize(h,w);
-		if(video->getStart != 0){
-			mVideoPlayer->seek_time_stamp(video->getStart());
+		double start = 0;
+		mVideo->getStart(start);
+		if( start != 0.0){
+			mVideoPlayer->seek_time_stamp(start);
 		}
-		mIndex = index;
 	}
 
 	return OK;
@@ -284,9 +288,10 @@ OgreVideoPlayer::load(int index){
 int
 OgreVideoPlayer::play()
 {
-	if(!mVideoPlayer->isLoaded()){
+	if(!mVideoPlayer->is_loaded()){
 		return ERROR;
 	}
+	mVideoPlayer->play();
 	mIsPlaying = true;
 	return OK;
 }
@@ -306,10 +311,13 @@ OgreVideoPlayer::update(double tslf)
 	if(!mIsPlaying){
 		return ERROR;
 	}else{
-		ASSERT(mVideoPlayer->isLoaded());
+		ASSERT(mVideoPlayer->is_loaded());
 		double t = 0;
 		mVideoPlayer->get_playing_time_in_secs(t);
-		if(t >= mVideo->getEnd()){
+		double end = 0;
+		ASSERT(mVideo != 0);
+		mVideo->getEnd(end);
+		if(t >= end){
 			//stop();
 			if(loadNext() == OK){
 				play();

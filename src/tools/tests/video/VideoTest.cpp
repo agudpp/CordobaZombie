@@ -51,12 +51,70 @@ getKeyboardKeys(void)
 }
 
 
+
+
+
+
 }
 
 
 namespace{
 
-static std::vector<std::string> videolist (1,std::string("/home/raul/Dropbox/201Z-proyecto/Resources/Videos/5seg2.ogg"));
+// For finding videos between the resources
+
+
+const int VIDEO_STATE_LIST_SIZE = 3;
+
+const char* VIDEO_STATE_LIST[VIDEO_STATE_LIST_SIZE] =
+			{
+			"perrosInfectados.ogg",
+			"5seg2.ogg",
+			"menu_ar3:2.ogg"
+			};
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+
+int getResourcePath( Ogre::String resourceGroup
+				   , Ogre::String resourceName
+				   , Ogre::String &resourcePath
+				   )
+{
+	std::string sNameFullPath;
+
+	/* First find file absolute path */
+	Ogre::ResourceGroupManager& resGM =
+			Ogre::ResourceGroupManager::getSingleton();
+	Ogre::FileInfoListPtr files = resGM.findResourceFileInfo(
+			resourceGroup, resourceName);
+
+	if (files.isNull()) {
+		debug("%s","Recurso no encontrado.\n");
+		return -1;
+
+	} else {
+		Ogre::FileInfoList::iterator it;
+		for (it = files->begin() ; it < files->end() ; it++) {
+			/* Compose file absolute path */
+			sNameFullPath.append(it->archive->getName()+"/"+resourceName);
+			if (fileExists(sNameFullPath)) {
+				break;
+			} else {
+				sNameFullPath.clear();
+			}
+		}
+		/* Found? */
+		if (it == files->end() || sNameFullPath.size() <= 0) {
+			debug("%s","Recurso no encontrado.\n");
+			return -1;		}
+	}
+
+	resourcePath = sNameFullPath;
+
+	return 0;
+}
+
 
 }
 
