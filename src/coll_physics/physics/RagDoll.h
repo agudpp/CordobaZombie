@@ -8,6 +8,7 @@
 #ifndef RAGDOLL_H_
 #define RAGDOLL_H_
 
+#include <bitset>
 
 #include <OgreSceneNode.h>
 #include <OgreSkeletonInstance.h>
@@ -45,6 +46,10 @@ enum BodyPartID {
 
     BP_MAX
 };
+
+// We will define a mask of the body parts that should be used to check or not.
+//
+typedef std::bitset<BodyPartID::BP_MAX> BodyPartMask;
 
 // The bones needed to construct the skeleton.
 //
@@ -189,7 +194,7 @@ public:
     //
     bool
     buildFromSkeleton(const BoneTable& ogreBones,
-                      Ogre::SceneNode* parentNode);
+                      const Ogre::SceneNode* parentNode);
 
     // @brief Configure this ragdoll to be used with an specific list of bones.
     //        This bones should be sorted in the same order than the above enum.
@@ -259,6 +264,12 @@ public:
     // @param bones         The bones associated to the skeleton instance
     // @param parentNode    The parent scene node.
     // @param ray           The ogre ray
+    // @param mask          The BodyPartMask used to check which are the body
+    //                      parts that are still active, so,
+    //                      if mask[BP_UPPER_ARM_L] == 0, means that that bodyPart
+    //                      not exists and we will not perform any check there.
+    // @param intPoint      The intersection point (where was the body intersected
+    //                      in world coordinates).
     // @param bpIntersected The closest BodyPartID that intersects against the ray.
     // @return true if there are intersections | false otherwise
     //
@@ -266,6 +277,8 @@ public:
     getClosestIntersection(const BoneTable& bones,
                            const Ogre::SceneNode* parentNode,
                            const Ogre::Ray& ray,
+                           const BodyPartMask& mask,
+                           Ogre::Vector3& intPoint,
                            BodyPartID& bpIntersected) const;
 
     // @brief Update the ragdoll. This method will update the associated skeleton
