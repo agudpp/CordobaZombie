@@ -94,6 +94,7 @@ typedef enum {
 	SS_FILE_NOT_FOUND,		  // Inexistent filename (sound not loaded)
 	SS_NO_BUFFER_ATTACHED,	  // Can't play, no buffers attached to source
 	SS_UNINITIALIZED_SOURCE,  // Source not yet registered in AL system
+	SS_ILLEGAL_OPERATION,     // Operation not allowed in current state
 	SS_INTERNAL_ERROR=(1<<31) // Unspecified error
 } SSerror;
 
@@ -101,12 +102,12 @@ typedef enum {
 // SoundSource playback state (XXX don't alter order!)
 typedef enum {
 	SS_NONE			= 0,
-	SS_PLAYING		= 1,
-	SS_PAUSED		= 2,
-	SS_FADING_OUT_AND_PAUSE = 4,
-	SS_FADING_OUT	= 8,
-	SS_FADING_IN	= 16,
-	SS_FINISHED		= 32
+	SS_PLAYING		= (1<<0),
+	SS_PAUSED		= (1<<1),
+	SS_FADING_OUT_AND_PAUSE = (1<<2),
+	SS_FADING_OUT	= (1<<3),
+	SS_FADING_IN	= (1<<4),
+	SS_FINISHED		= (1<<5)
 } SSplayback;
 
 
@@ -202,6 +203,9 @@ typedef enum {
 		   break;
 	   case SSerror::SS_UNINITIALIZED_SOURCE:
 		   return "SS_UNINITIALIZED_SOURCE";
+		   break;
+	   case SSerror::SS_ILLEGAL_OPERATION:
+		   return "SS_ILLEGAL_OPERATION";
 		   break;
 	   case SSerror::SS_INTERNAL_ERROR:
 		   return "SS_INTERNAL_ERROR";

@@ -51,8 +51,6 @@ class SoundHandler
 		std::vector<uint>			mPlayOrder; // Sounds playing order
 		unsigned int				mCurrent;   // Current position in mPlayOrder
 		unsigned int 				mState;     // Repeat/Shuffle/Randomwait
-		// TODO: consider deletion of global state (mGState member)
-		unsigned int				mGState;	// Global handling (play/pause)
 		float						mSilence;   // Wait time between sounds (sec)
 		float						mTimeSinceFinish;
 	};
@@ -375,9 +373,10 @@ public:
 	 **   pl: optional, provide the Playlist pointer to save on search time.
 	 **
 	 ** @return
-	 ** SS_NO_ERROR			Playback successfully started.
-	 ** SS_FILE_NOT_FOUND	No playlist "name" found.
-	 ** SS_INTERNAL_ERROR	Unspecified error.
+	 ** SS_NO_ERROR			  Playback successfully started.
+	 ** SS_FILE_NOT_FOUND	  No playlist "name" found.
+	 ** SS_ILLEGAL_OPERATION  Operation not allowed in current playlist state.
+	 ** SS_INTERNAL_ERROR	  Unspecified error.
 	 **/
 	SSerror
 	startPlaylist(const Ogre::String& name, Playlist *pl = 0);
@@ -513,8 +512,8 @@ public:
 	 ** Get the playlist playing state.
 	 **
 	 ** @return
-	 ** SS_PLAYING		Playing (or fading in/out)
-	 ** SS_PAUSED		Paused
+	 ** SS_PLAYING		Playing (maybe in silence, or fading in/out)
+	 ** SS_PAUSED		Paused  (maybe in silence)
 	 ** SS_FINISHED		Stopped
 	 ** SS_NONE			Playlist not found
 	 **/
@@ -559,8 +558,9 @@ private:
 	// Playlists state modifiers
 	void setPlaylistState(Playlist *pl, unsigned long flags);
 	void unsetPlaylistState(Playlist *pl, unsigned long flags);
-	void setPlaylistGlobalState(Playlist *pl, long flags);
-	void unsetPlaylistGlobalState(Playlist *pl, long flags);
+
+	// Playlists state consistency checker (DEBUG build only!)
+	void checkPlaylistState(const Playlist *pl) const;
 
 
 	/*********************************************************************/
@@ -675,6 +675,15 @@ SoundHandler::existsPlaylist(const Ogre::String& name) const
 
 
 ////////////////////////////////////////////////////////////////////////////////
+inline SSerror
+SoundHandler::restartPlaylist(const Ogre::String& name, Playlist *pl)
+{
+	stopPlaylist(name, pl);
+	return startPlaylist(name, pl);
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
 inline bool
 SoundHandler::renamePlaylist(const Ogre::String& oldName, const Ogre::String& newName)
 {
@@ -730,30 +739,25 @@ SoundHandler::getPlaylist(const Ogre::String& name)
 
 ////////////////////////////////////////////////////////////////////////////////
 inline void
-SoundHandler::setPlaylistState(Playlist *pl, unsigned long flags) {
+SoundHandler::setPlaylistState(Playlist *pl, unsigned long flags)
+{
 	pl->mState |= flags;
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////
 inline void
-SoundHandler::unsetPlaylistState(Playlist *pl, unsigned long flags) {
+SoundHandler::unsetPlaylistState(Playlist *pl, unsigned long flags)
+{
 	pl->mState &= ~flags;
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////
-inline void
-SoundHandler::setPlaylistGlobalState(SoundHandler::Playlist *pl, long flags) {
-	pl->mGState |= flags;
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-inline void
-SoundHandler::unsetPlaylistGlobalState(SoundHandler::Playlist *pl, long flags) {
-	pl->mGState &= ~flags;
-}
+#ifndef DEBUG
+inline void SoundHandler::checkPlaylistState(const Playlist *pl) const {}
+// else "checkPlaylistState(pl)" is defined in the source file
+#endif
 
 }
 
