@@ -272,6 +272,7 @@ public:
 	 **
 	 ** @remarks
 	 ** This affects both playing and paused sounds.
+	 ** This doesn't affect inactive (i.e. stopped or "finished") sounds.
 	 **/
 	void
 	globalRestart();
@@ -301,7 +302,7 @@ public:
 	 ** @remarks
 	 ** Sounds (both environmental and attached to a unit's SoundAPI)
 	 ** which were faded-out manually, i.e. before calling globalFadeOut(),
-	 ** will NOT be modified by this function.
+	 ** MAY NOT be modified by this function.
 	 **
 	 ** @remarks
 	 ** Playback is restarted if the sounds had been faded-out and paused.
