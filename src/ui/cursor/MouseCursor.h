@@ -7,6 +7,8 @@
 #include <OgreOverlayContainer.h>
 #include <OgreOverlayElement.h>
 #include <OgreOverlayManager.h>
+#include <OgreTextureManager.h>
+#include <OgreTechnique.h>
 
 #include <debug/DebugUtil.h>
 

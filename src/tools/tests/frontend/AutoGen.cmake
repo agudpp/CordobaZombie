@@ -1,0 +1,23 @@
+include(${DEV_ROOT_PATH}/core/ogre_utils/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/core/debug/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/core/app_tester/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/core/xml/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/io_interfaces/IO_InterfacesAll.cmake)
+include(${DEV_ROOT_PATH}/ui/frontend/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/cz/global_data/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/cz/fx/AutoGen.cmake)
+
+# Define global sources here
+set(HDRS ${HDRS}
+	${DEV_ROOT_PATH}/tools/tests/frontend/FrontEndTester.h
+	${DEV_ROOT_PATH}/tools/utils/OrbitCamera.h
+)
+
+set(SRCS ${SRCS}
+	${DEV_ROOT_PATH}/tools/tests/frontend/FrontEndTester.cpp
+	${DEV_ROOT_PATH}/tools/tests/frontend/main.cpp
+	${DEV_ROOT_PATH}/tools/utils/OrbitCamera.cpp
+    ${DEV_ROOT_PATH}/tools/utils/SelectionHelper.cpp
+)
+
+
