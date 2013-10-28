@@ -419,7 +419,7 @@ SoundTest::initSoundsPlayback(void)
 	if (!fails.empty()) {
 		testFAIL("Falló.\n");
 		return false;
-	} else if ( !mSH.existsPlaylist(playlist[0]) ||
+	} else if (!mSH.existsPlaylist(playlist[0]) ||
 				!mSH.existsPlaylist(playlist[1]) ||
 				!mSH.existsPlaylist(playlist[2])) {
 		testFAIL("Falló.\n");

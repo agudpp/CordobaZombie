@@ -218,8 +218,6 @@ SoundHandler::shutDown(void)
 void
 SoundHandler::update(const float globalTimeFrame)
 {
-	// TODO: update logic after reviewing EVERYTHING else
-
 	Playlist *pl(0);
 	SSerror err(SSerror::SS_NO_ERROR);
 
@@ -272,6 +270,9 @@ SoundHandler::update(const float globalTimeFrame)
 		if (pl->mTimeSinceFinish >= pl->mSilence) {
 			// Move one track forward.
 			++pl->mCurrent %= pl->mList.size();  // =D
+			// Mimic we're stopped, so we can invoke "startPlaylist"
+			setPlaylistState(pl, PLAYLIST_STOPPED);
+			unsetPlaylistState(pl, PLAYLIST_SILENCE);
 			err = startPlaylist("", pl);
 			if (err != SSerror::SS_NO_ERROR) {
 				debugERROR("Playlist \"%s\" failed after silence: %s.\n",
@@ -329,16 +330,16 @@ SoundHandler::globalPlay()
 		unsigned int pst = pl->mState & ~(PLAYLIST_REPEAT
 											|PLAYLIST_RANDOM_ORDER
 											|PLAYLIST_RANDOM_SILENCE);
-		if (pst == PLAYLIST_PAUSED | PLAYLIST_GLOBAL_MODE) {
+		if (pst == (PLAYLIST_PAUSED | PLAYLIST_GLOBAL_MODE)) {
 			// Playlist restarted playing.
 			unsetPlaylistState(pl, PLAYLIST_PAUSED | PLAYLIST_GLOBAL_MODE);
 			setPlaylistState(pl, PLAYLIST_PLAYING);
 			ASSERT(sSoundManager.isPlayingEnvSound(
 					pl->mList[pl->mPlayOrder[pl->mCurrent]]));
 
-		} else if (pst == PLAYLIST_SILENCE
-							| PLAYLIST_PAUSED
-							| PLAYLIST_GLOBAL_MODE) {
+		} else if (pst == (PLAYLIST_SILENCE
+						   |PLAYLIST_PAUSED
+						   |PLAYLIST_GLOBAL_MODE)) {
 			// Playlist was in silence: deregister as globally paused.
 			unsetPlaylistState(pl, PLAYLIST_PAUSED | PLAYLIST_GLOBAL_MODE);
 		}
@@ -1006,22 +1007,21 @@ SoundHandler::getPlaylistRandomSilence(const Ogre::String& name, bool* found) co
 void
 SoundHandler::checkPlaylistState(const Playlist *pl) const
 {
-	unsigned int pst(0);
 	ASSERT(pl);
 	// Get playback state information only (i.e. discard playback settings)
-	pst = pl->mState & ~(PLAYLIST_REPEAT
-						|PLAYLIST_RANDOM_ORDER
-						|PLAYLIST_RANDOM_SILENCE);
+	unsigned int pst = pl->mState & ~( PLAYLIST_REPEAT
+									  | PLAYLIST_RANDOM_ORDER
+									  | PLAYLIST_RANDOM_SILENCE);
 	// Any playlist should *ONLY* be in *ONE* of the following states
 	ASSERT(1==(pst == PLAYLIST_STOPPED)
 			+ (pst == PLAYLIST_PLAYING)
 			+ (pst == PLAYLIST_PAUSED)
 			+ (pst == PLAYLIST_SILENCE)
-			+ (pst == PLAYLIST_PLAYING | PLAYLIST_GLOBAL_MODE)
-			+ (pst == PLAYLIST_PAUSED  | PLAYLIST_GLOBAL_MODE)
-			+ (pst == PLAYLIST_PAUSED  | PLAYLIST_SILENCE)
-			+ (pst == PLAYLIST_PAUSED  | PLAYLIST_GLOBAL_MODE
-									   | PLAYLIST_SILENCE));
+			+ (pst == (PLAYLIST_PLAYING	| PLAYLIST_GLOBAL_MODE))
+			+ (pst == (PLAYLIST_PAUSED	| PLAYLIST_GLOBAL_MODE))
+			+ (pst == (PLAYLIST_PAUSED	| PLAYLIST_SILENCE))
+			+ (pst == (PLAYLIST_PAUSED	| PLAYLIST_GLOBAL_MODE
+										| PLAYLIST_SILENCE)));
 }
 // else "checkPlaylistState(pl)" is defined in the header file
 #endif
