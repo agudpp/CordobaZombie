@@ -111,24 +111,38 @@ public:
 	getInstance();
 
 private:
-	/* Prevent the compiler from generating methods to copy the instance: */
+	/**
+	 ** @brief
+	 ** Prevent the compiler from generating methods to copy the instance.
+	 **/
 	SoundManager(SoundManager const&);    // Don't implement!
 	void operator=(SoundManager const&);  // Don't implement!
 
-	/* @remarks
-	 * ctor creates sound context on default sound device,
-	 * and all SoundSources. */
+	/**
+	 ** @remarks
+	 ** Creates sound context on default sound device, and all SoundSources.
+	 **/
 	SoundManager();
 
-	/* @remarks
-	 * dtor releases OpenAL sound resources (context, device) */
+	/**
+	 ** @remarks
+	 ** Releases OpenAL sound resources (context, device)
+	 **/
 	~SoundManager();
 
-	// Updates the sound playback volume, according to its fade in/out state.
-	void fadeUpdate(ActiveSound& s, const float globalTimeFrame);
+	/**
+	 ** @brief
+	 ** Updates the sound playback volume, according to its fade in/out state.
+	 **/
+	void
+	fadeUpdate(ActiveSound& s, const float globalTimeFrame);
 
-	/* Updates an already existent sound on which play() was called. */
-	SSerror playExistentSound(ActiveSound& s, float gain, bool repeat);
+	/**
+	 ** @brief
+	 ** Updates an already existent sound on which play() was called.
+	 **/
+	SSerror
+	playExistentSound(ActiveSound& s, float gain, bool repeat);
 
 
 
@@ -296,7 +310,7 @@ public:
 	/*********************************************************************/
 	/****************    GLOBAL PLAYBACK CONTROLS    *********************/
 public:
-	/** XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX **
+	/** XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX **
 	 * XXX   All these global methods should be accessed     XXX *
 	 * XXX   via the stubs implemented in the SoundHandler.  XXX */
 

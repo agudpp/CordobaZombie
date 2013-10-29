@@ -209,14 +209,16 @@ SoundManager::playExistentSound(ActiveSound& s, float gain, bool repeat)
 			s.mGlobalState = SSplayback::SS_NONE;
 			s.mVolume = gain;
 		} else {
-			debugERROR("Error #%d while trying to restart playback: ", err);
+			debugERROR("Error while trying to restart playback: %s.\n",
+						SSenumStr(err));
 		}
 	}
 
-//	if ((s.mPlayState | s.mGlobalState) & (SSplayback::SS_PLAYING
-//										  |SSplayback::SS_FADING_IN
-//										  |SSplayback::SS_FADING_OUT))
-//	Playing: do nothing.
+	if ((s.mPlayState | s.mGlobalState) & (SSplayback::SS_PLAYING
+										  |SSplayback::SS_FADING_IN
+										  |SSplayback::SS_FADING_OUT)) {
+		debugWARNING("Tried to play an already playing sound.\n")
+	}
 
 	ASSERT(alGetError() == AL_NO_ERROR);
 	return err;
@@ -709,9 +711,9 @@ SoundManager::getEnvSoundRepeat(const Ogre::String& sName)
 ////////////////////////////////////////////////////////////////////////////////
 SSerror
 SoundManager::playEnvSound(const Ogre::String& sName,
-						   const Ogre::Real& gain,
-						   bool repeat,
-						   EnvSoundId id)
+							   const Ogre::Real& gain,
+							   bool repeat,
+							   EnvSoundId id)
 {
 	SoundBuffer* buf(0);
 	SoundSource* src(0);
@@ -721,7 +723,8 @@ SoundManager::playEnvSound(const Ogre::String& sName,
 
 	// Check whether "sName" is an active environmental sound.
 	for (uint i=0 ; i < mEnvSounds.size() ; i++) {
-		if (std::get<0>(mEnvSounds[i]) == sName) {
+		if (std::get<0>(mEnvSounds[i]) == sName &&
+			std::get<2>(mEnvSounds[i]) == id) {
 			return playExistentSound(*(std::get<1>(mEnvSounds[i])), gain, repeat);
 		}
 	}
@@ -873,8 +876,9 @@ SoundManager::restartEnvSound(const Ogre::String& sName)
 
 ////////////////////////////////////////////////////////////////////////////////
 SSerror
-SoundManager::fadeOutEnvSound(const Ogre::String& sName, const Ogre::Real& time,
-							  const bool pause)
+SoundManager::fadeOutEnvSound(const Ogre::String& sName,
+								  const Ogre::Real& time,
+								  const bool pause)
 {
 	ActiveSound* as(0);
 

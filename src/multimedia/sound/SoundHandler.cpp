@@ -273,11 +273,11 @@ SoundHandler::update(const float globalTimeFrame)
 			// Mimic we're stopped, so we can invoke "startPlaylist"
 			setPlaylistState(pl, PLAYLIST_STOPPED);
 			unsetPlaylistState(pl, PLAYLIST_SILENCE);
-			err = startPlaylist("", pl);
+			err = startPlaylist(pl->mName, pl);
 			if (err != SSerror::SS_NO_ERROR) {
 				debugERROR("Playlist \"%s\" failed after silence: %s.\n",
 						pl->mName.c_str(), SSenumStr(err));
-				stopPlaylist("", pl);
+				stopPlaylist(pl->mName, pl);
 			}
 		}
 	}
@@ -385,7 +385,7 @@ SoundHandler::globalRestart()
 		checkPlaylistState(pl);
 		if (pl->mList.empty()) continue;  // Empty playlist: nothing to do.
 		if (!(pl->mState & PLAYLIST_STOPPED)) {
-			stopPlaylist("", pl);
+			stopPlaylist(pl->mName, pl);
 			toRestart.push_back(pl);
 		}
 	}
@@ -395,7 +395,7 @@ SoundHandler::globalRestart()
 
 	// Finally restart previously stopped playlists.
 	for (uint i = 0 ; i < toRestart.size() ; i++) {
-		startPlaylist("", toRestart[i]);
+		startPlaylist(toRestart[i]->mName, toRestart[i]);
 	}
 	toRestart.clear();
 
@@ -544,12 +544,12 @@ SoundHandler::startPlaylist(const Ogre::String& name, Playlist *plp)
 		// Illegal operation.
 		debugWARNING("Illegal operation attempted on playlist \"%s\":\n"
 				"only paused/stopped playlists can be started. "
-				"Nothing will be done.\n", name.c_str());
+				"Nothing will be done.\n", pl->mName.c_str());
 		return SSerror::SS_ILLEGAL_OPERATION;
 
 	} else if (pl->mState & PLAYLIST_PLAYING) {
 		// Playlist is already playing: nothing to do.
-		debugWARNING("Playlist \"%s\" is already playing.\n", name.c_str());
+		debugWARNING("Playlist \"%s\" is already playing.\n", pl->mName.c_str());
 		return SSerror::SS_NO_ERROR;
 
 	} else if (pl->mState & PLAYLIST_SILENCE) {
@@ -560,7 +560,7 @@ SoundHandler::startPlaylist(const Ogre::String& name, Playlist *plp)
 
 	} else if (pl->mList.size() < 1) {
 		// Playlist is empty: nothing to do.
-		debugWARNING("Empty playlist, won't start any playback.\n");
+		//debugWARNING("Empty playlist, won't start any playback.\n");
 		return SSerror::SS_NO_ERROR;
 	}
 
@@ -624,7 +624,7 @@ SoundHandler::pausePlaylist(const Ogre::String& name, Playlist *plp)
 		// Illegal operation.
 		debugWARNING("Illegal operation attempted on playlist \"%s\":\n"
 				"paused/stopped playlists can't be paused. "
-				"Nothing will be done.\n", name.c_str());
+				"Nothing will be done.\n", pl->mName.c_str());
 		return;
 
 	} else if (pl->mState & PLAYLIST_SILENCE) {
@@ -634,7 +634,7 @@ SoundHandler::pausePlaylist(const Ogre::String& name, Playlist *plp)
 
 	} else if (pl->mList.size() < 1) {
 		// Playlist is empty: nothing to do.
-		debugWARNING("Empty playlist, won't pause any playback.\n");
+		//debugWARNING("Empty playlist, won't pause any playback.\n");
 		return;
 	}
 
@@ -642,7 +642,7 @@ SoundHandler::pausePlaylist(const Ogre::String& name, Playlist *plp)
 
 	if (!sSoundManager.isPlayingEnvSound(*sound)) {
 		debugERROR("Playlist \"%s\" isn't playing any sound, "
-				"but the internal state says \"playing\"\n", name.c_str());
+				"but the internal state says \"playing\"\n", pl->mName.c_str());
 	} else {
 		// All fine
 		sSoundManager.pauseEnvSound(*sound);
@@ -672,14 +672,14 @@ SoundHandler::stopPlaylist(const Ogre::String& name, Playlist *plp)
 
 	if (pl->mList.size() < 1) {
 		// Playlist is empty: nothing to do.
-		debugWARNING("Empty playlist, won't stop any playback.\n");
+		//debugWARNING("Empty playlist, won't stop any playback.\n");
 		return;
 
 	} else if (pl->mState & PLAYLIST_STOPPED) {
 		// Illegal operation.
 		debugWARNING("Illegal operation attempted on playlist \"%s\":\n"
 				"stopped playlists can't be stopped. "
-				"Nothing will be done.\n", name.c_str());
+				"Nothing will be done.\n", pl->mName.c_str());
 		return;
 
 	} else if ((pl->mState & PLAYLIST_PLAYING) ||
@@ -687,8 +687,9 @@ SoundHandler::stopPlaylist(const Ogre::String& name, Playlist *plp)
 		// Playlist has an active sound: stop it.
 		const Ogre::String *sound = &pl->mList[pl->mPlayOrder[pl->mCurrent]];
 		if (!sSoundManager.isActiveEnvSound(*sound)) {
-			debugERROR("Playlist \"%s\" hasn't any active sound, but the "
-					"internal state says \"playing/paused\"\n", name.c_str());
+			debugERROR("Playlist \"%s\" hasn't any active sound (%s), but the "
+					"internal state says \"playing/paused\"\n",
+					pl->mName.c_str(), sound->c_str());
 		} else {
 			SSerror err = sSoundManager.stopEnvSound(*sound);
 			if (err == SSerror::SS_NO_BUFFER) {
@@ -733,21 +734,21 @@ SoundHandler::fadeOutPlaylist(const Ogre::String& name,
 
 	if (pl->mList.size() < 1) {
 		// Playlist is empty: nothing to do.
-		debugWARNING("Empty playlist, won't fade-out anything.\n");
+		//debugWARNING("Empty playlist, won't fade-out anything.\n");
 		return SSerror::SS_NO_ERROR;
 
 	} else if (!(pl->mState & PLAYLIST_PLAYING)) {
 		// Illegal operation.
 		debugWARNING("Illegal operation attempted on playlist \"%s\":\n"
 				"only playing playlists can be faded-out. "
-				"Nothing will be done.\n", name.c_str());
+				"Nothing will be done.\n", pl->mName.c_str());
 		return SSerror::SS_ILLEGAL_OPERATION;
 
 	} else if (pl->mState & PLAYLIST_GLOBAL_MODE) {
 		// Illegal operation.
 		debugWARNING("Illegal operation attempted on playlist \"%s\":\n"
 				"globally faded playlists can't be individually "
-				"faded-out.\nNothing will be done.\n", name.c_str());
+				"faded-out.\nNothing will be done.\n", pl->mName.c_str());
 		return SSerror::SS_ILLEGAL_OPERATION;
 	}
 
@@ -755,7 +756,7 @@ SoundHandler::fadeOutPlaylist(const Ogre::String& name,
 
 	if (!sSoundManager.isPlayingEnvSound(*sound)) {
 		debugERROR("Playlist \"%s\" isn't playing any sound, but the "
-				"internal state says \"playing\"\n", name.c_str());
+				"internal state says \"playing\"\n", pl->mName.c_str());
 		goto fail;
 	}
 
@@ -802,21 +803,21 @@ SoundHandler::fadeInPlaylist(const Ogre::String& name,
 
 	if (pl->mList.size() < 1) {
 		// Playlist is empty: nothing to do.
-		debugWARNING("Empty playlist, won't fade-in anything.\n");
+		//debugWARNING("Empty playlist, won't fade-in anything.\n");
 		return SSerror::SS_NO_ERROR;
 
 	} else if (pl->mState & PLAYLIST_GLOBAL_MODE) {
 		// Illegal operation.
 		debugWARNING("Illegal operation attempted on playlist \"%s\":\n"
 				"globally modified playlists can't be individually faded-in.\n"
-				"Nothing will be done.\n", name.c_str());
+				"Nothing will be done.\n", pl->mName.c_str());
 		return SSerror::SS_ILLEGAL_OPERATION;
 
 	} else if (pl->mState & PLAYLIST_SILENCE) {
 		// Illegal operation.
 		debugWARNING("Illegal operation attempted on playlist \"%s\":\n"
 				"during silence, playlists can't be individually faded-in.\n"
-				"Nothing will be done.\n", name.c_str());
+				"Nothing will be done.\n", pl->mName.c_str());
 		return SSerror::SS_ILLEGAL_OPERATION;
 
 	} else if (pl->mState & PLAYLIST_STOPPED) {
@@ -824,7 +825,7 @@ SoundHandler::fadeInPlaylist(const Ogre::String& name,
 		err = startPlaylist(name, pl);
 		if (err != SSerror::SS_NO_ERROR) {
 			debugERROR("Couldn't start playlist \"%s\" fade-in: %s.\n",
-						name.c_str(), SSenumStr(err));
+						pl->mName.c_str(), SSenumStr(err));
 			goto fail;
 		}
 		// Pause playback, so we can start gradually.
@@ -835,7 +836,7 @@ SoundHandler::fadeInPlaylist(const Ogre::String& name,
 									   time);
 	if (err != SSerror::SS_NO_ERROR) {
 		debugERROR("Playlist \"%s\" fade-in failed: %s.\n",
-					name.c_str(), SSenumStr(err));
+					pl->mName.c_str(), SSenumStr(err));
 		sSoundManager.stopEnvSound(pl->mList[pl->mPlayOrder[pl->mCurrent]]);
 		goto fail;
 	}
@@ -873,7 +874,7 @@ SoundHandler::getPlaylistPlayState(const Ogre::String& name) const
 	if (pl->mState & PLAYLIST_PLAYING) {
 		// Playing
 		if (pl->mState & PLAYLIST_GLOBAL_MODE) {
-			debug("Globally fading out playlist \"%s\".\n", name.c_str());
+			debug("Playlist \"%s\" is globally fading out.\n", name.c_str());
 		}
 		return SSplayback::SS_PLAYING;
 

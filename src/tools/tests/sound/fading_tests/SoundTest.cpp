@@ -264,7 +264,7 @@ SoundTest::loadAditionalData(void)
 				" ¤ \33[01;34mSPACE\33[22;32m   : restart all playing sounds.\n"
 				" ¤ \33[01;34mNUMPAD 0\33[22;32m: toogle play/pause  of all sounds.\n"
 				" ¤ \33[01;34mNUMPAD 1\33[22;32m: toogle fade in/out of water sound.\n"
-				"\33[0m\n");
+				"\33[0m\nLast command:\n");
 	}
 	return;
 }
@@ -282,6 +282,7 @@ SoundTest::update()
 
     if (mInputHelper.isKeyPressed(input::KeyCode::KC_ESCAPE)) {
         // we have to exit
+    	fprintf(stderr,"\n");
         mStopRunning = true;
         return;
     }
@@ -351,25 +352,30 @@ SoundTest::initSoundsPlayback(void)
 
 
 	// Play environmental water sound  ////////////////////////////////////////
+	// FIXME: direct access to SoundManager, DON'T DO THIS OUTSIDE TESTERS!
+	//
 	testBEGIN("Iniciando reproducción del sonido ambiente %s.\n", audioFile[0]);
-	// FIXME (direct access to SoundManager) DON'T DO THIS OUTSIDE TESTERS!
 	err = mm::SoundManager::getInstance().playEnvSound(
 			audioFile[0], DEFAULT_ENV_GAIN, true);
 	if (err == mm::SSerror::SS_NO_ERROR) {
 		ASSERT(mm::SoundManager::getInstance().isPlayingEnvSound(audioFile[0]));
-		testSUCCESS("Reproducción iniciada.\n");
+		testSUCCESS("Reproducción iniciada exitosamente. Eliminando sonido...\n");
+		err = mm::SoundManager::getInstance().stopEnvSound(audioFile[0]);
+		ASSERT(err == mm::SSerror::SS_NO_ERROR);
 	} else {
 		testFAIL("Falló.%s","\n");
 		return false;
 	}
 
+
 	// Setup punctual sound  //////////////////////////////////////////////////
+	// FIXME: direct manipulation of SoundAPI, DON'T DO THIS OUTSIDE TESTERS!
+	//
 	testBEGIN("Creando SoundAPI puntual (externa a todo player)\n");
 	ASSERT(!sirenSphere);
 	sirenSphere = core::PrimitiveDrawer::instance().createSphere(
 					sirenLocation, sirenRadius, Ogre::ColourValue::Red);
 	ASSERT(sirenSphere);
-	// FIXME (direct manipulation of SoundAPI) DON'T DO THIS OUTSIDE TESTERS!
 	sirenSoundAPI = new mm::SoundAPI(sirenSphere->node);
 	if (sirenSoundAPI) {
 		testSUCCESS("SoundAPI creada.\n");
@@ -378,7 +384,9 @@ SoundTest::initSoundsPlayback(void)
 		return false;
 	}
 
+
 	// Play punctual sound, using his (detached) SoundAPI  ////////////////////
+	//
 	testBEGIN("Iniciando reproducción del sonidos puntual %s.\n", audioFile[1]);
 	err = sirenSoundAPI->play(audioFile[1], true, DEFAULT_UNIT_GAIN);
 	if (err == mm::SSerror::SS_NO_ERROR) {
@@ -388,7 +396,9 @@ SoundTest::initSoundsPlayback(void)
 		return false;
 	}
 
+
 	// Create three different playlists  //////////////////////////////////////
+	//
 	testBEGIN("Creando playlists.\n");
 	soundsList.push_back(audioFile[2]);
 	soundsList.push_back(audioFile[3]);
@@ -427,7 +437,9 @@ SoundTest::initSoundsPlayback(void)
 	}
 	testSUCCESS("Playlists creadas.\n");
 
+
 	// Start playlists playback  //////////////////////////////////////////////
+	//
 	testBEGIN("Iniciando reproducción de playlists.\n");
 	for (int i=0 ; i < NUM_PLAYLISTS ; i++) {
 		err = mSH.startPlaylist(playlist[i]);
@@ -441,15 +453,14 @@ SoundTest::initSoundsPlayback(void)
 	}
 	testSUCCESS("Reproducción iniciada.\n");
 
+
 	// Embed loose environmental sound into playlist   ////////////////////////
-	// (this is the correct way of playing env sounds) /////////////////////////
-	testBEGIN("Embebiendo el sonido ambiente (%s) en un playlist.\n", audioFile[0]);
-	err = mm::SoundManager::getInstance().stopEnvSound(audioFile[0]);
-	if (err != mm::SSerror::SS_NO_ERROR) {
-		testFAIL("Falló la eliminación del sonido ambiente: %s.\n", SSenumStr(err));
-		return false;
-	}
-	mSH.stopPlaylist(playlist[2]);
+	// (this is the correct way of playing env sounds)
+	//
+	testBEGIN("Iniciando el sonido ambiente \"%s\" dentro de un playlist.\n",
+			audioFile[0]);
+	if (mSH.getPlaylistPlayState(playlist[2]) != mm::SSplayback::SS_FINISHED)
+		mSH.stopPlaylist(playlist[2]);
 	mSH.deletePlaylist(playlist[2]);
 	soundsList.clear();
 	/* FIXME (erase this comment after fix)
@@ -460,13 +471,19 @@ SoundTest::initSoundsPlayback(void)
 	soundsList.push_back("fxM2.ogg");
 	fails = mSH.newPlaylist(playlist[2], soundsList);
 	if (!fails.empty()) {
-		testFAIL("Falló la creación del nuevo playlist.");
+		testFAIL("Falló la creación del nuevo playlist.\n");
 		return false;
-	} else {
-		ASSERT(mSH.existsPlaylist(playlist[2]));
-		mSH.startPlaylist(playlist[2]);
-		testSUCCESS("Playlist \"%s\" creado e iniciado con éxito.",
+	}
+	ASSERT(mSH.existsPlaylist(playlist[2]));
+	//mSH.globalStop();  // TODO eraseme
+	err = mSH.startPlaylist(playlist[2]);
+	if (err == mm::SSerror::SS_NO_ERROR) {
+		testSUCCESS("Playlist \"%s\" creado e iniciado con éxito.\n",
 					playlist[2].c_str());
+	} else {
+		testFAIL("Falló la reproducción del nuevo playlist: %s.\n",
+				SSenumStr(err));
+		return false;
 	}
 
 	return true;
@@ -564,7 +581,8 @@ SoundTest::handleSoundInput(void)
 		if (!keyPressed) {
 			keyPressed = true;
 			mSH.globalRestart();
-			debugBLUE("Global sounds RESTART.\n");
+			fprintf(stderr,"\r");
+			debugBLUE("Global sounds RESTART.       ");
 		}
 
 	} else if (mInputHelper.isKeyPressed(input::KeyCode::KC_NUMPAD0)) {
@@ -573,12 +591,14 @@ SoundTest::handleSoundInput(void)
 			if (playingState[input::KeyCode::KC_NUMPAD0]
 							 == mm::SSplayback::SS_PLAYING) {
 				mSH.globalPause();
-				debugBLUE("Global sounds PAUSED.\n");
+				fprintf(stderr,"\r");
+				debugBLUE("Global sounds PAUSED.       ");
 				playingState[input::KeyCode::KC_NUMPAD0] =
 													mm::SSplayback::SS_PAUSED;
 			} else {
 				mSH.globalPlay();
-				debugBLUE("Global sounds PLAY.\n");
+				fprintf(stderr,"\r");
+				debugBLUE("Global sounds PLAY.       ");
 				playingState[input::KeyCode::KC_NUMPAD0] =
 													mm::SSplayback::SS_PLAYING;
 			}
@@ -591,19 +611,19 @@ SoundTest::handleSoundInput(void)
 							 == mm::SSplayback::SS_FADING_IN) {
 				err = mSH.fadeOutPlaylist(playlist[2], 1.5f);
 				if (err != mm::SSerror::SS_NO_ERROR) {
-					debugWARNING("Water sound FADE OUT failed: %s.\n",
+					debugWARNING("\rWater sound FADE OUT failed: %s.",
 							SSenumStr(err));
 				}
-				debugBLUE("Water sound FADING OUT.\n");
+				debugBLUE("\rWater sound FADING OUT.");
 				playingState[input::KeyCode::KC_NUMPAD1] =
 												mm::SSplayback::SS_FADING_OUT;
 			} else {
 				err = mSH.fadeInPlaylist(playlist[2], 1.5f);
 				if (err != mm::SSerror::SS_NO_ERROR) {
-					debugWARNING("Water sound FADE IN failed: %s.\n",
+					debugWARNING("\rWater sound FADE IN failed: %s.",
 							SSenumStr(err));
 				}
-				debugBLUE("Water sound FADING IN.\n");
+				debugBLUE("\rWater sound FADING IN.");
 				playingState[input::KeyCode::KC_NUMPAD1] =
 												mm::SSplayback::SS_FADING_IN;
 			}
