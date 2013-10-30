@@ -152,7 +152,8 @@ public:
 
 	/*
 	 * Add video to playlist. Will be played from second 'start' until
-	 * second 'end' or till it ends, whatever happens first. On success it
+	 * second 'end' or till it ends, whatever happens first (if 'end' is set to
+	 * -1,0 then it will play till the end) . On success it
 	 * returns the index of the video in the playlist. 'path' is the full path
 	 * (with name included, not only directory).
 	 */
@@ -176,6 +177,12 @@ public:
 	 */
 	int
 	load(int idex);
+
+	/*
+	 * Play the next video in the list
+	 */
+	int
+	next(void);
 
 	/*
 	 * Update the videoPlayer with the time since last frame. Returns ENDED
@@ -305,6 +312,8 @@ OgreVideoPlayer::setRepeatVideo(bool rep){
 
 
 ///////////////////////////////////////////////////////////////////////////////
+
+
 }
 
 #endif //OGRE_VIDEO_PLAYER_H

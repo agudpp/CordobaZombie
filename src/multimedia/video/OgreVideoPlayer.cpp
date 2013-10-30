@@ -26,7 +26,7 @@ Video::Video(const char* path, const char* name, double start, double end):
 {
 	ASSERT(path != NULL);
 	ASSERT(name != NULL);
-	ASSERT(start <= end);
+	ASSERT(end < 0.0 || start <= end);
 
 	mPath = new std::string(path);
 	mName = new std::string(name);
@@ -279,6 +279,10 @@ OgreVideoPlayer::load(int index){
 		if( start != 0.0){
 			mVideoPlayer->seek_time_stamp(start);
 		}
+		double end = 0;
+		mVideo->getEnd(end);
+		debug("Loading video %s, from second %lf to %lf\n", mVideo->getName(),
+				start, end);
 	}
 
 	return OK;
@@ -309,6 +313,7 @@ int
 OgreVideoPlayer::update(double tslf)
 {
 	if(!mIsPlaying){
+		debug("The actual video player is not playing\n");
 		return ERROR;
 	}else{
 		ASSERT(mVideoPlayer->is_loaded());
@@ -317,16 +322,19 @@ OgreVideoPlayer::update(double tslf)
 		double end = 0;
 		ASSERT(mVideo != 0);
 		mVideo->getEnd(end);
-		if(t >= end){
-			//stop();
+		// negative value for end will play till it finishes.
+		if(end >= 0.0 && t >= end){
+			debug("Video time limit reached\n");
 			if(loadNext() == OK){
 				play();
 			}else{
 				return ENDED;
 			}
+		// has to play till the end or the end time limit hasn't been reached
 		}else{
 			if(VideoPlayer::VIDEO_ENDED == mVideoPlayer->update(tslf)){
-				//stop();
+				// If the video has ended
+				debug("Video ended (the actual video player says so)\n");
 				if(loadNext() == OK){
 					play();
 				}else{
@@ -342,18 +350,45 @@ OgreVideoPlayer::update(double tslf)
 int
 OgreVideoPlayer::loadNext(void)
 {
+	debug("Load next: actual index %i\n", mIndex);
 	if(mRepeatV){
 		load(mIndex);
+		debug("Load next: load index %i\n", mIndex);
 	}else if(mIndex < mPlayList.size()-1){
+		debug("Load next: load index %i\n", mIndex+1);
 		load(mIndex+1);
 	}else{
 		if(mRepeatP){
+			debug("Load next: restart playlist\n");
 			load(0);
 		}else{
+			debug("Load next: no more videos to load\n");
 			return ERROR;
 		}
 	}
 	return OK;
+}
+///////////////////////////////////////////////////////////////////////////////
+
+int
+OgreVideoPlayer::next(void){
+
+	int error = OK;
+	bool saverepeatvideo = mRepeatV;
+	bool saverepeatpl = mRepeatP;
+
+	setRepeatPlayList(true);
+	setRepeatVideo(false);
+
+	error = loadNext();
+	if (error != ERROR){
+		error = play();
+	}
+
+	setRepeatPlayList(saverepeatpl);
+	setRepeatVideo(saverepeatvideo);
+
+	return error;
 }
 
 

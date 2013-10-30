@@ -78,6 +78,10 @@ getKeyboardKeys(void)
 	buttons.push_back(input::KeyCode::KC_ESCAPE);
 	buttons.push_back(input::KeyCode::KC_E);
 	buttons.push_back(input::KeyCode::KC_R);
+	buttons.push_back(input::KeyCode::KC_P);
+	buttons.push_back(input::KeyCode::KC_N);
+	buttons.push_back(input::KeyCode::KC_S);
+	buttons.push_back(input::KeyCode::KC_A);
 
 	return buttons;
 }
@@ -155,6 +159,9 @@ static int
 loadVideos(mm::OgreVideoPlayer* ovp)
 {
 
+	double end = -1.0;
+	double start = 0.0;
+
 	// get next video to play
 	for(int i = 0; i< VIDEO_STATE_LIST_SIZE; i++){
 		Ogre::String videoPath("");
@@ -165,12 +172,17 @@ loadVideos(mm::OgreVideoPlayer* ovp)
 		}
 
 		if(mm::OgreVideoPlayer::ERROR ==
-				ovp->queue(videoPath.c_str(), videoPath.c_str(), 0.0, 5.0)
+				ovp->queue(videoPath.c_str(), videoPath.c_str(), start, end)
 		  )
 		{
 			debugERROR("Can't load %s at %s :S.\n",
 					VIDEO_STATE_LIST[i], videoPath.c_str());
 		}
+
+		// make the next video last more.
+		end += 10.0;
+		// make it start a little bit further
+		start += 1.0;
 	}
 
 	return 0;
@@ -256,6 +268,8 @@ OgreVideoTest::loadAdditionalData(void)
 void
 OgreVideoTest::update()
 {
+	static int frames = 0;
+
 	// update the input system
 	mInputHelper.update();
 
@@ -275,9 +289,29 @@ OgreVideoTest::update()
 		debug("Repeat video --> false\n");
 	}
 
+	if (mInputHelper.isKeyReleased(input::KeyCode::KC_N)){
+		mVPlayer->next();
+		debug("Play next video\n");
+	}
+
+	if (mInputHelper.isKeyPressed(input::KeyCode::KC_S)){
+		mVPlayer->stop();
+		debug("Stop!\n");
+	}
+
+	if (mInputHelper.isKeyPressed(input::KeyCode::KC_P)){
+		mVPlayer->play();
+		debug("Play!\n");
+	}
+
+	if (mInputHelper.isKeyPressed(input::KeyCode::KC_A)){
+		// TODO hacer mas testing acá
+		debug("Run automatic test\n");
+	}
+
 	// update the video
 	if(mm::OgreVideoPlayer::ERROR == mVPlayer->update(mTimeFrame)){
-		debugERROR("ALGO NO ANDA ACA\n");
+		debugERROR("O el video esta detenido o algo anda mal aca\n");
 	}
 }
 
