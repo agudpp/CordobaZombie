@@ -33,12 +33,44 @@ set(ACTUAL_DIRS
 include_directories(${ACTUAL_DIRS})
 
 
-# Specific libs
+## Specific libs
+
 set(OPENAL_LIBRARIES openal vorbis vorbisfile)
-set(COMMON_LIBRARIES 
-	${COMMON_LIBRARIES}
-	${OPENAL_LIBRARIES}
-	avcodec avutil avformat swscale )
+set(COMMON_LIBRARIES ${COMMON_LIBRARIES} ${OPENAL_LIBRARIES}
+avcodec avutil avformat swscale)
+
+
+# Static imported libs:
+
+
+
+## avcodec static linkage 
+#add_library(mavcodec STATIC IMPORTED)
+## point the imported target at the real file
+#set_property(TARGET mavcodec PROPERTY
+#                IMPORTED_LOCATION ${THIRD_PARTY_LIBS}/lib/libavcodec.a)
+
+## avformat static linkage 
+#add_library(mavformat STATIC IMPORTED)
+## point the imported target at the real file
+#set_property(TARGET mavformat PROPERTY
+#                IMPORTED_LOCATION ${THIRD_PARTY_LIBS}/lib/libavformat.a)
+
+## swscale static linkage 
+#add_library(mswscale STATIC IMPORTED)
+## point the imported target at the real file
+#set_property(TARGET mswscale PROPERTY
+#                IMPORTED_LOCATION ${THIRD_PARTY_LIBS}/lib/libswscale.a)
+
+## avutil static linkage 
+#add_library(mavutil STATIC IMPORTED)
+## point the imported target at the real file
+#set_property(TARGET mavutil PROPERTY
+#                IMPORTED_LOCATION ${THIRD_PARTY_LIBS}/lib/libavutil.a)
+
+#set(COMMON_LIBRARIES ${COMMON_LIBRARIES} mavcodec mavformat mswscale mavutil)
+
+
 
 
 # Flag because UINT64_C macro is defined in standard C header stdint.h, 

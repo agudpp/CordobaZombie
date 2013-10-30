@@ -13,12 +13,12 @@ set(CP /tools/tests/video)
 set(SRCS
 	${SRCS}
 	${DEV_ROOT_PATH}/tools/tests/video/main.cpp
-	${DEV_ROOT_PATH}/tools/tests/video/VideoTest.cpp
+	${DEV_ROOT_PATH}/tools/tests/video/OgreVideoTest.cpp
 )
 
 set(HDRS
 	${HDRS}
-	${DEV_ROOT_PATH}/tools/tests/video/VideoTest.h
+	${DEV_ROOT_PATH}/tools/tests/video/OgreVideoTest.h
 )
 
 set(ACTUAL_DIRS
