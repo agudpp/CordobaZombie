@@ -106,7 +106,12 @@ if(NOT THIRD_PARTY_LIBS)
 endif()
 
 # include third party libs and includes directories
-include_directories(${THIRD_PARTY_LIBS}/include)
+include_directories(${THIRD_PARTY_LIBS}/include
+	${THIRD_PARTY_LIBS}/include/libavutil
+	${THIRD_PARTY_LIBS}/include/libavcodec
+	${THIRD_PARTY_LIBS}/include/libavformat
+	${THIRD_PARTY_LIBS}/include/libswscale
+)
 link_directories(${THIRD_PARTY_LIBS}/lib)
 
 
