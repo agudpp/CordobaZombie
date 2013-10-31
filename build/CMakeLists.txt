@@ -145,6 +145,7 @@ include_directories( ${OIS_INCLUDE_DIRS}
 	${DEV_ROOT_PATH}/multimedia
 	${DEV_ROOT_PATH}/cz
     ${DEV_ROOT_PATH}/effect
+    ${DEV_ROOT_PATH}/resources_handler
 )
 
 # Include all the other specific files

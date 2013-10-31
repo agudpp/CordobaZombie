@@ -119,7 +119,8 @@ void
 ResourceHandler::unloadResourceGroup(const ResourceGroup& rg)
 {
     if(rg.sections().empty()){
-        debugWARNING("Resource group %d has no resources associated (sections)\n", id);
+        debugWARNING("Resource group %s has no resources associated (sections)\n",
+            rg.ogreResourceFile().c_str());
         return;
     }
 

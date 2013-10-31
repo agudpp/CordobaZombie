@@ -47,7 +47,7 @@ public:
     //
     inline void
     setOgreResourceFile(const std::string& filePath);
-    const std::string&
+    inline const std::string&
     ogreResourceFile(void) const;
 
     // @brief Add a Ogre section to load if we want. If no sections are set
@@ -88,7 +88,7 @@ ResourceGroup::setOgreResourceFile(const std::string& filePath)
 {
     mFilePath = filePath;
 }
-const std::string&
+inline const std::string&
 ResourceGroup::ogreResourceFile(void) const
 {
     return mFilePath;
@@ -97,7 +97,7 @@ ResourceGroup::ogreResourceFile(void) const
 inline void
 ResourceGroup::addSection(const std::string& section)
 {
-    mSections.push_back(section);
+    mSections.insert(section);
 }
 inline const ResourceGroup::SectionList&
 ResourceGroup::sections(void) const
