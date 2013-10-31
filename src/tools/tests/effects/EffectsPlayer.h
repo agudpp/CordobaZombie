@@ -29,6 +29,7 @@
 #include <cursor/MouseCursor.h>
 
 #include <effect_handler/EffectHandler.h>
+#include <effect_handler/EffectWrapper.h>
 #include <fx/effects/blood/BloodParticles.h>
 #include <fx/effects/EffectQueueDefs.h>
 #include <fx/effects/billboards/BillboardStack.h>
@@ -74,6 +75,7 @@ private:
     effect::EffectHandler mEffectHandler;
     cz::BloodParticlesQueue mBloodQueue;
     cz::BillboardGroupHandler mBillboardGroups;
+    effect::EffectWrapper mWrapperTest;
 };
 
 }
