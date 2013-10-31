@@ -181,7 +181,7 @@ SoundTest::SoundTest() :
 		testFAIL("Falló la carga de algunos de los archivos:\n%s", fails.c_str());
 		exit(EXIT_FAILURE);
 	}
-	// Loaded buffers.
+	// Direct (loaded) buffers.
 	sounds.clear();
 	sounds.push_back("roar.wav");
 	sounds.push_back("fxM2.ogg");	// "button pressed"
@@ -275,8 +275,6 @@ SoundTest::loadAditionalData(void)
 void
 SoundTest::update()
 {
-//	static float counter(0.0f);
-
     // update the input system
     mInputHelper.update();
 
@@ -295,44 +293,6 @@ SoundTest::update()
 
     // update the keyboard-triggered sound events
     handleSoundInput();
-}
-
-
-
-////////////////////////////////////////////////////////////////////////////////
-bool
-SoundTest::parseXML(const std::string& xmlFName, std::string& meshName) const
-{
-    std::shared_ptr<TiXmlDocument> doc(core::XMLHelper::loadXmlDocument(xmlFName.c_str()));
-    if (doc.get() == 0) {
-        debugERROR("Error reading the file %s\n", xmlFName.c_str());
-        return false;
-    }
-
-    // we could read the file properly, get the element we want
-    // <SoundTest mesh="file.mesh" />
-    //
-    const TiXmlElement* root = doc->RootElement();
-    if (!root) {
-        debugERROR("Couldn't get the root element\n");
-        return false;
-    }
-
-    // check if it is the want we want
-    if (root->Value() == 0 || std::strcmp(root->Value(), "SoundTest") != 0) {
-        debugERROR("Invalid xml root element name\n");
-        return false;
-    }
-
-    // check now for the value we want
-    if (root->Attribute("mesh") == 0) {
-        debugERROR("mesh attribute not found in the xml file... invalid xml\n");
-        return false;
-    }
-
-    // everything fine
-    meshName = root->Attribute("mesh");
-    return true;
 }
 
 
@@ -387,14 +347,19 @@ SoundTest::initSoundsPlayback(void)
 
 	// Play punctual sound, using his (detached) SoundAPI  ////////////////////
 	//
-	testBEGIN("Iniciando reproducción del sonidos puntual %s.\n", audioFile[1]);
-	err = sirenSoundAPI->play(audioFile[1], true, DEFAULT_UNIT_GAIN);
-	if (err == mm::SSerror::SS_NO_ERROR) {
-		testSUCCESS("Reproducción iniciada.%s", "\n");
-	} else {
-		testFAIL("Falló.\n");
-		return false;
-	}
+	/* FIXME (erase this comment after fix)
+	 * Decomment following code after issues #146 and #147
+	 * of MantisBT get solved.
+	 * http://cordobazombie.com.ar/dev/tracker/view.php?id=146
+	 */
+//	testBEGIN("Iniciando reproducción del sonidos puntual %s.\n", audioFile[1]);
+//	err = sirenSoundAPI->play(audioFile[1], true, DEFAULT_UNIT_GAIN);
+//	if (err == mm::SSerror::SS_NO_ERROR) {
+//		testSUCCESS("Reproducción iniciada.%s", "\n");
+//	} else {
+//		testFAIL("Falló.\n");
+//		return false;
+//	}
 
 
 	// Create three different playlists  //////////////////////////////////////
@@ -467,15 +432,15 @@ SoundTest::initSoundsPlayback(void)
 	 * Following playlist should load "water sound", viz. audioFile[0]
 	 * Right now we load hardcoded names of direct/stream sounds,
 	 * until issues #146 and #147 of MantisBT get solved.
+	 * http://cordobazombie.com.ar/dev/tracker/view.php?id=146
 	 */
-	soundsList.push_back("fxM2.ogg");
+	soundsList.push_back("fxA20.ogg");
 	fails = mSH.newPlaylist(playlist[2], soundsList);
 	if (!fails.empty()) {
 		testFAIL("Falló la creación del nuevo playlist.\n");
 		return false;
 	}
 	ASSERT(mSH.existsPlaylist(playlist[2]));
-	//mSH.globalStop();  // TODO eraseme
 	err = mSH.startPlaylist(playlist[2]);
 	if (err == mm::SSerror::SS_NO_ERROR) {
 		testSUCCESS("Playlist \"%s\" creado e iniciado con éxito.\n",
@@ -614,7 +579,8 @@ SoundTest::handleSoundInput(void)
 					debugWARNING("\rWater sound FADE OUT failed: %s.",
 							SSenumStr(err));
 				}
-				debugBLUE("\rWater sound FADING OUT.");
+				fprintf(stderr,"\r");
+				debugBLUE("Water sound FADING OUT.       ");
 				playingState[input::KeyCode::KC_NUMPAD1] =
 												mm::SSplayback::SS_FADING_OUT;
 			} else {
@@ -623,7 +589,8 @@ SoundTest::handleSoundInput(void)
 					debugWARNING("\rWater sound FADE IN failed: %s.",
 							SSenumStr(err));
 				}
-				debugBLUE("\rWater sound FADING IN.");
+				fprintf(stderr,"\r");
+				debugBLUE("Water sound FADING IN.       ");
 				playingState[input::KeyCode::KC_NUMPAD1] =
 												mm::SSplayback::SS_FADING_IN;
 			}

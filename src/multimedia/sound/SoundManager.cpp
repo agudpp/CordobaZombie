@@ -151,7 +151,8 @@ SoundManager::fadeUpdate(ActiveSound& s, const float globalTimeFrame)
 		if (value <= 0.0f && ((s.mPlayState | s.mGlobalState)
 							  & SSplayback::SS_FADING_OUT_AND_PAUSE)) {
 			// Fading finished, and playback pause requested.
-			alSourcePause(s.mSource->mSource);
+			//alSourcePause(s.mSource->mSource);
+			s.mSource->pause();
 			// However, we won't modify the global/individual state.
 		}
 
@@ -166,10 +167,12 @@ SoundManager::fadeUpdate(ActiveSound& s, const float globalTimeFrame)
 
 		if (!playing) {
 			// A previous fade-out paused the sound, we must restart it.
-			s.mSource->play(NULL,
-							value*s.mVolume,
-							Ogre::Vector3(0.0f,0.0f,0.0f),
-							s.mSource->getRepeat());
+			SSerror err(SSerror::SS_NO_ERROR);
+			err = s.mSource->play(0,
+								value*s.mVolume,
+								Ogre::Vector3(0.0f,0.0f,0.0f),
+								s.mSource->getRepeat());
+			ASSERT(err == SSerror::SS_NO_ERROR);
 		}
 
 		if (value >= 1.0) {
@@ -223,6 +226,7 @@ SoundManager::playExistentSound(ActiveSound& s, float gain, bool repeat)
 	ASSERT(alGetError() == AL_NO_ERROR);
 	return err;
 }
+
 
 
 /******************************************************************************/
@@ -474,24 +478,31 @@ SoundManager::update(const float globalTimeFrame,
 
 		if (st == SSplayback::SS_FINISHED) {
 			if (0 != finished) {
-				// Register ID of sound termination in "finished" vector
+				// Register ID of sound termination in "finished" vector.
 				finished->push_back((void*)std::get<2>(mEnvSounds[i]));
 			}
 			// Buffer was automatically detached from source.
 			// Erase EnvSound and recycle SoundSource.
-			stopEnvSound(std::get<0>(mEnvSounds[i]));
+			stopEnvSound(std::get<0>(mEnvSounds[i]),
+						 std::get<2>(mEnvSounds[i]));
 			if (mEnvSounds.size() > 0) i--;  // =D
 
 		} else if ((as->mPlayState | as->mGlobalState)
-				  	  & ( SSplayback::SS_FADING_IN
-				  		| SSplayback::SS_FADING_OUT
+				  	  & ( SSplayback::SS_FADING_OUT
 				  		| SSplayback::SS_FADING_OUT_AND_PAUSE)) {
-			// Update current gain accoring to fading state.
+			if (!as->mSource->isPlaying())
+				continue;  // Skip: don't insert into "paused" vector.
+			// else: update current gain accoring to fading state.
 			fadeUpdate(*as, globalTimeFrame);
 			if (0 != paused && !as->mSource->isPlaying()) {
-				// Paused during fade-out, register ID in "paused" vector
+				// Paused during fade-out, register ID in "paused" vector.
 				paused->push_back((void*)std::get<2>(mEnvSounds[i]));
 			}
+
+		} else if ((as->mPlayState | as->mGlobalState)
+					& SSplayback::SS_FADING_IN) {
+			// Update current gain accoring to fading state.
+			fadeUpdate(*as, globalTimeFrame);
 		}
 	}
 
@@ -681,11 +692,40 @@ SoundManager::isPlayingEnvSound(const Ogre::String& sName)
 
 ////////////////////////////////////////////////////////////////////////////////
 bool
+SoundManager::isPlayingEnvSound(EnvSoundId id)
+{
+	if (!id) return false;
+	for (uint i=0 ; i < mEnvSounds.size() ; i++) {
+		if (std::get<2>(mEnvSounds[i]) == id) {
+			return std::get<1>(mEnvSounds[i])->mSource->isPlaying();
+		}
+	}
+	return false;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+bool
 SoundManager::isActiveEnvSound(const Ogre::String& sName)
 {
 	// Check whether "sName" is an active environmental sound.
 	for (uint i=0 ; i < mEnvSounds.size() ; i++) {
 		if (std::get<0>(mEnvSounds[i]) == sName) {
+			ASSERT(std::get<1>(mEnvSounds[i])->mSource->isActive());
+			return true;
+		}
+	}
+	return false;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+bool
+SoundManager::isActiveEnvSound(EnvSoundId id)
+{
+	if (!id) return false;
+	for (uint i=0 ; i < mEnvSounds.size() ; i++) {
+		if (std::get<2>(mEnvSounds[i]) == id) {
 			ASSERT(std::get<1>(mEnvSounds[i])->mSource->isActive());
 			return true;
 		}
@@ -787,14 +827,16 @@ SoundManager::playEnvSound(const Ogre::String& sName,
 
 ////////////////////////////////////////////////////////////////////////////////
 SSerror
-SoundManager::stopEnvSound(const Ogre::String& sName)
+SoundManager::stopEnvSound(const Ogre::String& sName, EnvSoundId id)
 {
 	uint pos(0);
 	ActiveSound* as(0);
 
-	/* Check whether "sName" is an active environmental sound. */
+	// Check whether "sName" is an active environmental sound.
 	for (pos=0 ; pos < mEnvSounds.size() ; pos++) {
 		if (std::get<0>(mEnvSounds[pos]) == sName) {
+			if (id && id != std::get<2>(mEnvSounds[pos]))
+				continue;  // Not our sound.
 			as = std::get<1>(mEnvSounds[pos]);
 			break;
 		}
@@ -805,22 +847,22 @@ SoundManager::stopEnvSound(const Ogre::String& sName)
 		return SSerror::SS_NO_BUFFER;
 	}
 
-	/* Stop and release SoundSource. */
+	// Stop and release SoundSource.
 	as->mSource->stop();
 	alSourcei(as->mSource->mSource, AL_BUFFER, AL_NONE);
 	alSourcei(as->mSource->mSource, AL_SOURCE_RELATIVE, AL_FALSE);
 	if (as->mSource->getType() == SSsrctype::SS_SRC_LOADED) {
-		/* LSoundSource */
+		// LSoundSource
 		ASSERT(dynamic_cast<LSoundSource*>(as->mSource) != NULL);
 		mAvailableLSS.push_back((LSoundSource*) as->mSource);
 	} else {
-		/* SSoundSource */
+		// SSoundSource
 		ASSERT(as->mSource->getType() == SSsrctype::SS_SRC_STREAM);
 		ASSERT(dynamic_cast<SSoundSource*>(as->mSource) != NULL);
 		mAvailableSSS.push_back((SSoundSource*) as->mSource);
 	}
 
-	/* Desregister environmental sound. */
+	// Deregister environmental sound.
 	mEnvSounds[pos] = mEnvSounds[mEnvSounds.size()-1];
 	mEnvSounds.pop_back();
 	mActiveSounds[as->mActivId] = mActiveSounds[mActiveSounds.size()-1];
@@ -838,7 +880,7 @@ SoundManager::stopEnvSound(const Ogre::String& sName)
 
 ////////////////////////////////////////////////////////////////////////////////
 SSerror
-SoundManager::restartEnvSound(const Ogre::String& sName)
+SoundManager::restartEnvSound(const Ogre::String& sName, EnvSoundId id)
 {
 	SSerror err(SSerror::SS_NO_BUFFER);
 	ActiveSound* as(0);
@@ -846,6 +888,8 @@ SoundManager::restartEnvSound(const Ogre::String& sName)
 	// Check whether "sName" is an active environmental sound.
 	for (uint i=0 ; i < mEnvSounds.size() ; i++) {
 		if (std::get<0>(mEnvSounds[i]) == sName) {
+			if (id && id != std::get<2>(mEnvSounds[i]))
+				continue;  // Not our sound.
 			as = std::get<1>(mEnvSounds[i]);
 			break;
 		}
@@ -878,13 +922,16 @@ SoundManager::restartEnvSound(const Ogre::String& sName)
 SSerror
 SoundManager::fadeOutEnvSound(const Ogre::String& sName,
 								  const Ogre::Real& time,
-								  const bool pause)
+								  const bool pause,
+								  EnvSoundId id)
 {
 	ActiveSound* as(0);
 
 	// Search environmental sound
 	for (int i=0 ; i < mEnvSounds.size() ; i++) {
 		if (std::get<0>(mEnvSounds[i]) == sName) {
+			if (id && id != std::get<2>(mEnvSounds[i]))
+				continue;  // Not our sound.
 			as = std::get<1>(mEnvSounds[i]);
 			break;
 		}
@@ -914,13 +961,17 @@ SoundManager::fadeOutEnvSound(const Ogre::String& sName,
 
 ////////////////////////////////////////////////////////////////////////////////
 SSerror
-SoundManager::fadeInEnvSound(const Ogre::String& sName, const Ogre::Real& time)
+SoundManager::fadeInEnvSound(const Ogre::String& sName,
+								 const Ogre::Real& time,
+								 EnvSoundId id)
 {
 	ActiveSound* as(0);
 
 	// Search environmental sound
 	for (int i=0 ; i < mEnvSounds.size() ; i++) {
 		if (std::get<0>(mEnvSounds[i]) == sName) {
+			if (id && id != std::get<2>(mEnvSounds[i]))
+				continue;  // Not our sound.
 			as = std::get<1>(mEnvSounds[i]);
 			break;
 		}

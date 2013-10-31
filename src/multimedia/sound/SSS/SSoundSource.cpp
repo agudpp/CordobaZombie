@@ -22,7 +22,6 @@
 #  define  ALsrcState(s)
 #else
 #  define  ALsrcState(s)  ALsourceStateToStr(s)
-#  include <map>
 static inline const char*
 ALsourceStateToStr(ALint st)
 {
@@ -237,8 +236,8 @@ SSoundSource::update(const Ogre::Vector3& pos)
 		// Attempt one final buffer refresh before failing.
 		debugYELLOW("Trying to recover.%s", "\n");
 
-		/* mIntBuffers[mFirstBuffer] is the problematic buffer, *
-		 * and hasn't been re-queued yet.                       */
+		// mIntBuffers[mFirstBuffer] is the problematic buffer,
+		// and hasn't been re-queued yet.
 		readSize = mBuffer->filler(mIntBuffers[mFirstBuffer],
 									mIntBuffersSize, mRepeat);
 		if (readSize > 0) {

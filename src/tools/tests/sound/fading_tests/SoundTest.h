@@ -54,28 +54,6 @@ public:
 private:
     /**
      ** @brief
-     ** Read the xml file to check which is the .mesh we want to load.
-     **
-     ** @param
-     ** xmlFName: xml filename
-     ** meshName: mesh filename we want to load (entity)
-     **
-     ** @return
-     ** true on success
-     ** false otherwise
-     **/
-    bool
-    parseXML(const std::string& xmlFName, std::string& meshName) const;
-
-//    // @brief Load the mesh file and load the EntityAnimations
-//    // @param meshName  The mesh name to load (entity).
-//    // @return true on success | false otherwise
-//    //
-//    bool
-//    loadEntity(const std::string& meshName);
-
-    /**
-     ** @brief
      ** Initalize various sounds playback.
      **
      ** @return
