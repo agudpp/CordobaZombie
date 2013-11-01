@@ -31,7 +31,7 @@ public:
     // @note this class will not handle any memory.
     //
     inline void
-    addBodyPartElement(BodyPartElement* bpe);
+    addBodyPartElement(const BodyPartElement& bpe);
 
     // @brief Get a new one element of a particular type and id
     // @param type      The body part type we want
@@ -49,8 +49,22 @@ public:
     inline void
     letAvailable(BodyPartElement* bpe);
 
+    // @brief Check if the queue contains elements.
+    //
+    inline bool
+    isEmpty(void) const;
+
+    // @brief Clear the queue.
+    //
+    inline void
+    clear(void);
+
 private:
     typedef core::StackVector<BodyPartElement*, NUM_INSTANCES_PER_BPE> BodyPartElementQueue;
+    typedef core::StackVector<BodyPartElement,
+                              NUM_INSTANCES_PER_BPE *
+                                  BodyPartElementType::BPE_COUNT> BodyPartElementVec;
+    BodyPartElementVec mElements;
     BodyPartElementQueue mQueues[BodyPartElementType::BPE_COUNT];
 };
 
@@ -63,12 +77,12 @@ private:
 //
 
 inline void
-BodyPartQueue::addBodyPartElement(BodyPartElement* bpe)
+BodyPartQueue::addBodyPartElement(const BodyPartElement& bpe)
 {
-    ASSERT(bpe);
-    ASSERT(bpe->type < BodyPartElementType::BPE_COUNT);
-    BodyPartElementQueue& queue = mQueues[bpe->type];
-    queue.push_back(bpe);
+    ASSERT(bpe.type < BodyPartElementType::BPE_COUNT);
+    BodyPartElementQueue& queue = mQueues[bpe.type];
+    mElements.push_back(bpe);
+    queue.push_back(&(mElements.back()));
 }
 
 inline BodyPartElement*
@@ -97,6 +111,20 @@ BodyPartQueue::letAvailable(BodyPartElement* bpe)
     ASSERT(bpe->type < BodyPartElementType::BPE_COUNT);
     BodyPartElementQueue& queue = mQueues[bpe->type];
     queue.push_back(bpe);
+}
+
+inline bool
+BodyPartQueue::isEmpty(void) const
+{
+    return mElements.empty();
+}
+
+inline void
+BodyPartQueue::clear(void)
+{
+    for (unsigned int i = 0; i < NUM_INSTANCES_PER_BPE; ++i) {
+        mQueues[i].clear();
+    }
 }
 
 } /* namespace cz */

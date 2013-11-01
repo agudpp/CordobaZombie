@@ -50,6 +50,8 @@ ZombieUnit::ZombieUnit() :
     WorldObject()
 ,   mFSM(sTTable)
 ,   mVelocity(15.f)
+,   mInitialLife(100)
+,   mLife(100)
 {
     mFSM.setRef(this);
 }
@@ -112,6 +114,7 @@ ZombieUnit::configure(Ogre::SceneNode* node, Ogre::Entity* entity)
 void
 ZombieUnit::reset(void)
 {
+    mLife = mInitialLife;
     debugERROR("TODO\n");
 }
 

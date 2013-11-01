@@ -1,6 +1,18 @@
 <ZombieConfig>
     <!-- Here we will put the information associated to the zombie units -->
     <ZombieUnits>
+        <!--  Each Zombie will be defined as next: 
+              mesh: The mesh name associated.
+              material: The name of the material to be used.
+              vel: The movement velocity of the zombie.
+              initialLife: The initial life of the zombie.
+              bodyPartID: The associated body parts id to be used.
+        -->
+        <Zombie mesh="zombie.mesh"
+                material="Zombie/Mat1"
+                vel="10"
+                initialLife="100"
+                bodyPartID="1" />
     
     </ZombieUnits>
     
@@ -12,9 +24,8 @@
             - BPE_UPPER_ARM = 2: Upper arm only.
             - BPE_UPPER_FORE_ARM = 3: All the complete arm (Fore and upper).
         
-        <BodyPart meshName="head.mesh" type="0" id="3"
-        
-    
+        <BodyPart meshName="head.mesh" type="0" id="3" mass="10" />
+
     </ZombieBodyParts>
 
 </ZombieConfig>

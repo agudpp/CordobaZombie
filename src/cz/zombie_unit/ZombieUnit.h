@@ -77,6 +77,24 @@ public:
     inline float
     velocity(void) const;
 
+    // @brief Get / set the life of the zombie
+    // @param life      The life of the zombie
+    //
+    inline void
+    setLife(short life);
+    inline short
+    life(void) const;
+    inline bool
+    hasLife(void) const;
+
+    // @brief Set the initial life to be used every time the zombie is reset
+    // @param initialLife   The initial life to be used
+    //
+    inline void
+    setInitialLife(short initialLife);
+    inline short
+    initialLife(void) const;
+
     ////////////////////////////////////////////////////////////////////////////
 
     // @brief This method will be called to initialize the zombie to let them as
@@ -216,6 +234,8 @@ protected:
     ZombieFSM mFSM;
     PathHandler mPathHandler;
     float mVelocity;
+    short mInitialLife;
+    short mLife;
 
 private:
     // Avoid copying this class
@@ -243,6 +263,35 @@ inline float
 ZombieUnit::velocity(void) const
 {
     return mVelocity;
+}
+
+////////////////////////////////////////////////////////////////////////////
+inline void
+ZombieUnit::setLife(short life)
+{
+    mLife = life;
+}
+inline short
+ZombieUnit::life(void) const
+{
+    return mLife;
+}
+inline bool
+ZombieUnit::hasLife(void) const
+{
+    return mLife > 0;
+}
+
+////////////////////////////////////////////////////////////////////////////
+inline void
+ZombieUnit::setInitialLife(short initialLife)
+{
+    mInitialLife = initialLife;
+}
+inline short
+ZombieUnit::initialLife(void) const
+{
+    return mInitialLife;
 }
 
 ////////////////////////////////////////////////////////////////////////////

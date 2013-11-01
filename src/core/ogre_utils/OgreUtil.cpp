@@ -415,7 +415,19 @@ getContourVertices(Ogre::Vector3* vertices,
     return true;
 }
 
+Ogre::Entity*
+loadEntity(const Ogre::String& name, Ogre::SceneManager* sceneMngr)
+{
+    ASSERT(sceneMngr);
 
+    Ogre::Entity* ent = 0;
+    try {
+        ent = sceneMngr->createEntity(name);
+    } catch (...) {
+        debugERROR("Error loading mesh %s, not found\n", name.c_str());
+    }
+    return ent;
+}
 
 } /* namespace OgreUtil */
 } /* namespace core */

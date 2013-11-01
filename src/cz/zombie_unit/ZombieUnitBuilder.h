@@ -9,11 +9,16 @@
 #define ZOMBIEUNITBUILDER_H_
 
 #include <string>
+#include <unique_ptr>
+
+#include <tinyxml/tinyxml.h>
+
 
 namespace cz {
 
 // forward
 //
+struct BodyPartElement;
 class BodyPartQueue;
 class RagDollQueue;
 class ZombieUnit;
@@ -54,6 +59,23 @@ public:
     //
     bool
     loadZombie(const std::string& id, ZombieUnit& zu);
+
+private:
+    // @brief Construct a BodyPartElement from an xml element
+    //        This method will also build a BulletObject (bodyPart) from a mesh,
+    //        we will use only boxes
+    //        to represent this bodyparts.
+    // @param xmlElement        The BodyPart xml element
+    // @param bpe               The body part element
+    // @return true on success | false otherwise
+    //
+    bool
+    buildBodyPartElement(const TiXmlElement* xmlElement,
+                         BodyPartElement& bpe) const;
+
+
+private:
+    std::unique_ptr<TiXmlDocument> mDocument;
 };
 
 } /* namespace cz */

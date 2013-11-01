@@ -34,13 +34,17 @@ BulletImporter::~BulletImporter()
 
 ////////////////////////////////////////////////////////////////////////////////
 BulletObject*
-BulletImporter::createBox(const Ogre::AxisAlignedBox& bb, float mass)
+BulletImporter::createBox(const Ogre::AxisAlignedBox& bb,
+                          float mass,
+                          bool createPrimitive)
 {
     BulletObject* result = new BulletObject;
 
-    core::PrimitiveDrawer& pd = core::PrimitiveDrawer::instance();
-    core::Primitive* prim = pd.createBox(bb.getCenter(), bb.getSize(), pd.getFreshColour());
-    result->motionState.setNode(prim->node);
+    if (createPrimitive) {
+        core::PrimitiveDrawer& pd = core::PrimitiveDrawer::instance();
+        core::Primitive* prim = pd.createBox(bb.getCenter(), bb.getSize(), pd.getFreshColour());
+        result->motionState.setNode(prim->node);
+    }
 
     btVector3 localInertia(0,0,0);
     btTransform startTransform;
@@ -49,7 +53,9 @@ BulletImporter::createBox(const Ogre::AxisAlignedBox& bb, float mass)
     const Ogre::Vector3 halfsize = bb.getHalfSize();
     const Ogre::Vector3 center = bb.getCenter();
 
-    btCollisionShape* shape = new btBoxShape(btVector3(halfsize.x, halfsize.y, halfsize.z));
+    btCollisionShape* shape = new btBoxShape(btVector3(halfsize.x,
+                                                       halfsize.y,
+                                                       halfsize.z));
     if (mass != 0.f) {
         shape->calculateLocalInertia(mass,localInertia);
     }
