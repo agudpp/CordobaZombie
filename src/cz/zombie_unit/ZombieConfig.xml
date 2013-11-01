@@ -1,0 +1,20 @@
+<ZombieConfig>
+    <!-- Here we will put the information associated to the zombie units -->
+    <ZombieUnits>
+    
+    </ZombieUnits>
+    
+    <!-- Here we will put the information associated to the zombie body parts -->
+    <ZombieBodyParts>
+        <!-- The body parts are:
+            - BPE_HEAD = 0: Head part.
+            - BPE_FORE_ARM = 1: Fore arm only.
+            - BPE_UPPER_ARM = 2: Upper arm only.
+            - BPE_UPPER_FORE_ARM = 3: All the complete arm (Fore and upper).
+        
+        <BodyPart meshName="head.mesh" type="0" id="3"
+        
+    
+    </ZombieBodyParts>
+
+</ZombieConfig>
