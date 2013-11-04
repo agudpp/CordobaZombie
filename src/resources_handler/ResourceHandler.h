@@ -48,8 +48,50 @@ public:
                     const Ogre::String& resourceName,
                     Ogre::String &resourcePath);
 
+
+    // @brief Set the path to the resources folder.
+    inline void
+    setResourceRootPath(const Ogre::String &resourcePath);
+    inline const Ogre::String &
+    getResourceRootPath(void);
+
+
+    // @brief Get the concatenated string between the resources folder path
+    //        and the resource relative path resourceRelPath.
+    // @param resourceRelPath 	The resource relative path inside the resource
+    //							folder.
+    // @param fullPath			The resulting concatenation.
+    // @return true on success | false otherwise
+    bool
+    getResourceFullPath(const Ogre::String &resourceRelPath,
+    		Ogre::String &fullPath);
+
 private:
+
+    Ogre::String mResRootPath;
 };
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+
+
+inline void
+ResourceHandler::setResourceRootPath(const Ogre::String &resourcePath)
+{
+	mResRootPath = resourcePath;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+
+inline const Ogre::String &
+ResourceHandler::getResourceRootPath(void)
+{
+	return mResRootPath;
+}
+
+
 
 } /* namespace rrh */
 #endif /* RESOURCEHANDLER_H_ */

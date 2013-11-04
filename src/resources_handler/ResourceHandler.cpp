@@ -57,15 +57,20 @@ ogreLoadRsrcFile(const Ogre::String &file,
     Ogre::String secName, typeName, archName;
     while (seci.hasMoreElements()) {
         secName = seci.peekNextKey();
-        sections.push_back(secName);
-        Ogre::ConfigFile::SettingsMultiMap *settings = seci.getNext();
-        Ogre::ConfigFile::SettingsMultiMap::iterator i;
-        for (i = settings->begin(); i != settings->end(); ++i) {
-            typeName = i->first;
-            archName = path + i->second;
-            Ogre::ResourceGroupManager::getSingleton().addResourceLocation(
-                    archName, typeName, secName);
+        if(!secName.empty()){
+			sections.push_back(secName);
+			Ogre::ConfigFile::SettingsMultiMap *settings = seci.getNext();
+			Ogre::ConfigFile::SettingsMultiMap::iterator i;
+			for (i = settings->begin(); i != settings->end(); ++i) {
+				typeName = i->first;
+				archName = path + i->second;
+				Ogre::ResourceGroupManager::getSingleton().addResourceLocation(
+						archName, typeName, secName);
+			}
+        }else{
+        	seci.getNext();
         }
+
     }
     return true;
 }
@@ -76,7 +81,8 @@ ogreLoadRsrcFile(const Ogre::String &file,
 
 namespace rrh {
 
-ResourceHandler::ResourceHandler()
+ResourceHandler::ResourceHandler():
+		mResRootPath("")
 {
 
 }
@@ -98,7 +104,21 @@ ResourceHandler::loadResourceGroup(ResourceGroup& rg)
     core::StackVector<Ogre::String, 512> sections;
     ASSERT(rg.sections().empty() && "TODO: we need to change this probably, check"
         " issue 186 already closed. We don't need it now");
-    if (!ogreLoadRsrcFile(rg.ogreResourceFile(), sections)) {
+
+
+    // Get the path to the resource folder
+    size_t lastBar = 0;
+#ifdef _WIN32
+    lastBar = rg.ogreResourceFile().rfind('\\')+1;
+#else
+    lastBar = rg.ogreResourceFile().rfind('/')+1;
+#endif
+
+    ASSERT(lastBar > 1);
+    Ogre::String basePath = rg.ogre    debug("The base path of %s is %s\n",
+    		rg.ogreResourceFile().c_str(), basePath.c_str());ResourceFile().substr(0,lastBar);
+
+    if (!ogreLoadRsrcFile(rg.ogreResourceFile(), sections, basePath)) {
         debugERROR("We couldn't load the ogre resource file %s\n",
             rg.ogreResourceFile().c_str());
         return false;
@@ -106,7 +126,16 @@ ResourceHandler::loadResourceGroup(ResourceGroup& rg)
 
     // now we will load all the group targets and sa
     Ogre::ResourceGroupManager &rscMng = Ogre::ResourceGroupManager::getSingleton();
+
     for (Ogre::String& sec : sections) {
+
+#ifdef DEBUG
+    	if(!rscMng.resourceGroupExists(sec)){
+    		debugERROR("Can't find section named %s\n", sec.c_str());
+    	}
+#endif
+
+    	rscMng.initialiseResourceGroup(sec);
         rscMng.loadResourceGroup(sec);
         rg.addSection(sec);
     }
@@ -175,6 +204,18 @@ ResourceHandler::getResourcePath(const Ogre::String& resourceGroup,
     return true;
 }
 
+
+////////////////////////////////////////////////////////////////////////////////
+
+
+bool
+ResourceHandler::getResourceFullPath(const Ogre::String &resourceRelPath,
+		Ogre::String &fullPath)
+{
+	fullPath = mResRootPath;
+	fullPath += resourceRelPath;
+	return true;
+}
 
 
 } /* namespace rrh */

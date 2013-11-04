@@ -8,7 +8,6 @@
 #ifndef OSHELPER_H_
 #define OSHELPER_H_
 
-
 namespace core {
 namespace OSHelper {
 
@@ -19,6 +18,12 @@ namespace OSHelper {
 bool
 fileExists(const char* path);
 
+// @brief Find out the enviroment var value
+// @param var      The variable name
+// @return true if the variable exists | false otherwise
+//
+bool
+getEnvVar(const char* var, char* &val);
 
 }
 

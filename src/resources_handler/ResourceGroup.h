@@ -59,6 +59,10 @@ public:
     inline const SectionList&
     sections(void) const;
 
+    // @brief Clear the section list from this resource group
+    inline void
+    clearSections(void);
+
 private:
     std::string mFilePath;
     SectionList mSections;
@@ -104,6 +108,13 @@ ResourceGroup::sections(void) const
 {
     return mSections;
 }
+
+inline void
+ResourceGroup::clearSections(void)
+{
+	mSections.clear();
+}
+
 
 } /* namespace rrh */
 #endif /* RESOURCEGROUP_H_ */
