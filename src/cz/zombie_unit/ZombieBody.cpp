@@ -203,7 +203,7 @@ ZombieBody::checkIntersection(const Ogre::Ray& ray,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-physics::BulletObject*
+BodyPartElement*
 ZombieBody::extirpate(BodyPart bodyPart)
 {
     // we will remove the body part and return the associated body part
@@ -211,15 +211,53 @@ ZombieBody::extirpate(BodyPart bodyPart)
         // that bodypart doesn't exists anymore
         return 0;
     }
+
+    // here we will do some ugly trick to detect what will be the associated
+    // body part type
+    //
+    BodyPartElementType type = BodyPartElementType::BPE_INVALID;
+    if (bodyPart == BodyPart::BP_UPPER_ARM_L) {
+         if (mBodyMask[BodyPart::BP_FORE_ARM_L] == true) {
+             // we need to extirpate both upper arm and fore arm
+             type = BodyPartElementType::BPE_UPPER_FORE_ARM;
+         } else {
+             // only upper arm
+             type = BodyPartElementType::BPE_UPPER_ARM;
+         }
+    } else if (bodyPart == BodyPart::BP_UPPER_ARM_R) {
+         if (mBodyMask[BodyPart::BP_FORE_ARM_R] == true) {
+             // we need to extirpate both upper arm and fore arm
+             type = BodyPartElementType::BPE_UPPER_FORE_ARM;
+         } else {
+             // only upper arm
+             type = BodyPartElementType::BPE_UPPER_ARM;
+         }
+    } else if (bodyPart == BodyPart::BP_HEAD) {
+        type = BodyPartElementType::BPE_HEAD;
+    }
+
+
     if (!mExtirpationTable.extirpate(bodyPart, mBodyMask)) {
         // we couldn't extirpate that part!
         return 0;
     }
 
+    ASSERT(type != BodyPartElementType::BPE_INVALID);
+
     // we could extirpate and we already mark the parts as removed, so get the
     // BulletObject from the BodyPartQueue now
-    debugERROR("TODO: here we need to get the BulletObject from the queue\n");
-    return 0;
+    //
+    ASSERT(mBodyPartQueue);
+
+    BodyPartElement* result = mBodyPartQueue->getNewOne(type, mBodyPartID);
+    if (result == 0) {
+        return 0;
+    }
+
+    ASSERT(false && "We neeed to configure the body part to match with the position "
+        "and orientation of the bone / arm");
+
+    return result;
 }
 
 } /* namespace cz */

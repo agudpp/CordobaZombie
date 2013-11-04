@@ -15,6 +15,8 @@ namespace cz {
 enum ZombieEvent {
     ZE_DONE = 0,
     ZE_RUN,         // run to the player
+    ZE_DIE,         // when we die
+    ZE_BEING_HIT,   // when we are being hit
     // no more events for now
 };
 

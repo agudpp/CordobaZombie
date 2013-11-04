@@ -16,6 +16,7 @@
 #include <debug/DebugUtil.h>
 #include <global_data/GlobalData.h>
 
+
 namespace cz {
 
 // Forward
@@ -72,8 +73,14 @@ public:
     // @brief Return the current position of the bullet
     // @returns the current position of the bullet
     //
-    inline Ogre::Vector3
+    inline const Ogre::Vector3&
     currentPosition(void) const;
+
+    // @brief Get the current direction direction.
+    // @returns the direction reference of the bullet
+    //
+    inline const Ogre::Vector3&
+    direction(void) const;
 
     // @brief Update the current position of the bullet after moving it over a
     //        certain time. The new position of the bullet will be obtained
@@ -166,17 +173,16 @@ Bullet::queue(void) const
     return mQueue;
 }
 
-void
-Bullet::configure(const Ogre::Vector3& pos, const Ogre::Vector3& dir)
-{
-    mPosition = pos;
-    mNormalizedDir = dir;
-}
-
-inline Ogre::Vector3
+inline const Ogre::Vector3&
 Bullet::currentPosition(void) const
 {
     return mPosition;
+}
+
+inline const Ogre::Vector3&
+Bullet::direction(void) const
+{
+    return mNormalizedDir;
 }
 
 } /* namespace cz */

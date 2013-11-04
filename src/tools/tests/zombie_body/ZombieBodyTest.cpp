@@ -319,6 +319,10 @@ ZombieBodyTest::ZombieBodyTest() :
     cz::GlobalData::collHandler = &mCollHandler;
     cz::GlobalData::sceneMngr = mSceneMgr;
 
+    // configure the ZombieUnit and the queue
+    cz::ZombieUnit::setEffectHandler(&mEffectHandler);
+    cz::ZombieUnit::setBloodParticlesQueue(&mBloodQueue);
+
     // configure the static world
     core::AABB worldBB(3000,-3000,-3000,3000);
     mCollHandler.setWorldBoundingBox(worldBB);

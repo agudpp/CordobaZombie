@@ -39,11 +39,12 @@ FiringSystemHandler::update(void)
         Bullet* bullet = *it;
         const Ogre::Vector3 start = bullet->currentPosition();
         bullet->update(GlobalData::lastTimeFrame);
-        const Ogre::Vector3 end = bullet->currentPosition();
-        ASSERT(start != end);
+        const Ogre::Vector3 endPos = bullet->currentPosition();
+        ASSERT(start != endPos);
 
         // now we have to perform the raycast here from start to end and check
         // for collisions.
+        ASSERT(false && "TODO: complete this");
     }
 }
 

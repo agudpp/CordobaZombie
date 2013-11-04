@@ -14,6 +14,10 @@
 #include <bullet/LinearMath/btMotionState.h>
 #include <bullet/btBulletDynamicsCommon.h>
 
+#include <debug/DebugUtil.h>
+
+#include "BulletUtils.h"
+
 namespace physics {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -108,14 +112,42 @@ struct BulletObject {
     // @param other     The other BulletObject to compare against
     //
     inline bool
-    operator==(const BulletObject& other) const
-    {
-        return rigidBody == other.rigidBody && shape == other.shape &&
-            entity == other.entity;
-    }
+    operator==(const BulletObject& other) const;
 
+    // @brief Helper method used to apply a force to the rigid body
+    // @param force     The force we want to apply
+    //
+    inline void
+    applyCentralForce(const Ogre::Vector3& force);
 };
 
+
+
+
+
+
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Inline stuff
+//
+
+inline bool
+BulletObject::operator==(const BulletObject& other) const
+{
+    return rigidBody == other.rigidBody && shape == other.shape &&
+        entity == other.entity;
+}
+
+inline void
+BulletObject::applyCentralForce(const Ogre::Vector3& force)
+{
+    ASSERT(rigidBody);
+    rigidBody->applyCentralForce(BulletUtils::ogreToBullet(force));
+}
 
 } /* namespace physics */
 #endif /* BULLETOBJECT_H_ */

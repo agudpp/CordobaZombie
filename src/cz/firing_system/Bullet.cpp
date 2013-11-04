@@ -47,7 +47,7 @@ Bullet::create(void)
 
 ////////////////////////////////////////////////////////////////////////////////
 void
-Bullet::configure(const Ogre::Vector3& pos, const Ogre::Vector3& dir) const
+Bullet::configure(const Ogre::Vector3& pos, const Ogre::Vector3& dir)
 {
     mPosition = pos;
     mNormalizedDir = dir.normalisedCopy();

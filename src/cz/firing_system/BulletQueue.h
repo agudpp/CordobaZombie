@@ -15,9 +15,10 @@
 
 namespace cz {
 
-template <unsigned int NUM_BULLETS>
 class BulletQueue
 {
+    static const unsigned int NUM_BULLETS = 15;
+
 public:
     // The constructor will initializate the bullets setting this queue instance
     // as the parent queue
@@ -37,7 +38,7 @@ public:
     // @note THIS CLASS IS THE OWNER OF THE MEMORY.
     //
     inline Bullet*
-    getAvailable(void) const;
+    getAvailable(void);
 
     // @brief Check if we have more bullets here
     //
@@ -52,6 +53,8 @@ public:
     // @brief Return the array of bullets of size numAllocatedBullets();
     //
     inline Bullet*
+    getBullets(void);
+    inline const Bullet*
     getBullets(void) const;
 
 private:
@@ -65,23 +68,21 @@ private:
 // Inline stuff
 //
 
-template <unsigned int NUM_BULLETS>
-inline BulletQueue<NUM_BULLETS>::BulletQueue()
+inline BulletQueue::BulletQueue()
 {
     for (unsigned int i = 0; i < NUM_BULLETS; ++i) {
         mBullets[i].setQueue(this);
-        mAvailableBullets.push_back(mBullets[i]);
+        mAvailableBullets.push_back(&(mBullets[i]));
     }
 }
-template <unsigned int NUM_BULLETS>
-inline BulletQueue<NUM_BULLETS>::~BulletQueue()
+
+inline BulletQueue::~BulletQueue()
 {
 
 }
 
-template <unsigned int NUM_BULLETS>
 inline void
-BulletQueue<NUM_BULLETS>::letAvailable(Bullet* bullet)
+BulletQueue::letAvailable(Bullet* bullet)
 {
     ASSERT(!mAvailableBullets.full());
     ASSERT(bullet);
@@ -90,9 +91,8 @@ BulletQueue<NUM_BULLETS>::letAvailable(Bullet* bullet)
     mAvailableBullets.push_back(bullet);
 }
 
-template <unsigned int NUM_BULLETS>
 inline Bullet*
-BulletQueue<NUM_BULLETS>::getAvailable(void) const
+BulletQueue::getAvailable(void)
 {
     if (mAvailableBullets.empty()) {
         return 0;
@@ -102,23 +102,25 @@ BulletQueue<NUM_BULLETS>::getAvailable(void) const
     return b;
 }
 
-template <unsigned int NUM_BULLETS>
 inline bool
-BulletQueue<NUM_BULLETS>::hasBullets(void) const
+BulletQueue::hasBullets(void) const
 {
     return !mAvailableBullets.empty();
 }
 
-template <unsigned int NUM_BULLETS>
 inline unsigned int
-BulletQueue<NUM_BULLETS>::numAllocatedBullets(void) const
+BulletQueue::numAllocatedBullets(void) const
 {
     return NUM_BULLETS;
 }
 
-template <unsigned int NUM_BULLETS>
 inline Bullet*
-BulletQueue<NUM_BULLETS>::getBullets(void) const
+BulletQueue::getBullets(void)
+{
+    return mBullets;
+}
+inline const Bullet*
+BulletQueue::getBullets(void) const
 {
     return mBullets;
 }

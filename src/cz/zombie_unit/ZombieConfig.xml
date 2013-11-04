@@ -7,7 +7,8 @@
               mesh: The mesh name associated.
               material: The name of the material to be used.
               vel: The movement velocity of the zombie.
-              initialLife: The initial life of the zombie.
+              initialLife: The initial life of the zombie, we will handle life
+                           between 0 / 1000.
               bodyPartID: The associated body parts id to be used.
         -->
         <Zombie name="normal"

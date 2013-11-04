@@ -71,6 +71,8 @@ public:
     // @param id        The zombie id / name.
     // @param zu        The zombie unit to be configured.
     // @return true on success | false otherwise
+    // @note that this will not set the queues used by the zombie (RagDollQueue
+    //       nor BodyPartQueue)
     //
     bool
     loadZombie(const std::string& id, ZombieUnit& zu);

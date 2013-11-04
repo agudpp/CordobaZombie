@@ -46,6 +46,13 @@
 #include <zombie_unit/ZombieUnitBuilder.h>
 
 
+#include <effect_handler/EffectHandler.h>
+#include <fx/effects/blood/BloodParticles.h>
+#include <fx/effects/EffectQueueDefs.h>
+#include <fx/effects/billboards/BillboardStack.h>
+#include <fx/effects/billboards/BillboardGroupHandler.h>
+
+
 
 
 namespace tests {
@@ -113,6 +120,8 @@ private:
     cz::BodyPartQueue mBodyPartQueue;
     cz::ZombieUnitBuilder mBuilder;
 
+    effect::EffectHandler mEffectHandler;
+    cz::BloodParticlesQueue mBloodQueue;
 };
 
 }
