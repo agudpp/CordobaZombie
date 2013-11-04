@@ -11,6 +11,7 @@
 
 #include <types/basics.h>
 #include <types/StackVector.h>
+#include <math/Vec2.h>
 
 // we will define some of the types used in the collision system
 //

@@ -41,7 +41,6 @@ public:
     {
         ASSERT(dw);
         ASSERT(skeleton);
-        ASSERT(parentNode);
 
         // construct the table
         physics::BoneTable boneTable;

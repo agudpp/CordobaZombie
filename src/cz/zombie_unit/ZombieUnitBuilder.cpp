@@ -13,11 +13,11 @@
 #include <global_data/GlobalData.h>
 #include <xml/XMLHelper.h>
 #include <physics/BulletImporter.h>
+#include <physics/DynamicWorld.h>
 
 #include "ZombieUnit.h"
 #include "BodyPartElement.h"
 #include "BodyPartQueue.h"
-#include "RagDollQueue.h"
 
 
 
@@ -67,16 +67,65 @@ ZombieUnitBuilder::buildBodyPartElement(const TiXmlElement* xmlElement,
     // get the id and the type
     unsigned int aux;
     core::XMLHelper::parseUnsignedInt(xmlElement, "type", aux);
-    bpe.type = aux;
+    ASSERT(aux < BodyPartElementType::BPE_COUNT);
+    bpe.type = BodyPartElementType(aux);
     core::XMLHelper::parseUnsignedInt(xmlElement, "id", aux);
     bpe.id = aux;
 
     return true;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+bool
+ZombieUnitBuilder::configureZombieUnit(const TiXmlElement* xmlElement,
+                                       ZombieUnit& zu)
+{
+    ASSERT(xmlElement);
+    ASSERT(xmlElement->Attribute("mesh"));
+    ASSERT(xmlElement->Attribute("material"));
+    ASSERT(xmlElement->Attribute("vel"));
+    ASSERT(xmlElement->Attribute("initialLife"));
+    ASSERT(xmlElement->Attribute("bodyPartID"));
+
+    // get the scene manager
+    Ogre::SceneManager* sceneMngr = GlobalData::sceneMngr;
+    ASSERT(sceneMngr);
+
+    // construct the zombie unit
+    Ogre::Entity* ent = sceneMngr->createEntity(xmlElement->Attribute("mesh"));
+    ASSERT(ent);
+
+    // set the material for this entity
+    //
+    ent->setMaterialName(xmlElement->Attribute("material"));
+
+    // create the scene node and attach the entity to it
+    Ogre::SceneNode* node = sceneMngr->createSceneNode();
+    node->attachObject(ent);
+    zu.setOgreStuff(node, ent);
+
+    // vel
+    float vel;
+    core::XMLHelper::parseFloat(xmlElement, "vel", vel);
+    zu.setVelocity(vel);
+
+    // initial life
+    unsigned int aux;
+    core::XMLHelper::parseUnsignedInt(xmlElement, "initialLife", aux);
+    zu.setLife(aux);
+    zu.setInitialLife(aux);
+
+    // bodyPartID
+    core::XMLHelper::parseUnsignedInt(xmlElement, "bodyPartID", aux);
+    zu.setBodyPartID(aux);
+
+    return true;
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
-ZombieUnitBuilder::ZombieUnitBuilder()
+ZombieUnitBuilder::ZombieUnitBuilder() :
+    mDynamicWorld(0)
 {
 }
 
@@ -89,7 +138,7 @@ ZombieUnitBuilder::~ZombieUnitBuilder()
 bool
 ZombieUnitBuilder::parseXml(const std::string& xmlPath)
 {
-    mDocument = core::XMLHelper::loadXmlDocument(xmlPath.c_str());
+    mDocument.reset(core::XMLHelper::loadXmlDocument(xmlPath.c_str()));
     if (mDocument.get() == 0) {
         debugERROR("Error opening xml: %s\n", xmlPath.c_str());
         return false;
@@ -142,14 +191,64 @@ ZombieUnitBuilder::fillBodyPartQueue(BodyPartQueue& queue)
         queue.addBodyPartElement(element);
         bodyParts = bodyParts->NextSiblingElement("BodyPart");
     }
+
+    return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 bool
-ZombieUnitBuilder::fillRagDollQueue(RagDollQueue& queue);
+ZombieUnitBuilder::fillRagDollQueue(RagDollQueue<>& queue,
+                                    const Ogre::Entity* zombieModel)
+{
+    ASSERT(mDynamicWorld);
+    ASSERT(zombieModel);
+
+    // configure the queue
+    return queue.configure(&(mDynamicWorld->bulletDynamicWorld()),
+                           zombieModel->getSkeleton(),
+                           0);
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 bool
-ZombieUnitBuilder::loadZombie(const std::string& id, ZombieUnit& zu);
+ZombieUnitBuilder::loadZombie(const std::string& id, ZombieUnit& zu)
+{
+//    <ZombieUnits>
+//        <Zombie mesh="zombie.mesh"
+//                material="Zombie/Mat1"
+//                vel="10"
+//                initialLife="100"
+//                bodyPartID="1" />//
+//    </ZombieUnits>
+
+    const TiXmlElement* rootElement = mDocument->RootElement();
+
+    // get the root element of the ZombieUnits
+    const TiXmlElement* zombies = rootElement->FirstChildElement("ZombieUnits");
+    if (zombies == 0) {
+        debugERROR("No ZombieUnits found\n");
+        return false;
+    }
+
+    // iterate over each zombie
+    zombies = zombies->FirstChildElement("Zombie");
+    if (zombies == 0) {
+        debugERROR("No Zombie elements found\n");
+        return false;
+    }
+
+    // search for the zombie that matches with the associated id
+    while (zombies != 0) {
+        ASSERT(zombies->Attribute("name"));
+        if (std::strcmp(zombies->Attribute("name"), id.c_str()) == 0) {
+            // this is the one we want
+            return configureZombieUnit(zombies, zu);
+        }
+        zombies = zombies->NextSiblingElement("Zombie");
+    }
+
+    // we couldn't found the element we want
+    return false;
+}
 
 } /* namespace cz */

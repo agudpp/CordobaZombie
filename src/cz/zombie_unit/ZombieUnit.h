@@ -69,6 +69,13 @@ public:
     void
     configure(Ogre::SceneNode* node, Ogre::Entity* entity);
 
+    // @brief Set the associated body part ID to be used for this zombie.
+    //
+    inline void
+    setBodyPartID(unsigned short id);
+    inline unsigned short
+    bodyPartID(void) const;
+
     // @brief Set / get the velocity of the zombie to move.
     // @param vel       The movement velocity
     //
@@ -236,6 +243,9 @@ protected:
     float mVelocity;
     short mInitialLife;
     short mLife;
+    // this bodyPartID will be used to identify which is the associated body part
+    // to this particular zombie, by default will be 0
+    unsigned short mBodyPartID;
 
 private:
     // Avoid copying this class
@@ -251,7 +261,18 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////
 // Inline stuff
+//
 
+inline void
+ZombieUnit::setBodyPartID(unsigned short id)
+{
+    mBodyPartID = id;
+}
+inline unsigned short
+ZombieUnit::bodyPartID(void) const
+{
+    return mBodyPartID;
+}
 
 inline void
 ZombieUnit::setVelocity(float vel)

@@ -17,24 +17,34 @@
 #include <vector>
 #include <string>
 
+#include <bullet/btBulletDynamicsCommon.h>
+
 #include <app_tester/AppTester.h>
+#include <collisions/CollDefines.h>
+#include <collisions/CollisionHandler.h>
+#include <collisions/CollObject.h>
+#include <collisions/CollPreciseInfo.h>
+#include <collisions/CollPreciseInfoBuilder.h>
+#include <cursor/MouseCursor.h>
 #include <debug/DebugUtil.h>
 #include <debug/OgreText.h>
 #include <debug/OgreTextTable.h>
-#include <types/basics.h>
-#include <utils/OrbitCamera.h>
-#include <input/InputHelper.h>
-#include <types/StackVector.h>
 #include <debug/PrimitiveDrawer.h>
-
-#include <bullet/btBulletDynamicsCommon.h>
-#include <physics/RagDoll.h>
-#include <physics/DynamicWorld.h>
+#include <global_data/GlobalData.h>
+#include <input/InputHelper.h>
 #include <physics/BulletObject.h>
-#include <cursor/MouseCursor.h>
-#include <zombie_unit/ZombieBody.h>
-#include <zombie_unit/RagDollQueue.h>
+#include <physics/DynamicWorld.h>
+#include <physics/RagDoll.h>
+#include <static_data_loader/StaticDataLoader.h>
+#include <types/basics.h>
+#include <types/StackVector.h>
+#include <utils/OrbitCamera.h>
 #include <zombie_unit/BodyPartQueue.h>
+#include <zombie_unit/RagDollQueue.h>
+#include <zombie_unit/ZombieBody.h>
+#include <zombie_unit/ZombieUnit.h>
+#include <zombie_unit/ZombieUnitBuilder.h>
+
 
 
 
@@ -77,20 +87,31 @@ private:
     physics::BulletObject*
     performRaycast(void);
 
+    // @brief Test ZombieUnitBuilder
+    //
+    void
+    testBuilder(void);
+
     void
     handleCameraInput(void);
 
 private:
-    float mTimeFrame;
+    cz::StaticDataLoader mData;
+
+    float& mTimeFrame;
     tool::OrbitCamera mOrbitCamera;
     input::InputHelper mInputHelper;
     ui::MouseCursor mMouseCursor;
     physics::DynamicWorld mDynamicWorld;
     core::StackVector<physics::BulletObject*, 450> mObjects;
 
+    coll::CollisionHandler& mCollHandler;
+
     cz::ZombieBody mBody;
+    cz::ZombieUnit mZombieUnit;
     cz::RagDollQueue<> mRagdollQueue;
     cz::BodyPartQueue mBodyPartQueue;
+    cz::ZombieUnitBuilder mBuilder;
 
 };
 

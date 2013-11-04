@@ -52,6 +52,7 @@ ZombieUnit::ZombieUnit() :
 ,   mVelocity(15.f)
 ,   mInitialLife(100)
 ,   mLife(100)
+,   mBodyPartID(0)
 {
     mFSM.setRef(this);
 }

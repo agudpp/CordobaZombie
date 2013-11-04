@@ -667,7 +667,6 @@ bool
 RagDoll::buildFromSkeleton(const BoneTable& ogreBones,
                            const Ogre::SceneNode* parentNode)
 {
-    ASSERT(parentNode);
     ASSERT(mDynamicWorld);
 
     if (ogreBones.size() != ogreBones.max_size()) {

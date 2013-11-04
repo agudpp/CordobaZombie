@@ -173,7 +173,6 @@ ZombieBodyTest::configureBody(void)
     mBody.setSkeleton(ent->getSkeleton());
     mBody.setEntity(ent);
     mBody.build();
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -274,10 +273,34 @@ ZombieBodyTest::handleCameraInput()
 
 }
 
+////////////////////////////////////////////////////////////////////////////////
+void
+ZombieBodyTest::testBuilder(void)
+{
+    mBuilder.setDynamicWorld(&mDynamicWorld);
+    if (!mBuilder.parseXml("ZombieConfig.xml")) {
+        debugERROR("Error parsing xml ZombieConfig file\n");
+        return;
+    }
+
+    // build a zombie
+    if (!mBuilder.loadZombie("normal", mZombieUnit)) {
+        debugERROR("Error loading normal zombie\n");
+        return;
+    }
+
+    // put it in scene
+    mSceneMgr->getRootSceneNode()->addChild(mZombieUnit.sceneNode());
+}
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 ZombieBodyTest::ZombieBodyTest() :
-    core::AppTester(mTimeFrame)
+    core::AppTester(cz::GlobalData::lastTimeFrame)
+,   mTimeFrame(cz::GlobalData::lastTimeFrame)
 ,   mOrbitCamera(mCamera, mSceneMgr, mTimeFrame)
 ,   mInputHelper(getMouseButtons(), getKeyboardKeys())
+,   mCollHandler(mData.collHandler)
 {
     // configure the input
     input::Mouse::setMouse(mMouse);
@@ -291,14 +314,24 @@ ZombieBodyTest::ZombieBodyTest() :
     mMouseCursor.updatePosition(mWindow->getWidth() / 2,
                                 mWindow->getHeight() / 2);
 
+    // configure the global data
+    cz::GlobalData::camera = mCamera;
+    cz::GlobalData::collHandler = &mCollHandler;
+    cz::GlobalData::sceneMngr = mSceneMgr;
+
+    // configure the static world
+    core::AABB worldBB(3000,-3000,-3000,3000);
+    mCollHandler.setWorldBoundingBox(worldBB);
+
 }
 
+////////////////////////////////////////////////////////////////////////////////
 ZombieBodyTest::~ZombieBodyTest()
 {
     // TODO Auto-generated destructor stub
 }
 
-/* Load additional info */
+////////////////////////////////////////////////////////////////////////////////
 void
 ZombieBodyTest::loadAditionalData(void)
 {
@@ -310,13 +343,15 @@ ZombieBodyTest::loadAditionalData(void)
     // try to load the xml file
     loadFloor();
 
-    configureBullet();
+//    configureBullet();
+//
+//    configureBody();
 
-    configureBody();
+    testBuilder();
 
 }
 
-/* function called every frame. Use GlobalObjects::lastTimeFrame */
+////////////////////////////////////////////////////////////////////////////////
 void
 ZombieBodyTest::update()
 {
@@ -349,7 +384,9 @@ ZombieBodyTest::update()
     handleCameraInput();
 
     // update dynamic world
+    mCollHandler.update();
     mDynamicWorld.simulate(mTimeFrame);
+
 }
 
 }

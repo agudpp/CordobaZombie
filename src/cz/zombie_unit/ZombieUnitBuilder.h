@@ -9,10 +9,18 @@
 #define ZOMBIEUNITBUILDER_H_
 
 #include <string>
-#include <unique_ptr>
+#include <memory>
 
 #include <tinyxml/tinyxml.h>
 
+#include "RagDollQueue.h"
+
+
+// forward
+//
+namespace physics {
+class DynamicWorld;
+}
 
 namespace cz {
 
@@ -20,7 +28,6 @@ namespace cz {
 //
 struct BodyPartElement;
 class BodyPartQueue;
-class RagDollQueue;
 class ZombieUnit;
 
 class ZombieUnitBuilder
@@ -28,6 +35,12 @@ class ZombieUnitBuilder
 public:
     ZombieUnitBuilder();
     ~ZombieUnitBuilder();
+
+    // @brief Set the Bullet world to be used.
+    // @param bdw           The bullet dynamic world instance
+    //
+    inline void
+    setDynamicWorld(physics::DynamicWorld* bdw);
 
     // @brief Load and parse an xml to be used to load all the data.
     // @param xmlPath       The xml pah
@@ -46,10 +59,12 @@ public:
 
     // @brief Fill a Ragdoll queue using the already loaded xml.
     // @param queue         The RagDollQueue to be filled
+    // @param zombieModel   The zombie model to be used for all the ragdolls.
     // @return true on success | false otherwise
     //
     bool
-    fillRagDollQueue(RagDollQueue& queue);
+    fillRagDollQueue(RagDollQueue<>& queue,
+                     const Ogre::Entity* zombieModel);
 
     // @brief Create a zombie unit from a given id and using the current loaded
     //        xml file.
@@ -73,10 +88,33 @@ private:
     buildBodyPartElement(const TiXmlElement* xmlElement,
                          BodyPartElement& bpe) const;
 
+    // @brief Parse and configure a zombie unit from an xml element
+    // @param xmlElement        The xml element.
+    // @param zu                The zombie unit to be configured
+    // @return true on success | false otherwise
+    //
+    bool
+    configureZombieUnit(const TiXmlElement* xmlElement, ZombieUnit& zu);
+
 
 private:
     std::unique_ptr<TiXmlDocument> mDocument;
+    physics::DynamicWorld* mDynamicWorld;
 };
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Inline stuff
+//
+
+inline void
+ZombieUnitBuilder::setDynamicWorld(physics::DynamicWorld* bdw)
+{
+    mDynamicWorld = bdw;
+}
 
 } /* namespace cz */
 #endif /* ZOMBIEUNITBUILDER_H_ */
