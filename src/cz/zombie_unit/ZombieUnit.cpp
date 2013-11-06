@@ -10,6 +10,8 @@
 #include <cmath>
 
 #include <physics/BulletObject.h>
+#include <physics/BulletImporter.h>
+#include <physics/DynamicWorld.h>
 #include <effect_handler/EffectHandler.h>
 
 #include "BodyPartElement.h"
@@ -51,6 +53,7 @@ ZombieTTable ZombieUnit::sTTable;
 effect::EffectHandler* ZombieUnit::sEffectHandler = 0;
 BloodParticlesQueue* ZombieUnit::sBloodQueue = 0;
 HitInfo ZombieUnit::sLastHitInfo;
+physics::DynamicWorld* ZombieUnit::sDynamicWorld = 0;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -67,6 +70,12 @@ ZombieUnit::ZombieUnit() :
 ////////////////////////////////////////////////////////////////////////////////
 ZombieUnit::~ZombieUnit()
 {
+    // delete the associated shape if we have one
+    if (mPhysicBB.shape()) {
+        ASSERT(sDynamicWorld);
+        sDynamicWorld->removeObject(mPhysicBB);
+        delete mPhysicBB.shape();
+    }
     debugWARNING("we should remove the scenenode and entity here?\n");
 }
 
@@ -107,6 +116,20 @@ ZombieUnit::configure(Ogre::SceneNode* node, Ogre::Entity* entity)
     setCollisionType(false); // wow, this is rare XD, probably using an enum will be
                              // more easy to understand
     enableCollisions(false); // disable the collisions for now
+
+    // create the physic representation of the zombie, for now we will use a capsule
+    ASSERT(sDynamicWorld);
+    if (mPhysicBB.shape()) {
+        // destroy the current one
+        sDynamicWorld->removeObject(mPhysicBB);
+        delete mPhysicBB.shape();
+    }
+
+    mPhysicBB.setShape(physics::BulletImporter::createBoxShape(ogreBB));
+    ASSERT(mPhysicBB.shape() && "Error creating the shape?");
+    sDynamicWorld->addObject(mPhysicBB, CZRayMask::CZRM_ZOMBIE, 0);
+    prim = core::PrimitiveDrawer::instance().createBox(Ogre::Vector3::ZERO, ogreBB.getSize());
+
 
     // set the radius of the pathHandler
     mPathHandler.setRadius(std::sqrt(sqrRadius()));

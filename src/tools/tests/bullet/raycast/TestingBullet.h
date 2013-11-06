@@ -88,6 +88,8 @@ private:
     ui::MouseCursor mMouseCursor;
     physics::DynamicWorld mDynamicWorld;
     core::StackVector<physics::BulletObject*, 450> mObjects;
+    btCollisionObject* mCollObject;
+    core::Primitive* mCollObjectPrim;
 
 };
 

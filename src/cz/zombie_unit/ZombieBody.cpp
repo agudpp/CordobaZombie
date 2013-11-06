@@ -308,6 +308,14 @@ ZombieBody::extirpate(BodyPart bodyPart)
     Ogre::Vector3 globalPosition = globalBonePosition(bone, mNode);
     Ogre::Quaternion globalOrientation = globalBoneRotation(bone, mNode);
     ASSERT(result->bulletObject);
+
+    // move the size of the entity in the bone space
+    Ogre::Matrix4 mat(globalOrientation);
+    mat.setTrans(globalPosition);
+    const Ogre::Entity* ent = result->bulletObject->entity;
+    ASSERT(ent);
+    const Ogre::Vector3 offset(0, 0, ent->getBoundingBox().getHalfSize().z);
+    globalPosition = mat * offset;
     result->bulletObject->setTransform(globalPosition, globalOrientation);
 
     debugERROR("Here we have to set the position correctly to the body part\n");

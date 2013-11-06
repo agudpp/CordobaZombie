@@ -21,6 +21,8 @@
 #include <fx/effects/body_part/BodyPartEffect.h>
 #include <fx/effects/blood/BloodParticles.h>
 
+#include <physics/BulletCollisionObject.h>
+
 #include "states/ZombieFSMDefs.h"
 #include "ZombieBody.h"
 #include "RagDollQueue.h"
@@ -32,6 +34,10 @@
 //
 namespace effect {
 class EffectHandler;
+}
+
+namespace physics {
+class DynamicWorld;
 }
 
 namespace cz {
@@ -78,6 +84,14 @@ public:
 public:
     ZombieUnit();
     ~ZombieUnit();
+
+    // @brief Set the Dynamic world instance.
+    // @param dwi       The dynamic world instance
+    //
+    static inline void
+    setDynamicWorld(physics::DynamicWorld* dwi);
+    static inline physics::DynamicWorld*
+    dynamicWorld(void);
 
     // @brief We need to set the global EffectHandler to be used for all the
     //        effects of the zombies.
@@ -349,6 +363,8 @@ protected:
     // Last hit information, since we are not running in parallel we can do this
     // safely.
     static HitInfo sLastHitInfo;
+    // Dynamic world instance
+    static physics::DynamicWorld* sDynamicWorld;
 
 protected:
     // General members
@@ -360,10 +376,15 @@ protected:
     short mLife;
     // The zombie body instance associated to this zombie
     ZombieBody mBody;
+    // The physic bounding box representation of the zombie to be able to receive
+    // raycast and probably intersect against body parts
+    physics::BulletCollisionObject mPhysicBB;
 
     // effects
     // effect to execute body part effect
     BodyPartEffect mBodyPartEffect;
+
+    core::Primitive* prim;
 
 
 private:
@@ -381,6 +402,18 @@ private:
 ////////////////////////////////////////////////////////////////////////////
 // Inline stuff
 //
+
+inline void
+ZombieUnit::setDynamicWorld(physics::DynamicWorld* dwi)
+{
+    ASSERT(dwi);
+    sDynamicWorld = dwi;
+}
+inline physics::DynamicWorld*
+ZombieUnit::dynamicWorld(void)
+{
+    return sDynamicWorld;
+}
 
 inline void
 ZombieUnit::setEffectHandler(effect::EffectHandler* eh)
@@ -524,7 +557,7 @@ ZombieUnit::moveAndLook(const core::Vector2& move)
 {
     core::Vector2 tvec(move);
     tvec *= GlobalData::lastTimeFrame;
-    translate(tvec);
+    translate(tvec * velocity());
     lookAt(position() + tvec);
 }
 
@@ -628,6 +661,17 @@ ZombieUnit::bodyPartEffect(void) const
 inline void
 ZombieUnit::update(void)
 {
+    // first check if we have to update the physics bounding box
+    if (hasMovedOrRotated()) {
+        Ogre::Vector3 position(position3D());
+        position.z += objectHeight();
+        mPhysicBB.setTransform(position, rotation());
+        prim->node->setPosition(position);
+        prim->node->setOrientation(rotation());
+        resetMovedOrRotatedFlag();
+    }
+
+    // update everything
     mFSM.update();
     mAnimTable.update(GlobalData::lastTimeFrame);
 }

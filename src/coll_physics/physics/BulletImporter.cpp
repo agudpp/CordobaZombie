@@ -75,6 +75,14 @@ BulletImporter::createBox(const Ogre::AxisAlignedBox& bb,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+BulletShape*
+BulletImporter::createBoxShape(const Ogre::AxisAlignedBox& bb)
+{
+    const Ogre::Vector3 halfsize = bb.getHalfSize();
+    return new btBoxShape(btVector3(halfsize.x, halfsize.y, halfsize.z));
+}
+
+////////////////////////////////////////////////////////////////////////////////
 btCollisionShape*
 BulletImporter::createShapeFromMesh(const Ogre::Mesh* mesh)
 {

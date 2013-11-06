@@ -154,9 +154,18 @@ TestingBullet::createSampleScene(void)
     loader->construct(info, bo);
 
     for (physics::BulletObject* o : bo) {
-        mDynamicWorld.addObject(*o);
+        mDynamicWorld.addObject(*o,1,1);
     }
     debugERROR("LEAAAAAAAAAAAAAAAAAAKSSSS for loaderXD\n");
+
+    // Create a collision object
+    Ogre::AxisAlignedBox shapeBox(-20,-20,-20,20,20,20);
+    btCollisionShape* shape = new btBoxShape(physics::BulletUtils::ogreToBullet(shapeBox.getHalfSize()));
+    mCollObject = new btCollisionObject;
+    mCollObject->setCollisionShape(shape);
+    mCollObjectPrim = core::PrimitiveDrawer::instance().createBox(Ogre::Vector3::ZERO,
+                                                                 shapeBox.getSize());
+    mDynamicWorld.bulletDynamicWorld().addCollisionObject(mCollObject, 2, 1);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -332,7 +341,7 @@ TestingBullet::update()
         const Ogre::Vector3 camPos = mCamera->getRealPosition();
         Ogre::AxisAlignedBox bb(camPos - halfSize, camPos + halfSize);
         physics::BulletObject* bo = physics::BulletImporter::createBox(bb, 10);
-        mDynamicWorld.addObject(*bo);
+        mDynamicWorld.addObject(*bo, 1, 1);
 
         Ogre::Vector3 force(mCamera->getDerivedDirection());
         force.normalise();
@@ -341,7 +350,13 @@ TestingBullet::update()
         bo->rigidBody->applyCentralImpulse(btForce);
     }
 
-
+    // move the collision object and check collisions
+    if (mInputHelper.isKeyPressed(input::KeyCode::KC_LEFT)) {
+        btVector3 transVec(0,10,0);
+        btTransform& tran = mCollObject->getWorldTransform();
+        tran.setOrigin(tran.getOrigin() + transVec);
+        mCollObjectPrim->translate(physics::BulletUtils::bulletToOgre(transVec));
+    }
 
     // update the camera
     handleCameraInput();

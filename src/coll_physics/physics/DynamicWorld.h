@@ -18,6 +18,7 @@
 #include <debug/DebugUtil.h>
 
 #include "BulletObject.h"
+#include "BulletCollisionObject.h"
 #include "RaycastInfo.h"
 
 namespace physics {
@@ -75,6 +76,22 @@ public:
     //
     inline void
     removeObject(BulletObject& bo);
+
+    // @brief Add a collision object into the world. We will not check anything
+    //        just add it to the world directly
+    // @param bco       The bullet collision object to add
+    // @param groupMask The group mask associated to this bco [optional]
+    // @param bcoMask   The object mask [optional]
+    //
+    inline void
+    addObject(BulletCollisionObject& bco, short int groupMask = ~0, short int bcoMask = ~0);
+
+    // @brief Remove a collision object from the world. We will not check for
+    //        anything, just call bullet->removeCollisionObject().
+    // @param bo        The bullet collision object to remove
+    //
+    inline void
+    removeObject(BulletCollisionObject& bco);
 
     ////////////////////////////////////////////////////////////////////////////
 
@@ -182,6 +199,25 @@ inline void
 DynamicWorld::removeObject(BulletObject& bo)
 {
     mDynamicWorld.removeRigidBody(bo.rigidBody);
+}
+
+inline void
+DynamicWorld::addObject(BulletCollisionObject& bco,
+                        short int groupMask,
+                        short int bcoMask)
+{
+    ASSERT(bco.shape());
+    if (groupMask == ~0 && bcoMask == ~0) {
+        mDynamicWorld.addCollisionObject(&(bco.collObject));
+    } else {
+        mDynamicWorld.addCollisionObject(&(bco.collObject), groupMask, bcoMask);
+    }
+}
+
+inline void
+DynamicWorld::removeObject(BulletCollisionObject& bco)
+{
+    mDynamicWorld.removeCollisionObject(&(bco.collObject));
 }
 
 inline void

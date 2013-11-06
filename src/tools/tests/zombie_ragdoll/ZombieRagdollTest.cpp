@@ -1,11 +1,11 @@
 /*
- * ZombieBodyTest.cpp
+ * ZombieRagdollTest.cpp
  *
  *  Created on: 15/08/2011
  *      Author: agustin
  */
 
-#include "ZombieBodyTest.h"
+#include "ZombieRagdollTest.h"
 
 #include <OgreMath.h>
 #include <OgreAnimationState.h>
@@ -116,6 +116,41 @@ printSubentitiesNames(Ogre::Entity* ent)
         ent->getName().c_str(), ent->getNumSubEntities());
 }
 
+inline Ogre::Quaternion
+globalOgreRotation(const Ogre::Bone *bone, const Ogre::SceneNode* parentNode)
+{
+    return parentNode->_getDerivedOrientation() * bone->_getDerivedOrientation();
+}
+inline Ogre::Vector3
+globalOgrePosition(const Ogre::Bone *bone, const Ogre::SceneNode* parentNode)
+{
+    return parentNode->getPosition() + parentNode->getOrientation() *
+        bone->_getDerivedPosition();
+}
+
+
+// @brief draw a bone
+//
+inline void
+drawBone(const Ogre::Bone *bone, const Ogre::SceneNode* node)
+{
+    core::PrimitiveDrawer& pd = core::PrimitiveDrawer::instance();
+    core::Primitive* prim = pd.create3DAxis(Ogre::Vector3::ZERO, 3);
+    prim->node->setPosition(globalOgrePosition(bone, node));
+    prim->node->setOrientation(globalOgreRotation(bone, node));
+}
+
+inline void
+drawSkeletonBones(Ogre::SkeletonInstance* skeleton, const Ogre::SceneNode* node)
+{
+    Ogre::Skeleton::BoneIterator boneIt = skeleton->getBoneIterator();
+    while(boneIt.hasMoreElements()) {
+        Ogre::Bone* bone = boneIt.getNext();
+        ASSERT(bone);
+        drawBone(bone, node);
+    }
+}
+
 }
 
 
@@ -124,7 +159,7 @@ namespace tests {
 
 ////////////////////////////////////////////////////////////////////////////////
 void
-ZombieBodyTest::loadFloor(void)
+ZombieRagdollTest::loadFloor(void)
 {
     Ogre::Plane p;
     p.normal = Ogre::Vector3(0, 0, 1);
@@ -140,7 +175,7 @@ ZombieBodyTest::loadFloor(void)
 
 ////////////////////////////////////////////////////////////////////////////////
 void
-ZombieBodyTest::configureBullet(void)
+ZombieRagdollTest::configureBullet(void)
 {
     Ogre::AxisAlignedBox floor;
     floor.setExtents(Ogre::Vector3(-1520,-1550,-10),Ogre::Vector3(1520,1550,0));
@@ -153,11 +188,13 @@ ZombieBodyTest::configureBullet(void)
 
 ////////////////////////////////////////////////////////////////////////////////
 void
-ZombieBodyTest::configureBody(void)
+ZombieRagdollTest::configureBody(void)
 {
     Ogre::SceneNode* node = mSceneMgr->getRootSceneNode()->createChildSceneNode();
-    Ogre::Entity* ent = mSceneMgr->createEntity("zombie.mesh");
+    Ogre::Entity* ent = mSceneMgr->createEntity("zombieZ.mesh");
     node->attachObject(ent);
+
+    core::PrimitiveDrawer::instance().createSphere(node->getPosition(), 2);
 
     printBoneNames(ent);
     printSubentitiesNames(ent);
@@ -173,11 +210,25 @@ ZombieBodyTest::configureBody(void)
     mBody.setSkeleton(ent->getSkeleton());
     mBody.setEntity(ent);
     mBody.build();
+
+    // draw the skeleton
+    drawSkeletonBones(ent->getSkeleton(), node);
+
+
+    {
+        // create the Y zombie
+        Ogre::SceneNode* node = mSceneMgr->getRootSceneNode()->createChildSceneNode();
+        Ogre::Entity* ent = mSceneMgr->createEntity("zombieY.mesh");
+        node->attachObject(ent);
+        node->translate(50,0,50);
+        drawSkeletonBones(ent->getSkeleton(), node);
+        node->setVisible(false);
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 physics::BulletObject*
-ZombieBodyTest::performRaycast(void)
+ZombieRagdollTest::performRaycast(void)
 {
     // 1) Get the ray
     Ogre::Ray ray = mCamera->getCameraToViewportRay(mMouseCursor.getXRelativePos(),
@@ -205,7 +256,7 @@ ZombieBodyTest::performRaycast(void)
 
 ////////////////////////////////////////////////////////////////////////////////
 void
-ZombieBodyTest::handleCameraInput()
+ZombieRagdollTest::handleCameraInput()
 {
     ///////////////////////////////////////////////////////////////////////////
     // CAMERA
@@ -273,72 +324,10 @@ ZombieBodyTest::handleCameraInput()
 
 }
 
-////////////////////////////////////////////////////////////////////////////////
-void
-ZombieBodyTest::testBuilder(void)
-{
-    // We need to set the global data first
-    //
-
-    // build the blood particle queue
-    //
-    const unsigned int size = mBloodQueue.numAllocatedEffects();
-    cz::BloodParticles* particles = mBloodQueue.getEffects();
-    for (unsigned int i = 0; i < size; ++i) {
-        particles[i].construct();
-    }
-
-    // configure the ZombieUnit and the queue
-    cz::ZombieUnit::setEffectHandler(&mEffectHandler);
-    cz::ZombieUnit::setBloodParticlesQueue(&mBloodQueue);
-
-    // set the builder data
-    mBuilder.setDynamicWorld(&mDynamicWorld);
-    mBuilder.setQueues(&mRagdollQueue, &mBodyPartQueue);
-
-    if (!mBuilder.parseXml("ZombieConfig.xml")) {
-        debugERROR("Error parsing xml ZombieConfig file\n");
-        return;
-    }
-
-    // build the queues
-    mBuilder.fillBodyPartQueue(mBodyPartQueue);
-
-    // build a zombie
-    if (!mBuilder.loadZombie("normal", mZombieUnit)) {
-        debugERROR("Error loading normal zombie\n");
-        return;
-    }
-    mZombieUnit.born();
-
-    // put it in scene
-    mSceneMgr->getRootSceneNode()->addChild(mZombieUnit.sceneNode());
-
-    // move it a little up
-    mZombieUnit.set3DPosition(Ogre::Vector3(0,0,100));
-    const core::Vector2 nextPos(0,10);
-    mZombieUnit.moveAndLook(nextPos);
-
-    // we will use that zombie as the model for the ragdolls
-    mRagdollQueue.configure(&mDynamicWorld.bulletDynamicWorld(),
-                            mZombieUnit.entity()->getSkeleton(),
-                            mZombieUnit.sceneNode());
-}
-
-////////////////////////////////////////////////////////////////////////////////
-void
-ZombieBodyTest::createBulletSystem(void)
-{
-    Ogre::AxisAlignedBox worldLimits(-1000,-1000,-100,1000,1000,1000);
-    mFiringSystem.setInfo(&mDynamicWorld, worldLimits);
-
-    // create the bullets
-    mBulletsQueue.build();
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-ZombieBodyTest::ZombieBodyTest() :
+ZombieRagdollTest::ZombieRagdollTest() :
     core::AppTester(cz::GlobalData::lastTimeFrame)
 ,   mTimeFrame(cz::GlobalData::lastTimeFrame)
 ,   mOrbitCamera(mCamera, mSceneMgr, mTimeFrame)
@@ -362,12 +351,6 @@ ZombieBodyTest::ZombieBodyTest() :
     cz::GlobalData::collHandler = &mCollHandler;
     cz::GlobalData::sceneMngr = mSceneMgr;
 
-    // Zombie Unit static values
-    cz::ZombieUnit::setDynamicWorld(&mDynamicWorld);
-
-    // Effects
-    cz::BodyPartEffect::setDynamicWorld(&mDynamicWorld);
-
     // configure the static world
     core::AABB worldBB(3000,-3000,-3000,3000);
     mCollHandler.setWorldBoundingBox(worldBB);
@@ -375,14 +358,14 @@ ZombieBodyTest::ZombieBodyTest() :
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-ZombieBodyTest::~ZombieBodyTest()
+ZombieRagdollTest::~ZombieRagdollTest()
 {
     // TODO Auto-generated destructor stub
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void
-ZombieBodyTest::loadAditionalData(void)
+ZombieRagdollTest::loadAditionalData(void)
 {
     // TODO: ugly way to load all the fonts at the beginning
     Ogre::ResourceManager::ResourceMapIterator iter =
@@ -394,19 +377,13 @@ ZombieBodyTest::loadAditionalData(void)
 
     configureBullet();
 //
-//    configureBody();
-
-    // Test the zombie builder
-    testBuilder();
-
-    // configure the bullet and firing system
-    createBulletSystem();
+    configureBody();
 
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void
-ZombieBodyTest::update()
+ZombieRagdollTest::update()
 {
     // update the input system
     mInputHelper.update();
@@ -419,20 +396,20 @@ ZombieBodyTest::update()
 
     // if click shoot a box
     if (mInputHelper.isMouseReleased(input::MouseButtonID::MB_Left)) {
-        // fire a bullet
-        cz::Bullet* bullet = mBulletsQueue.getAvailable();
-        if (bullet) {
-            const Ogre::Vector3& camDir = mCamera->getRealDirection();
-            const Ogre::Vector3& camPos = mCamera->getRealPosition();
-            bullet->configure(camPos - Ogre::Vector3(0,0,1.2f), camDir);
-            bullet->setProperties(1.f, 444.f);
-            mFiringSystem.add(bullet);
-        }
+        mBody.setRagdollEnable(true);
+        mUpdateBody = true;
+    }
+    if (mInputHelper.isKeyReleased(input::KeyCode::KC_E)) {
+        mBody.sceneNode()->flipVisibility();
+    }
+    if (mInputHelper.isKeyReleased(input::KeyCode::KC_SPACE)) {
+        mBody.setRagdollEnable(false);
+        mBody.resetBody();
+        mUpdateBody = false;
     }
 
-    if (mInputHelper.isKeyPressed(input::KeyCode::KC_UP)) {
-        core::Vector2 t(10,0);
-        mZombieUnit.moveAndLook(t);
+    if (mUpdateBody) {
+        mUpdateBody = mBody.isRagdollEnabled() && mBody.update();
     }
 
 
@@ -442,11 +419,6 @@ ZombieBodyTest::update()
     // update dynamic world
     mCollHandler.update();
     mDynamicWorld.simulate(mTimeFrame);
-    mEffectHandler.update(cz::GlobalData::lastTimeFrame);
-    mZombieUnit.update();
-
-    // firing system
-    mFiringSystem.update();
 
 }
 
