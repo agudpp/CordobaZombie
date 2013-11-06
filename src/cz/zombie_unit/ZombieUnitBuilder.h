@@ -42,6 +42,13 @@ public:
     inline void
     setDynamicWorld(physics::DynamicWorld* bdw);
 
+    // @brief Set the queues to be used by the ZombieUnits
+    // @param rq        The RagDollQueue instance
+    // @param bpq       The BodyPartQueue instance
+    //
+    inline void
+    setQueues(RagDollQueue<>* rq, BodyPartQueue* bpq);
+
     // @brief Load and parse an xml to be used to load all the data.
     // @param xmlPath       The xml pah
     // @return true on success | false otherwise
@@ -71,8 +78,8 @@ public:
     // @param id        The zombie id / name.
     // @param zu        The zombie unit to be configured.
     // @return true on success | false otherwise
-    // @note that this will not set the queues used by the zombie (RagDollQueue
-    //       nor BodyPartQueue)
+    // @note YOU MUST CALL setQueues() method before calling this method since
+    //       we will configure the zombies with thouse queues.
     //
     bool
     loadZombie(const std::string& id, ZombieUnit& zu);
@@ -102,6 +109,8 @@ private:
 private:
     std::unique_ptr<TiXmlDocument> mDocument;
     physics::DynamicWorld* mDynamicWorld;
+    RagDollQueue<>* mRagDollQueue;
+    BodyPartQueue* mBodyPartQueue;
 };
 
 
@@ -116,6 +125,13 @@ inline void
 ZombieUnitBuilder::setDynamicWorld(physics::DynamicWorld* bdw)
 {
     mDynamicWorld = bdw;
+}
+
+inline void
+ZombieUnitBuilder::setQueues(RagDollQueue<>* rq, BodyPartQueue* bpq)
+{
+    mRagDollQueue = rq;
+    mBodyPartQueue = bpq;
 }
 
 } /* namespace cz */

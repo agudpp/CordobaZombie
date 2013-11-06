@@ -63,6 +63,7 @@ public:
 
     // @brief Will automatically destroy the associated collision object.
     //
+    virtual
     ~WorldObject();
 
     ////////////////////////////////////////////////////////////////////////////

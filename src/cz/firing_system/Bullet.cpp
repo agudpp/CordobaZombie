@@ -71,7 +71,7 @@ Bullet::update(float time)
 {
     ASSERT(mNode);
     // update the node position translating them
-    mNode->translate(mNormalizedDir * (mVelocity * time));
+    mNode->translate(mNormalizedDir * (mVelocity * time * 200.f));
     mPosition = mNode->getPosition();
 }
 

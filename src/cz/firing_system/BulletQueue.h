@@ -17,7 +17,7 @@ namespace cz {
 
 class BulletQueue
 {
-    static const unsigned int NUM_BULLETS = 15;
+    static const unsigned int NUM_BULLETS = 35;
 
 public:
     // The constructor will initializate the bullets setting this queue instance
@@ -56,6 +56,11 @@ public:
     getBullets(void);
     inline const Bullet*
     getBullets(void) const;
+
+    // @brief Create all the bullets
+    //
+    inline void
+    build(void);
 
 private:
     Bullet mBullets[NUM_BULLETS];
@@ -123,6 +128,14 @@ inline const Bullet*
 BulletQueue::getBullets(void) const
 {
     return mBullets;
+}
+
+inline void
+BulletQueue::build(void)
+{
+    for (Bullet& b : mBullets) {
+        b.create();
+    }
 }
 
 } /* namespace cz */

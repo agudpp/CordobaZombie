@@ -10,6 +10,9 @@
 
 #include <vector>
 
+#include <OgreAxisAlignedBox.h>
+#include <OgreSceneQuery.h>
+
 #include <debug/DebugUtil.h>
 
 #include "Bullet.h"
@@ -29,10 +32,12 @@ public:
     ~FiringSystemHandler();
 
     // @brief Set the Dynamic world instance to be used to perform the raycasts
-    // @param dw        The DynamicWorld instance
+    // @param dw            The DynamicWorld instance
+    // @param worldLimits   The world bounding box limits.
     //
     inline void
-    setInfo(physics::DynamicWorld* dw);
+    setInfo(physics::DynamicWorld* dw,
+            const Ogre::AxisAlignedBox& worldLimits);
 
 
     // @brief Add a new bullet to be updated / tracked.
@@ -73,7 +78,9 @@ private:
 
 private:
     physics::DynamicWorld* mDynamicWorld;
+    Ogre::AxisAlignedBox mWorldLimits;
     std::vector<Bullet*> mBullets;
+    Ogre::RaySceneQuery* mRayQuery;
 };
 
 
@@ -95,10 +102,20 @@ FiringSystemHandler::getIndex(const Bullet* bullet) const
 }
 
 inline void
-FiringSystemHandler::setInfo(physics::DynamicWorld* dw)
+FiringSystemHandler::setInfo(physics::DynamicWorld* dw,
+                             const Ogre::AxisAlignedBox& worldLimits)
 {
     ASSERT(dw);
     mDynamicWorld = dw;
+    mWorldLimits = worldLimits;
+
+    // build the query if still not built
+    if (mRayQuery == 0) {
+        Ogre::SceneManager* sceneMngr = GlobalData::sceneMngr;
+        ASSERT(sceneMngr);
+        mRayQuery = sceneMngr->createRayQuery(Ogre::Ray());
+        mRayQuery->setSortByDistance(true);
+    }
 }
 
 inline void

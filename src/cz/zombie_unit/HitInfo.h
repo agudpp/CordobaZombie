@@ -27,7 +27,7 @@ struct HitInfo {
     Ogre::Vector3 intersectionPoint;
     bool hasImpact;
     float power;
-    ZombieBody::BodyPart bodyPart;
+    unsigned int bodyPart;
 
     // @brief Configure the HitInfo from a Bullet.
     //        This will reset all the values to the default ones

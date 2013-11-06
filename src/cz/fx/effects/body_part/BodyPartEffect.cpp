@@ -7,7 +7,10 @@
 
 #include "BodyPartEffect.h"
 
+#include <OgreSceneManager.h>
+
 #include <physics/DynamicWorld.h>
+#include <global_data/GlobalData.h>
 #include <CZMasksDefines.h>
 
 
@@ -36,8 +39,16 @@ BodyPartEffect::beforeStart(void)
     ASSERT(sDynamicWorld);
     ASSERT(mElement);
     ASSERT(mElement->bulletObject);
+
     // we need to add the bullet element in the bullet world
     sDynamicWorld->addObject(*(mElement->bulletObject), CZRM_ALL, CZRM_ALL);
+
+    // make the graphic representation visible
+    Ogre::SceneManager* sceneMngr = GlobalData::sceneMngr;
+    ASSERT(sceneMngr);
+    Ogre::SceneNode* node = mElement->bulletObject->motionState.node();
+    ASSERT(node);
+    sceneMngr->getRootSceneNode()->addChild(node);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -72,6 +83,14 @@ BodyPartEffect::afterFinish(void)
 
     sDynamicWorld->removeObject(*(mElement->bulletObject));
     mQueue->letAvailable(mElement);
+
+    // remove from the scene
+    Ogre::SceneManager* sceneMngr = GlobalData::sceneMngr;
+    ASSERT(sceneMngr);
+    Ogre::SceneNode* node = mElement->bulletObject->motionState.node();
+    ASSERT(node);
+    sceneMngr->getRootSceneNode()->removeChild(node);
+
     mElement = 0;
 }
 

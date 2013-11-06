@@ -14,6 +14,7 @@
 #include <xml/XMLHelper.h>
 #include <physics/BulletImporter.h>
 #include <physics/DynamicWorld.h>
+#include <CZMasksDefines.h>
 
 #include "ZombieUnit.h"
 #include "BodyPartElement.h"
@@ -102,7 +103,6 @@ ZombieUnitBuilder::configureZombieUnit(const TiXmlElement* xmlElement,
     // create the scene node and attach the entity to it
     Ogre::SceneNode* node = sceneMngr->createSceneNode();
     node->attachObject(ent);
-    zu.setOgreStuff(node, ent);
 
     // vel
     float vel;
@@ -119,6 +119,12 @@ ZombieUnitBuilder::configureZombieUnit(const TiXmlElement* xmlElement,
     core::XMLHelper::parseUnsignedInt(xmlElement, "bodyPartID", aux);
     zu.setBodyPartID(aux);
 
+    // configure the zombie
+    ASSERT(mRagDollQueue);
+    ASSERT(mBodyPartQueue);
+    zu.setQueues(mRagDollQueue, mBodyPartQueue);
+    zu.configure(node, ent);
+
     return true;
 }
 
@@ -126,6 +132,8 @@ ZombieUnitBuilder::configureZombieUnit(const TiXmlElement* xmlElement,
 ////////////////////////////////////////////////////////////////////////////////
 ZombieUnitBuilder::ZombieUnitBuilder() :
     mDynamicWorld(0)
+,   mRagDollQueue(0)
+,   mBodyPartQueue(0)
 {
 }
 

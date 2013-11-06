@@ -45,6 +45,9 @@
 #include <zombie_unit/ZombieUnit.h>
 #include <zombie_unit/ZombieUnitBuilder.h>
 
+#include <firing_system/BulletQueue.h>
+#include <firing_system/Bullet.h>
+#include <firing_system/FiringSystemHandler.h>
 
 #include <effect_handler/EffectHandler.h>
 #include <fx/effects/blood/BloodParticles.h>
@@ -99,6 +102,11 @@ private:
     void
     testBuilder(void);
 
+    // @brief Create bullets and configure the firing system
+    //
+    void
+    createBulletSystem(void);
+
     void
     handleCameraInput(void);
 
@@ -122,6 +130,9 @@ private:
 
     effect::EffectHandler mEffectHandler;
     cz::BloodParticlesQueue mBloodQueue;
+
+    cz::FiringSystemHandler mFiringSystem;
+    cz::BulletQueue mBulletsQueue;
 };
 
 }

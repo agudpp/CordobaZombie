@@ -55,10 +55,6 @@ class ZombieUnit : public WorldObject
     // Some defines
     //
 
-    // Hit value power (bullet power) needed to extirpate a body part
-    //
-    static const unsigned int EXTIRPATION_POWER_THRESHOLD = 333;
-
 public:
 
     // @brief Public information and defines
@@ -101,18 +97,6 @@ public:
     static inline BloodParticlesQueue*
     bloodParticlesQueue(void);
 
-
-    // @brief Configure the Zombie unit from a given entity and a scene node.
-    //        This method will configure the radius of the zombie, the collision
-    //        object, the masks for collisions and raycasts, the animation state
-    //        table, sound tables and everything else.
-    // @param node      The scene node used for this zombie.
-    // @param entity    The associated entity (already attached to the node, if
-    //                  not we will automatically attach it).
-    //
-    void
-    configure(Ogre::SceneNode* node, Ogre::Entity* entity);
-
     // @brief Set the queues used by this zombie unit.
     // @param rq        The RagDollQueue instance
     // @param bpq       The BodyPartQueue instance
@@ -134,6 +118,17 @@ public:
     setBodyPartID(unsigned short id);
     inline unsigned short
     bodyPartID(void) const;
+
+    // @brief Configure the Zombie unit from a given entity and a scene node.
+    //        This method will configure the radius of the zombie, the collision
+    //        object, the masks for collisions and raycasts, the animation state
+    //        table, sound tables and everything else.
+    // @param node      The scene node used for this zombie.
+    // @param entity    The associated entity (already attached to the node, if
+    //                  not we will automatically attach it).
+    //
+    void
+    configure(Ogre::SceneNode* node, Ogre::Entity* entity);
 
     // @brief Set / get the velocity of the zombie to move.
     // @param vel       The movement velocity
@@ -198,11 +193,6 @@ public:
     //
     inline void
     newEvent(ZombieEvent event);
-
-    // @brief Return a reference to the state machine of the zombie instance.
-    //
-    inline ZombieFSM&
-    fsm(void);
 
     ////////////////////////////////////////////////////////////////////////////
 
@@ -275,7 +265,7 @@ public:
     // @return true if we had impact the zombie | false otherwise
     //
     inline bool
-    checkImpact(HitInfo& hitInfo);
+    checkImpact(HitInfo& hitInfo) const;
 
     // @brief The zombie was hit by a bullet or something (indicated in the
     //        HitInfo structure). This method will animate the zombie / hide
@@ -284,16 +274,59 @@ public:
     //        and PhysicsEffectSystem).
     // @param hitInfo       The hit information structure. This structure should
     //                      be filled in the checkImpact() method.
-    // @return true if we had impact the zombie | false otherwise.
     // @note that we will perform the effects here (blood + bodyPart).
     //
-    bool
+    void
     processImpactInfo(const HitInfo& hitInfo);
+
+    // @brief Return the last hit information associated to this unit.
+    // @return the reference to the HitInfo structure holding the last hitting
+    //         information against this zombie
+    //
+    inline const HitInfo&
+    lastHitInfo(void) const;
+
+    // @brief This method will configure the ragdoll velocity depending on the
+    //        current state of the zombie.
+    //
+    void
+    configureRagdollVelocity(void);
+
+    // @brief Set enable the ragdoll. This will stop all the animations and
+    //        turn on the ragdoll.
+    //
+    inline void
+    setRagDollEnabled(bool enabled);
 
 
     ////////////////////////////////////////////////////////////////////////////
     // Reproduce an specific sound
 
+
+    ////////////////////////////////////////////////////////////////////////////
+    // General "getters" methods
+    //
+
+    // @brief Return the ZombieBody instance of this class
+    //
+    inline ZombieBody&
+    zombieBody(void);
+    inline const ZombieBody&
+    zombieBody(void) const;
+
+    // @brief Return the FSM associated to this instance
+    //
+    inline ZombieFSM&
+    FSM(void);
+    inline const ZombieFSM&
+    FSM(void) const;
+
+    // @brief Return the associated BodyPartEffect
+    //
+    inline BodyPartEffect&
+    bodyPartEffect(void);
+    inline const BodyPartEffect&
+    bodyPartEffect(void) const;
 
     ////////////////////////////////////////////////////////////////////////////
 
@@ -305,12 +338,6 @@ public:
 
 protected:
 
-    // @brief This method will configure the ragdoll velocity depending on the
-    //        current state of the zombie.
-    //
-    void
-    configureRagdollVelocity(void);
-
 protected:
     // static members
     // the table used for all the zombies of this type
@@ -319,6 +346,9 @@ protected:
     static BloodParticlesQueue* sBloodQueue;
     // global effect handler
     static effect::EffectHandler* sEffectHandler;
+    // Last hit information, since we are not running in parallel we can do this
+    // safely.
+    static HitInfo sLastHitInfo;
 
 protected:
     // General members
@@ -470,12 +500,6 @@ ZombieUnit::newEvent(ZombieEvent event)
     mFSM.newEvent(event);
 }
 
-inline ZombieFSM&
-ZombieUnit::fsm(void)
-{
-    return mFSM;
-}
-
 ////////////////////////////////////////////////////////////////////////////
 
 inline bool
@@ -521,7 +545,7 @@ ZombieUnit::isAnimActive(unsigned int animID)
 inline void
 ZombieUnit::stopAnim(unsigned int animID)
 {
-
+    mAnimTable.stopAnim(animID);
 }
 
 inline Ogre::AnimationState*
@@ -539,13 +563,64 @@ ZombieUnit::stopAllAnimations(void)
 ////////////////////////////////////////////////////////////////////////////
 
 inline bool
-ZombieUnit::checkImpact(HitInfo& hitInfo)
+ZombieUnit::checkImpact(HitInfo& hitInfo) const
 {
+    ZombieBody::BodyPart bp;
     hitInfo.hasImpact = mBody.checkIntersection(hitInfo.ray,
                                                 hitInfo.intersectionPoint,
-                                                hitInfo.bodyPart);
-
+                                                bp);
+    hitInfo.bodyPart = bp;
     return hitInfo.hasImpact;
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+inline const HitInfo&
+ZombieUnit::lastHitInfo(void) const
+{
+    return sLastHitInfo;
+}
+
+inline void
+ZombieUnit::setRagDollEnabled(bool enabled)
+{
+    if (enabled) {
+        mAnimTable.stopAll();
+    }
+    mBody.setRagdollEnable(enabled);
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+inline ZombieBody&
+ZombieUnit::zombieBody(void)
+{
+    return mBody;
+}
+inline const ZombieBody&
+ZombieUnit::zombieBody(void) const
+{
+    return mBody;
+}
+inline ZombieFSM&
+ZombieUnit::FSM(void)
+{
+    return mFSM;
+}
+inline const ZombieFSM&
+ZombieUnit::FSM(void) const
+{
+    return mFSM;
+}
+inline BodyPartEffect&
+ZombieUnit::bodyPartEffect(void)
+{
+    return mBodyPartEffect;
+}
+inline const BodyPartEffect&
+ZombieUnit::bodyPartEffect(void) const
+{
+    return mBodyPartEffect;
 }
 
 ////////////////////////////////////////////////////////////////////////////

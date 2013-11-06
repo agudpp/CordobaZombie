@@ -119,6 +119,11 @@ struct BulletObject {
     //
     inline void
     applyCentralForce(const Ogre::Vector3& force);
+
+    // @brief Set a position and orientation for this object
+    //
+    inline void
+    setTransform(const Ogre::Vector3& pos, const Ogre::Quaternion& rot);
 };
 
 
@@ -147,6 +152,17 @@ BulletObject::applyCentralForce(const Ogre::Vector3& force)
 {
     ASSERT(rigidBody);
     rigidBody->applyCentralForce(BulletUtils::ogreToBullet(force));
+}
+
+inline void
+BulletObject::setTransform(const Ogre::Vector3& pos, const Ogre::Quaternion& rot)
+{
+    btTransform trans;
+    trans.setOrigin(BulletUtils::ogreToBullet(pos));
+    trans.setRotation(BulletUtils::ogreToBullet(rot));
+    motionState.setWorldTransform(trans);
+    ASSERT(rigidBody);
+    rigidBody->setWorldTransform(trans);
 }
 
 } /* namespace physics */

@@ -427,7 +427,9 @@ ZombieBody::currentRagDollInstance(void)
 inline bool
 ZombieBody::ZombieBody::update(void)
 {
-    ASSERT(mCurrentRagdoll);
+    if (mCurrentRagdoll == 0) {
+        return false;
+    }
     return mCurrentRagdoll->update();
 }
 
