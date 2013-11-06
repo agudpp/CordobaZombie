@@ -88,7 +88,7 @@ ZombieUnit::configure(Ogre::SceneNode* node, Ogre::Entity* entity)
 
     // check if the entity is already attached
     if (entity->getParentNode()) {
-        ASSERT(entity->getParentNode() == node);
+//        ASSERT(entity->getParentNode() == node);
     } else {
         // attach it
         node->attachObject(entity);

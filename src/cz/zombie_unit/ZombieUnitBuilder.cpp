@@ -101,15 +101,16 @@ ZombieUnitBuilder::configureZombieUnit(const TiXmlElement* xmlElement,
     //
     ent->setMaterialName(xmlElement->Attribute("material"));
 
+    debugWARNING("Here we are configuring the zombie taking into account that it"
+            " was bad exported pointing the Y as the \"Up Vector\"\n");
+    // we have to rotate the zombie in the X axis to match with the wrong
+    // exported axis, we will create an additional scene node and rotate it
     // create the scene node and attach the entity to it
     Ogre::SceneNode* node = sceneMngr->createSceneNode();
-    node->attachObject(ent);
+    Ogre::SceneNode* child = node->createChildSceneNode();
+    child->pitch(Ogre::Radian(Ogre::Math::PI/2.));
+    child->attachObject(ent);
 
-    debugWARNING("Here we are configuring the zombie taking into account that it"
-        " was bad exported pointing the Y as the \"Up Vector\"\n");
-    // we have to rotate the zombie in the X axis to match with the wrong
-    // exported axis
-    node->pitch(Ogre::Radian(Ogre::Math::PI/2.));
 
     // we will set its height taking into account also the problem mentioned above
     zu.setObjectHeight(ent->getBoundingBox().getHalfSize().y);
