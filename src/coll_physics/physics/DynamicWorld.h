@@ -44,6 +44,8 @@ public:
     // @param gravity   The gravity vector
     //
     inline void
+    setGravity(const Ogre::Vector3& gravity);
+    inline void
     setGravity(const btVector3& gravity);
 
     // @brief Return the instance of the btDynamicWorld
@@ -161,6 +163,11 @@ private:
 // Inline
 //
 
+inline void
+DynamicWorld::setGravity(const Ogre::Vector3& gravity)
+{
+    mDynamicWorld.setGravity(BulletUtils::ogreToBullet(gravity));
+}
 inline void
 DynamicWorld::setGravity(const btVector3& gravity)
 {

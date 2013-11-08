@@ -302,11 +302,11 @@ ZombieBody::extirpate(BodyPart bodyPart)
     // now we will set the position and orientation of the bodyPart using the
     // same position and orientation than the associated bone
     //
-    Ogre::Bone* bone = mBoneTable[boneID];
+    const Ogre::Bone* bone = mBoneTable[boneID];
     ASSERT(bone);
     ASSERT(mNode);
     Ogre::Vector3 globalPosition = globalBonePosition(bone, mNode);
-    Ogre::Quaternion globalOrientation = globalBoneRotation(bone, mNode);
+    const Ogre::Quaternion globalOrientation = globalBoneRotation(bone, mNode);
     ASSERT(result->bulletObject);
 
     // move the size of the entity in the bone space
@@ -314,7 +314,9 @@ ZombieBody::extirpate(BodyPart bodyPart)
     mat.setTrans(globalPosition);
     const Ogre::Entity* ent = result->bulletObject->entity;
     ASSERT(ent);
-    const Ogre::Vector3 offset(0, 0, ent->getBoundingBox().getHalfSize().z);
+    const Ogre::Vector3& halfSize = ent->getBoundingBox().getHalfSize();
+    const float maxVal = std::max(halfSize.x, std::max(halfSize.y, halfSize.z));
+    const Ogre::Vector3 offset(maxVal, 0, 0);
     globalPosition = mat * offset;
     result->bulletObject->setTransform(globalPosition, globalOrientation);
 

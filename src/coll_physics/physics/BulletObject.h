@@ -124,6 +124,20 @@ struct BulletObject {
     //
     inline void
     setTransform(const Ogre::Vector3& pos, const Ogre::Quaternion& rot);
+
+    // @brief Reset all the forces associated to the rigid Body (linear velocity,
+    //        angular velocity, all the other forces too).
+    //        this method should be called when the rigid body is not in the
+    //        physics world.
+    //
+    inline void
+    clearForces(void);
+
+    // @brief Activate / deactivate the rigid body
+    // @brief activate      Activate?
+    //
+    inline void
+    activate(bool activate);
 };
 
 
@@ -157,12 +171,28 @@ BulletObject::applyCentralForce(const Ogre::Vector3& force)
 inline void
 BulletObject::setTransform(const Ogre::Vector3& pos, const Ogre::Quaternion& rot)
 {
-    btTransform trans;
+    ASSERT(rigidBody);
+    btTransform &trans = rigidBody->getWorldTransform();
+    trans.setIdentity();
     trans.setOrigin(BulletUtils::ogreToBullet(pos));
     trans.setRotation(BulletUtils::ogreToBullet(rot));
     motionState.setWorldTransform(trans);
+}
+
+inline void
+BulletObject::clearForces(void)
+{
     ASSERT(rigidBody);
-    rigidBody->setWorldTransform(trans);
+    rigidBody->clearForces();
+    rigidBody->setAngularVelocity(btVector3(0,0,0));
+    rigidBody->setLinearVelocity(btVector3(0,0,0));
+}
+
+inline void
+BulletObject::activate(bool activate)
+{
+    ASSERT(rigidBody);
+    rigidBody->activate(activate);
 }
 
 } /* namespace physics */

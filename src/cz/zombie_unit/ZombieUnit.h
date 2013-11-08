@@ -663,11 +663,11 @@ ZombieUnit::update(void)
 {
     // first check if we have to update the physics bounding box
     if (hasMovedOrRotated()) {
-        Ogre::Vector3 position(position3D());
-        position.z += objectHeight();
-        mPhysicBB.setTransform(position, rotation());
-        prim->node->setPosition(position);
-        prim->node->setOrientation(rotation());
+//        Ogre::Vector3 position(position3D());
+//        position.z += objectHeight();
+//        mPhysicBB.setTransform(position, rotation());
+//        prim->node->setPosition(position);
+//        prim->node->setOrientation(rotation());
         resetMovedOrRotatedFlag();
     }
 

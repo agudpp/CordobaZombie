@@ -128,7 +128,7 @@ ZombieUnit::configure(Ogre::SceneNode* node, Ogre::Entity* entity)
     mPhysicBB.setShape(physics::BulletImporter::createBoxShape(ogreBB));
     ASSERT(mPhysicBB.shape() && "Error creating the shape?");
     sDynamicWorld->addObject(mPhysicBB, CZRayMask::CZRM_ZOMBIE, 0);
-    prim = core::PrimitiveDrawer::instance().createBox(Ogre::Vector3::ZERO, ogreBB.getSize());
+//    prim = core::PrimitiveDrawer::instance().createBox(Ogre::Vector3::ZERO, ogreBB.getSize());
 
 
     // set the radius of the pathHandler

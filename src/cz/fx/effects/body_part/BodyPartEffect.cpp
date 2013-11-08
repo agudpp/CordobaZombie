@@ -17,6 +17,7 @@
 namespace cz {
 
 physics::DynamicWorld* BodyPartEffect::sDynamicWorld = 0;
+const float BodyPartEffect::MIN_TIME_IN_SCENE_SECS = 4.f;
 
 ////////////////////////////////////////////////////////////////////////////////
 BodyPartEffect::BodyPartEffect() :
@@ -40,8 +41,12 @@ BodyPartEffect::beforeStart(void)
     ASSERT(mElement);
     ASSERT(mElement->bulletObject);
 
+    // reset the bullet object
+    mElement->bulletObject->motionState.setDirty(true);
+
     // we need to add the bullet element in the bullet world
     sDynamicWorld->addObject(*(mElement->bulletObject), CZRM_ALL, CZRM_ALL);
+    mElement->bulletObject->activate(true);
 
     // make the graphic representation visible
     Ogre::SceneManager* sceneMngr = GlobalData::sceneMngr;
@@ -49,6 +54,7 @@ BodyPartEffect::beforeStart(void)
     Ogre::SceneNode* node = mElement->bulletObject->motionState.node();
     ASSERT(node);
     sceneMngr->getRootSceneNode()->addChild(node);
+    mAccumTime = 0.f;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -57,6 +63,13 @@ BodyPartEffect::update(float timeFrame)
 {
     ASSERT(mElement);
     ASSERT(mElement->bulletObject);
+
+    mAccumTime += timeFrame;
+
+    // check if we have to wait
+    if (mAccumTime < MIN_TIME_IN_SCENE_SECS) {
+        return true;
+    }
 
     // we need to check if the body part stops.
     if (mElement->bulletObject->motionState.isDirty()) {

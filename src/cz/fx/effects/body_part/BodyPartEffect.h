@@ -25,6 +25,9 @@ namespace cz {
 
 class BodyPartEffect : public effect::Effect
 {
+    // we will also define the minimum time we want to be in scene just in case
+    // that the body part starts quiet.
+    static const float MIN_TIME_IN_SCENE_SECS;
 public:
     BodyPartEffect();
     virtual
@@ -81,6 +84,7 @@ public:
 private:
     BodyPartElement* mElement;
     BodyPartQueue* mQueue;
+    float mAccumTime;
 
     static physics::DynamicWorld* sDynamicWorld;
 };

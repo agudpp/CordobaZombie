@@ -107,13 +107,13 @@ ZombieUnitBuilder::configureZombieUnit(const TiXmlElement* xmlElement,
     // exported axis, we will create an additional scene node and rotate it
     // create the scene node and attach the entity to it
     Ogre::SceneNode* node = sceneMngr->createSceneNode();
-    Ogre::SceneNode* child = node->createChildSceneNode();
-    child->pitch(Ogre::Radian(Ogre::Math::PI/2.));
-    child->attachObject(ent);
-
+//    Ogre::SceneNode* child = node->createChildSceneNode();
+//    child->pitch(Ogre::Radian(Ogre::Math::PI/2.));
+//    child->attachObject(ent);
+    node->attachObject(ent);
 
     // we will set its height taking into account also the problem mentioned above
-    zu.setObjectHeight(ent->getBoundingBox().getHalfSize().y);
+    zu.setObjectHeight(ent->getBoundingBox().getHalfSize().z);
 
     // vel
     float vel;
