@@ -28,11 +28,14 @@ public:
 	virtual ~HUD();
 
 public:
-	// TODO: document usage with @brief
+	/*************************************************************************/
+	/**  XXX  Methods offered for callbacks binding	                        **/
+
+	// TODO: document usage after implementation
 	void
 	updateWeapon(WeaponID id);
 
-	// TODO: document usage with @brief
+	// TODO: document usage after implementation
 	void
 	updateBullets(Weapon *w, TriggerCallback::EventType e);
 
@@ -42,9 +45,12 @@ public:
 	void
 	setVisible(bool visible);
 
+	/**	 <END>  Methods offered for callbacks binding						**/
+	/*************************************************************************/
+
 private:
 	// Prevent the compiler from generating methods to copy the instance.
-	HUD(HUD const&);             // Don't implement!
+	HUD(HUD const&);              // Don't implement!
 	void operator=(HUD const&);  // Don't implement!
 
 private:

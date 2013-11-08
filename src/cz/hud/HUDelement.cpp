@@ -10,7 +10,7 @@
 
 namespace cz {
 
-HUDelement::HUDelement() { /* TODO Auto-generated constructor stub */ }
+HUDelement::HUDelement() : mOvCont(0) { /* TODO Auto-generated constructor stub */ }
 
 HUDelement::~HUDelement() { /* TODO Auto-generated destructor stub */ }
 

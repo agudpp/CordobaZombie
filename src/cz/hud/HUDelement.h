@@ -12,7 +12,18 @@
 #ifndef HUDELEMENT_H_
 #define HUDELEMENT_H_
 
-#include <OgreOverlay.h>
+#include <OgreOverlayContainer.h>
+
+
+
+// XXX  XXX  XXX  XXX  XXX  XXX  XXX  XXX  XXX  XXX  XXX
+//
+// TODO: check ConfigState.{h,cpp} in http://goo.gl/uaYlB7
+//		  for Ogre::{Overlay,OverlayContainer} usage
+//
+// XXX  XXX  XXX  XXX  XXX  XXX  XXX  XXX  XXX  XXX  XXX
+
+
 
 namespace cz {
 
@@ -30,7 +41,7 @@ public:
 	setVisible(bool visible);
 
 private:
-	Ogre::Overlay mOverlay;
+	Ogre::OverlayContainer* mOvCont;
 };
 
 
@@ -38,11 +49,16 @@ private:
 inline void
 HUDelement::setVisible(bool visible)
 {
-	if (visible && !mOverlay.isVisible())
-		mOverlay.show();
-	else if (!visible && mOverlay.isVisible())
-		mOverlay.hide();
-	return
+	if (!mOvCont) {
+		debugERROR("Called before creating the overlay container.\n");
+
+	} else {
+		if (visible && !mOvCont->isVisible())
+			mOvCont->show();
+		else if (!visible && mOvCont->isVisible())
+			mOvCont->hide();
+	}
+	return;
 }
 
 
