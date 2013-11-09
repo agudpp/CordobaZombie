@@ -320,8 +320,6 @@ ZombieBody::extirpate(BodyPart bodyPart)
     globalPosition = mat * offset;
     result->bulletObject->setTransform(globalPosition, globalOrientation);
 
-    debugERROR("Here we have to set the position correctly to the body part\n");
-
     return result;
 }
 

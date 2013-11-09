@@ -8,22 +8,29 @@
 #ifndef BODYPARTEFFECT_H_
 #define BODYPARTEFFECT_H_
 
+#include <OgreVector3.h>
+
 #include <effect_handler/Effect.h>
 #include <debug/DebugUtil.h>
 #include <zombie_unit/BodyPartElement.h>
 #include <zombie_unit/BodyPartQueue.h>
+#include <fx/effects/EffectQueueDefs.h>
+#include <fx/effects/QueuedEffect.h>
 
 
 // Forward
 //
 namespace physics {
 class DynamicWorld;
-
 }
 
 namespace cz {
 
-class BodyPartEffect : public effect::Effect
+// Forward
+//
+class BodyPartEffect;
+
+class BodyPartEffect : public QueuedEffect<BodyPartsEffectQueue, BodyPartEffect>
 {
     // we will also define the minimum time we want to be in scene just in case
     // that the body part starts quiet.
@@ -42,20 +49,32 @@ public:
 
     // @brief Set the element and queue to be used
     // @param element       The body part element
-    // @param queue         The queue associated to the element
+    // @param elementQueue  The queue associated to the element
     //
     inline void
     setElement(BodyPartElement* element);
     inline void
-    setQueue(BodyPartQueue* queue);
+    setElementQueue(BodyPartQueue* elementQueue);
     inline BodyPartElement*
     element(void);
     inline const BodyPartElement*
     element(void) const;
     inline BodyPartQueue*
-    queue(void);
+    elementQueue(void);
     inline const BodyPartQueue*
-    queue(void) const;
+    elementQueue(void) const;
+
+    // @brief Configure the force that we have to put to the element using the
+    //        impact point and the bullet or hit direction.
+    //        To call this method you should already set the Element
+    // @param impactPoint       The position of the impact
+    // @param direction         The bullet / hit direction
+    // @param impactForce       The force of the impact
+    //
+    void
+    configureForce(const Ogre::Vector3& impactPosition,
+                   const Ogre::Vector3& direction,
+                   float impactForce);
 
 
     ////////////////////////////////////////////////////////////////////////////
@@ -83,7 +102,7 @@ public:
 
 private:
     BodyPartElement* mElement;
-    BodyPartQueue* mQueue;
+    BodyPartQueue* mElementQueue;
     float mAccumTime;
 
     static physics::DynamicWorld* sDynamicWorld;
@@ -112,10 +131,10 @@ BodyPartEffect::setElement(BodyPartElement* element)
     mElement = element;
 }
 inline void
-BodyPartEffect::setQueue(BodyPartQueue* queue)
+BodyPartEffect::setElementQueue(BodyPartQueue* elementQueue)
 {
-    ASSERT(queue);
-    mQueue = queue;
+    ASSERT(elementQueue);
+    mElementQueue = elementQueue;
 }
 inline BodyPartElement*
 BodyPartEffect::element(void)
@@ -128,14 +147,14 @@ BodyPartEffect::element(void) const
     return mElement;
 }
 inline BodyPartQueue*
-BodyPartEffect::queue(void)
+BodyPartEffect::elementQueue(void)
 {
-    return mQueue;
+    return mElementQueue;
 }
 inline const BodyPartQueue*
-BodyPartEffect::queue(void) const
+BodyPartEffect::elementQueue(void) const
 {
-    return mQueue;
+    return mElementQueue;
 }
 
 

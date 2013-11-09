@@ -86,25 +86,22 @@ ZSBeingHit::enter(ZombieUnit* ref)
     // and reproduce the "bodyPartEffect"
     //
     if ((hitInfo.power >= EXTIRPATION_POWER_THRESHOLD) &&
-            body.canExtirpate(ZombieBody::BodyPart(hitInfo.bodyPart))) {
+            body.canExtirpate(ZombieBody::BodyPart(hitInfo.bodyPart)) &&
+            (ref->bodyPartsEffectQueue().hasEffects())) {
         // we need to extirpate the part
         BodyPartElement* bpelement = body.extirpate(ZombieBody::BodyPart(hitInfo.bodyPart));
 
         if (bpelement) {
-            // configure the force and direction associated to the bodyPart
-            physics::BulletObject* bo = bpelement->bulletObject;
-            ASSERT(bo);
-            ASSERT(bo->rigidBody);
-            Ogre::Vector3 force = hitInfo.ray.getDirection();
-            force.normalise();
-            force *= (hitInfo.power * 1.f / bo->rigidBody->getInvMass());
-            bo->applyCentralForce(force);
+            BodyPartEffect* bpEffect = ref->bodyPartsEffectQueue().getAvailable();
+            ASSERT(bpEffect);
 
             // configure the effect here and reproduce it
-            BodyPartEffect& bodyPartEffect = ref->bodyPartEffect();
-            bodyPartEffect.setElement(bpelement);
-            bodyPartEffect.setQueue(body.bodyPartQueue());
-            effectHandler->add(&bodyPartEffect);
+            bpEffect->setElement(bpelement);
+            bpEffect->setElementQueue(body.bodyPartQueue());
+            bpEffect->configureForce(hitInfo.intersectionPoint,
+                                     hitInfo.ray.getDirection(),
+                                     hitInfo.power);
+            effectHandler->add(bpEffect);
         }
     }
 

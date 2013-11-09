@@ -465,27 +465,30 @@ ZombieBodypartTest::update()
     }
 
     // check if we have to extirpate some part
-    if (bodyPart != cz::ZombieBody::BodyPart::BP_MAX) {
+    if (bodyPart != cz::ZombieBody::BodyPart::BP_MAX &&
+         mBodyPartsEffectQueue.hasEffects()) {
         // we need to extirpate the part
         cz::BodyPartElement* bpelement = mBody.extirpate(bodyPart);
         if (bpelement == 0) {
             debugYELLOW("NO bpelement to animate\n");
         }
-
-        if (bpelement && !mEffectHandler.contains(&mBodyPartEffect)) {
-            // configure the force and direction associated to the bodyPart
-            physics::BulletObject* bo = bpelement->bulletObject;
-            ASSERT(bo);
-            ASSERT(bo->rigidBody);
-            Ogre::Vector3 force = mCamera->getRealDirection();
-            force.normalise();
-            force *= 55555.f;
-            bo->applyCentralForce(force);
+        if (bpelement) {
+            cz::BodyPartEffect* effect = mBodyPartsEffectQueue.getAvailable();
+            ASSERT(effect);
+            ASSERT(!mEffectHandler.contains(effect));
 
             // configure the effect here and reproduce it
-            mBodyPartEffect.setElement(bpelement);
-            mBodyPartEffect.setQueue(mBody.bodyPartQueue());
-            mEffectHandler.add(&mBodyPartEffect);
+            effect->setElement(bpelement);
+            effect->setElementQueue(mBody.bodyPartQueue());
+
+            // get the values simulating the ray
+            const Ogre::Vector3 impactPos =
+                physics::BulletUtils::bulletToOgre(
+                    bpelement->bulletObject->rigidBody->getWorldTransform().getOrigin());
+            const Ogre::Vector3& impactDir = mCamera->getRealDirection();
+
+            effect->configureForce(impactPos, impactDir, 444);
+            mEffectHandler.add(effect);
         }
     }
 

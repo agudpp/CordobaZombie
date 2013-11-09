@@ -124,7 +124,7 @@ private:
     cz::BodyPartQueue mBodyPartQueue;
 
     effect::EffectHandler mEffectHandler;
-    cz::BodyPartEffect mBodyPartEffect;
+    cz::BodyPartsEffectQueue mBodyPartsEffectQueue;
     cz::BloodParticlesQueue mBloodQueue;
 
     cz::ZombieUnitBuilder mBuilder;

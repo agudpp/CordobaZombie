@@ -15,10 +15,12 @@ namespace cz {
 // forwards
 //
 class BloodParticles;
+class BodyPartEffect;
 
 // defines the different queues here
 //
 typedef EffectQueue<BloodParticles, 3> BloodParticlesQueue;
+typedef EffectQueue<BodyPartEffect, 25> BodyPartsEffectQueue;
 
 
 }

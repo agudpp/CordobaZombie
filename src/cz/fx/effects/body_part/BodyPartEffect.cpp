@@ -10,8 +10,10 @@
 #include <OgreSceneManager.h>
 
 #include <physics/DynamicWorld.h>
+#include <physics/BulletUtils.h>
 #include <global_data/GlobalData.h>
 #include <CZMasksDefines.h>
+
 
 
 namespace cz {
@@ -22,15 +24,42 @@ const float BodyPartEffect::MIN_TIME_IN_SCENE_SECS = 4.f;
 ////////////////////////////////////////////////////////////////////////////////
 BodyPartEffect::BodyPartEffect() :
     mElement(0)
-,   mQueue(0)
+,   mElementQueue(0)
 {
-    // TODO Auto-generated constructor stub
 
 }
 ////////////////////////////////////////////////////////////////////////////////
 BodyPartEffect::~BodyPartEffect()
 {
-    // TODO Auto-generated destructor stub
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void
+BodyPartEffect::configureForce(const Ogre::Vector3& impactPosition,
+                               const Ogre::Vector3& direction,
+                               float impactForce)
+{
+    ASSERT(mElement);
+
+    // we will configure the force here
+    // configure the force and direction associated to the bodyPart
+    physics::BulletObject* bo = mElement->bulletObject;
+    ASSERT(bo);
+    ASSERT(bo->rigidBody);
+
+    // clear the forces first
+    bo->clearForces();
+
+    // TODO: we are using directly bullet values here, ITS BAD, we need to
+    // create a wrapper here.
+    btVector3 force = physics::BulletUtils::ogreToBullet(direction);
+    force.normalize();
+    force *= (impactForce * 1.f);
+
+    // We will get the position where we have to apply the force
+    btVector3 relPos = physics::BulletUtils::ogreToBullet(impactPosition) -
+        bo->rigidBody->getWorldTransform().getOrigin();
+    bo->rigidBody->applyImpulse(force, relPos);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -92,10 +121,10 @@ BodyPartEffect::afterFinish(void)
     ASSERT(sDynamicWorld);
     ASSERT(mElement);
     ASSERT(mElement->bulletObject);
-    ASSERT(mQueue);
+    ASSERT(mElementQueue);
 
     sDynamicWorld->removeObject(*(mElement->bulletObject));
-    mQueue->letAvailable(mElement);
+    mElementQueue->letAvailable(mElement);
 
     // remove from the scene
     Ogre::SceneManager* sceneMngr = GlobalData::sceneMngr;
@@ -105,6 +134,9 @@ BodyPartEffect::afterFinish(void)
     sceneMngr->getRootSceneNode()->removeChild(node);
 
     mElement = 0;
+
+    // we will put this bodypartEffect again in the queue
+    letThisFree();
 }
 
 } /* namespace cz */

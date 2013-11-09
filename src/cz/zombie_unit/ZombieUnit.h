@@ -12,16 +12,16 @@
 #include <OgreAnimationState.h>
 #include <OgreSceneNode.h>
 
-#include <world_object/WorldObject.h>
-#include <ia/fsm/FSMTransitionTable.h>
-#include <ia/path_handler/PathHandler.h>
 #include <debug/DebugUtil.h>
+#include <fx/effects/blood/BloodParticles.h>
+#include <fx/effects/body_part/BodyPartEffect.h>
+#include <fx/effects/EffectQueueDefs.h>
 #include <global_data/GlobalData.h>
 #include <helpers/AnimTable.h>
-#include <fx/effects/body_part/BodyPartEffect.h>
-#include <fx/effects/blood/BloodParticles.h>
-
+#include <ia/fsm/FSMTransitionTable.h>
+#include <ia/path_handler/PathHandler.h>
 #include <physics/BulletCollisionObject.h>
+#include <world_object/WorldObject.h>
 
 #include "states/ZombieFSMDefs.h"
 #include "ZombieBody.h"
@@ -125,6 +125,14 @@ public:
     bodyPartQueue(void);
     inline const BodyPartQueue*
     bodyPartQueue(void) const;
+
+    // @brief Return the BodyPartEffectQueue reference associated to this zombie
+    // @return BodyPartsEffectQueue
+    //
+    inline BodyPartsEffectQueue&
+    bodyPartsEffectQueue(void);
+    inline const BodyPartsEffectQueue&
+    bodyPartsEffectQueue(void) const;
 
     // @brief Set the associated body part ID to be used for this zombie.
     //
@@ -335,13 +343,6 @@ public:
     inline const ZombieFSM&
     FSM(void) const;
 
-    // @brief Return the associated BodyPartEffect
-    //
-    inline BodyPartEffect&
-    bodyPartEffect(void);
-    inline const BodyPartEffect&
-    bodyPartEffect(void) const;
-
     ////////////////////////////////////////////////////////////////////////////
 
     // @brief Update all the logic of the zombie. We will use the
@@ -358,6 +359,8 @@ protected:
     static ZombieTTable sTTable;
     // global blood queue
     static BloodParticlesQueue* sBloodQueue;
+    // global body part effect to be used, this will be shared for all the zombies
+    static BodyPartsEffectQueue sBodyPartEffectQueue;
     // global effect handler
     static effect::EffectHandler* sEffectHandler;
     // Last hit information, since we are not running in parallel we can do this
@@ -379,10 +382,6 @@ protected:
     // The physic bounding box representation of the zombie to be able to receive
     // raycast and probably intersect against body parts
     physics::BulletCollisionObject mPhysicBB;
-
-    // effects
-    // effect to execute body part effect
-    BodyPartEffect mBodyPartEffect;
 
     core::Primitive* prim;
 
@@ -465,6 +464,17 @@ inline const BodyPartQueue*
 ZombieUnit::bodyPartQueue(void) const
 {
     return mBody.bodyPartQueue();
+}
+
+inline BodyPartsEffectQueue&
+ZombieUnit::bodyPartsEffectQueue(void)
+{
+    return sBodyPartEffectQueue;
+}
+inline const BodyPartsEffectQueue&
+ZombieUnit::bodyPartsEffectQueue(void) const
+{
+    return sBodyPartEffectQueue;
 }
 
 inline void
@@ -644,16 +654,6 @@ inline const ZombieFSM&
 ZombieUnit::FSM(void) const
 {
     return mFSM;
-}
-inline BodyPartEffect&
-ZombieUnit::bodyPartEffect(void)
-{
-    return mBodyPartEffect;
-}
-inline const BodyPartEffect&
-ZombieUnit::bodyPartEffect(void) const
-{
-    return mBodyPartEffect;
 }
 
 ////////////////////////////////////////////////////////////////////////////
