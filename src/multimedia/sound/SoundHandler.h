@@ -47,11 +47,11 @@ class SoundHandler
 		~Playlist(void);
 	public:
 		Ogre::String 				mName;
-		std::vector<Ogre::String>	mList;		// Sounds names list
+		std::vector<Ogre::String>	mList;      // Sounds names list
 		std::vector<uint>			mPlayOrder; // Sounds playing order
-		unsigned int				mCurrent;	// Current position in mPlayOrder
-		unsigned int 				mState;		// Repeat/Shuffle/Randomwait
-		float						mSilence;	// Wait time between sounds (sec)
+		unsigned int				mCurrent;   // Current position in mPlayOrder
+		unsigned int 				mState;     // Repeat/Shuffle/Randomwait
+		float						mSilence;   // Wait time between sounds (sec)
 		float						mTimeSinceFinish;
 	};
 
@@ -272,6 +272,7 @@ public:
 	 **
 	 ** @remarks
 	 ** This affects both playing and paused sounds.
+	 ** This doesn't affect inactive (i.e. stopped or "finished") sounds.
 	 **/
 	void
 	globalRestart();
@@ -301,7 +302,7 @@ public:
 	 ** @remarks
 	 ** Sounds (both environmental and attached to a unit's SoundAPI)
 	 ** which were faded-out manually, i.e. before calling globalFadeOut(),
-	 ** will NOT be modified by this function.
+	 ** MAY NOT be modified by this function.
 	 **
 	 ** @remarks
 	 ** Playback is restarted if the sounds had been faded-out and paused.
@@ -373,9 +374,10 @@ public:
 	 **   pl: optional, provide the Playlist pointer to save on search time.
 	 **
 	 ** @return
-	 ** SS_NO_ERROR			Playback successfully started.
-	 ** SS_FILE_NOT_FOUND	No playlist "name" found.
-	 ** SS_INTERNAL_ERROR	Unspecified error.
+	 ** SS_NO_ERROR			  Playback successfully started.
+	 ** SS_FILE_NOT_FOUND	  No playlist "name" found.
+	 ** SS_ILLEGAL_OPERATION  Operation not allowed in current playlist state.
+	 ** SS_INTERNAL_ERROR	  Unspecified error.
 	 **/
 	SSerror
 	startPlaylist(const Ogre::String& name, Playlist *pl = 0);
@@ -390,9 +392,13 @@ public:
 	 **
 	 ** @remarks
 	 ** If no playlist "name" exists, nothing is done.
+	 **
+	 ** @param
+	 ** name: name of the playlist, mandatory if @arg "pl" is NULL
+	 **   pl: optional, provide the Playlist pointer to save on search time.
 	 **/
 	void
-	pausePlaylist(const Ogre::String& name);
+	pausePlaylist(const Ogre::String& name, Playlist *pl = 0);
 
 	/**
 	 ** @brief
@@ -405,9 +411,13 @@ public:
 	 **
 	 ** @remarks
 	 ** If no playlist "name" exists, nothing is done.
+	 **
+	 ** @param
+	 ** name: name of the playlist, mandatory if @arg "pl" is NULL
+	 **   pl: optional, provide the Playlist pointer to save on search time.
 	 **/
 	void
-	stopPlaylist(const Ogre::String& name);
+	stopPlaylist(const Ogre::String& name, Playlist *pl = 0);
 
 	/**
 	 ** @brief
@@ -416,13 +426,17 @@ public:
 	 ** @remarks
 	 ** Same effect than stopPlaylist + startPlaylist.
 	 **
+	 ** @param
+	 ** name: name of the playlist, mandatory if @arg "pl" is NULL
+	 **   pl: optional, provide the Playlist pointer to save on search time.
+	 **
 	 ** @return
 	 ** SS_NO_ERROR			Playback successfully restarted.
 	 ** SS_FILE_NOT_FOUND	No playlist "name" found.
 	 ** SS_INTERNAL_ERROR	Unspecified error.
 	 **/
 	SSerror
-	restartPlaylist(const Ogre::String& name);
+	restartPlaylist(const Ogre::String& name, Playlist *pl = 0);
 
 	/**
 	 ** @brief
@@ -499,8 +513,8 @@ public:
 	 ** Get the playlist playing state.
 	 **
 	 ** @return
-	 ** SS_PLAYING		Playing (or fading in/out)
-	 ** SS_PAUSED		Paused
+	 ** SS_PLAYING		Playing (maybe in silence, or fading in/out)
+	 ** SS_PAUSED		Paused  (maybe in silence)
 	 ** SS_FINISHED		Stopped
 	 ** SS_NONE			Playlist not found
 	 **/
@@ -543,8 +557,11 @@ private:
 	getPlaylist(const Ogre::String& name);
 
 	// Playlists state modifiers
-	void setPlaylistState(Playlist *pl, long flags);
-	void unsetPlaylistState(Playlist *pl, long flags);
+	void setPlaylistState(Playlist *pl, unsigned long flags);
+	void unsetPlaylistState(Playlist *pl, unsigned long flags);
+
+	// Playlists state consistency checker (DEBUG build only!)
+	void checkPlaylistState(const Playlist *pl) const;
 
 
 	/*********************************************************************/
@@ -659,6 +676,15 @@ SoundHandler::existsPlaylist(const Ogre::String& name) const
 
 
 ////////////////////////////////////////////////////////////////////////////////
+inline SSerror
+SoundHandler::restartPlaylist(const Ogre::String& name, Playlist *pl)
+{
+	stopPlaylist(name, pl);
+	return startPlaylist(name, pl);
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
 inline bool
 SoundHandler::renamePlaylist(const Ogre::String& oldName, const Ogre::String& newName)
 {
@@ -714,16 +740,25 @@ SoundHandler::getPlaylist(const Ogre::String& name)
 
 ////////////////////////////////////////////////////////////////////////////////
 inline void
-SoundHandler::setPlaylistState(SoundHandler::Playlist *pl, long flags) {
+SoundHandler::setPlaylistState(Playlist *pl, unsigned long flags)
+{
 	pl->mState |= flags;
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////
 inline void
-SoundHandler::unsetPlaylistState(SoundHandler::Playlist *pl, long flags) {
+SoundHandler::unsetPlaylistState(Playlist *pl, unsigned long flags)
+{
 	pl->mState &= ~flags;
 }
+
+
+////////////////////////////////////////////////////////////////////////////////
+#ifndef DEBUG
+inline void SoundHandler::checkPlaylistState(const Playlist *pl) const {}
+// else "checkPlaylistState(pl)" is defined in the source file
+#endif
 
 }
 

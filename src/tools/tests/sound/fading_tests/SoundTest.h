@@ -25,6 +25,7 @@
 #include <types/basics.h>
 #include <utils/OrbitCamera.h>
 #include <input/InputHelper.h>
+#include <cursor/MouseCursor.h>
 #include <sound/SoundHandler.h>
 
 
@@ -73,6 +74,21 @@ private:
 //    bool
 //    loadEntity(const std::string& meshName);
 
+    /**
+     ** @brief
+     ** Initalize various sounds playback.
+     **
+     ** @return
+     ** true on success
+     ** false otherwise
+     **/
+    bool
+    initSoundsPlayback(void);
+
+    /**
+     ** @brief
+     ** Interpret keyboard & mouse input to handle camera position & orientation
+     **/
     void
     handleCameraInput(void);
 
@@ -92,10 +108,14 @@ private:
 
     /**
      ** @brief
-     ** Test playlists operations
+     ** Load a plane 2D floor into Ogre world.
+     **
+     ** @return
+     ** true on success
+     ** false otherwise
      **/
-    void
-    testPlaylists(void);
+    bool
+    loadFloor(void);
 
 private:
     // Generic members
@@ -105,6 +125,7 @@ private:
     tool::OrbitCamera mOrbitCamera;
     core::OgreTextTable mTextTable;
     input::InputHelper mInputHelper;
+    ui::MouseCursor mMouseCursor;
 
     // SoundSystem specific members
     mm::SoundHandler&  mSH;

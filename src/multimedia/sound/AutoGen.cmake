@@ -24,10 +24,13 @@ set(SRCS ${SRCS}
 	${DEV_ROOT_PATH}/multimedia/sound/SSS/SSoundSource.cpp
 )
 
-# Module dynamic libraries
+# Include third party libraries
+include_directories(${THIRD_PARTY_LIBS}/lib)
+
+# Dynamic libraries
 set(COMMON_LIBRARIES ${COMMON_LIBRARIES} openal vorbisfile vorbisenc)
 
-# Module static libraries
+# Static libraries
 if(UNIX)
 	# ogg
 	add_library(ogg STATIC IMPORTED)

@@ -209,14 +209,16 @@ SoundManager::playExistentSound(ActiveSound& s, float gain, bool repeat)
 			s.mGlobalState = SSplayback::SS_NONE;
 			s.mVolume = gain;
 		} else {
-			debugERROR("Error #%d while trying to restart playback: ", err);
+			debugERROR("Error while trying to restart playback: %s.\n",
+						SSenumStr(err));
 		}
 	}
 
-//	if ((s.mPlayState | s.mGlobalState) & (SSplayback::SS_PLAYING
-//										  |SSplayback::SS_FADING_IN
-//										  |SSplayback::SS_FADING_OUT))
-//	Playing: do nothing.
+	if ((s.mPlayState | s.mGlobalState) & (SSplayback::SS_PLAYING
+										  |SSplayback::SS_FADING_IN
+										  |SSplayback::SS_FADING_OUT)) {
+		debugWARNING("Tried to play an already playing sound.\n")
+	}
 
 	ASSERT(alGetError() == AL_NO_ERROR);
 	return err;
@@ -269,7 +271,7 @@ SoundManager::getAvailableSoundDevices()
 std::string
 SoundManager::getSoundDevice()
 {
-	if (!alcIsExtensionPresent(NULL, "ALC_ENUMERATION_EXT")) {
+	if (!alcIsExtensionPresent(0, "ALC_ENUMERATION_EXT")) {
 		debug("%s","Can't retrieve sound devices info. "
 				"Missing extension \"ALC_ENUMERATION_EXT\".\n");
 		return std::string("");
@@ -284,12 +286,10 @@ SoundManager::getSoundDevice()
 SSerror
 SoundManager::setSoundDevice(std::string* devName)
 {
-	ALCcontext* oldContext = NULL;
-	ALCcontext* newContext = NULL;
+	ALCcontext* oldContext(0);
+	ALCcontext* newContext(0);
 	ALCdevice* device = devName ? alcOpenDevice(devName->c_str())
-								: alcOpenDevice(NULL);
-
-	/* To hell with my coding style */
+								: alcOpenDevice(0);
 	if (device) {
 		debug("Opened sound device: %s\n",
 				alcGetString(device, ALC_DEVICE_SPECIFIER));
@@ -304,7 +304,7 @@ SoundManager::setSoundDevice(std::string* devName)
 			goto fail;
 		}
 
-		/* Cleanup old stuff */
+		// Cleanup old stuff.
 		if (oldContext) {
 			bool closeDevice = device != alcGetContextsDevice(oldContext);
 			device = alcGetContextsDevice(oldContext);
@@ -355,9 +355,8 @@ SoundManager::addLSoundSources(unsigned int numSources)
 void
 SoundManager::removeSoundSources(unsigned int numSources)
 {
-	/* TODO: Para un futuro, por ahora no la implementamos. */
-	debugERROR("Función no implementada: %s\n", "SoundManager::removeSoundSources()");
-	ASSERT(false);
+	// TODO: Para un futuro, por ahora no la implementamos.
+	debugERROR("Función no implementada.\n");
 }
 
 
@@ -712,9 +711,9 @@ SoundManager::getEnvSoundRepeat(const Ogre::String& sName)
 ////////////////////////////////////////////////////////////////////////////////
 SSerror
 SoundManager::playEnvSound(const Ogre::String& sName,
-						   const Ogre::Real& gain,
-						   bool repeat,
-						   EnvSoundId id)
+							   const Ogre::Real& gain,
+							   bool repeat,
+							   EnvSoundId id)
 {
 	SoundBuffer* buf(0);
 	SoundSource* src(0);
@@ -724,7 +723,8 @@ SoundManager::playEnvSound(const Ogre::String& sName,
 
 	// Check whether "sName" is an active environmental sound.
 	for (uint i=0 ; i < mEnvSounds.size() ; i++) {
-		if (std::get<0>(mEnvSounds[i]) == sName) {
+		if (std::get<0>(mEnvSounds[i]) == sName &&
+			std::get<2>(mEnvSounds[i]) == id) {
 			return playExistentSound(*(std::get<1>(mEnvSounds[i])), gain, repeat);
 		}
 	}
@@ -876,8 +876,9 @@ SoundManager::restartEnvSound(const Ogre::String& sName)
 
 ////////////////////////////////////////////////////////////////////////////////
 SSerror
-SoundManager::fadeOutEnvSound(const Ogre::String& sName, const Ogre::Real& time,
-							  const bool pause)
+SoundManager::fadeOutEnvSound(const Ogre::String& sName,
+								  const Ogre::Real& time,
+								  const bool pause)
 {
 	ActiveSound* as(0);
 
@@ -1051,9 +1052,9 @@ SoundManager::playSound(SoundAPI& sAPI,
 		}
 	}
 
-#ifdef DEBUG
-		alSourcef(src->mSource, AL_MAX_DISTANCE, 30.0f);
-#endif
+	// Sound distance fading characteristics (attenuation factors)
+	alSourcef(src->mSource, AL_MAX_DISTANCE, MAX_ATTENUATION_DISTANCE);
+	alSourcef(src->mSource, AL_REFERENCE_DISTANCE, MID_ATTENUATION_DISTANCE);
 
 	// Start playback and register sound.
 	err = src->play(buf, gain, sAPI.getPosition(), repeat);
