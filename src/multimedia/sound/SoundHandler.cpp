@@ -230,9 +230,10 @@ SoundHandler::update(const float globalTimeFrame)
 			// Not one of our sounds
 			continue;
 		}
-		pl = reinterpret_cast<Playlist*>(mFinishedPlaylists[i]);
+		pl = static_cast<Playlist*>(mFinishedPlaylists[i]);
 		checkPlaylistState(pl);
 		// Playlist was playing, and now enters silence.
+		ASSERT(!sSoundManager.isActiveEnvSound(pl));
 		ASSERT(pl->mState & PLAYLIST_PLAYING);
 		setPlaylistState(pl, PLAYLIST_SILENCE);
 		unsetPlaylistState(pl, PLAYLIST_PLAYING);
@@ -249,12 +250,13 @@ SoundHandler::update(const float globalTimeFrame)
 	// Update internal state of paused playlists
 	for (uint i=0 ; i < mPausedPlaylists.size() ; i++) {
 		if (!dynamic_cast<Playlist *>((Playlist*)mPausedPlaylists[i])) {
-			// Not one of our sounds
+			// Not one of our sounds.
 			continue;
 		}
-		pl = reinterpret_cast<Playlist*>(mPausedPlaylists[i]);
+		pl = static_cast<Playlist*>(mPausedPlaylists[i]);
 		checkPlaylistState(pl);
 		// Playlist was playing, and now it's paused.
+		ASSERT(!sSoundManager.isPlayingEnvSound(pl));
 		ASSERT(pl->mState & PLAYLIST_PLAYING);
 		setPlaylistState(pl, PLAYLIST_PAUSED);
 		unsetPlaylistState(pl, PLAYLIST_PLAYING);
@@ -301,8 +303,7 @@ SoundHandler::globalPause()
 			// Playlist was playing: register as globally paused.
 			unsetPlaylistState(pl, PLAYLIST_PLAYING);
 			setPlaylistState(pl, PLAYLIST_PAUSED | PLAYLIST_GLOBAL_MODE);
-			ASSERT(!sSoundManager.isPlayingEnvSound(
-					pl->mList[pl->mPlayOrder[pl->mCurrent]]));
+			ASSERT(!sSoundManager.isPlayingEnvSound(pl));
 
 		} else if ( (pl->mState & PLAYLIST_SILENCE) &&
 					!(pl->mState & PLAYLIST_PAUSED)) {
@@ -334,8 +335,7 @@ SoundHandler::globalPlay()
 			// Playlist restarted playing.
 			unsetPlaylistState(pl, PLAYLIST_PAUSED | PLAYLIST_GLOBAL_MODE);
 			setPlaylistState(pl, PLAYLIST_PLAYING);
-			ASSERT(sSoundManager.isPlayingEnvSound(
-					pl->mList[pl->mPlayOrder[pl->mCurrent]]));
+			ASSERT(sSoundManager.isPlayingEnvSound(pl));
 
 		} else if (pst == (PLAYLIST_SILENCE
 						   |PLAYLIST_PAUSED
@@ -364,8 +364,7 @@ SoundHandler::globalStop()
 							 | PLAYLIST_PAUSED
 							 | PLAYLIST_SILENCE
 							 | PLAYLIST_GLOBAL_MODE);
-		ASSERT(!sSoundManager.isActiveEnvSound(
-				pl->mList[pl->mPlayOrder[pl->mCurrent]]));
+		ASSERT(!sSoundManager.isActiveEnvSound(pl));
 		pl->mTimeSinceFinish = 0.0f;
 		pl->mCurrent = 0u;
 	}
@@ -640,12 +639,12 @@ SoundHandler::pausePlaylist(const Ogre::String& name, Playlist *plp)
 
 	sound = &pl->mList[pl->mPlayOrder[pl->mCurrent]];
 
-	if (!sSoundManager.isPlayingEnvSound(*sound)) {
+	if (!sSoundManager.isPlayingEnvSound(pl)) {
 		debugERROR("Playlist \"%s\" isn't playing any sound, "
 				"but the internal state says \"playing\"\n", pl->mName.c_str());
 	} else {
 		// All fine
-		sSoundManager.pauseEnvSound(*sound);
+		sSoundManager.pauseEnvSound(*sound, pl);
 	}
 
 	setPlaylistState(pl, PLAYLIST_PAUSED);
@@ -686,12 +685,12 @@ SoundHandler::stopPlaylist(const Ogre::String& name, Playlist *plp)
 		((pl->mState & PLAYLIST_PAUSED) && !(pl->mState & PLAYLIST_SILENCE))) {
 		// Playlist has an active sound: stop it.
 		const Ogre::String *sound = &pl->mList[pl->mPlayOrder[pl->mCurrent]];
-		if (!sSoundManager.isActiveEnvSound(*sound)) {
+		if (!sSoundManager.isActiveEnvSound(pl)) {
 			debugERROR("Playlist \"%s\" hasn't any active sound (%s), but the "
 					"internal state says \"playing/paused\"\n",
 					pl->mName.c_str(), sound->c_str());
 		} else {
-			SSerror err = sSoundManager.stopEnvSound(*sound);
+			SSerror err = sSoundManager.stopEnvSound(*sound, pl);
 			if (err == SSerror::SS_NO_BUFFER) {
 				// No EnvSound by the name "sound" was playing...
 				// strange, but not really a problem at this stage.
@@ -718,8 +717,8 @@ SoundHandler::stopPlaylist(const Ogre::String& name, Playlist *plp)
 ////////////////////////////////////////////////////////////////////////////////
 SSerror
 SoundHandler::fadeOutPlaylist(const Ogre::String& name,
-							  const Ogre::Real& time,
-							  const bool pause)
+								  const Ogre::Real& time,
+								  const bool pause)
 {
 	const Ogre::String *sound(0);
 	SSerror err(SSerror::SS_NO_ERROR);
@@ -760,7 +759,7 @@ SoundHandler::fadeOutPlaylist(const Ogre::String& name,
 		goto fail;
 	}
 
-	err = sSoundManager.fadeOutEnvSound(*sound, time, pause);
+	err = sSoundManager.fadeOutEnvSound(*sound, time, pause, pl);
 
 	if (err != SSerror::SS_NO_ERROR) {
 		debugERROR("Playlist \"%s\" fade-out failed: %s",
@@ -833,7 +832,8 @@ SoundHandler::fadeInPlaylist(const Ogre::String& name,
 	}
 
 	err = sSoundManager.fadeInEnvSound(pl->mList[pl->mPlayOrder[pl->mCurrent]],
-									   time);
+									   time,
+									   pl);
 	if (err != SSerror::SS_NO_ERROR) {
 		debugERROR("Playlist \"%s\" fade-in failed: %s.\n",
 					pl->mName.c_str(), SSenumStr(err));
