@@ -11,36 +11,56 @@
  */
 
 
+#include <OgreOverlay.h>
+#include <OgreOverlayManager.h>
+
+#include <debug/DebugUtil.h>
 #include "HUDDefines.h"
 #include "HUD.h"
 
 
 namespace cz {
 
-HUD::HUD()
-{
-	mElements.reserve(MAX_HUD_ELEMENTS);
-}
+///////////////////////////////////////////////////////////////////////////////
+HUD::HUD() : mOverlay(0) { /* Auto-generated constructor stub */ }
 
+///////////////////////////////////////////////////////////////////////////////
 virtual
 HUD::~HUD()
 {
-	if (mElements.size() > 0) {
-		debugWARNING("HUD elements still exist on HUD destruction.\n");
-	}
-	mElements.clear();
+	mOverlay->clear();
+	delete mOverlay;
 }
 
+
 ///////////////////////////////////////////////////////////////////////////////
-void
-HUD::updateWeapon(WeaponID id)
+bool
+HUD::build(void)
 {
-	// TODO: HUD::updateWeapon
+	bool result(true);
+
+	// Build main HUD overlay
+	mOverlay = Ogre::OverlayManager::getSingleton().getByName(HUD_OV_NAME);
+	if (!mOverlay) {
+		debugERROR("Error creating HUD overlay.\n");
+		return false;
+	}
+
+	// Call build for every registered HUDelement
+	result = mWeapons.build(mOverlay);
+	if (!result) {
+		debugERROR("Error building HUDelement \"%s\".\n", mWeapons.getName());
+	}
+
+	// Start off hidden
+	mOverlay->hide();
+	return result;
 }
+
 
 ///////////////////////////////////////////////////////////////////////////////
 void
-HUD::updateBullets(Weapon *w, EventType e)
+HUD::updateBullets(Weapon *w, PlayerWeaponAction act)
 {
 	// TODO: HUD::updateBullets
 }

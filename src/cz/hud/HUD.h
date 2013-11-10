@@ -11,33 +11,38 @@
  */
 
 #include <vector>
-#include <main_player/weapon/Weapon.h>
-#include "HUDDefines.h"
-#include "HUDelement.h"
+#include <OgreOverlay.h>
 
-// TODO locate EventType definition file and namespace
-#include <trigger_system/TriggerSystemDefines.h>
-#include <ia/fsm/FSMMachine.h>
+#include <main_player/weapon/Weapon.h>
+#include <main_player/weapon/WeaponAction.h>
+#include "HUDDefines.h"
+#include "HUDweapon.h"
+
 
 namespace cz {
 
 class HUD
 {
+
 public:
+	/**
+	 * @brief Just create object: no files are parsed, no overlays are created
+	 */
 	HUD();
 	virtual ~HUD();
+
+	/**
+	 * @brief   Fill in the structure (create overlays, parse files, etc)
+	 * @return  true on success, false otherwise
+	 * @remarks Recursively call build for all registered HUDelements
+	 * @remarks Starts off hidden. To show HUD call "setVisible(true)"
+	 */
+	bool
+	build(void);
 
 public:
 	/*************************************************************************/
 	/**  XXX  Methods offered for callbacks binding	                        **/
-
-	// TODO: document usage after implementation
-	void
-	updateWeapon(WeaponID id);
-
-	// TODO: document usage after implementation
-	void
-	updateBullets(Weapon *w, TriggerCallback::EventType e);
 
 	/**
 	 * @brief Set visibility of all elements loaded in HUD to 'visible'
@@ -45,16 +50,28 @@ public:
 	void
 	setVisible(bool visible);
 
+	/**
+	 * @brief   Set current selected weapon to 'id'
+	 * @remarks Weapons order in texture must match WeaponID enum
+	 */
+	void
+	updateWeapon(WeaponID id);
+
+	// TODO: document usage after implementation
+	void
+	updateBullets(Weapon *w, PlayerWeaponAction act);
+
 	/**	 <END>  Methods offered for callbacks binding						**/
 	/*************************************************************************/
 
 private:
 	// Prevent the compiler from generating methods to copy the instance.
-	HUD(HUD const&);              // Don't implement!
+	HUD(HUD const&);             // Don't implement!
 	void operator=(HUD const&);  // Don't implement!
 
 private:
-	std::vector<HUDelement> mElements;
+	Ogre::Overlay*  mOverlay;
+	HUDweapon       mWeapons;
 };
 
 
@@ -62,10 +79,18 @@ private:
 inline void
 HUD::setVisible(bool visible)
 {
-	for (uint i=0 ; i < mElements.size() ; i++) {
-		mElements[i].setVisible(visible);
+	if (!mOverlay) {
+		debugERROR("Called before creating the overlay.\n");
+	} else if (visible && !mOverlay->isVisible()) {
+		mOverlay->show();
+	} else if (!visible && mOverlay->isVisible()) {
+		mOverlay->hide();
 	}
 }
+
+
+///////////////////////////////////////////////////////////////////////////////
+inline void HUD::updateWeapon(WeaponID id) { mWeapons.setWeapon(id); }
 
 
 }

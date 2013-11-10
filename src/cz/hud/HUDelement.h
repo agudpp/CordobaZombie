@@ -13,16 +13,7 @@
 #define HUDELEMENT_H_
 
 #include <OgreOverlayContainer.h>
-
-
-
-// XXX  XXX  XXX  XXX  XXX  XXX  XXX  XXX  XXX  XXX  XXX
-//
-// TODO: check ConfigState.{h,cpp} in http://goo.gl/uaYlB7
-//		  for Ogre::{Overlay,OverlayContainer} usage
-//
-// XXX  XXX  XXX  XXX  XXX  XXX  XXX  XXX  XXX  XXX  XXX
-
+#include <debug/DebugUtil.h>
 
 
 namespace cz {
@@ -30,38 +21,37 @@ namespace cz {
 class HUDelement
 {
 public:
-	HUDelement();
+	HUDelement() : mName(0) {}
 	virtual ~HUDelement();
 
 public:
 	/**
-	 * @brief Set element overlay visibility to 'visible'
+	 * @brief Set element overlay container visibility to 'visible'
 	 */
-	void
-	setVisible(bool visible);
+	virtual void
+	setVisible(bool visible) = 0;
 
-private:
-	Ogre::OverlayContainer* mOvCont;
+	/**
+	 * @brief  Fill in the structure (create overlays, parse files, etc)
+	 * @return true on success, false otherwise
+	 */
+	virtual bool
+	build(Ogre::Overlay* ov) = 0;
+
+	/**
+	 * @brief Return non-modifyable HUDelement name
+	 */
+	const char*
+	getName(void) const;
+
+protected:
+	const char* mName;
 };
 
 
 ///////////////////////////////////////////////////////////////////////////////
-inline void
-HUDelement::setVisible(bool visible)
-{
-	if (!mOvCont) {
-		debugERROR("Called before creating the overlay container.\n");
-
-	} else {
-		if (visible && !mOvCont->isVisible())
-			mOvCont->show();
-		else if (!visible && mOvCont->isVisible())
-			mOvCont->hide();
-	}
-	return;
-}
-
-
+inline const char* HUDelement::getName(void) const { return mName; }
 
 } /* namespace cz */
+
 #endif /* HUDELEMENT_H_ */
