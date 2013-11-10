@@ -40,6 +40,12 @@ public:
 	bool
 	build(void);
 
+	/**
+	 * @brief Tells whether HUD is currently visible
+	 */
+	bool
+	isVisible(void) const;
+
 public:
 	/*************************************************************************/
 	/**  XXX  Methods offered for callbacks binding	                        **/
@@ -76,6 +82,19 @@ private:
 
 
 ///////////////////////////////////////////////////////////////////////////////
+inline bool
+HUD::isVisible(void) const
+{
+	if (!mOverlay) {
+		debugERROR("Called before creating the overlay.\n");
+		return false;
+	} else {
+		return mOverlay->isVisible();
+	}
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
 inline void
 HUD::setVisible(bool visible)
 {
@@ -87,10 +106,6 @@ HUD::setVisible(bool visible)
 		mOverlay->hide();
 	}
 }
-
-
-///////////////////////////////////////////////////////////////////////////////
-inline void HUD::updateWeapon(WeaponID id) { mWeapons.setWeapon(id); }
 
 
 }

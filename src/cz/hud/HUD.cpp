@@ -25,7 +25,6 @@ namespace cz {
 HUD::HUD() : mOverlay(0) { /* Auto-generated constructor stub */ }
 
 ///////////////////////////////////////////////////////////////////////////////
-virtual
 HUD::~HUD()
 {
 	mOverlay->clear();
@@ -55,6 +54,15 @@ HUD::build(void)
 	// Start off hidden
 	mOverlay->hide();
 	return result;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+void
+HUD::updateWeapon(WeaponID id)
+{
+	mWeapons.setWeapon(id);
+	// TODO: change panel with bullet type && change magazine count numbers
 }
 
 

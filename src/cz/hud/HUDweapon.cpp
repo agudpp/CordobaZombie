@@ -9,7 +9,7 @@
  */
 
 #include <OgreOverlay.h>
-#include <OgreOverlayContainer.h>
+#include <OgrePanelOverlayElement.h>
 
 #include "HUDDefines.h"
 #include "HUDweapon.h"
@@ -18,10 +18,9 @@ namespace cz {
 
 ///////////////////////////////////////////////////////////////////////////////
 HUDweapon::HUDweapon() :
-	mWeaponsPanel(0),
-	mName(HUDWEAPON_PANEL_NAME)
+	mWeaponsPanel(0)
 {
-	// Auto-generated constructor stub
+	mName = HUDWEAPON_PANEL_NAME;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -38,7 +37,8 @@ HUDweapon::build(Ogre::Overlay* ov)
 	}
 
 	// Parse weapons panel from HUD overlay file
-	mWeaponsPanel = ov->getChild(HUDWEAPON_PANEL_NAME);
+	mWeaponsPanel = static_cast<Ogre::PanelOverlayElement*>(
+						ov->getChild(HUDWEAPON_PANEL_NAME));
 	if (!mWeaponsPanel) {
 		debugERROR("Couldn't open panel %s from overlay %s.\n",
 					HUDWEAPON_PANEL_NAME, HUD_OV_NAME);

@@ -12,6 +12,7 @@
 #define HUDWEAPON_H_
 
 #include <OgrePanelOverlayElement.h>
+#include <main_player/weapon/WeaponDefs.h>
 #include <main_player/weapon/WeaponAction.h>
 #include "HUDelement.h"
 
@@ -20,7 +21,7 @@ namespace cz {
 class HUDweapon : public HUDelement
 {
 	// @brief Weapon texture relative width
-	static const float wTexWidth = 1.0f/PlayerWeaponAction::PWA_COUNT;
+	static constexpr float wTexWidth = 1.0f/PlayerWeaponAction::PWA_COUNT;
 
 public:
 	HUDweapon();

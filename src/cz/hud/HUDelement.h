@@ -12,7 +12,7 @@
 #ifndef HUDELEMENT_H_
 #define HUDELEMENT_H_
 
-#include <OgreOverlayContainer.h>
+#include <OgreOverlay.h>
 #include <debug/DebugUtil.h>
 
 
@@ -48,6 +48,8 @@ protected:
 	const char* mName;
 };
 
+///////////////////////////////////////////////////////////////////////////////
+inline HUDelement::~HUDelement() { /* Auto-generated destructor stub */ }
 
 ///////////////////////////////////////////////////////////////////////////////
 inline const char* HUDelement::getName(void) const { return mName; }
