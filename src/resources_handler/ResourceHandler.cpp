@@ -115,8 +115,7 @@ ResourceHandler::loadResourceGroup(ResourceGroup& rg)
 #endif
 
     ASSERT(lastBar > 1);
-    Ogre::String basePath = rg.ogre    debug("The base path of %s is %s\n",
-    		rg.ogreResourceFile().c_str(), basePath.c_str());ResourceFile().substr(0,lastBar);
+    Ogre::String basePath = rg.ogreResourceFile().substr(0,lastBar);
 
     if (!ogreLoadRsrcFile(rg.ogreResourceFile(), sections, basePath)) {
         debugERROR("We couldn't load the ogre resource file %s\n",
