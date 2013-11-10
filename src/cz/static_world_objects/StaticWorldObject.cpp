@@ -30,10 +30,16 @@ StaticWorldObject::~StaticWorldObject()
 
 ////////////////////////////////////////////////////////////////////////////////
 bool
-StaticWorldObject::checkImpact(HitInfo& hitInfo) const;
+StaticWorldObject::checkImpact(HitInfo& hitInfo) const
+{
+    ASSERT(false && "Implement this, probably return true always\n");
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 void
-StaticWorldObject::processImpactInfo(const HitInfo& hitInfo);
+StaticWorldObject::processImpactInfo(const HitInfo& hitInfo)
+{
+    ASSERT(false && "Implement this, play a sound, show some particles...\n");
+}
 
 } /* namespace cz */

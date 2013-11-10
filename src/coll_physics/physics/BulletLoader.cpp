@@ -135,6 +135,10 @@ void
 BulletLoader::freeMemory(void)
 {
     mShapes.freeAll();
+    DataHolder<BulletObject*>::ElementVec& bulletObj = mBulletObjects.elements();
+    for (BulletObject* bo : bulletObj) {
+        delete bo->rigidBody;
+    }
     mBulletObjects.freeAll();
 }
 
