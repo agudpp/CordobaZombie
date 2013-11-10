@@ -42,7 +42,7 @@ public:
      ** Load additional stuff before launching update cycle.
      **/
     void
-    loadAdditionalData(void);
+    loadAditionalData(void);
 
     /**
      ** @brief

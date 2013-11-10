@@ -46,7 +46,7 @@ public:
 	bool
 	isVisible(void) const;
 
-public:
+
 	/*************************************************************************/
 	/**  XXX  Methods offered for callbacks binding	                        **/
 

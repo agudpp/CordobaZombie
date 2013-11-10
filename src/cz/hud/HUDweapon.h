@@ -13,15 +13,17 @@
 
 #include <OgrePanelOverlayElement.h>
 #include <main_player/weapon/WeaponDefs.h>
-#include <main_player/weapon/WeaponAction.h>
 #include "HUDelement.h"
 
 namespace cz {
 
 class HUDweapon : public HUDelement
 {
+	// @brief Default initial weapon to show on HUD
+	static const enum WeaponID initialWeapon = WID_9MM;
+
 	// @brief Weapon texture relative width
-	static constexpr float wTexWidth = 1.0f/PlayerWeaponAction::PWA_COUNT;
+	static constexpr float wTexWidth = 1.0f/WID_COUNT;
 
 public:
 	HUDweapon();
@@ -74,6 +76,7 @@ HUDweapon::setWeapon(WeaponID id)
 		debugERROR("Called before creating the weapon panel.\n");
 	} else {
 		// Set texture UV coordinates for selected weapon
+		// FIXME: not working
 		mWeaponsPanel->setUV(wTexWidth*(id) ,	// left
 							 0.0f,				// bottom
 							 wTexWidth*(id+1),	// right

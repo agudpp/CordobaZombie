@@ -44,6 +44,9 @@ HUDweapon::build(Ogre::Overlay* ov)
 					HUDWEAPON_PANEL_NAME, HUD_OV_NAME);
 		return false;
 	}
+
+	// Set default initial weapon
+	setWeapon(initialWeapon);
 	mWeaponsPanel->show();
 
 	return true;

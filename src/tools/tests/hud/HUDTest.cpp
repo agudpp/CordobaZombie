@@ -136,8 +136,10 @@ HUDTest::~HUDTest() { /* Auto-generated destructor stub */ }
 
 ///////////////////////////////////////////////////////////////////////////////
 void
-HUDTest::loadAdditionalData(void)
+HUDTest::loadAditionalData(void)
 {
+	bool success(false);
+
     // Ugly way to load all the fonts at the beginning
     Ogre::ResourceManager::ResourceMapIterator iter =
         Ogre::FontManager::getSingleton().getResourceIterator();
@@ -145,13 +147,22 @@ HUDTest::loadAdditionalData(void)
 
     // Build HUD
 	testBEGIN("Construyendo el overlay y los elementos del HUD.\n");
-	bool success = mHUD.build();
+	success = mHUD.build();
 	if (success) {
 		testSUCCESS("Éxito.\n");
 	} else {
 		testFAIL("Falló.\n");
 		exit(EXIT_FAILURE);
 	}
+
+	// Setting HUD visible
+	testBEGIN("Haciendo visible al HUD.\n");
+	mHUD.setVisible(true);
+	if (!mHUD.isVisible()) {
+		testFAIL("Falló.\n");
+		exit(EXIT_FAILURE);
+	}
+	testSUCCESS("Éxito.\n");
 
 	// Setup world floor
 	if (!loadFloor()) {
