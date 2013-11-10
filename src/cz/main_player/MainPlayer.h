@@ -18,6 +18,7 @@
 #include <types/StackVector.h>
 #include <main_player/weapon/Weapon.h>
 #include <main_player/weapon/WeaponDefs.h>
+#include <main_player/MainPlayerWeaponEvent.h>
 #include <main_player/camera_controller/CameraController.h>
 #include <global_data/GlobalData.h>
 
@@ -184,6 +185,8 @@ public:
     // @brief Add signal system here to show the events like (fire a weapon /
     //        reload a weapon / change a weapon / life change?)
     // TODO: issue #157
+    void
+    setEventCallback(const WeaponEventCb& cb);
 
     // @brief Update the internal logic of the player.
     //
@@ -262,6 +265,8 @@ private:
     State mState;
 
     unsigned int mLife;
+
+    WeaponEventCb mWeaponCallback;
 };
 
 
@@ -331,6 +336,14 @@ MainPlayer::currentWeapon(void)
 {
     return mCurrentWeapon;
 }
+
+
+inline void
+MainPlayer::setEventCallback(const WeaponEventCb& cb)
+{
+	mWeaponCallback = cb;
+}
+
 
 } /* namespace cz */
 #endif /* MAINPLAYER_H_ */

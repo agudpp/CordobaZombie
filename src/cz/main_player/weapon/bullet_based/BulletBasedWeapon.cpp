@@ -8,7 +8,6 @@
 #include "BulletBasedWeapon.h"
 
 #include <debug/DebugUtil.h>
-#include <firing_system/Bullet.h>
 
 
 namespace cz {
