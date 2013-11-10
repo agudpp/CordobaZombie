@@ -13,14 +13,15 @@
 #include <vector>
 #include <OgreOverlay.h>
 
-#include <main_player/weapon/Weapon.h>
-#include <main_player/weapon/WeaponAction.h>
+#include <main_player/MainPlayerWeaponEvent.h>
 #include "HUDDefines.h"
 #include "HUDweapon.h"
 #include "HUDbullet.h"
 
 
 namespace cz {
+
+class Weapon;
 
 class HUD
 {
@@ -65,7 +66,7 @@ public:
 	 * 				c) update bullets in magazine due to reload
 	 */
 	void
-	updateWeapon(const Weapon *w, PlayerWeaponAction act);
+	updateWeapon(const Weapon *w, PlayerWeaponEvent act);
 
 	/**                                                                     **
 	 **	 <END>  Methods offered for callbacks binding						**

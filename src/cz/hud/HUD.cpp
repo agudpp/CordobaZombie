@@ -14,6 +14,7 @@
 #include <OgreOverlay.h>
 #include <OgreOverlayManager.h>
 
+#include <main_player/weapon/Weapon.h>
 #include <debug/DebugUtil.h>
 #include "HUDDefines.h"
 #include "HUD.h"
@@ -63,31 +64,31 @@ HUD::build(void)
 
 ///////////////////////////////////////////////////////////////////////////////
 void
-HUD::updateWeapon(const Weapon* w, PlayerWeaponAction act)
+HUD::updateWeapon(const Weapon* w, PlayerWeaponEvent wev)
 {
 	if (!w) {
 		debugERROR("Called with NULL Weapon*.\n");
 		return;
 	}
 
-	switch (act) {
+	switch (wev) {
 
-	case PWA_SWAP_WEAPON:
+	case PWE_SWAP_WEAPON:
 		mWeapons.setWeapon(w->weaponID());
 		mBullet.setBulletType(w->weaponID());
 		mBullet.setBulletCount(w->weaponInfo());
 		break;
 
-	case PWA_FIRE:
+	case PWE_FIRE:
 		mBullet.setBulletCount(w->weaponInfo());
 		break;
 
-	case PWA_RELOAD:
+	case PWE_RELOAD:
 		mBullet.setBulletCount(w->weaponInfo());
 		break;
 
 	default:
-		debugERROR("Unsupported PlayerWeaponAction: %s", PWAstr(act));
+		debugERROR("Unsupported PlayerWeaponEvent: %s", PWEstr(wev));
 		break;
 	}
 }

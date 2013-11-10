@@ -20,8 +20,9 @@
 #include <tinyxml/tinyxml.h>
 #include <xml/XMLHelper.h>
 #include <debug/PrimitiveDrawer.h>
-#include <main_player/weapon/WeaponBuilder.h>
 #include <global_data/GlobalData.h>
+#include <main_player/weapon/WeaponBuilder.h>
+#include <linkers/Linkers.h>
 
 #include "HUDTest.h"
 
@@ -81,11 +82,12 @@ getKeyboardKeys(void)
     buttons.push_back(input::KeyCode::KC_NUMPAD1);
     buttons.push_back(input::KeyCode::KC_NUMPAD2);
     buttons.push_back(input::KeyCode::KC_NUMPAD3);
+    buttons.push_back(input::KeyCode::KC_NUMPADENTER);
 
     return buttons;
 }
 
-// Build a weapon of requested type, with default bullets and magazine count
+// Build a weapon of requested type, with max bullets and magazine count
 cz::Weapon *
 buildWeapon(cz::WeaponID wid)
 {
@@ -105,6 +107,7 @@ buildWeapon(cz::WeaponID wid)
 	return w;
 }
 
+
 }
 
 
@@ -119,8 +122,7 @@ HUDTest::HUDTest() :
     mNode(0),
     mEntity(0),
     mOrbitCamera(mCamera, mSceneMgr, mTimeFrame),
-    mInputHelper(getMouseButtons(), getKeyboardKeys()),
-    mHUD()
+    mInputHelper(getMouseButtons(), getKeyboardKeys())
 {
 	// Setting global data
 	cz::GlobalData::sceneMngr = mSceneMgr;
@@ -138,9 +140,9 @@ HUDTest::HUDTest() :
     mMouseCursor.updatePosition(mWindow->getWidth() / 2,
                                 mWindow->getHeight() / 2);
 
-	// Check initial HUD status is OK
+	// Check initial HUD & MainPlayer status are OK
 	testBEGIN("Revisando la creación del HUD.\n");
-	ASSERT(!mHUD.isVisible());
+	ASSERT(&mHUD);
 	testSUCCESS("HUD creado correctamente.\n");
 
 	return;
@@ -159,16 +161,24 @@ HUDTest::loadAditionalData(void)
 {
 	bool success(false);
 
-    // Ugly way to load all the fonts at the beginning
-    Ogre::ResourceManager::ResourceMapIterator iter =
-        Ogre::FontManager::getSingleton().getResourceIterator();
-    while (iter.hasMoreElements()) { iter.getNext()->load(); }
+	// Ugly way to load all the fonts at the beginning
+	Ogre::ResourceManager::ResourceMapIterator iter =
+			Ogre::FontManager::getSingleton().getResourceIterator();
+	while (iter.hasMoreElements()) { iter.getNext()->load(); }
 
-	// Build dummy weapons
-    mWeapons[0] = buildWeapon(cz::WID_9MM);
-    mWeapons[1] = buildWeapon(cz::WID_FAL);
+	// Build test weapons
+	testBEGIN("Construyendo las armas.\n");
+	mWeapons[0] = buildWeapon(cz::WID_9MM);
+	mWeapons[1] = buildWeapon(cz::WID_FAL);
+    testSUCCESS("Éxito.\n");
 
-    // Build HUD
+	// Build player
+	testBEGIN("Construyendo el MainPlayer.\n");
+	cz::MainPlayer::CamLimit limits;  // Only to build player
+    mPlayer.build(mCamera, limits);
+    testSUCCESS("Éxito.\n");
+
+	// Build HUD
 	testBEGIN("Construyendo el overlay y los elementos del HUD.\n");
 	success = mHUD.build();
 	if (success) {
@@ -178,8 +188,13 @@ HUDTest::loadAditionalData(void)
 		exit(EXIT_FAILURE);
 	}
 
-	// Set initial weapon
-	mHUD.updateWeapon(mWeapons[0], cz::PWA_SWAP_WEAPON);
+	// Link player and HUD, and set initial weapon
+	testBEGIN("Conectando al player con el HUD.\n");
+	cz::linker::linkMainPlayerWithHUD(mPlayer, mHUD);
+	ASSERT(mPlayer.addWeapon(mWeapons[0]));
+	ASSERT(mPlayer.addWeapon(mWeapons[1]));
+	mPlayer.changeWeapon(mWeapons[0]->weaponID());
+    testSUCCESS("Éxito.\n");
 
 	// Setting HUD visible
 	testBEGIN("Haciendo visible al HUD.\n");
@@ -198,6 +213,8 @@ HUDTest::loadAditionalData(void)
 
     // Print out keyboard controls
     printf("\n\n\33[01;34mHUD control options:\n\33[22;32m"
+			" ¤ \33[01;34mNUMPAD INTRO\33[22;32m: Reload.\n"
+			" ¤ \33[01;34mNUMPAD 0\33[22;32m: Fire!\n"
 			" ¤ \33[01;34mNUMPAD 1\33[22;32m: set weapon 9mm.\n"
 			" ¤ \33[01;34mNUMPAD 2\33[22;32m: set weapon fal.\n"
 			"\33[0m\nLast command:\n");
@@ -347,14 +364,27 @@ void
 HUDTest::handlePlayerInput(void)
 {
 	static bool keyPressed(false);
+	static cz::Weapon* currentWeapon(mWeapons[0]);
 
-    if (mInputHelper.isKeyPressed(input::KeyCode::KC_NUMPAD1)) {
+	if (mInputHelper.isKeyPressed(input::KeyCode::KC_NUMPAD0)) {
+		if (!keyPressed) {
+			keyPressed = true;
+			fprintf(stderr, "\r");
+			debugBLUE("Fire!                       ");
+//			// TODO do it right! Check HUD integration with MainPlayer:
+//			mPlayer.doFire();
+			dummyFire(currentWeapon);
+		}
+
+	} else if (mInputHelper.isKeyPressed(input::KeyCode::KC_NUMPAD1)) {
     	if (!keyPressed) {
     		keyPressed = true;
 			fprintf(stderr, "\r");
 			debugBLUE("Switchig weapon to \"9mm\"    ");
-			mHUD.updateWeapon(mWeapons[0],
-							  cz::PlayerWeaponAction::PWA_SWAP_WEAPON);
+			currentWeapon = mWeapons[0];
+//			// TODO do it right! Check HUD integration with MainPlayer:
+//			mPlayer.changeWeapon(mWeapons[0]->weaponID());
+			dummyChangeWeapon(currentWeapon);
     	}
 
     } else if (mInputHelper.isKeyPressed(input::KeyCode::KC_NUMPAD2)) {
@@ -362,8 +392,20 @@ HUDTest::handlePlayerInput(void)
 			keyPressed = true;
 			fprintf(stderr, "\r");
 			debugBLUE("Switchig weapon to \"fal\"    ");
-			mHUD.updateWeapon(mWeapons[1],
-							  cz::PlayerWeaponAction::PWA_SWAP_WEAPON);
+			currentWeapon = mWeapons[1];
+//			// TODO do it right! Check HUD integration with MainPlayer:
+//			mPlayer.changeWeapon(mWeapons[1]->weaponID());
+			dummyChangeWeapon(currentWeapon);
+		}
+
+    } else if (mInputHelper.isKeyPressed(input::KeyCode::KC_NUMPADENTER)) {
+		if (!keyPressed) {
+			keyPressed = true;
+			fprintf(stderr, "\r");
+			debugBLUE("Reloading ammo...            ");
+//			// TODO do it right! Check HUD integration with MainPlayer:
+//			mPlayer.doReload();
+			dummyReload(currentWeapon);
 		}
 
     } else if (keyPressed) {
@@ -371,6 +413,42 @@ HUDTest::handlePlayerInput(void)
     }
 
 	return;
+}
+
+
+
+///////////////////////////////////////////////////////////////////////////////
+void
+HUDTest::dummyChangeWeapon(cz::Weapon* w)
+{
+	mHUD.updateWeapon(w, cz::PlayerWeaponEvent::PWE_SWAP_WEAPON);
+}
+
+
+
+///////////////////////////////////////////////////////////////////////////////
+void
+HUDTest::dummyFire(cz::Weapon* w)
+{
+	cz::WeaponInfo* winfo = const_cast<cz::WeaponInfo*>(&w->weaponInfo());
+	if (winfo->bulletsInMagazine > 0)
+		winfo->bulletsInMagazine--;
+	mHUD.updateWeapon(w, cz::PlayerWeaponEvent::PWE_FIRE);
+}
+
+
+
+///////////////////////////////////////////////////////////////////////////////
+void
+HUDTest::dummyReload(cz::Weapon* w)
+{
+	cz::WeaponInfo* winfo = const_cast<cz::WeaponInfo*>(&w->weaponInfo());
+	if (winfo->magazineCount > 0 &&
+		winfo->bulletsInMagazine < winfo->maxBulletsPerMagazine) {
+		winfo->magazineCount--;
+		winfo->bulletsInMagazine = winfo->maxBulletsPerMagazine;
+	}
+	mHUD.updateWeapon(w, cz::PlayerWeaponEvent::PWE_RELOAD);
 }
 
 

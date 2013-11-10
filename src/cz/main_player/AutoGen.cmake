@@ -13,6 +13,7 @@ set(HDRS ${HDRS}
 	
 	# main player
 	${DEV_ROOT_PATH}/cz/main_player/MainPlayer.h
+	${DEV_ROOT_PATH}/cz/main_player/MainPlayerWeaponEvent.h
 )
 
 set(SRCS ${SRCS}

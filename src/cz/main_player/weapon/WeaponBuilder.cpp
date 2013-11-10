@@ -53,9 +53,6 @@ buildWeapon(WeaponID wid)
     ASSERT(result);
     ASSERT(entity);
 
-    // create the SceneNode
-    Ogre::SceneNode* node = GlobalData::sceneMngr->createSceneNode();
-    node->attachObject(entity);
     result->setOgreStuff(entity);
 
     return result;

@@ -26,7 +26,10 @@
 #include <utils/OrbitCamera.h>
 #include <input/InputHelper.h>
 #include <cursor/MouseCursor.h>
+#include <main_player/MainPlayer.h>
+#include <main_player/weapon/Weapon.h>
 #include <hud/HUD.h>
+
 
 
 namespace tests {
@@ -71,18 +74,35 @@ private:
     handleCameraInput(void);
 
     /**
-     ** @brief
-     ** Interpret keyboard input to handle the HUD.
-     **/
+     * @brief Interpret keyboard input to handle the HUD.
+     */
     void
     handlePlayerInput(void);
 
+    //////////////////////////////////////////////////////////////////////
+    ///               AUXILIARY  INTERNAL  FUNCTIONS                   ///
+
     /**
-     ** @brief
-     ** Load a plane 2D floor into Ogre world.
-     **
-     ** @return
-     **/
+     * @brief Simulate weapon swap in HUD.
+     */
+    void
+    dummyChangeWeapon(cz::Weapon* w);
+
+    /**
+     * @brief Simulate weapon firing in HUD.
+     */
+    void
+    dummyFire(cz::Weapon* w);
+
+    /**
+     * @brief Simulate weapon reloading in HUD.
+     */
+    void
+    dummyReload(cz::Weapon* w);
+
+    /**
+     * @brief Load a plane 2D floor into Ogre world.
+     */
     bool
     loadFloor(void);
 
@@ -97,8 +117,9 @@ private:
     ui::MouseCursor mMouseCursor;
 
     // HUD specific members
-    cz::HUD     mHUD;
-    cz::Weapon* mWeapons[2];
+    cz::HUD			mHUD;
+    cz::Weapon*		mWeapons[2];
+    cz::MainPlayer	mPlayer;
 };
 
 }
