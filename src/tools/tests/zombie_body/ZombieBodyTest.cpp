@@ -368,7 +368,7 @@ ZombieBodyTest::ZombieBodyTest() :
     cz::GlobalData::sceneMngr = mSceneMgr;
 
     // Zombie Unit static values
-    cz::ZombieUnit::setDynamicWorld(&mDynamicWorld);
+    cz::PhysicGameObject::setDynamicWorld(&mDynamicWorld);
 
     // Effects
     cz::BodyPartEffect::setDynamicWorld(&mDynamicWorld);

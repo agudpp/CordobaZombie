@@ -54,7 +54,6 @@ effect::EffectHandler* ZombieUnit::sEffectHandler = 0;
 BloodParticlesQueue* ZombieUnit::sBloodQueue = 0;
 BodyPartsEffectQueue ZombieUnit::sBodyPartEffectQueue;
 HitInfo ZombieUnit::sLastHitInfo;
-physics::DynamicWorld* ZombieUnit::sDynamicWorld = 0;
 
 
 ////////////////////////////////////////////////////////////////////////////////

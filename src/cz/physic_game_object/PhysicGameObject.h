@@ -8,7 +8,15 @@
 #ifndef PHYSICGAMEOBJECT_H_
 #define PHYSICGAMEOBJECT_H_
 
+#include <debug/DebugUtil.h>
+
 #include "HitInfo.h"
+
+// forward
+//
+namespace physics {
+class DynamicWorld;
+}
 
 namespace cz {
 
@@ -25,6 +33,15 @@ public:
     PhysicGameObject() {};
     virtual
     ~PhysicGameObject() {};
+
+    // @brief Set / get the Dynamic world instance to be shared by all the
+    //        child classes.
+    //
+    static inline void
+    setDynamicWorld(physics::DynamicWorld* dwi);
+    static inline physics::DynamicWorld*
+    dynamicWorld(void);
+
 
     // @brief Check for a possible impact. This method will only check if we
     //        impact the current object.
@@ -46,7 +63,36 @@ public:
     virtual void
     processImpactInfo(const HitInfo& hitInfo) = 0;
 
+
+protected:
+    // Dynamic world instance
+    static physics::DynamicWorld* sDynamicWorld;
 };
+
+
+
+
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Inline stuff
+//
+
+inline void
+PhysicGameObject::setDynamicWorld(physics::DynamicWorld* dwi)
+{
+    ASSERT(dwi);
+    sDynamicWorld = dwi;
+}
+inline physics::DynamicWorld*
+PhysicGameObject::dynamicWorld(void)
+{
+    return sDynamicWorld;
+}
+
 
 } /* namespace cz */
 #endif /* PHYSICGAMEOBJECT_H_ */

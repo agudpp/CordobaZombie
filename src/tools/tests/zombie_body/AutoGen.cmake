@@ -17,6 +17,7 @@ include(${DEV_ROOT_PATH}/cz/global_data/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/cz/ia/path_handler/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/cz/ia/steering_behavior/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/cz/world_object/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/cz/physic_game_object/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/cz/zombie_unit/AutoGen.cmake)
 
 

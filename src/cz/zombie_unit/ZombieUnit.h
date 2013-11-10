@@ -84,14 +84,6 @@ public:
     ZombieUnit();
     ~ZombieUnit();
 
-    // @brief Set the Dynamic world instance.
-    // @param dwi       The dynamic world instance
-    //
-    static inline void
-    setDynamicWorld(physics::DynamicWorld* dwi);
-    static inline physics::DynamicWorld*
-    dynamicWorld(void);
-
     // @brief We need to set the global EffectHandler to be used for all the
     //        effects of the zombies.
     // @param eh        The global effect handler
@@ -367,8 +359,6 @@ protected:
     // Last hit information, since we are not running in parallel we can do this
     // safely.
     static HitInfo sLastHitInfo;
-    // Dynamic world instance
-    static physics::DynamicWorld* sDynamicWorld;
 
 protected:
     // General members
@@ -400,18 +390,6 @@ private:
 ////////////////////////////////////////////////////////////////////////////
 // Inline stuff
 //
-
-inline void
-ZombieUnit::setDynamicWorld(physics::DynamicWorld* dwi)
-{
-    ASSERT(dwi);
-    sDynamicWorld = dwi;
-}
-inline physics::DynamicWorld*
-ZombieUnit::dynamicWorld(void)
-{
-    return sDynamicWorld;
-}
 
 inline void
 ZombieUnit::setEffectHandler(effect::EffectHandler* eh)
