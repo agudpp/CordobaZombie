@@ -17,6 +17,7 @@
 #include <main_player/weapon/WeaponAction.h>
 #include "HUDDefines.h"
 #include "HUDweapon.h"
+#include "HUDbullet.h"
 
 
 namespace cz {
@@ -83,6 +84,7 @@ private:
 private:
 	Ogre::Overlay*  mOverlay;
 	HUDweapon       mWeapons;
+	HUDbullet		mBullet;
 };
 
 
@@ -114,7 +116,12 @@ HUD::setVisible(bool visible)
 
 
 ///////////////////////////////////////////////////////////////////////////////
-inline void HUD::swapWeapon(WeaponID id) { mWeapons.setWeapon(id); }
+inline void HUD::swapWeapon(WeaponID id)
+{
+	mWeapons.setWeapon(id);
+	mBullet.setBulletType(id);
+	// TODO: update magazine count
+}
 
 
 }

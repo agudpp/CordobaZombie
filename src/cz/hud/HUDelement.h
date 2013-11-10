@@ -20,6 +20,10 @@ namespace cz {
 
 class HUDelement
 {
+protected:
+	// @brief Default initial weapon to show on HUD
+	static const enum WeaponID initialWeapon = WID_9MM;
+
 public:
 	HUDelement() : mName(0) {}
 	virtual ~HUDelement();

@@ -19,9 +19,6 @@ namespace cz {
 
 class HUDweapon : public HUDelement
 {
-	// @brief Default initial weapon to show on HUD
-	static const enum WeaponID initialWeapon = WID_9MM;
-
 	// @brief Weapon texture relative width
 	static constexpr float wTexWidth = 1.0f/WID_COUNT;
 
@@ -29,7 +26,6 @@ public:
 	HUDweapon();
 	virtual ~HUDweapon();
 
-public:
 	/**
 	 * @brief Set element overlay container visibility to 'visible'
 	 */

@@ -36,7 +36,7 @@ HUD::~HUD()
 bool
 HUD::build(void)
 {
-	bool result(true);
+	bool wres(true), bres(true);
 
 	// Build main HUD overlay
 	mOverlay = Ogre::OverlayManager::getSingleton().getByName(HUD_OV_NAME);
@@ -46,14 +46,18 @@ HUD::build(void)
 	}
 
 	// Call build for every registered HUDelement
-	result = mWeapons.build(mOverlay);
-	if (!result) {
+	wres = mWeapons.build(mOverlay);
+	if (!wres) {
 		debugERROR("Error building HUDelement \"%s\".\n", mWeapons.getName());
+	}
+	bres = mBullet.build(mOverlay);
+	if (!bres) {
+		debugERROR("Error building HUDelement \"%s\".\n", mBullet.getName());
 	}
 
 	// Start off hidden
 	mOverlay->hide();
-	return result;
+	return (wres && bres);
 }
 
 

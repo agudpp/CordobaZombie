@@ -4,12 +4,14 @@ set(HDRS ${HDRS}
 	${DEV_ROOT_PATH}/cz/hud/HUDDefines.h
 	${DEV_ROOT_PATH}/cz/hud/HUDelement.h
 	${DEV_ROOT_PATH}/cz/hud/HUDweapon.h
+	${DEV_ROOT_PATH}/cz/hud/HUDbullet.h
 	${DEV_ROOT_PATH}/cz/hud/HUD.h
 )
 
 # Module sources
 set(SRCS ${SRCS}
 	${DEV_ROOT_PATH}/cz/hud/HUDweapon.cpp
+	${DEV_ROOT_PATH}/cz/hud/HUDbullet.cpp
 	${DEV_ROOT_PATH}/cz/hud/HUD.cpp
 )
 
