@@ -1,9 +1,10 @@
+include(${DEV_ROOT_PATH}/io_interfaces/IO_InterfacesAll.cmake)
 include(${DEV_ROOT_PATH}/core/ogre_utils/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/core/app_tester/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/core/debug/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/core/xml/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/cz/global_data/AutoGen.cmake)
-include(${DEV_ROOT_PATH}/io_interfaces/IO_InterfacesAll.cmake)
+include(${DEV_ROOT_PATH}/cz/main_player/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/cz/hud/AutoGen.cmake)
 
 # Define global sources here

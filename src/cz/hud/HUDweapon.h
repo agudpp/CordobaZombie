@@ -74,15 +74,15 @@ HUDweapon::setWeapon(WeaponID id)
 {
 	if (!mWeaponsPanel) {
 		debugERROR("Called before creating the weapon panel.\n");
+
+	} else if (id >= WID_COUNT) {
+		debugERROR("Undefined WeaponID: %d\n", id);
+
 	} else {
 		// Set texture UV coordinates for selected weapon
-		// FIXME: not working
-		mWeaponsPanel->setUV(wTexWidth*(id) ,	// left
-							 0.0f,				// bottom
-							 wTexWidth*(id+1),	// right
-							 1.0f);				// up
+		const ui::UVCoord* uv = &WeaponUV[id];
+		mWeaponsPanel->setUV(uv->u0, uv->v0, uv->u1, uv->v1);
 	}
-	return;
 }
 
 

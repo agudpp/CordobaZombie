@@ -97,7 +97,8 @@ private:
     ui::MouseCursor mMouseCursor;
 
     // HUD specific members
-    cz::HUD  mHUD;
+    cz::HUD     mHUD;
+    cz::Weapon* mWeapons[2];
 };
 
 }

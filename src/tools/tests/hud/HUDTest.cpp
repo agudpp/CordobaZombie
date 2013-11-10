@@ -20,6 +20,8 @@
 #include <tinyxml/tinyxml.h>
 #include <xml/XMLHelper.h>
 #include <debug/PrimitiveDrawer.h>
+#include <main_player/weapon/WeaponBuilder.h>
+#include <global_data/GlobalData.h>
 
 #include "HUDTest.h"
 
@@ -28,8 +30,6 @@
 /******************************************************************************/
 /********************    GLOBAL VARIABLES AND STUFF    ************************/
 namespace {
-
-
 
 }
 
@@ -96,16 +96,16 @@ namespace tests {
 
 ///////////////////////////////////////////////////////////////////////////////
 HUDTest::HUDTest() :
-    core::AppTester(mTimeFrame),
+    core::AppTester(cz::GlobalData::lastTimeFrame),
     mNode(0),
     mEntity(0),
     mOrbitCamera(mCamera, mSceneMgr, mTimeFrame),
     mInputHelper(getMouseButtons(), getKeyboardKeys()),
     mHUD()
 {
-	// Sound system setup auxiliary variables
-	Ogre::String fails("");
-	std::vector<Ogre::String> sounds;
+	// Setting global data
+	cz::GlobalData::sceneMngr = mSceneMgr;
+	cz::GlobalData::camera = mCamera;
 
     // Configure input systems
     input::Mouse::setMouse(mMouse);
@@ -130,7 +130,7 @@ HUDTest::HUDTest() :
 
 
 ///////////////////////////////////////////////////////////////////////////////
-HUDTest::~HUDTest() { /* Auto-generated destructor stub */ }
+HUDTest::~HUDTest() { delete mWeapons[0]; delete mWeapons[1]; }
 
 
 
@@ -144,6 +144,10 @@ HUDTest::loadAditionalData(void)
     Ogre::ResourceManager::ResourceMapIterator iter =
         Ogre::FontManager::getSingleton().getResourceIterator();
     while (iter.hasMoreElements()) { iter.getNext()->load(); }
+
+	// Build dummy weapons
+	mWeapons[0] = cz::WeaponBuilder::buildWeapon(cz::WID_9MM);
+	mWeapons[1] = cz::WeaponBuilder::buildWeapon(cz::WID_FAL);
 
     // Build HUD
 	testBEGIN("Construyendo el overlay y los elementos del HUD.\n");
@@ -327,7 +331,8 @@ HUDTest::handlePlayerInput(void)
     		keyPressed = true;
 			fprintf(stderr, "\r");
 			debugBLUE("Switchig weapon to \"9mm\"    ");
-			mHUD.updateWeapon(cz::WID_9MM);
+			mHUD.updateWeapon(mWeapons[0],
+							  cz::PlayerWeaponAction::PWA_SWAP_WEAPON);
     	}
 
     } else if (mInputHelper.isKeyPressed(input::KeyCode::KC_NUMPAD2)) {
@@ -335,7 +340,8 @@ HUDTest::handlePlayerInput(void)
 			keyPressed = true;
 			fprintf(stderr, "\r");
 			debugBLUE("Switchig weapon to \"fal\"    ");
-			mHUD.updateWeapon(cz::WID_9MM);
+			mHUD.updateWeapon(mWeapons[1],
+							  cz::PlayerWeaponAction::PWA_SWAP_WEAPON);
 		}
 
     } else if (keyPressed) {

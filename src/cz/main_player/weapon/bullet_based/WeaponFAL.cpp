@@ -12,6 +12,12 @@
 
 namespace cz {
 
+const char* WeaponFAL::ANIM_NAMES[S_COUNT] = {
+    "dispara",
+    "recarga",
+    0
+};
+
 WeaponFAL::WeaponFAL() :
         mState(State::S_IDLE)
 {
@@ -22,9 +28,6 @@ WeaponFAL::WeaponFAL() :
     setMovementRanges(0.005f, 0.005f);
 
     debugWARNING("We are hardcoding the values here, we need to change this\n");
-
-    // load the animations
-    loadAnims(ANIM_NAMES);
 
     // set the ID
     setWeaponID(WeaponID::WID_FAL);

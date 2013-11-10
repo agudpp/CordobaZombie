@@ -47,8 +47,9 @@ public:
 	isVisible(void) const;
 
 
-	/*************************************************************************/
-	/**  XXX  Methods offered for callbacks binding	                        **/
+	/*************************************************************************
+	 **  XXX  Methods offered for callbacks binding	                        **
+	 **                                                                     **/
 
 	/**
 	 * @brief Set visibility of all elements loaded in HUD to 'visible'
@@ -57,23 +58,27 @@ public:
 	setVisible(bool visible);
 
 	/**
-	 * @brief   Set current selected weapon to 'id'
-	 * @remarks Weapons order in texture must match WeaponID enum
+	 * @brief  Update HUD state due to one of the following events:
+	 * 				a) change current selected weapon
+	 * 				b) update bullets in magazine due to firing
+	 * 				c) update bullets in magazine due to reload
 	 */
 	void
-	updateWeapon(WeaponID id);
+	updateWeapon(Weapon *w, PlayerWeaponAction act);
 
-	// TODO: document usage after implementation
-	void
-	updateBullets(Weapon *w, PlayerWeaponAction act);
-
-	/**	 <END>  Methods offered for callbacks binding						**/
-	/*************************************************************************/
+	/**                                                                     **
+	 **	 <END>  Methods offered for callbacks binding						**
+	 *************************************************************************/
 
 private:
 	// Prevent the compiler from generating methods to copy the instance.
 	HUD(HUD const&);             // Don't implement!
 	void operator=(HUD const&);  // Don't implement!
+
+	// Auxiliary internal functions
+	void swapWeapon(WeaponID id);
+	void fireWeapon(Weapon* w);
+	void reloadWeapon(Weapon* w);
 
 private:
 	Ogre::Overlay*  mOverlay;
@@ -106,6 +111,10 @@ HUD::setVisible(bool visible)
 		mOverlay->hide();
 	}
 }
+
+
+///////////////////////////////////////////////////////////////////////////////
+inline void HUD::swapWeapon(WeaponID id) { mWeapons.setWeapon(id); }
 
 
 }

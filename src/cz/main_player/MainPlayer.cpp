@@ -260,10 +260,10 @@ MainPlayer::newEvent(Event event)
     }
     break;
 
-    }
     default:
         debugERROR("Invalid current state %d\n", mState);
         ASSERT(false);
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -559,12 +559,10 @@ MainPlayer::update(void)
     }
     break;
 
-    }
-
     default:
         debugERROR("Unkown state %d\n", mState);
         ASSERT(false);
-
+    }
 }
 
 } /* namespace cz */

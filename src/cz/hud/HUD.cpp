@@ -59,18 +59,47 @@ HUD::build(void)
 
 ///////////////////////////////////////////////////////////////////////////////
 void
-HUD::updateWeapon(WeaponID id)
+HUD::updateWeapon(Weapon* w, PlayerWeaponAction act)
 {
-	mWeapons.setWeapon(id);
-	// TODO: change panel with bullet type && change magazine count numbers
+	if (!w) {
+		debugERROR("Called with NULL Weapon*.\n");
+		return;
+	}
+
+	switch (act) {
+
+	case PWA_SWAP_WEAPON:
+		swapWeapon(w->weaponID());
+		break;
+
+	case PWA_FIRE:
+		fireWeapon(w);
+		break;
+
+	case PWA_RELOAD:
+		reloadWeapon(w);
+		break;
+
+	default:
+		debugERROR("Unsupported PlayerWeaponAction: %s", PWAstr(act));
+		break;
+	}
 }
 
 
 ///////////////////////////////////////////////////////////////////////////////
 void
-HUD::updateBullets(Weapon *w, PlayerWeaponAction act)
+HUD::fireWeapon(Weapon* w)
 {
-	// TODO: HUD::updateBullets
+	// TODO HUD::fireWeapon
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+void
+HUD::reloadWeapon(Weapon* w)
+{
+	// TODO HUD::reloadWeapon
 }
 
 
