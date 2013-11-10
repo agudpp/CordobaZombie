@@ -24,6 +24,7 @@ set(SRCS ${SRCS}
 	
     ${DEV_ROOT_PATH}/cz/zombie_unit/ZombieBody.cpp
     ${DEV_ROOT_PATH}/cz/zombie_unit/ZombieUnitBuilder.cpp
+    ${DEV_ROOT_PATH}/cz/zombie_unit/BodyPartElement.cpp
 )
 
 

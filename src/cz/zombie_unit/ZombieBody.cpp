@@ -307,18 +307,18 @@ ZombieBody::extirpate(BodyPart bodyPart)
     ASSERT(mNode);
     Ogre::Vector3 globalPosition = globalBonePosition(bone, mNode);
     const Ogre::Quaternion globalOrientation = globalBoneRotation(bone, mNode);
-    ASSERT(result->bulletObject);
+    ASSERT(result->bulletObject());
 
     // move the size of the entity in the bone space
     Ogre::Matrix4 mat(globalOrientation);
     mat.setTrans(globalPosition);
-    const Ogre::Entity* ent = result->bulletObject->entity;
+    const Ogre::Entity* ent = result->bulletObject()->entity;
     ASSERT(ent);
     const Ogre::Vector3& halfSize = ent->getBoundingBox().getHalfSize();
     const float maxVal = std::max(halfSize.x, std::max(halfSize.y, halfSize.z));
     const Ogre::Vector3 offset(maxVal, 0, 0);
     globalPosition = mat * offset;
-    result->bulletObject->setTransform(globalPosition, globalOrientation);
+    result->bulletObject()->setTransform(globalPosition, globalOrientation);
 
     return result;
 }

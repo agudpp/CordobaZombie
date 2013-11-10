@@ -484,7 +484,7 @@ ZombieBodypartTest::update()
             // get the values simulating the ray
             const Ogre::Vector3 impactPos =
                 physics::BulletUtils::bulletToOgre(
-                    bpelement->bulletObject->rigidBody->getWorldTransform().getOrigin());
+                    bpelement->bulletObject()->rigidBody->getWorldTransform().getOrigin());
             const Ogre::Vector3& impactDir = mCamera->getRealDirection();
 
             effect->configureForce(impactPos, impactDir, 444);

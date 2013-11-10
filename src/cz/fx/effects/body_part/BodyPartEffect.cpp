@@ -43,7 +43,7 @@ BodyPartEffect::configureForce(const Ogre::Vector3& impactPosition,
 
     // we will configure the force here
     // configure the force and direction associated to the bodyPart
-    physics::BulletObject* bo = mElement->bulletObject;
+    physics::BulletObject* bo = mElement->bulletObject();
     ASSERT(bo);
     ASSERT(bo->rigidBody);
 
@@ -68,23 +68,23 @@ BodyPartEffect::beforeStart(void)
 {
     ASSERT(sDynamicWorld);
     ASSERT(mElement);
-    ASSERT(mElement->bulletObject);
+    ASSERT(mElement->bulletObject());
 
     // reset the bullet object
-    mElement->bulletObject->motionState.setDirty(true);
+    mElement->bulletObject()->motionState.setDirty(true);
 
     // we need to add the bullet element in the bullet world
-    sDynamicWorld->addObject(*(mElement->bulletObject),
+    sDynamicWorld->addObject(*(mElement->bulletObject()),
                              CZRayMask::CZRM_ZOMBIE_BODY_PART,
                              CZRayMask::CZRM_WORLD |
                              CZRayMask::CZRM_ZOMBIE_BODY_PART |
                              CZRayMask::CZRM_RAYCASTABLE);
-    mElement->bulletObject->activate(true);
+    mElement->bulletObject()->activate(true);
 
     // make the graphic representation visible
     Ogre::SceneManager* sceneMngr = GlobalData::sceneMngr;
     ASSERT(sceneMngr);
-    Ogre::SceneNode* node = mElement->bulletObject->motionState.node();
+    Ogre::SceneNode* node = mElement->bulletObject()->motionState.node();
     ASSERT(node);
     sceneMngr->getRootSceneNode()->addChild(node);
     mAccumTime = 0.f;
@@ -95,7 +95,7 @@ bool
 BodyPartEffect::update(float timeFrame)
 {
     ASSERT(mElement);
-    ASSERT(mElement->bulletObject);
+    ASSERT(mElement->bulletObject());
 
     mAccumTime += timeFrame;
 
@@ -105,9 +105,9 @@ BodyPartEffect::update(float timeFrame)
     }
 
     // we need to check if the body part stops.
-    if (mElement->bulletObject->motionState.isDirty()) {
+    if (mElement->bulletObject()->motionState.isDirty()) {
         // reset the dirty flag
-        mElement->bulletObject->motionState.setDirty(false);
+        mElement->bulletObject()->motionState.setDirty(false);
         return true;
     }
 
@@ -124,16 +124,16 @@ BodyPartEffect::afterFinish(void)
     // queue
     ASSERT(sDynamicWorld);
     ASSERT(mElement);
-    ASSERT(mElement->bulletObject);
+    ASSERT(mElement->bulletObject());
     ASSERT(mElementQueue);
 
-    sDynamicWorld->removeObject(*(mElement->bulletObject));
+    sDynamicWorld->removeObject(*(mElement->bulletObject()));
     mElementQueue->letAvailable(mElement);
 
     // remove from the scene
     Ogre::SceneManager* sceneMngr = GlobalData::sceneMngr;
     ASSERT(sceneMngr);
-    Ogre::SceneNode* node = mElement->bulletObject->motionState.node();
+    Ogre::SceneNode* node = mElement->bulletObject()->motionState.node();
     ASSERT(node);
     sceneMngr->getRootSceneNode()->removeChild(node);
 

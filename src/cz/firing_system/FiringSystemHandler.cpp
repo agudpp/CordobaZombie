@@ -14,7 +14,7 @@
 #include <physics/BulletUtils.h>
 #include <debug/PrimitiveDrawer.h>
 #include <global_data/GlobalData.h>
-#include <world_object/WorldObject.h>
+#include <physic_game_object/PhysicGameObject.h>
 #include <CZMasksDefines.h>
 
 namespace cz {
@@ -84,15 +84,16 @@ FiringSystemHandler::update(void)
                     void* userDef = btCollObj->getUserPointer();
                     ASSERT(userDef && "We should always have some element associated "
                         "to each bulletObject since we are performing the raycast"
-                        " using the flags to detect zombies and world objects!");
+                        " using the flags to detect zombies and world objects and"
+                        " anything that could be raycasted using bullet!");
 
-                    // get the world object associated to this bullet object
-                    WorldObject* worldObject = static_cast<WorldObject*>(userDef);
+                    // get the PhysicGameObject associated to this bullet object
+                    PhysicGameObject* physicsGameObj= static_cast<PhysicGameObject*>(userDef);
 
                     // check if this class will handle the impact or not, if not
                     // we will skip it and continue with the next one
 
-                    if (worldObject->checkImpact(hitInfo)) {
+                    if (physicsGameObj->checkImpact(hitInfo)) {
                         // we will set the needed information
                         hitInfo.intersectionPoint =
                             physics::BulletUtils::bulletToOgre(
@@ -102,7 +103,7 @@ FiringSystemHandler::update(void)
                                 mPhysicsRaycastResult.worldNormal(i));
 
                         // process the intersection and hit information
-                        worldObject->processImpactInfo(hitInfo);
+                        physicsGameObj->processImpactInfo(hitInfo);
 
                         impactProcessed = true;
                     }

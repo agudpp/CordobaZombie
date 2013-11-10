@@ -22,16 +22,26 @@ public:
     // we will define how many elements we want to have per queue.
     //
     static const unsigned int NUM_INSTANCES_PER_BPE = 10;
+
+    // the vector we will use for the elements
+    typedef core::StackVector<BodyPartElement,
+                                  NUM_INSTANCES_PER_BPE *
+                                      BodyPartElementType::BPE_COUNT> BodyPartElementVec;
 public:
     BodyPartQueue(){};
     ~BodyPartQueue(){};
 
-    // @brief Add a new body part element to be tracked
-    // @param bpe       The body part element
-    // @note this class will not handle any memory.
+    // @brief Return the associated vector of the bodypart elements.
+    //
+    inline BodyPartElementVec&
+    bodyPartElements(void);
+
+    // @brief You must call this method after you set all the bodypart elements
+    //        in the bodyPartElementVect of this class. After that, when calling
+    //        this method we will build the queue and set all the elements.
     //
     inline void
-    addBodyPartElement(const BodyPartElement& bpe);
+    build(void);
 
     // @brief Get a new one element of a particular type and id
     // @param type      The body part type we want
@@ -61,9 +71,7 @@ public:
 
 private:
     typedef core::StackVector<BodyPartElement*, NUM_INSTANCES_PER_BPE> BodyPartElementQueue;
-    typedef core::StackVector<BodyPartElement,
-                              NUM_INSTANCES_PER_BPE *
-                                  BodyPartElementType::BPE_COUNT> BodyPartElementVec;
+
     BodyPartElementVec mElements;
     BodyPartElementQueue mQueues[BodyPartElementType::BPE_COUNT];
 };
@@ -76,13 +84,20 @@ private:
 // Inline stuff
 //
 
-inline void
-BodyPartQueue::addBodyPartElement(const BodyPartElement& bpe)
+inline BodyPartQueue::BodyPartElementVec&
+BodyPartQueue::bodyPartElements(void)
 {
-    ASSERT(bpe.type < BodyPartElementType::BPE_COUNT);
-    BodyPartElementQueue& queue = mQueues[bpe.type];
-    mElements.push_back(bpe);
-    queue.push_back(&(mElements.back()));
+    return mElements;
+}
+
+inline void
+BodyPartQueue::build(void)
+{
+    for (BodyPartElement& bpe : mElements) {
+        ASSERT(bpe.bodyPartElementType() < BodyPartElementType::BPE_COUNT);
+        BodyPartElementQueue& queue = mQueues[bpe.bodyPartElementType()];
+        queue.push_back(&bpe);
+    }
 }
 
 inline BodyPartElement*
@@ -94,7 +109,7 @@ BodyPartQueue::getNewOne(BodyPartElementType type, unsigned short id)
     // find for some element that matches with the id
     for (unsigned int i = 0; i < queue.size(); ++i) {
         BodyPartElement* elem = queue[i];
-        if (elem->id == id) {
+        if (elem->ID() == id) {
             // we have one
             queue.disorder_remove(i);
             return elem;
@@ -108,8 +123,8 @@ inline void
 BodyPartQueue::letAvailable(BodyPartElement* bpe)
 {
     ASSERT(bpe);
-    ASSERT(bpe->type < BodyPartElementType::BPE_COUNT);
-    BodyPartElementQueue& queue = mQueues[bpe->type];
+    ASSERT(bpe->bodyPartElementType() < BodyPartElementType::BPE_COUNT);
+    BodyPartElementQueue& queue = mQueues[bpe->bodyPartElementType()];
     queue.push_back(bpe);
 }
 

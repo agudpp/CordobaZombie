@@ -54,25 +54,25 @@ ZombieUnitBuilder::buildBodyPartElement(const TiXmlElement* xmlElement,
     //
     float mass;
     core::XMLHelper::parseFloat(xmlElement, "mass", mass);
-    bpe.bulletObject = physics::BulletImporter::createBox(ent->getBoundingBox(),
-                                                          mass,
-                                                          false);
-    ASSERT(bpe.bulletObject);
+    bpe.setBulletObject(physics::BulletImporter::createBox(ent->getBoundingBox(),
+                                                           mass,
+                                                           false));
+    ASSERT(bpe.bulletObject());
 
     // create the scene node for the entity and attach the object to it
     //
     Ogre::SceneNode* node = sceneMngr->createSceneNode();
     node->attachObject(ent);
-    bpe.bulletObject->motionState.setNode(node);
-    bpe.bulletObject->entity = ent;
+    bpe.bulletObject()->motionState.setNode(node);
+    bpe.bulletObject()->entity = ent;
 
     // get the id and the type
     unsigned int aux;
     core::XMLHelper::parseUnsignedInt(xmlElement, "type", aux);
     ASSERT(aux < BodyPartElementType::BPE_COUNT);
-    bpe.type = BodyPartElementType(aux);
+    bpe.setBodyPartElementType(BodyPartElementType(aux));
     core::XMLHelper::parseUnsignedInt(xmlElement, "id", aux);
-    bpe.id = aux;
+    bpe.setID(aux);
 
     return true;
 }
@@ -202,17 +202,23 @@ ZombieUnitBuilder::fillBodyPartQueue(BodyPartQueue& queue)
         return false;
     }
 
-    // parse all the elements
-    BodyPartElement element;
+    // parse all the elements and use the queue vector
+    BodyPartQueue::BodyPartElementVec& bpeVec = queue.bodyPartElements();
     while (bodyParts != 0) {
+        // we have to increase the size in one of the queue
+        bpeVec.resize(bpeVec.size() + 1);
+        // get the element
+        BodyPartElement& element = bpeVec.back();
+
         // parse the element here
         if (!buildBodyPartElement(bodyParts, element)) {
             debugERROR("Some error occur when building the body part element\n");
             return false;
         }
-        queue.addBodyPartElement(element);
         bodyParts = bodyParts->NextSiblingElement("BodyPart");
     }
+    // build the queue
+    queue.build();
 
     return true;
 }

@@ -87,8 +87,7 @@ public:
 private:
     // @brief Construct a BodyPartElement from an xml element
     //        This method will also build a BulletObject (bodyPart) from a mesh,
-    //        we will use only boxes
-    //        to represent this bodyparts.
+    //        we will use only boxes to represent this bodyparts.
     // @param xmlElement        The BodyPart xml element
     // @param bpe               The body part element
     // @return true on success | false otherwise

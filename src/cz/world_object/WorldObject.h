@@ -12,13 +12,13 @@
 #include <OgreEntity.h>
 #include <OgreSceneNode.h>
 
-#include <debug/DebugUtil.h>
+#include <collisions/CollDefines.h>
 #include <collisions/CollisionHandler.h>
 #include <collisions/CollObject.h>
-#include <collisions/CollDefines.h>
+#include <debug/DebugUtil.h>
 #include <math/Vec2.h>
-
-#include "HitInfo.h"
+#include <physic_game_object/HitInfo.h>
+#include <physic_game_object/PhysicGameObject.h>
 
 
 // Forward
@@ -41,7 +41,7 @@ namespace cz {
 //
 
 
-class WorldObject
+class WorldObject : public PhysicGameObject
 {
 public:
 

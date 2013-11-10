@@ -138,6 +138,13 @@ struct BulletObject {
     //
     inline void
     activate(bool activate);
+
+    // @brief Set / get user pointer
+    //
+    inline void*
+    userPointer(void);
+    inline void
+    setUserPointer(void* data);
 };
 
 
@@ -193,6 +200,19 @@ BulletObject::activate(bool activate)
 {
     ASSERT(rigidBody);
     rigidBody->activate(activate);
+}
+
+inline void*
+BulletObject::userPointer(void)
+{
+    ASSERT(rigidBody);
+    return rigidBody->getUserPointer();
+}
+inline void
+BulletObject::setUserPointer(void* data)
+{
+    ASSERT(rigidBody);
+    rigidBody->setUserPointer(data);
 }
 
 } /* namespace physics */
