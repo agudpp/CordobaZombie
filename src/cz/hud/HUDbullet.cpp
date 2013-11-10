@@ -6,6 +6,8 @@
  *      Author: Budde, Carlos Esteban
  */
 
+#include <sstream>  // stringstream
+
 #include "HUDDefines.h"
 #include "HUDbullet.h"
 
@@ -40,19 +42,21 @@ HUDbullet::build(Ogre::Overlay* ov)
 					HUDBULLET_PANEL_NAME, HUD_OV_NAME);
 		return false;
 	}
+	mBulletCount =	static_cast<Ogre::TextAreaOverlayElement*>(
+					static_cast<Ogre::OverlayElement*>(
+						ov->getChild(HUDBULLET_TEXT_NAME)));
+	if (!mBulletCount) {
+		debugERROR("Couldn't open panel %s from overlay %s.\n",
+					HUDBULLET_TEXT_NAME, HUD_OV_NAME);
+		return false;
+	}
 
-	// Set default initial weapon
+	// Set default initial bullet type and magazine count
 	setBulletType(initialWeapon);
+	mBulletCount->setCaption("0/0");
 	mBulletPanel->show();
 
 	return true;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-void
-HUDbullet::setBulletCount(Weapon* w)
-{
-	// TODO HUDbullet::setBulletCount
 }
 
 

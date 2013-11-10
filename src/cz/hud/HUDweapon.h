@@ -43,7 +43,7 @@ public:
 	 * @brief Set current selected weapon to 'id'
 	 */
 	void
-	setWeapon(WeaponID id);
+	setWeapon(const WeaponID id);
 
 private:
 	Ogre::PanelOverlayElement* mWeaponsPanel;  // Weapon panel display
@@ -66,7 +66,7 @@ HUDweapon::setVisible(bool visible)
 
 ///////////////////////////////////////////////////////////////////////////////
 inline void
-HUDweapon::setWeapon(WeaponID id)
+HUDweapon::setWeapon(const WeaponID id)
 {
 	if (!mWeaponsPanel) {
 		debugERROR("Called before creating the weapon panel.\n");

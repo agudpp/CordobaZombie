@@ -63,7 +63,7 @@ HUD::build(void)
 
 ///////////////////////////////////////////////////////////////////////////////
 void
-HUD::updateWeapon(Weapon* w, PlayerWeaponAction act)
+HUD::updateWeapon(const Weapon* w, PlayerWeaponAction act)
 {
 	if (!w) {
 		debugERROR("Called with NULL Weapon*.\n");
@@ -73,37 +73,23 @@ HUD::updateWeapon(Weapon* w, PlayerWeaponAction act)
 	switch (act) {
 
 	case PWA_SWAP_WEAPON:
-		swapWeapon(w->weaponID());
+		mWeapons.setWeapon(w->weaponID());
+		mBullet.setBulletType(w->weaponID());
+		mBullet.setBulletCount(w->weaponInfo());
 		break;
 
 	case PWA_FIRE:
-		fireWeapon(w);
+		mBullet.setBulletCount(w->weaponInfo());
 		break;
 
 	case PWA_RELOAD:
-		reloadWeapon(w);
+		mBullet.setBulletCount(w->weaponInfo());
 		break;
 
 	default:
 		debugERROR("Unsupported PlayerWeaponAction: %s", PWAstr(act));
 		break;
 	}
-}
-
-
-///////////////////////////////////////////////////////////////////////////////
-void
-HUD::fireWeapon(Weapon* w)
-{
-	// TODO HUD::fireWeapon
-}
-
-
-///////////////////////////////////////////////////////////////////////////////
-void
-HUD::reloadWeapon(Weapon* w)
-{
-	// TODO HUD::reloadWeapon
 }
 
 

@@ -85,6 +85,25 @@ getKeyboardKeys(void)
     return buttons;
 }
 
+// Build a weapon of requested type, with default bullets and magazine count
+cz::Weapon *
+buildWeapon(cz::WeaponID wid)
+{
+	cz::Weapon *w(0);
+	cz::WeaponInfo winfo;
+
+	if (wid >= cz::WeaponID::WID_COUNT) {
+		fprintf(stderr, "Undefined weapon ID.\n");
+		return w;
+	}
+
+	w = cz::WeaponBuilder::buildWeapon(wid);
+	ASSERT(w);
+	winfo = w->weaponInfo();
+	w->addAmmunition(winfo.maxMagazines, winfo.maxBulletsPerMagazine);
+
+	return w;
+}
 
 }
 
@@ -146,8 +165,8 @@ HUDTest::loadAditionalData(void)
     while (iter.hasMoreElements()) { iter.getNext()->load(); }
 
 	// Build dummy weapons
-	mWeapons[0] = cz::WeaponBuilder::buildWeapon(cz::WID_9MM);
-	mWeapons[1] = cz::WeaponBuilder::buildWeapon(cz::WID_FAL);
+    mWeapons[0] = buildWeapon(cz::WID_9MM);
+    mWeapons[1] = buildWeapon(cz::WID_FAL);
 
     // Build HUD
 	testBEGIN("Construyendo el overlay y los elementos del HUD.\n");
@@ -158,6 +177,9 @@ HUDTest::loadAditionalData(void)
 		testFAIL("Falló.\n");
 		exit(EXIT_FAILURE);
 	}
+
+	// Set initial weapon
+	mHUD.updateWeapon(mWeapons[0], cz::PWA_SWAP_WEAPON);
 
 	// Setting HUD visible
 	testBEGIN("Haciendo visible al HUD.\n");

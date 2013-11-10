@@ -21,10 +21,13 @@ namespace cz {
 #define  HUD_OV_NAME  "Overlays/HUD"
 
 // @brief Weapon HUDelement name
-#define  HUDWEAPON_PANEL_NAME  "HUD/Weapons"
+#define  HUDWEAPON_PANEL_NAME  "HUD/WeaponsPics"
 
-// @brief Bullets HUDelement name
-#define  HUDBULLET_PANEL_NAME  "HUD/Bullets"
+// @brief Bullets HUDelement name (image)
+#define  HUDBULLET_PANEL_NAME  "HUD/BulletsPics"
+
+// @brief Bullets HUDelement name (text)
+#define  HUDBULLET_TEXT_NAME   "HUD/BulletsCount"
 
 }
 

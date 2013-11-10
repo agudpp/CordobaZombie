@@ -41,13 +41,13 @@ public:
 	 * @brief Set current bullet type according to 'id'
 	 */
 	void
-	setBulletType(WeaponID id);
+	setBulletType(const WeaponID id);
 
 	/**
-	 * @brief Set magazine bullets count and bullets left, according to 'w'
+	 * @brief Set magazine bullets count and bullets left, according to 'winfo'
 	 */
 	void
-	setBulletCount(Weapon* w);
+	setBulletCount(const WeaponInfo winfo);
 
 private:
 	Ogre::TextAreaOverlayElement* mBulletCount;	// Bullet count display
@@ -78,7 +78,7 @@ HUDbullet::setVisible(bool visible)
 
 ///////////////////////////////////////////////////////////////////////////////
 inline void
-HUDbullet::setBulletType(WeaponID id)
+HUDbullet::setBulletType(const WeaponID id)
 {
 	if (!mBulletCount) {
 		debugERROR("Called before creating the bullets count text panel.\n");
@@ -96,6 +96,19 @@ HUDbullet::setBulletType(WeaponID id)
 	}
 }
 
+
+///////////////////////////////////////////////////////////////////////////////
+inline void
+HUDbullet::setBulletCount(const WeaponInfo winfo)
+{
+	std::stringstream bullets;
+	// Compute bullets in current magazine, and magazine count
+	bullets << winfo.bulletsInMagazine
+			<< "/"
+			<< (winfo.magazineCount * winfo.maxBulletsPerMagazine);
+	// Display computed values
+	mBulletCount->setCaption(bullets.str());
+}
 
 
 } /* namespace cz */

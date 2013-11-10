@@ -65,7 +65,7 @@ public:
 	 * 				c) update bullets in magazine due to reload
 	 */
 	void
-	updateWeapon(Weapon *w, PlayerWeaponAction act);
+	updateWeapon(const Weapon *w, PlayerWeaponAction act);
 
 	/**                                                                     **
 	 **	 <END>  Methods offered for callbacks binding						**
@@ -75,11 +75,6 @@ private:
 	// Prevent the compiler from generating methods to copy the instance.
 	HUD(HUD const&);             // Don't implement!
 	void operator=(HUD const&);  // Don't implement!
-
-	// Auxiliary internal functions
-	void swapWeapon(WeaponID id);
-	void fireWeapon(Weapon* w);
-	void reloadWeapon(Weapon* w);
 
 private:
 	Ogre::Overlay*  mOverlay;
@@ -112,15 +107,6 @@ HUD::setVisible(bool visible)
 	} else if (!visible && mOverlay->isVisible()) {
 		mOverlay->hide();
 	}
-}
-
-
-///////////////////////////////////////////////////////////////////////////////
-inline void HUD::swapWeapon(WeaponID id)
-{
-	mWeapons.setWeapon(id);
-	mBullet.setBulletType(id);
-	// TODO: update magazine count
 }
 
 
