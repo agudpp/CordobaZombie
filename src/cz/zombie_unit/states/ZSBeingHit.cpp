@@ -7,7 +7,7 @@
 
 #include "ZSBeingHit.h"
 
-#include <zombie_unit/HitInfo.h>
+#include <world_object/HitInfo.h>
 #include <zombie_unit/ZombieBody.h>
 #include <debug/DebugUtil.h>
 #include <effect_handler/EffectHandler.h>

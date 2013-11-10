@@ -159,6 +159,12 @@ class RagDoll
         BC_COUNT,
     };
 
+    // define the collision mask and group to be used by the ragdoll elements
+    //
+    static const unsigned short COLLISION_MASK_ID = (1 << 0);
+    static const unsigned short COLLISION_AGAINST_MASK_ID = ~0;
+
+
 public:
 
     // Define the list of OBB information

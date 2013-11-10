@@ -26,7 +26,6 @@
 #include "states/ZombieFSMDefs.h"
 #include "ZombieBody.h"
 #include "RagDollQueue.h"
-#include "HitInfo.h"
 
 
 
@@ -276,6 +275,8 @@ public:
     stopAllAnimations(void);
 
     ////////////////////////////////////////////////////////////////////////////
+    // Physics stuff methods
+    //
 
     // @brief Check for a possible impact. This method will only check if we
     //        impact (the zombie) against any bullet... We will not perform
@@ -286,7 +287,7 @@ public:
     //                      the ImpactInfo.
     // @return true if we had impact the zombie | false otherwise
     //
-    inline bool
+    virtual bool
     checkImpact(HitInfo& hitInfo) const;
 
     // @brief The zombie was hit by a bullet or something (indicated in the
@@ -298,7 +299,7 @@ public:
     //                      be filled in the checkImpact() method.
     // @note that we will perform the effects here (blood + bodyPart).
     //
-    void
+    virtual void
     processImpactInfo(const HitInfo& hitInfo);
 
     // @brief Return the last hit information associated to this unit.
@@ -382,8 +383,6 @@ protected:
     // The physic bounding box representation of the zombie to be able to receive
     // raycast and probably intersect against body parts
     physics::BulletCollisionObject mPhysicBB;
-
-    core::Primitive* prim;
 
 
 private:
@@ -603,18 +602,6 @@ ZombieUnit::stopAllAnimations(void)
     mAnimTable.stopAll();
 }
 
-////////////////////////////////////////////////////////////////////////////
-
-inline bool
-ZombieUnit::checkImpact(HitInfo& hitInfo) const
-{
-    ZombieBody::BodyPart bp;
-    hitInfo.hasImpact = mBody.checkIntersection(hitInfo.ray,
-                                                hitInfo.intersectionPoint,
-                                                bp);
-    hitInfo.bodyPart = bp;
-    return hitInfo.hasImpact;
-}
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -663,11 +650,7 @@ ZombieUnit::update(void)
 {
     // first check if we have to update the physics bounding box
     if (hasMovedOrRotated()) {
-//        Ogre::Vector3 position(position3D());
-//        position.z += objectHeight();
-//        mPhysicBB.setTransform(position, rotation());
-//        prim->node->setPosition(position);
-//        prim->node->setOrientation(rotation());
+        mPhysicBB.setTransform(position3D(), rotation());
         resetMovedOrRotatedFlag();
     }
 

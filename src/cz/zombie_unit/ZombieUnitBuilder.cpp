@@ -113,7 +113,10 @@ ZombieUnitBuilder::configureZombieUnit(const TiXmlElement* xmlElement,
     node->attachObject(ent);
 
     // we will set its height taking into account also the problem mentioned above
-    zu.setObjectHeight(ent->getBoundingBox().getHalfSize().z);
+    const Ogre::Vector3 halfSizeBB = ent->getBoundingBox().getHalfSize();
+    const float zombieHeight = std::max(halfSizeBB.x,
+                                        std::max(halfSizeBB.y, halfSizeBB.z));
+    zu.setObjectHeight(zombieHeight);
 
     // vel
     float vel;

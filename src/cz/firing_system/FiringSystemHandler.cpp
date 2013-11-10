@@ -11,10 +11,11 @@
 #include <OgreRay.h>
 
 #include <physics/DynamicWorld.h>
+#include <physics/BulletUtils.h>
 #include <debug/PrimitiveDrawer.h>
 #include <global_data/GlobalData.h>
-#include <zombie_unit/ZombieUnit.h>
-#include <zombie_unit/HitInfo.h>
+#include <world_object/WorldObject.h>
+#include <CZMasksDefines.h>
 
 namespace cz {
 
@@ -22,16 +23,13 @@ namespace cz {
 ////////////////////////////////////////////////////////////////////////////////
 FiringSystemHandler::FiringSystemHandler() :
     mDynamicWorld(0)
-,   mRayQuery(0)
 {
+    // we only want to detect zombies and world objects
+    mPhysicsRaycastInfo.filterGroup = CZRM_RAYCASTABLE;
 }
 ////////////////////////////////////////////////////////////////////////////////
 FiringSystemHandler::~FiringSystemHandler()
 {
-    // destroy the query
-    Ogre::SceneManager* sceneMngr = GlobalData::sceneMngr;
-    ASSERT(sceneMngr);
-    sceneMngr->destroyQuery(mRayQuery);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -43,11 +41,6 @@ FiringSystemHandler::update(void)
     // TODO: we need to update each of the bullets and check if we collide
     // against something: World object (floor / wall / whatever) or an zombie.
     //
-
-    Ogre::SceneManager* sceneMngr = GlobalData::sceneMngr;
-    ASSERT(sceneMngr);
-    ASSERT(mRayQuery);
-    Ogre::Ray ray;
     HitInfo hitInfo;
 
     unsigned int index = 0;
@@ -56,7 +49,6 @@ FiringSystemHandler::update(void)
         const Ogre::Vector3 start = bullet->currentPosition();
         bullet->update(GlobalData::lastTimeFrame);
         const Ogre::Vector3 endPos = bullet->currentPosition();
-//        ASSERT(start != endPos);
 
         // check if the bullet is still inside the world limits
         if (!mWorldLimits.contains(endPos)) {
@@ -64,47 +56,65 @@ FiringSystemHandler::update(void)
             remove(bullet);
             --it;
             end = mBullets.end();
-        } else {
+        } else if (start != endPos){
             // now we have to perform the raycast here from start to end and check
-            // for collisions.
+            // for collisions using bullet.
+            mPhysicsRaycastInfo.from = physics::BulletUtils::ogreToBullet(start);
+            mPhysicsRaycastInfo.to = physics::BulletUtils::ogreToBullet(endPos);
+            if (mDynamicWorld->performRaycast(mPhysicsRaycastInfo,
+                                               mPhysicsRaycastResult)) {
 
-            // we will perform only ogre scene raycast for now, change this when
-            // finish issue #215
-            ray.setDirection(bullet->direction());
-            ray.setOrigin(start);
-            mRayQuery->setRay(ray);
-            Ogre::RaySceneQueryResult& result = mRayQuery->execute();
-            if (!result.empty()) {
-                // we have a zombie?
-                Ogre::RaySceneQueryResultEntry& closest = result.front();
-                if (closest.movable) {
-                    const Ogre::Any& any =
-                        closest.movable->getUserObjectBindings().getUserAny();
-                    if (!any.isEmpty()) {
-                        ZombieUnit* zombie = Ogre::any_cast<ZombieUnit*>(any);
-                        if (zombie) {
-                            // we have a zombie, check if we hit him
-                            hitInfo.reset(*bullet);
-                            if (zombie->checkImpact(hitInfo)) {
-                                // draw impact point
-                                core::PrimitiveDrawer& pd = core::PrimitiveDrawer::instance();
-                                pd.createSphere(hitInfo.intersectionPoint, 1, pd.getFreshColour());
-                                zombie->processImpactInfo(hitInfo);
-                            }
-                        }
+                // configure the hit info just in case using the bullet
+                // information
+                hitInfo.reset(*bullet);
+
+                // we get results, check what kind of bullet object is using
+                // its flags.
+                // Iterate over all the objects (already sorted by distance) and
+                // perform whatever we need.
+                //
+                bool impactProcessed = false;
+                const unsigned int numObjects = mPhysicsRaycastResult.size();
+                for (unsigned int i = 0; i < numObjects && (!impactProcessed); ++i) {
+                    const btCollisionObject* btCollObj = mPhysicsRaycastResult.btCollObject(i);
+                    ASSERT(btCollObj && "We should have a bullet collision object "
+                        "assoaciated always");
+
+                    // get the associated user def pointer..
+                    void* userDef = btCollObj->getUserPointer();
+                    ASSERT(userDef && "We should always have some element associated "
+                        "to each bulletObject since we are performing the raycast"
+                        " using the flags to detect zombies and world objects!");
+
+                    // get the world object associated to this bullet object
+                    WorldObject* worldObject = static_cast<WorldObject*>(userDef);
+
+                    // check if this class will handle the impact or not, if not
+                    // we will skip it and continue with the next one
+
+                    if (worldObject->checkImpact(hitInfo)) {
+                        // we will set the needed information
+                        hitInfo.intersectionPoint =
+                            physics::BulletUtils::bulletToOgre(
+                                mPhysicsRaycastResult.worldPosition(i));
+                        hitInfo.normalIntersection =
+                            physics::BulletUtils::bulletToOgre(
+                                mPhysicsRaycastResult.worldNormal(i));
+
+                        // process the intersection and hit information
+                        worldObject->processImpactInfo(hitInfo);
+
+                        impactProcessed = true;
                     }
                 }
 
-                // note that if the bullet hits something means that we have to
-                // remove that bullet from the handler
-                //
-                remove(bullet);
-                --it;
-                end = mBullets.end();
+                // check if we impact something we should remove the bullet
+                if (impactProcessed) {
+                    remove(bullet);
+                    --it;
+                    end = mBullets.end();
+                }
             }
-
-
-//            ASSERT(false && "TODO: complete this");
         }
     }
 }

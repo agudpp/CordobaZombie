@@ -74,7 +74,11 @@ BodyPartEffect::beforeStart(void)
     mElement->bulletObject->motionState.setDirty(true);
 
     // we need to add the bullet element in the bullet world
-    sDynamicWorld->addObject(*(mElement->bulletObject), CZRM_ALL, CZRM_ALL);
+    sDynamicWorld->addObject(*(mElement->bulletObject),
+                             CZRayMask::CZRM_ZOMBIE_BODY_PART,
+                             CZRayMask::CZRM_WORLD |
+                             CZRayMask::CZRM_ZOMBIE_BODY_PART |
+                             CZRayMask::CZRM_RAYCASTABLE);
     mElement->bulletObject->activate(true);
 
     // make the graphic representation visible

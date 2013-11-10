@@ -24,7 +24,8 @@ namespace cz {
 
 struct HitInfo {
     Ogre::Ray ray;
-    Ogre::Vector3 intersectionPoint;
+    Ogre::Vector3 intersectionPoint;    // world intersection point
+    Ogre::Vector3 normalIntersection;   // world intersection normal
     bool hasImpact;
     float power;
     unsigned int bodyPart;

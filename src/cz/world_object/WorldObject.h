@@ -18,6 +18,8 @@
 #include <collisions/CollDefines.h>
 #include <math/Vec2.h>
 
+#include "HitInfo.h"
+
 
 // Forward
 //
@@ -159,6 +161,30 @@ public:
     setCollMask(coll::mask_t mask);
     inline coll::mask_t
     collMask(void) const;
+
+    ////////////////////////////////////////////////////////////////////////////
+    // Physics stuff methods
+    //
+
+    // @brief Check for a possible impact. This method will only check if we
+    //        impact the current object.
+    // @param hitInfo       The hit information structure used to check the
+    //                      impact and retrieve the information also. This
+    //                      information will be used later if necessary to process
+    //                      the ImpactInfo.
+    // @return true if we had impact the world object or not.
+    //
+    virtual bool
+    checkImpact(HitInfo& hitInfo) const = 0;
+
+    // @brief The world was hit by a bullet or something (indicated in the
+    //        HitInfo structure). Here we will perform all the operations we
+    //        when something hits this object.
+    // @param hitInfo       The hit information structure. This structure should
+    //                      be filled in the checkImpact() method.
+    //
+    virtual void
+    processImpactInfo(const HitInfo& hitInfo) = 0;
 
 
     ////////////////////////////////////////////////////////////////////////////

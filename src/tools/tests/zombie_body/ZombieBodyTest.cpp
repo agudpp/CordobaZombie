@@ -23,6 +23,7 @@
 #include <physics/BulletImporter.h>
 #include <physics/BulletLoader.h>
 #include <physics/RaycastInfo.h>
+#include <CZMasksDefines.h>
 
 
 
@@ -148,7 +149,10 @@ ZombieBodyTest::configureBullet(void)
     // leak here
     physics::BulletObject* floorObject = physics::BulletImporter::createBox(floor, 0);
     floorObject->motionState.node()->setVisible(false);
-    mDynamicWorld.addObject(*floorObject);
+    mDynamicWorld.addObject(*floorObject,
+                            cz::CZRM_WORLD,
+                            cz::CZRM_ZOMBIE_BODY_PART |
+                            cz::CZRM_RAGDOLL);
 }
 
 
@@ -427,7 +431,7 @@ ZombieBodyTest::update()
             const Ogre::Vector3& camDir = mCamera->getRealDirection();
             const Ogre::Vector3& camPos = mCamera->getRealPosition();
             bullet->configure(camPos - Ogre::Vector3(0,0,1.2f), camDir);
-            bullet->setProperties(1.f, 444.f);
+            bullet->setProperties(10.f, 444.f);
             mFiringSystem.add(bullet);
         }
     }

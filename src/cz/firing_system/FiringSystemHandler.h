@@ -11,9 +11,9 @@
 #include <vector>
 
 #include <OgreAxisAlignedBox.h>
-#include <OgreSceneQuery.h>
 
 #include <debug/DebugUtil.h>
+#include <physics/RaycastInfo.h>
 
 #include "Bullet.h"
 
@@ -78,9 +78,10 @@ private:
 
 private:
     physics::DynamicWorld* mDynamicWorld;
+    physics::RaycastMultiResult mPhysicsRaycastResult;
+    physics::RaycastInfo mPhysicsRaycastInfo;
     Ogre::AxisAlignedBox mWorldLimits;
     std::vector<Bullet*> mBullets;
-    Ogre::RaySceneQuery* mRayQuery;
 };
 
 
@@ -108,14 +109,6 @@ FiringSystemHandler::setInfo(physics::DynamicWorld* dw,
     ASSERT(dw);
     mDynamicWorld = dw;
     mWorldLimits = worldLimits;
-
-    // build the query if still not built
-    if (mRayQuery == 0) {
-        Ogre::SceneManager* sceneMngr = GlobalData::sceneMngr;
-        ASSERT(sceneMngr);
-        mRayQuery = sceneMngr->createRayQuery(Ogre::Ray());
-        mRayQuery->setSortByDistance(true);
-    }
 }
 
 inline void

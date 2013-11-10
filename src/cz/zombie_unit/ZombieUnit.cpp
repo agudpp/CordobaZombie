@@ -66,6 +66,9 @@ ZombieUnit::ZombieUnit() :
 ,   mLife(100)
 {
     mFSM.setRef(this);
+
+    // set the reference to the physics object
+    mPhysicBB.setUserDef(this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -106,7 +109,7 @@ ZombieUnit::configure(Ogre::SceneNode* node, Ogre::Entity* entity)
     mAnimTable.loadAnims(ZA_ANIMS, entity);
 
     // configure the masks for raytracing and collisions
-    entity->setQueryFlags(CZRayMask::CZRM_ZOMBIE);
+    entity->setQueryFlags(CZRayMask::CZRM_ZOMBIE_BB);
     setCollMask(~0); // we want to collide with everything
 
     // configure the size of the coll object
@@ -128,8 +131,9 @@ ZombieUnit::configure(Ogre::SceneNode* node, Ogre::Entity* entity)
 
     mPhysicBB.setShape(physics::BulletImporter::createBoxShape(ogreBB));
     ASSERT(mPhysicBB.shape() && "Error creating the shape?");
-    sDynamicWorld->addObject(mPhysicBB, CZRayMask::CZRM_ZOMBIE, 0);
-//    prim = core::PrimitiveDrawer::instance().createBox(Ogre::Vector3::ZERO, ogreBB.getSize());
+    sDynamicWorld->addObject(mPhysicBB,
+                             CZRayMask::CZRM_ZOMBIE_BB,     // collision mask
+                             CZRayMask::CZRM_RAYCASTABLE);  // collide against
 
 
     // set the radius of the pathHandler
@@ -174,6 +178,18 @@ void
 ZombieUnit::dead(void)
 {
     debugERROR("TODO\n");
+}
+
+////////////////////////////////////////////////////////////////////////////////
+bool
+ZombieUnit::checkImpact(HitInfo& hitInfo) const
+{
+    ZombieBody::BodyPart bp;
+    hitInfo.hasImpact = mBody.checkIntersection(hitInfo.ray,
+                                                hitInfo.intersectionPoint,
+                                                bp);
+    hitInfo.bodyPart = bp;
+    return hitInfo.hasImpact;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -126,6 +126,15 @@ public:
     bool
     performClosestRay(const RaycastInfo& ri, RaycastResult& result) const;
 
+    // @brief Perform a raycast and return all the raycasted world objects
+    //        already sorted by distance.
+    // @param ri        The raycast information
+    // @param result    The raycast result
+    // @return true if some object was intersected | false otherwise
+    //
+    bool
+    performRaycast(const RaycastInfo& ri, RaycastMultiResult& result) const;
+
     ////////////////////////////////////////////////////////////////////////////
 
     // @brief Update the objects we are tracking

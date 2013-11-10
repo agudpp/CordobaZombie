@@ -800,7 +800,9 @@ RagDoll::setEnable(bool enable)
             bi.rigidBody->clearForces();
             bi.rigidBody->setAngularVelocity(btVector3(0,0,0));
             bi.rigidBody->setLinearVelocity(btVector3(0,0,0));
-            mDynamicWorld->addRigidBody(bi.rigidBody);
+            mDynamicWorld->addRigidBody(bi.rigidBody,
+                                        COLLISION_MASK_ID,
+                                        COLLISION_AGAINST_MASK_ID);
             bi.bone->setManuallyControlled(true);
         }
         for (btTypedConstraint* c : mConstraints) {
