@@ -53,7 +53,8 @@ bool
 IntroMainState::getResourcesToLoad(ResourceGroupList& resourceList)
 {
 	if(sRcHandler->getResourceRootPath() == ""){
-		debugERROR("No root path for the resources manager :S\n");
+		debugERROR(	"No root path for the resources manager :S "
+					"Esto quizas deberia ser un ASSERT?\n");
 		return false;
 	}
 	std::string path;
@@ -123,6 +124,7 @@ IntroMainState::unload(void)
 bool
 IntroMainState::getResourcesToUnload(ResourceGroupList& resourceList)
 {
+	//ASSERT(!mrg.sections().empty());
 	resourceList.push_back(mrg);
 	return true;
 }

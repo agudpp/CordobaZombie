@@ -87,9 +87,9 @@ public:
     unload(void);
 
     // @brief This method should return the list of all the resources that should
-    //        be unloaded. This is not necessary the same list obtained from
+    //        be unloaded. This is not necessarily the same list obtained from
     //        getResourcesToLoad() since probably we want to let some resources
-    //        loaded after we do not use any more this state (for example, all
+    //        loaded after we do not use any more in this state (for example, all
     //        those resources loaded into a shared data structure).
     // @param resourceList  The list of resources to be unloaded.
     // @return true on success | false otherwise

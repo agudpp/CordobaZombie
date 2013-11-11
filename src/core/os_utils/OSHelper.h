@@ -47,7 +47,19 @@ addEndPathVar(std::string& path);
 //
 
 inline void
-addEndPathVar(std::string& path);
+addEndPathVar(std::string& path)
+{
+    int last = path.size() - 1;
+#ifdef _WIN32
+    if(last >= 0 && path[last] != '\\') {
+        path.append("\\");
+    }
+#else
+    if (last >= 0 && path[last] != '/') {
+        path.append("/");
+    }
+#endif
+}
 
 }
 
