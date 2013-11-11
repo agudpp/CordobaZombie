@@ -10,11 +10,19 @@
 
 
 #include <game_states/IMainState.h>
+#include <game_states/MainStateID.h>
+#include <video/OgreVideoPlayer.h>
+
 
 namespace cz {
 
 class IntroMainState : public IMainState
 {
+
+static const char* INTRO_VIDEO_NAME;
+static const char* INTRO_RC_PATH;
+
+
 public:
     IntroMainState();
     virtual
@@ -88,6 +96,11 @@ public:
     //
     virtual bool
     getResourcesToUnload(ResourceGroupList& resourceList);
+
+private:
+
+    mm::OgreVideoPlayer	mVideoPlayer;
+    rrh::ResourceGroup 	mrg;
 };
 
 } /* namespace cz */

@@ -53,7 +53,7 @@ public:
     inline void
     setResourceRootPath(const Ogre::String &resourcePath);
     inline const Ogre::String &
-    getResourceRootPath(void);
+    getResourceRootPath(void) const;
 
 
     // @brief Get the concatenated string between the resources folder path
@@ -62,9 +62,9 @@ public:
     //							folder.
     // @param fullPath			The resulting concatenation.
     // @return true on success | false otherwise
-    bool
+    inline bool
     getResourceFullPath(const Ogre::String &resourceRelPath,
-    		Ogre::String &fullPath);
+    		            Ogre::String &fullPath) const;
 
 private:
 
@@ -86,11 +86,22 @@ ResourceHandler::setResourceRootPath(const Ogre::String &resourcePath)
 
 
 inline const Ogre::String &
-ResourceHandler::getResourceRootPath(void)
+ResourceHandler::getResourceRootPath(void) const
 {
 	return mResRootPath;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
+
+inline bool
+ResourceHandler::getResourceFullPath(const Ogre::String &resourceRelPath,
+									 Ogre::String &fullPath) const
+{
+	fullPath = mResRootPath;
+	fullPath += resourceRelPath;
+	return true;
+}
 
 
 } /* namespace rrh */

@@ -12,7 +12,7 @@ extern "C" {
 #include <libswscale/swscale.h>
 }
 
-#include <DebugUtil.h>
+#include <debug/DebugUtil.h>
 #include "VideoBuffer.h"
 //#include <Ogre.h>
 

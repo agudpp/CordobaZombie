@@ -7,7 +7,7 @@
  */
 
 #include <string>
-#include <DebugUtil.h>
+#include <debug/DebugUtil.h>
 #include "OgreVideoPlayer.h"
 
 
@@ -270,7 +270,9 @@ OgreVideoPlayer::load(int index){
 		mIndex = index;
 		// Load video player, resize screen and seek for starting point;
 		mVideoPlayer->unload();
-		mVideoPlayer->load(mVideo->getPath());
+		if(VideoPlayer::VIDEO_OK != mVideoPlayer->load(mVideo->getPath())){
+			return ERROR;
+		}
 		unsigned int h = 0, w = 0;
 		mVideoPlayer->getSizes(h,w);
 		mScreen->resize(h,w);
@@ -313,7 +315,7 @@ int
 OgreVideoPlayer::update(double tslf)
 {
 	if(!mIsPlaying){
-		debug("The actual video player is not playing\n");
+		//debug("The actual video player is not playing\n");
 		return ERROR;
 	}else{
 		ASSERT(mVideoPlayer->is_loaded());

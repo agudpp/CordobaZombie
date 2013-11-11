@@ -13,8 +13,8 @@
 
 #include <vector>
 #include <string>
-#include <VideoBuffer.h>
 
+#include "VideoBuffer.h"
 #include "VideoPlayer.h"
 
 namespace mm{
@@ -153,7 +153,7 @@ public:
 	/*
 	 * Add video to playlist. Will be played from second 'start' until
 	 * second 'end' or till it ends, whatever happens first (if 'end' is set to
-	 * -1,0 then it will play till the end) . On success it
+	 * -1.0 then it will play till the end) . On success it
 	 * returns the index of the video in the playlist. 'path' is the full path
 	 * (with name included, not only directory).
 	 */
