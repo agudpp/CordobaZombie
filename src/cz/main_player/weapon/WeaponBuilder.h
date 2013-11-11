@@ -8,6 +8,8 @@
 #ifndef WEAPONBUILDER_H_
 #define WEAPONBUILDER_H_
 
+#include <main_player/weapon/WeaponDefs.h>
+
 namespace cz {
 
 // Forward

@@ -11,8 +11,8 @@
 #include <string>
 #include <cmath>
 
-#include <OgreSceneNode.h>
 #include <OgreEntity.h>
+#include <OgreSceneManager.h>
 #include <OgreAnimationState.h>
 
 #include <debug/DebugUtil.h>
@@ -102,11 +102,6 @@ public:
     posEntityOffset(void) const;
     inline const Ogre::Quaternion&
     rotEntityOffset(void) const;
-
-    // @brief Set the node visible / invisible
-    //
-    inline void
-    setVisible(bool visible);
 
     ////////////////////////////////////////////////////////////////////////////
     //                  General methods for all the weapons                   //
@@ -280,9 +275,7 @@ private:
 // Inline stuff
 //
 
-inline CrossFireInfo* Weapon::sCrossFire = 0;
-
-static inline void
+inline void
 Weapon::setCrossFireInfo(CrossFireInfo* cfi)
 {
     ASSERT(cfi);
@@ -411,20 +404,15 @@ Weapon::rotEntityOffset(void) const
     return mOffsetRot;
 }
 
-inline void
-Weapon::setVisible(bool visible)
-{
-    ASSERT(mNode);
-    mEntity->setVisible(visible);
-}
-
 inline bool
 Weapon::performAddAmmunition(unsigned short magazines, unsigned short bullets)
 {
-    mInfo.magazineCount = std::min(magazines + mInfo.magazineCount,
-                                   mInfo.maxMagazines);
-    mInfo.bulletsInMagazine = std::min(bullets + mInfo.bulletsInMagazine,
-                                       mInfo.maxBulletsPerMagazine);
+    mInfo.magazineCount = std::min(
+    		static_cast<unsigned int>(magazines + mInfo.magazineCount),
+    		static_cast<unsigned int>(mInfo.maxMagazines));
+    mInfo.bulletsInMagazine = std::min(
+    		static_cast<unsigned int>(bullets + mInfo.bulletsInMagazine),
+    		static_cast<unsigned int>(mInfo.maxBulletsPerMagazine));
     return true;
 }
 

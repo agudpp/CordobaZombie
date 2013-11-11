@@ -1,0 +1,21 @@
+<XMLResources>
+    <!-- Define the resource locations we want to load -->
+    <ResourceLocationsToLoad>
+        <!-- Each location contains:
+            - cfgFile: The .cfg filename.
+            - location: The location of the .cfg file relative to the 
+                        dropbox folder (defined in the environment variable
+                        RESOURCES_PATH).
+         -->
+        <Location cfgFile="resources.cfg" location="xxx/yyy/" />
+        <Location cfgFile="resources2.cfg" location="xxx/yyy/" />
+        <Location cfgFile="resources3.cfg" location="xxx/yyy/" />
+    </ResourceLocationsToLoad>
+    
+    <!-- Here we will define all the resources we want to use or parse. -->
+    <Resources>
+        <Resource name="zombie.mesh" />
+        <Resource name="zombie2.mesh" />
+    </Resources>
+
+</XMLResources>

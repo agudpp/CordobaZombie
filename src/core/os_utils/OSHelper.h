@@ -8,6 +8,8 @@
 #ifndef OSHELPER_H_
 #define OSHELPER_H_
 
+#include <string>
+
 namespace core {
 namespace OSHelper {
 
@@ -25,7 +27,31 @@ fileExists(const char* path);
 bool
 getEnvVar(const char* var, char* &val);
 
+// @brief Add the end path var for a given path (using the current operative system)
+// @param path      The path to add the var at the end
+//
+inline void
+addEndPathVar(std::string& path);
+
+
+
+
+
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Inline stuff
+//
+
+inline void
+addEndPathVar(std::string& path);
+
 }
+
+
 
 } /* namespace core */
 #endif /* OSHELPER_H_ */

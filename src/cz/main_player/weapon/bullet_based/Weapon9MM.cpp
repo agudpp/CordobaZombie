@@ -12,6 +12,15 @@
 
 namespace cz {
 
+
+const char* Weapon9MM::ANIM_NAMES[S_COUNT] = {
+    "dispara",
+    "recarga",
+    0
+};
+
+
+
 Weapon9MM::Weapon9MM() :
     mState(State::S_IDLE)
 {
@@ -22,9 +31,6 @@ Weapon9MM::Weapon9MM() :
     setMovementRanges(0.01f, 0.02f);
 
     debugWARNING("We are hardcoding the values here, we need to change this\n");
-
-    // load the animations
-    loadAnims(ANIM_NAMES);
 
     // set the ID
     setWeaponID(WeaponID::WID_9MM);
