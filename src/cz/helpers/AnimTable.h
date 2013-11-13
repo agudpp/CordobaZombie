@@ -8,6 +8,8 @@
 #ifndef ANIMTABLE_H_
 #define ANIMTABLE_H_
 
+#include <bitset>
+
 #include <OgreAnimationState.h>
 #include <OgreEntity.h>
 
@@ -29,9 +31,12 @@ public:
     //                  into the table. The names should be terminated by a null
     //                  pointer.
     // @param entity    The entity.
+    // @param loop      The initial loop value for the animations
     //
     inline void
-    loadAnims(const char** names, Ogre::Entity* entity);
+    loadAnims(const char** names,
+              Ogre::Entity* entity,
+              bool loop = false);
 
     // @brief Start to reproduce one particular animation. This method will
     //        put the animation in the list of "Running animations".
@@ -75,10 +80,19 @@ public:
     update(float timeFrame);
 
 private:
+    struct ActiveAnim {
+        Ogre::AnimationState* anim;
+        unsigned short index;
+        ActiveAnim(Ogre::AnimationState* a = 0, unsigned short i = 0) :
+            anim(a), index(i)
+        {}
+    };
+
+    std::bitset<NUM_ANIMS> mActiveMask;
     core::StackVector<Ogre::AnimationState*, NUM_ANIMS> mAnims;
     // we will make the assumption that we will never play the half of the
     // animations at the same time...
-    core::StackVector<Ogre::AnimationState*, NUM_ANIMS/2> mActiveAnims;
+    core::StackVector<ActiveAnim, NUM_ANIMS/2> mActiveAnims;
 };
 
 
@@ -89,13 +103,16 @@ private:
 
 template<unsigned int NUM_ANIMS>
 inline void
-AnimTable<NUM_ANIMS>::loadAnims(const char** names, Ogre::Entity* entity)
+AnimTable<NUM_ANIMS>::loadAnims(const char** names,
+                                Ogre::Entity* entity,
+                                bool loop)
 {
     ASSERT(names);
     ASSERT(entity);
 
     mAnims.clear();
     mActiveAnims.clear();
+    mActiveMask.reset();
 
     // we will be not robust here, we will crash if we cannot find an animation
     //
@@ -104,7 +121,10 @@ AnimTable<NUM_ANIMS>::loadAnims(const char** names, Ogre::Entity* entity)
     unsigned int i = 0;
     while (names[i] != 0) {
         ASSERT(animSet->hasAnimationState(names[i]));
-        mAnims.push_back(animSet->getAnimationState(names[i]));
+        Ogre::AnimationState* anim = animSet->getAnimationState(names[i]);
+        mAnims.push_back(anim);
+        mActiveMask[i] = anim->getEnabled();
+        anim->setLoop(loop);
         ++i;
     }
 }
@@ -120,10 +140,10 @@ AnimTable<NUM_ANIMS>::startAnim(unsigned int animID, bool enabled, bool resetTim
         anim->setTimePosition(0);
     }
     // add it if it should be enabled
-    if (enabled) {
+    if (enabled && !isAnimStarted(animID)) {
         // ensure that the animation is not already there
-        ASSERT(!isAnimStarted(animID));
-        mActiveAnims.push_back(anim);
+        mActiveAnims.push_back(ActiveAnim(anim, animID));
+        mActiveMask[animID] = 1;
     }
 }
 
@@ -132,14 +152,7 @@ template<unsigned int NUM_ANIMS>
 inline bool
 AnimTable<NUM_ANIMS>::isAnimStarted(unsigned int animID) const
 {
-    const Ogre::AnimationState* anim = mAnims[animID];
-    for (const Ogre::AnimationState*const* beg = mActiveAnims.begin(),
-        *const*end = mActiveAnims.end(); beg != end; ++beg) {
-        if (*beg == anim) {
-            return true;
-        }
-    }
-    return false;
+    return mActiveMask[animID];
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -156,12 +169,13 @@ AnimTable<NUM_ANIMS>::stopAnim(unsigned int animID)
 {
     Ogre::AnimationState* anim = mAnims[animID];
     unsigned int i = 0;
-    for (Ogre::AnimationState** beg = mActiveAnims.begin(),
-            **end = mActiveAnims.end(); beg != end && (*beg != anim); ++beg, ++i) {
+    for (ActiveAnim* beg = mActiveAnims.begin(), *end = mActiveAnims.end();
+            beg != end && (beg->anim != anim); ++beg, ++i) {
     }
     if (i < mActiveAnims.size()) {
         mActiveAnims.disorder_remove(i);
         anim->setEnabled(false);
+        mActiveMask[animID] = 0;
     }
 }
 
@@ -169,11 +183,12 @@ template<unsigned int NUM_ANIMS>
 inline void
 AnimTable<NUM_ANIMS>::stopAll(void)
 {
-    for (Ogre::AnimationState** beg = mActiveAnims.begin(),
-            **end = mActiveAnims.end(); beg != end; ++beg) {
-        (*beg)->setEnabled(false);
+    for (ActiveAnim* beg = mActiveAnims.begin(), *end = mActiveAnims.end();
+            beg != end; ++beg) {
+        beg->anim->setEnabled(false);
     }
     mActiveAnims.clear();
+    mActiveMask.reset();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -182,14 +197,16 @@ inline void
 AnimTable<NUM_ANIMS>::update(float timeFrame)
 {
     for (unsigned int i = 0; i < mActiveAnims.size(); ++i) {
-        Ogre::AnimationState* anim = mActiveAnims[i];
-        if (anim->hasEnded()) {
+        ActiveAnim& anim = mActiveAnims[i];
+        if (anim.anim->hasEnded() || !anim.anim->getEnabled()) {
             // remove this one
+            anim.anim->setEnabled(false);
+            mActiveMask[anim.index] = 0;
             mActiveAnims.disorder_remove(i);
             --i;
         } else {
             // update it
-            anim->addTime(timeFrame);
+            anim.anim->addTime(timeFrame);
         }
     }
 }

@@ -14,6 +14,7 @@
 
 #include <debug/DebugUtil.h>
 #include <types/StackVector.h>
+#include <types/basics.h>
 #include <os_utils/OSHelper.h>
 
 
@@ -137,15 +138,12 @@ ResourceHandler::loadResourceGroup(ResourceGroup& rg)
 
 
     // Get the path to the resource folder
-    size_t lastBar = 0;
-#ifdef _WIN32
-    lastBar = rg.ogreResourceFile().rfind('\\')+1;
-#else
-    lastBar = rg.ogreResourceFile().rfind('/')+1;
-#endif
-
-    ASSERT(lastBar > 1);
-    Ogre::String basePath = rg.ogreResourceFile().substr(0,lastBar);
+    std::string basePath;
+    if (!core::OSHelper::extractPath(rg.ogreResourceFile(), basePath)) {
+        debugERROR("Error extracting base path from %s\n",
+                   rg.ogreResourceFile().c_str());
+        return false;
+    }
 
     if (!ogreLoadRsrcFile(rg.ogreResourceFile(), sections, basePath)) {
         debugERROR("We couldn't load the ogre resource file %s\n",

@@ -16,9 +16,11 @@
 #include <debug/DebugUtil.h>
 #include <physics/BulletObject.h>
 #include <physics/RagDoll.h>
+#include <physics/BulletUtils.h>
 
 #include "RagDollQueue.h"
 #include "BodyPartQueue.h"
+#include "BodyPartElement.h"
 
 namespace cz {
 
@@ -49,6 +51,8 @@ public:
     setRagDollQueue(RagDollQueue<>* rq);
     inline RagDollQueue<>*
     ragDollQueue(void);
+    inline const RagDollQueue<>*
+    ragDollQueue(void) const;
 
     // @brief Set the BodyPart queue used by this body.
     // @param bpq       The body part queue
@@ -57,6 +61,15 @@ public:
     setBodyPartQueue(BodyPartQueue* bpq);
     inline BodyPartQueue*
     bodyPartQueue(void);
+    inline const BodyPartQueue*
+    bodyPartQueue(void) const;
+
+    // @brief Set / get the associate bodyPartID type to be used for this body.
+    //
+    inline void
+    setBodyPartID(unsigned short id);
+    inline unsigned short
+    bodyPartID(void) const;
 
     // @brief Set the skeleton / entity instance associated to this Body.
     // @param skeleton      The skeleton instance.
@@ -95,18 +108,34 @@ public:
 
     ////////////////////////////////////////////////////////////////////////////
 
+    // @brief Check if a body part still exists (and wasn't extirpated in the past)
+    // @param bodyPart      The body part we want to check if still sexists
+    // @return true if the body part still exists | false otherwise
+    //
+    inline bool
+    stillExists(BodyPart bodyPart);
+
+    // @brief Check if a body part is able to be extirpated
+    // @param bodyPart      The body part we want to check
+    // @return true if we can extirpate it | false otherwise
+    // @note This will check if the body part sill exists and if it is one
+    //       of the body parts that we can extirpate.
+    //
+    inline bool
+    canExtirpate(BodyPart bodyPart);
+
     // @brief Show / Hide a particular body part and its children if necessary,
     //        For example if we want to hide the UPPER_ARM then we need to hide
     //        also the LOWER_ARM as well as we need to show some of the internal
     //        subentities.
-    // @param bodyPart      The body part we want to "extirpate" from the zombie.
-    // @return the associated BulletObject already rotated and in the same position
-    //         than the bodyPart we are extirpating. This represent the graphic
-    //         BodyPart we need to animate.
-    //         0 on error or if not possible
+    // @param bodyPart      The body part we want to extirpate.
+    // @return the associated BodyPartElement pointer (that SHOULDN'T be freed)
+    //         with the BulletObject representing the bodyPart.
+    //         Once you don't use anymore the BodyPartElement* you should return
+    //         the element to the BodyPartQueue!
     // @note YOU SHOULDN'T REMOVE NOR FREE ANY MEMORY.
     //
-    physics::BulletObject*
+    BodyPartElement*
     extirpate(BodyPart bodyPart);
 
     // @brief Check if a ray intersects some of the body parts of the current
@@ -125,6 +154,15 @@ public:
 
     ////////////////////////////////////////////////////////////////////////////
 
+    // @brief Apply a central force to a particular bodyPart of the ragdoll.
+    // @param force         The force we want to apply to
+    // @param bodyPart      The body part
+    // @note that you should have a ragdoll already enabled when calling this
+    //       method
+    //
+    inline void
+    applyForce(const Ogre::Vector3& force, BodyPart bodyPart);
+
     // @brief Start / Stop using the Ragdoll for this skeleton. Before calling this
     //        method (Start) be sure that all the animations of the entity are inactive.
     // @param enable        Set the ragdoll enable?
@@ -138,6 +176,11 @@ public:
     //
     inline bool
     isRagdollEnabled(void) const;
+
+    // @brief Return the current associated ragdoll instance
+    //
+    inline physics::RagDoll*
+    currentRagDollInstance(void);
 
     // @brief Method used to update the ragdoll once it is active, this method
     //        will return true if we need to continue update the ragdoll or false
@@ -227,6 +270,10 @@ private:
     physics::RagDoll* mCurrentRagdoll;
 
     ExtirpationTable mExtirpationTable;
+
+    // this bodyPartID will be used to identify which is the associated body part
+    // to this particular zombie, by default will be 0
+    unsigned short mBodyPartID;
 };
 
 
@@ -248,6 +295,11 @@ ZombieBody::ragDollQueue(void)
 {
     return mRagdollQueue;
 }
+inline const RagDollQueue<>*
+ZombieBody::ragDollQueue(void) const
+{
+    return mRagdollQueue;
+}
 
 inline void
 ZombieBody::setBodyPartQueue(BodyPartQueue* bpq)
@@ -259,6 +311,22 @@ inline BodyPartQueue*
 ZombieBody::bodyPartQueue(void)
 {
     return mBodyPartQueue;
+}
+inline const BodyPartQueue*
+ZombieBody::bodyPartQueue(void) const
+{
+    return mBodyPartQueue;
+}
+
+inline void
+ZombieBody::setBodyPartID(unsigned short id)
+{
+    mBodyPartID = id;
+}
+inline unsigned short
+ZombieBody::bodyPartID(void) const
+{
+    return mBodyPartID;
 }
 
 inline void
@@ -297,6 +365,33 @@ ZombieBody::sceneNode(void)
     return mNode;
 }
 
+inline bool
+ZombieBody::stillExists(BodyPart bodyPart)
+{
+    return mBodyMask[bodyPart];
+}
+
+inline bool
+ZombieBody::canExtirpate(BodyPart bodyPart)
+{
+    return stillExists(bodyPart) &&
+        ((bodyPart == BodyPart::BP_UPPER_ARM_R) ||
+        (bodyPart == BodyPart::BP_UPPER_ARM_L) ||
+        (bodyPart == BodyPart::BP_FORE_ARM_L) ||
+        (bodyPart == BodyPart::BP_FORE_ARM_R) ||
+        (bodyPart == BodyPart::BP_HEAD));
+}
+
+inline void
+ZombieBody::applyForce(const Ogre::Vector3& force, BodyPart bodyPart)
+{
+    ASSERT(mCurrentRagdoll);
+    ASSERT(mCurrentRagdoll->getRigidBody(bodyPart));
+
+    mCurrentRagdoll->getRigidBody(bodyPart)->applyCentralForce(
+        physics::BulletUtils::ogreToBullet(force));
+}
+
 inline void
 ZombieBody::setRagdollEnable(bool enable)
 {
@@ -323,10 +418,18 @@ ZombieBody::isRagdollEnabled(void) const
     return mCurrentRagdoll && mCurrentRagdoll->isEnabled();
 }
 
+inline physics::RagDoll*
+ZombieBody::currentRagDollInstance(void)
+{
+    return mCurrentRagdoll;
+}
+
 inline bool
 ZombieBody::ZombieBody::update(void)
 {
-    ASSERT(mCurrentRagdoll);
+    if (mCurrentRagdoll == 0) {
+        return false;
+    }
     return mCurrentRagdoll->update();
 }
 

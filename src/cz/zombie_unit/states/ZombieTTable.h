@@ -13,6 +13,8 @@
 
 // states
 #include "ZSRunning.h"
+#include "ZSBeingHit.h"
+#include "ZSDying.h"
 
 namespace cz {
 
@@ -40,12 +42,28 @@ public:
     ZombieState*
     getNext(const ZombieState* current, const ZombieEvent& event)
     {
-        return &mRunning;
+        if (event == ZombieEvent::ZE_BEING_HIT) {
+            ASSERT(current != &mDying);
+            return &mBeingHit;
+        } else if (event == ZombieEvent::ZE_DIE) {
+            ASSERT(current != &mDying);
+            return &mDying;
+        } else if (event == ZombieEvent::ZE_DONE) {
+            if (current == &mBeingHit) {
+                return &mRunning;
+            } else {
+                ASSERT(false && "From Dying nor Running we can return DONE!");
+            }
+        }
+        ASSERT(false);
+        return 0;
     }
 
 private:
     // define the states here
     ZSRunning mRunning;
+    ZSBeingHit mBeingHit;
+    ZSDying mDying;
 };
 
 } /* namespace cz */

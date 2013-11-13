@@ -12,6 +12,8 @@
 #include <OgreFontManager.h>
 #include <OgreConfigFile.h>
 
+#include <os_utils/OSHelper.h>
+
 namespace core {
 
 
@@ -111,17 +113,12 @@ CommandLine::CommandLine(bool loadDropboxRsc,
             // load everything
             // everything is fine
             std::string path = strPath;
+
             // append the resources.cfg
-            int last = path.size() - 1;
-#ifdef _WIN32
-            if(last >= 0 && path[last] != '\\') {
-                path.append("\\");
-            }
-#else
-            if (last >= 0 && path[last] != '/') {
-                path.append("/");
-            }
-#endif
+
+            // add the last path var
+            OSHelper::addEndPathVar(path);
+
             const std::string fname = path + "resources.cfg";
             debugGREEN("Trying to parse the resource file %s\n", fname.c_str());
             if (!loadAditionalResourcesFromFile(fname, path)) {
@@ -161,16 +158,7 @@ CommandLine::loadAditionalResourcesFromFile(const Ogre::String &fname,
     Ogre::ConfigFile::SectionIterator seci = cf.getSectionIterator();
     Ogre::String path = p;
 
-    int last = path.size() - 1;
-#ifdef _WIN32
-    if(last >= 0 && path[last] != '\\') {
-        path.append("\\");
-    }
-#else
-    if (last >= 0 && path[last] != '/') {
-        path.append("/");
-    }
-#endif
+   core::OSHelper::addEndPathVar(path);
 
     Ogre::String secName, typeName, archName;
     while (seci.hasMoreElements()) {

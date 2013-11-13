@@ -8,6 +8,9 @@ include(${DEV_ROOT_PATH}/gps/pathfinding/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/coll_physics/collisions/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/coll_physics/collisions/helpers/AutoGen.cmake)
 
+include(${DEV_ROOT_PATH}/effect/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/cz/fx/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/cz/firing_system/AutoGen.cmake)
 
 include(${DEV_ROOT_PATH}/cz/static_data_loader/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/cz/global_data/AutoGen.cmake)

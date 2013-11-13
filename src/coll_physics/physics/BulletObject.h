@@ -14,6 +14,10 @@
 #include <bullet/LinearMath/btMotionState.h>
 #include <bullet/btBulletDynamicsCommon.h>
 
+#include <debug/DebugUtil.h>
+
+#include "BulletUtils.h"
+
 namespace physics {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -108,14 +112,88 @@ struct BulletObject {
     // @param other     The other BulletObject to compare against
     //
     inline bool
-    operator==(const BulletObject& other) const
-    {
-        return rigidBody == other.rigidBody && shape == other.shape &&
-            entity == other.entity;
-    }
+    operator==(const BulletObject& other) const;
 
+    // @brief Helper method used to apply a force to the rigid body
+    // @param force     The force we want to apply
+    //
+    inline void
+    applyCentralForce(const Ogre::Vector3& force);
+
+    // @brief Set a position and orientation for this object
+    //
+    inline void
+    setTransform(const Ogre::Vector3& pos, const Ogre::Quaternion& rot);
+
+    // @brief Reset all the forces associated to the rigid Body (linear velocity,
+    //        angular velocity, all the other forces too).
+    //        this method should be called when the rigid body is not in the
+    //        physics world.
+    //
+    inline void
+    clearForces(void);
+
+    // @brief Activate / deactivate the rigid body
+    // @brief activate      Activate?
+    //
+    inline void
+    activate(bool activate);
 };
 
+
+
+
+
+
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Inline stuff
+//
+
+inline bool
+BulletObject::operator==(const BulletObject& other) const
+{
+    return rigidBody == other.rigidBody && shape == other.shape &&
+        entity == other.entity;
+}
+
+inline void
+BulletObject::applyCentralForce(const Ogre::Vector3& force)
+{
+    ASSERT(rigidBody);
+    rigidBody->applyCentralForce(BulletUtils::ogreToBullet(force));
+}
+
+inline void
+BulletObject::setTransform(const Ogre::Vector3& pos, const Ogre::Quaternion& rot)
+{
+    ASSERT(rigidBody);
+    btTransform &trans = rigidBody->getWorldTransform();
+    trans.setIdentity();
+    trans.setOrigin(BulletUtils::ogreToBullet(pos));
+    trans.setRotation(BulletUtils::ogreToBullet(rot));
+    motionState.setWorldTransform(trans);
+}
+
+inline void
+BulletObject::clearForces(void)
+{
+    ASSERT(rigidBody);
+    rigidBody->clearForces();
+    rigidBody->setAngularVelocity(btVector3(0,0,0));
+    rigidBody->setLinearVelocity(btVector3(0,0,0));
+}
+
+inline void
+BulletObject::activate(bool activate)
+{
+    ASSERT(rigidBody);
+    rigidBody->activate(activate);
+}
 
 } /* namespace physics */
 #endif /* BULLETOBJECT_H_ */

@@ -15,6 +15,7 @@
 #include <OgreFontManager.h>
 
 #include <types/basics.h>
+#include <os_utils/OSHelper.h>
 
 
 namespace core {
@@ -353,16 +354,8 @@ AppTester::AppTester(float& globalTimeFrame,
             // everything is fine
             std::string path = strPath;
             // append the resources.cfg
-            int last = path.size() - 1;
-#ifdef _WIN32
-            if(last >= 0 && path[last] != '\\') {
-                path.append("\\");
-            }
-#else
-            if (last >= 0 && path[last] != '/') {
-                path.append("/");
-            }
-#endif
+            core::OSHelper::addEndPathVar(path);
+
             const std::string fname = path + "resources.cfg";
             debugGREEN("Trying to parse the resource file %s\n", fname.c_str());
             loadAditionalResourcesFromFile(fname, path);

@@ -7,6 +7,37 @@
 
 #include "ZombieBody.h"
 
+
+
+// Helper methods
+//
+namespace {
+
+// @brief Get the global position / orientation for a bone and scene node (the
+//        scene node where the skeleton is attached to).
+// @param bone      The bone
+// @param node      The parent node
+// @return global position
+//
+inline Ogre::Vector3
+globalBonePosition(const Ogre::Bone* bone, const Ogre::SceneNode* node)
+{
+    ASSERT(bone);
+    ASSERT(node);
+    return node->getPosition() + node->getOrientation() * bone->_getDerivedPosition();
+}
+
+inline Ogre::Quaternion
+globalBoneRotation(const Ogre::Bone *bone, const Ogre::SceneNode* parentNode)
+{
+    ASSERT(bone);
+    ASSERT(parentNode);
+    return parentNode->_getDerivedOrientation() * bone->_getDerivedOrientation();
+}
+
+}
+
+
 namespace cz {
 
 
@@ -203,23 +234,95 @@ ZombieBody::checkIntersection(const Ogre::Ray& ray,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-physics::BulletObject*
+BodyPartElement*
 ZombieBody::extirpate(BodyPart bodyPart)
 {
     // we will remove the body part and return the associated body part
     if (mBodyMask[bodyPart] == false) {
         // that bodypart doesn't exists anymore
-        return 0;
-    }
-    if (!mExtirpationTable.extirpate(bodyPart, mBodyMask)) {
-        // we couldn't extirpate that part!
+        debugWARNING("That part %d doesn't exists anymore!\n", bodyPart);
         return 0;
     }
 
+    // here we will do some ugly trick to detect what will be the associated
+    // body part type
+    //
+    BodyPartElementType type = BodyPartElementType::BPE_INVALID;
+    physics::BonesID boneID = physics::BonesID::B_COUNT;
+    if (bodyPart == BodyPart::BP_UPPER_ARM_L) {
+         if (mBodyMask[BodyPart::BP_FORE_ARM_L] == true) {
+             // we need to extirpate both upper arm and fore arm
+             type = BodyPartElementType::BPE_UPPER_FORE_ARM;
+         } else {
+             // only upper arm
+             type = BodyPartElementType::BPE_UPPER_ARM;
+         }
+         boneID = physics::BonesID::B_UPPER_ARM_L;
+    } else if (bodyPart == BodyPart::BP_UPPER_ARM_R) {
+         if (mBodyMask[BodyPart::BP_FORE_ARM_R] == true) {
+             // we need to extirpate both upper arm and fore arm
+             type = BodyPartElementType::BPE_UPPER_FORE_ARM;
+         } else {
+             // only upper arm
+             type = BodyPartElementType::BPE_UPPER_ARM;
+         }
+         boneID = physics::BonesID::B_UPPER_ARM_R;
+    } else if (bodyPart == BodyPart::BP_HEAD) {
+        type = BodyPartElementType::BPE_HEAD;
+        boneID = physics::BonesID::B_HEAD;
+    } else if (bodyPart == BodyPart::BP_FORE_ARM_L) {
+        type = BodyPartElementType::BPE_FORE_ARM;
+        boneID = physics::BonesID::B_FORE_ARM_L;
+    } else if (bodyPart == BodyPart::BP_FORE_ARM_R) {
+        type = BodyPartElementType::BPE_FORE_ARM;
+        boneID = physics::BonesID::B_FORE_ARM_R;
+    }
+
+
+    if (!mExtirpationTable.extirpate(bodyPart, mBodyMask)) {
+        // we couldn't extirpate that part!
+        debugWARNING("Error trying to extirpate part %d!\n", bodyPart);
+        return 0;
+    }
+
+    ASSERT(type != BodyPartElementType::BPE_INVALID);
+    ASSERT(boneID != physics::BonesID::B_COUNT);
+
     // we could extirpate and we already mark the parts as removed, so get the
     // BulletObject from the BodyPartQueue now
-    debugERROR("TODO: here we need to get the BulletObject from the queue\n");
-    return 0;
+    //
+    ASSERT(mBodyPartQueue);
+
+    BodyPartElement* result = mBodyPartQueue->getNewOne(type, mBodyPartID);
+    if (result == 0) {
+        debugWARNING("We couldn't get that body part from the queue: %d\n", bodyPart);
+        return 0;
+    }
+
+    // now we will set the position and orientation of the bodyPart using the
+    // same position and orientation than the associated bone
+    //
+    const Ogre::Bone* bone = mBoneTable[boneID];
+    ASSERT(bone);
+    ASSERT(mNode);
+    Ogre::Vector3 globalPosition = globalBonePosition(bone, mNode);
+    const Ogre::Quaternion globalOrientation = globalBoneRotation(bone, mNode);
+    ASSERT(result->bulletObject);
+
+    // move the size of the entity in the bone space
+    Ogre::Matrix4 mat(globalOrientation);
+    mat.setTrans(globalPosition);
+    const Ogre::Entity* ent = result->bulletObject->entity;
+    ASSERT(ent);
+    const Ogre::Vector3& halfSize = ent->getBoundingBox().getHalfSize();
+    const float maxVal = std::max(halfSize.x, std::max(halfSize.y, halfSize.z));
+    const Ogre::Vector3 offset(maxVal, 0, 0);
+    globalPosition = mat * offset;
+    result->bulletObject->setTransform(globalPosition, globalOrientation);
+
+    debugERROR("Here we have to set the position correctly to the body part\n");
+
+    return result;
 }
 
 } /* namespace cz */

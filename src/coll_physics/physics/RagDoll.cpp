@@ -53,7 +53,7 @@ globalOgreRotation(const Ogre::Bone *bone, const Ogre::SceneNode* parentNode)
 inline Ogre::Vector3
 globalOgrePosition(const Ogre::Bone *bone, const Ogre::SceneNode* parentNode)
 {
-    return parentNode->getPosition() + parentNode->getOrientation() *
+    return parentNode->_getDerivedPosition() + parentNode->_getDerivedOrientation() *
         (bone->getParent() ? bone->_getDerivedPosition() : bone->getPosition());
 }
 
@@ -667,7 +667,6 @@ bool
 RagDoll::buildFromSkeleton(const BoneTable& ogreBones,
                            const Ogre::SceneNode* parentNode)
 {
-    ASSERT(parentNode);
     ASSERT(mDynamicWorld);
 
     if (ogreBones.size() != ogreBones.max_size()) {

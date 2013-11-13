@@ -16,6 +16,7 @@
 #include <bullet/btBulletCollisionCommon.h>
 
 #include "BulletObject.h"
+#include "BulletShape.h"
 
 namespace physics {
 
@@ -30,13 +31,23 @@ public:
     ~BulletImporter();
 
     // @brief Helper method to construct a simple box.
-    // @param bb        The bounding box
-    // @param mass      The mass of the bb
+    // @param bb                The bounding box
+    // @param mass              The mass of the bb
+    // @param createPrimitive   Flat to create a primitive (box) or not.
     // @return BulletObject | 0 on error
     // This method will set the rigidBody->userDefinedPointer(this).
     //
     static BulletObject*
-    createBox(const Ogre::AxisAlignedBox& bb, float mass);
+    createBox(const Ogre::AxisAlignedBox& bb,
+              float mass,
+              bool createPrimitive = true);
+
+    // @brief Create a bullet shape of the type box from a given Ogre BB.
+    // @param bb        The Ogre bounding box.
+    // @return the new allocated shape | 0 on error.
+    //
+    static BulletShape*
+    createBoxShape(const Ogre::AxisAlignedBox& bb);
 
     // @brief This method will create a shape from a given mesh.
     // @param mesh      The Ogre mesh that we want to use to create the shape

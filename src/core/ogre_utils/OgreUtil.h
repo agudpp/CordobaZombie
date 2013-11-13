@@ -9,6 +9,9 @@
 #define OGREUTIL_H_
 
 #include <OgreMatrix4.h>
+#include <OgreString.h>
+#include <OgreEntity.h>
+#include <OgreSceneManager.h>
 
 #include <types/basics.h>
 
@@ -79,6 +82,13 @@ getContourVertices(Ogre::Vector3* vertices,
                    unsigned long* indices,
                    core::size_t iCount);
 
+// @brief Create an entity from a mesh name and return if we could load it or not.
+// @param name      The mesh name
+// @param sceneMngr The scene manager
+// @return loaded entity pointer or 0 on error
+//
+Ogre::Entity*
+loadEntity(const Ogre::String& name, Ogre::SceneManager* sceneMngr);
 
 
 } /* namespace OgreUtil */

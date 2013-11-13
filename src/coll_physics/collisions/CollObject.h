@@ -149,6 +149,16 @@ public:
     inline bool
     isCollisionsEnabled(void) const;
 
+    // @brief Return the dirtiness status of this object. This will return true
+    //        if the object was moved / translated / resized, but NOT ROTATIONS
+    //        WILL BE TAKING INTO ACCOUNT!.
+    //        This flag is automatically clear every time the CollisionHandler
+    //        system is updated.
+    // @return true on any translation / resized operation | false otherwise
+    //
+    inline bool
+    isTranslationDirty(void) const;
+
     ////////////////////////////////////////////////////////////////////////////
     // Collision helper functions
     //
@@ -432,6 +442,12 @@ inline bool
 CollObject::isCollisionsEnabled(void) const
 {
     return flags.enabled;
+}
+
+inline bool
+CollObject::isTranslationDirty(void) const
+{
+    return flags.dirty;
 }
 
 ////////////////////////////////////////////////////////////////////////////

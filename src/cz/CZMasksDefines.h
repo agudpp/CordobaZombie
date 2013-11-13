@@ -17,7 +17,10 @@ enum CZRayMask {
     CZRM_None               = 0,
     CZRM_ZOMBIE             = (1 << 0),
     CZRM_WORLD              = (1 << 1),
+    CZRM_RAGDOLL            = (1 << 3),
 
+    // collide against everything
+    CZRM_ALL                = (CZRM_ZOMBIE | CZRM_WORLD),
 };
 
 }
