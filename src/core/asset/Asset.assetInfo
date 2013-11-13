@@ -1,0 +1,28 @@
+<!-- Here we will define the information file of an asset -->
+
+<!-- The asset information:
+    // The type of the asset (3D static world object / 2D dynamic object / etc)
+    AssetType type;
+    // this is the id used by the asset
+    std::string meshName;
+    // the full path to the asset file info (including the asset file)
+    std::string fullAssetPath;
+    // the collision 2D representation file
+    std::string coll2DRepFile;
+    // the collision 3D (physics) representation file
+    std::string coll3DRepFile;
+    
+    where:
+        AssetType could be:
+            ASSET_STATIC_WORLD_ELEMENT,
+            
+-->
+
+<Asset  name="zombie"
+        meshName="zombie.mesh"
+        type="ASSET_STATIC_WORLD_ELEMENT"
+        coll2DRepFile="zombie.2DColl"
+        coll3DRepFile="zombie.3DColl"
+        />
+
+</Asset>

@@ -42,7 +42,7 @@ typedef ALuint ALBuffer;
 namespace mm {
 
 
-/* Generic sound buffer */
+// Generic sound buffer
 struct SoundBuffer
 {
 	SSbuftype type;		 	// Buffer type: SS_BUF_LOADED vs. SS_BUF_STREAM
@@ -56,72 +56,84 @@ struct SoundBuffer
 	inline SoundBuffer(SSbuftype buffType = SSbuftype::SS_BUF_LOADED);
 	inline virtual ~SoundBuffer();
 
-	/* For children classes' internal files manipulation: */
+	// For children internal files manipulation.
 	inline virtual long long int
 	filler(ALBuffer& buf, size_t size, bool repeat);
 
 	inline virtual void
 	restart();
+
+private:
+	// Avoid copy and assignment
+	SoundBuffer(const SoundBuffer&);
+	SoundBuffer& operator=(const SoundBuffer&);
 };
 
 
-/* Sound buffer for streaming playback of WAV files. */
+// Sound buffer for streaming playback of WAV files.
 struct StreamWAVSoundBuffer : public SoundBuffer
 {
 	std::ifstream* file;		// Pointer to the audio file
 	std::streampos dataStart;	// File's audio data start position
-	char* pcmData;				// For efficiency we keep this temp. array here.
+	char* pcmData;				// Aux array (here only for efficiency)
 
 	inline StreamWAVSoundBuffer();
 	inline virtual ~StreamWAVSoundBuffer();
 
-	/*
-	 * @brief
-	 * Extract 'size' bytes from internal file and store them inside 'buf'
-	 *
-	 * @remarks
-	 * Reading starts at internal file's get pointer current position.
-	 * If EOF is reached and 'repeat' is true, continue reading
-	 * from the beginning of the file.
-	 *
-	 * @returns:
-	 * Number of bytes effectively stored into 'buf'
-	 * -1 on error. */
+	/**
+	 ** @brief
+	 ** Extract 'size' bytes from internal file and store them inside 'buf'
+	 **
+	 ** @remarks
+	 ** Reading starts at internal file's get pointer current position.
+	 ** If EOF is reached and 'repeat' is true, continue reading
+	 ** from the beginning of the file.
+	 **
+	 ** @returns
+	 ** Number of bytes effectively stored into 'buf'
+	 ** -1 on error.
+	 **/
 	long long int
 	filler(ALBuffer& buf, size_t size, bool repeat);
 
 	/**
 	 ** @brief
-	 ** Seek internal file's get pointer to the audio data start position.
+	 ** Seek internal file get pointer to the audio data start position.
 	 **/
 	inline void
 	restart();
+
+private:
+	// Avoid copy and assignment
+	StreamWAVSoundBuffer(const StreamWAVSoundBuffer&);
+	StreamWAVSoundBuffer& operator=(const StreamWAVSoundBuffer&);
 };
 
 
-/* Sound buffer for streaming playback of OGG files. */
+// Sound buffer for streaming playback of OGG files.
 struct StreamOGGSoundBuffer : public SoundBuffer
 {
 	FILE* file;					// Pointer to the audio file
 	OggVorbis_File* oggFile;	// Pointer to the OGG formated audio file
 	int bitStreamSection;		// File's audio data current reading position
-	std::vector<char> pcmData;	// For efficiency we keep this temp. array here.
+	std::vector<char> pcmData;	// Aux array (here only for efficiency)
 
 	inline StreamOGGSoundBuffer();
 	inline virtual ~StreamOGGSoundBuffer();
 
-	/*
-	 * @brief
-	 * Extract 'size' bytes from internal file and store them inside 'buf'
-	 *
-	 * @remarks
-	 * Reading starts at internal file's get pointer current position.
-	 * If EOF is reached and 'repeat' is true, continue reading
-	 * from the beginning of the file.
-	 *
-	 * @returns:
-	 * Number of bytes effectively stored into 'buf'
-	 * -1 on error. */
+	/**
+	 ** @brief
+	 ** Extract 'size' bytes from internal file and store them inside 'buf'
+	 **
+	 ** @remarks
+	 ** Reading starts at internal file's get pointer current position.
+	 ** If EOF is reached and 'repeat' is true, continue reading
+	 ** from the beginning of the file.
+	 **
+	 ** @returns
+	 ** Number of bytes effectively stored into 'buf'
+	 ** -1 on error
+	 **/
 	long long int
 	filler(ALBuffer& buf, size_t size, bool repeat);
 
@@ -131,6 +143,11 @@ struct StreamOGGSoundBuffer : public SoundBuffer
 	 **/
 	inline void
 	restart();
+
+private:
+	// Avoid copy and assignment
+	StreamOGGSoundBuffer(const StreamOGGSoundBuffer&);
+	StreamOGGSoundBuffer& operator=(const StreamOGGSoundBuffer&);
 };
 
 
@@ -224,7 +241,14 @@ StreamOGGSoundBuffer::StreamOGGSoundBuffer() :
 inline
 StreamOGGSoundBuffer::~StreamOGGSoundBuffer()
 {
-	ov_clear(oggFile);  // Closes both file and oggFile
+#if defined(_WIN32) || defined(CYGWIN)
+	if (!ov_test_callbacks(file, oggFile, 0, 0, OV_CALLBACKS_DEFAULT))
+#else
+	if (!ov_test(file, oggFile, 0, 0))
+#endif
+		ov_clear(oggFile);  // Closes both file and oggFile
+	else
+		fclose(file);
 	delete oggFile;
 	pcmData.clear();
 }

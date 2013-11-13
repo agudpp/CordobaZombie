@@ -17,6 +17,40 @@
 #include "SSoundSource.h"
 #include <debug/DebugUtil.h>
 
+
+#ifndef DEBUG
+#  define  ALsrcState(s)
+#else
+#  define  ALsrcState(s)  ALsourceStateToStr(s)
+static inline const char*
+ALsourceStateToStr(ALint st)
+{
+	switch (st)
+	{
+	case AL_SOURCE_STATE:
+		return "AL_SOURCE_STATE";
+		break;
+	case AL_INITIAL:
+		return "AL_INITIAL";
+		break;
+	case AL_PLAYING:
+		return "AL_PLAYING";
+		break;
+	case AL_PAUSED:
+		return "AL_PAUSED";
+		break;
+	case AL_STOPPED:
+		return "AL_STOPPED";
+		break;
+	default:
+		return "<unknown al_source state>";
+		break;
+	}
+	return "";
+}
+#endif
+
+
 namespace mm {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -50,7 +84,7 @@ SSoundSource::~SSoundSource()
 
 	alGetSourcei(mSource, AL_SOURCE_STATE, &st);
 	if (st == AL_PAUSED || st == AL_PLAYING) {
-		debugRED("%s","Source killed during playback\n");
+		debugWARNING("%s","Source killed during playback\n");
 		alSourceStop(mSource);
 	}
 	alDeleteSources(1,&mSource);
@@ -93,7 +127,8 @@ SSoundSource::play(SoundBuffer* buf,
 			return SSerror::SS_NO_ERROR;
 
 		} else {
-			debugERROR("Invalid state, cannot start playback.\n");
+			debugERROR("Invalid AL source state (%s), cannot start playback.\n",
+					ALsrcState(st));
 			return SSerror::SS_INTERNAL_ERROR;
 		}
 
@@ -201,8 +236,8 @@ SSoundSource::update(const Ogre::Vector3& pos)
 		// Attempt one final buffer refresh before failing.
 		debugYELLOW("Trying to recover.%s", "\n");
 
-		/* mIntBuffers[mFirstBuffer] is the problematic buffer, *
-		 * and hasn't been re-queued yet.                       */
+		// mIntBuffers[mFirstBuffer] is the problematic buffer,
+		// and hasn't been re-queued yet.
 		readSize = mBuffer->filler(mIntBuffers[mFirstBuffer],
 									mIntBuffersSize, mRepeat);
 		if (readSize > 0) {

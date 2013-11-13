@@ -60,6 +60,7 @@ class SoundAPI;
 class SoundManager
 {
 	friend class SoundAPI;
+	typedef void* EnvSoundId;
 
 	/* SoundSource wrapping useful for SoundManager manipulations. */
 	struct ActiveSound
@@ -111,24 +112,38 @@ public:
 	getInstance();
 
 private:
-	/* Prevent the compiler from generating methods to copy the instance: */
+	/**
+	 ** @brief
+	 ** Prevent the compiler from generating methods to copy the instance.
+	 **/
 	SoundManager(SoundManager const&);    // Don't implement!
 	void operator=(SoundManager const&);  // Don't implement!
 
-	/* @remarks
-	 * ctor creates sound context on default sound device,
-	 * and all SoundSources. */
+	/**
+	 ** @remarks
+	 ** Creates sound context on default sound device, and all SoundSources.
+	 **/
 	SoundManager();
 
-	/* @remarks
-	 * dtor releases OpenAL sound resources (context, device) */
+	/**
+	 ** @remarks
+	 ** Releases OpenAL sound resources (context, device)
+	 **/
 	~SoundManager();
 
-	// Updates the sound playback volume, according to its fade in/out state.
-	void fadeUpdate(ActiveSound& s, const float globalTimeFrame);
+	/**
+	 ** @brief
+	 ** Updates the sound playback volume, according to its fade in/out state.
+	 **/
+	void
+	fadeUpdate(ActiveSound& s, const float globalTimeFrame);
 
-	/* Updates an already existent sound on which play() was called. */
-	SSerror playExistentSound(ActiveSound& s, float gain, bool repeat);
+	/**
+	 ** @brief
+	 ** Updates an already existent sound on which play() was called.
+	 **/
+	SSerror
+	playExistentSound(ActiveSound& s, float gain, bool repeat);
 
 
 
@@ -296,11 +311,9 @@ public:
 	/*********************************************************************/
 	/****************    GLOBAL PLAYBACK CONTROLS    *********************/
 public:
-	/** XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX **
-	 * XXX - All these global methods should be accessed through XXX *
-	 * XXX - the stubs implemented in the SoundHandler.          XXX */
-
-	typedef void* EnvSoundId;
+	/** XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX **
+	 * XXX   All these global methods should be accessed     XXX *
+	 * XXX   via the stubs implemented in the SoundHandler.  XXX */
 
 	/**
 	 ** @brief
@@ -403,18 +416,51 @@ public:
 public:
 	/**
 	 ** @brief
-	 ** Tells whether audio file "sName" is playing as an environmental sound.
+	 ** Searchs an environmental sound by given sName,
+	 ** and tells whether it is currently playing.
+	 **
+	 ** @return
+	 **  true: environmental sound "sName" is playing.
+	 ** false: environmental sound "sName" is not playing |OR| it wasn't found
 	 **/
 	bool
 	isPlayingEnvSound(const Ogre::String& sName);
 
 	/**
 	 ** @brief
-	 ** Tells whether audio file "sName" is an active environmental sound.
-	 ** (i.e. playing or paused)
+	 ** Searchs an environmental sound by given id,
+	 ** and tells whether it is currently playing.
+	 **
+	 ** @return
+	 **  true: environmental sound was found and is playing.
+	 ** false: environmental sound is not playing |OR| it wasn't found.
+	 **/
+	bool
+	isPlayingEnvSound(EnvSoundId id=0);
+
+	/**
+	 ** @brief
+	 ** Searchs an environmental sound by given sName,
+	 ** and tells whether it is currently active (viz. playing or paused)
+	 **
+	 ** @return
+	 **  true: environmental sound "sName" is active.
+	 ** false: environmental sound "sName" is not active |OR| it wasn't found
 	 **/
 	bool
 	isActiveEnvSound(const Ogre::String& sName);
+
+	/**
+	 ** @brief
+	 ** Searchs an environmental sound by given id,
+	 ** and tells whether it is currently active (viz. playing or paused)
+	 **
+	 ** @return
+	 **  true: environmental sound was found and is active.
+	 ** false: environmental sound is not active |OR| it wasn't found.
+	 **/
+	bool
+	isActiveEnvSound(EnvSoundId id=0);
 
 	/**
 	 ** @brief
@@ -464,16 +510,24 @@ public:
 	 ** @brief
 	 ** Pauses environmental sound "sName"
 	 **
+	 ** @param
+	 ** sName: name of the audio file to pause
+	 **    id: if not NULL, only EnvSound with matching id will be paused
+	 **
 	 ** @remarks
-	 ** If no environmental sound with such name exists, nothing is done.
+	 ** If no environmental sound with such name/id exists, nothing is done.
 	 ** This function overrides fadings.
 	 **/
 	void
-	pauseEnvSound(const Ogre::String& sName);
+	pauseEnvSound(const Ogre::String& sName, EnvSoundId id=0);
 
 	/**
 	 ** @brief
 	 ** Stops environmental sound "sName"
+	 **
+	 ** @param
+	 ** sName: name of the audio file to stop
+	 **    id: if not NULL, only EnvSound with matching id will be stopped
 	 **
 	 ** @remarks
 	 ** The sound is detached from the active sounds list.
@@ -486,11 +540,16 @@ public:
 	 ** SS_INTERNAL_ERROR	Unspecified.
 	 **/
 	SSerror
-	stopEnvSound(const Ogre::String& sName);
+	stopEnvSound(const Ogre::String& sName, EnvSoundId id=0);
 
 	/**
 	 ** @brief
 	 ** Restarts environmental sound "sName"
+	 **
+	 **
+	 ** @param
+	 ** sName: name of the audio file to restart
+	 **    id: if not NULL, only EnvSound with matching id will be restarted
 	 **
 	 ** @remarks
 	 ** If paused or playing, playback restarts from the beginning.
@@ -504,7 +563,7 @@ public:
 	 ** SS_INTERNAL_ERROR	     Unspecified.
 	 **/
 	SSerror
-	restartEnvSound(const Ogre::String& sName);
+	restartEnvSound(const Ogre::String& sName, EnvSoundId id=0);
 
 	/**
 	 ** @brief
@@ -521,6 +580,7 @@ public:
 	 ** sName: name of the environmental sound
 	 **  time: fade-out time, in seconds. If negative, defaults to 1.0
 	 ** pause: whether to pause the sound once muted. Default: true.
+	 **    id: if not NULL, only EnvSound with matching id will be faded-out
 	 **
 	 ** @return
 	 ** SS_NO_ERROR			Sound fade-out started, or in an unexpected state
@@ -530,8 +590,9 @@ public:
 	 **/
 	SSerror
 	fadeOutEnvSound(const Ogre::String& sName,
-					const Ogre::Real& time,
-					const bool pause=true);
+					  const Ogre::Real& time,
+					  const bool pause=true,
+					  EnvSoundId id=0);
 
 	/**
 	 ** @brief
@@ -549,6 +610,7 @@ public:
 	 ** @param
 	 ** sName: name of the environmental sound
 	 **  time: fade-in time, in seconds. If negative, defaults to 1.0
+	 **    id: if not NULL, only EnvSound with matching id will be faded-out
 	 **
 	 ** @return
 	 ** SS_NO_ERROR			Sound fade-in started, or in an unexpected state
@@ -557,7 +619,9 @@ public:
 	 ** SS_INTERNAL_ERROR	Unspecified.
 	 **/
 	SSerror
-	fadeInEnvSound(const Ogre::String& sName, const Ogre::Real& time);
+	fadeInEnvSound(const Ogre::String& sName,
+					 const Ogre::Real& time,
+					 EnvSoundId id=0);
 
 
 
@@ -824,11 +888,13 @@ SoundManager::isSoundLoaded(const Ogre::String& sName)
 
 ////////////////////////////////////////////////////////////////////////////////
 inline void
-SoundManager::pauseEnvSound(const Ogre::String& sName)
+SoundManager::pauseEnvSound(const Ogre::String& sName, EnvSoundId id)
 {
 	for (int i=0 ; i < mEnvSounds.size() ; i++) {
 		if (std::get<0>(mEnvSounds[i]) == sName &&
 			std::get<1>(mEnvSounds[i])->mGlobalState != SSplayback::SS_PAUSED) {
+			if (id && id != std::get<2>(mEnvSounds[i]))
+				continue;  // Not our sound.
 			std::get<1>(mEnvSounds[i])->mSource->pause();
 			std::get<1>(mEnvSounds[i])->mPlayState = SSplayback::SS_PAUSED;
 			std::get<1>(mEnvSounds[i])->mGlobalState = SSplayback::SS_NONE;

@@ -43,29 +43,9 @@ namespace {
 #define  NUM_SSOURCES  NUM_SBUFFERS
 
 
-// Audio files
-//
-#define  NUM_SFILES      6
-#define  START_PLSOUNDS  2
-const char *audioFile[NUM_SFILES] = {
-		"fxA20.ogg",
-		"Siren.ogg",
-		"roar.wav",		// playlist sound #1
-		"fxZ7.ogg",		// playlist sound #2
-		"fxZ9.ogg",		// playlist sound #3
-		"fxM2.ogg"		// playlist sound #4
-};
-
-
 // Playlists
 //
 const Ogre::String playlist1("lista1");
-const Ogre::String playlist2("lista2");
-
-
-// Audio fading (in-out) times
-//
-#define  FADE_TIME  2.5f
 
 }
 
@@ -158,8 +138,8 @@ SoundTest::SoundTest() :
 
 	// Load sounds into the system.
 	// Streaming buffers.
-	sounds.push_back("fxA20.ogg");  // audioFile[0], "water sound"
-	sounds.push_back("Siren.ogg");  // audioFile[1]
+	sounds.push_back("fxA20.ogg");
+	sounds.push_back("Siren.ogg");
 	testBEGIN("Cargando sonidos streaming.\n");
 	fails = mSH.loadStreamSounds(sounds);
 	if (fails.empty()) {
@@ -170,17 +150,17 @@ SoundTest::SoundTest() :
 	}
 	// Loaded buffers.
 	sounds.clear();
-	sounds.push_back("roar.wav");	// audioFile[2]
-	sounds.push_back("fxM2.ogg");	// audioFile[5], "button pressed"
+	sounds.push_back("roar.wav");
+	sounds.push_back("fxM2.ogg");
 	sounds.push_back("fxZ1.ogg");
 	sounds.push_back("fxZ2.ogg");
 	sounds.push_back("fxZ3.ogg");
 	sounds.push_back("fxZ4.ogg");
 	sounds.push_back("fxZ5.ogg");
 	sounds.push_back("fxZ6.ogg");
-	sounds.push_back("fxZ7.ogg");	// audioFile[3], "ferneeeee" variant 2
+	sounds.push_back("fxZ7.ogg");
 	sounds.push_back("fxZ8.ogg");
-	sounds.push_back("fxZ9.ogg");	// audioFile[4], "ole"
+	sounds.push_back("fxZ9.ogg");
 	sounds.push_back("fxZ10.ogg");
 	testBEGIN("Cargando sonidos directos (LOADED)\n");
 	fails = mSH.loadDirectSounds(sounds);
@@ -222,7 +202,7 @@ SoundTest::~SoundTest()
 
 ///////////////////////////////////////////////////////////////////////////////
 void
-SoundTest::loadAdditionalData(void)
+SoundTest::loadAditionalData(void)
 {
     // Ugly way to load all the fonts at the beginning
     Ogre::ResourceManager::ResourceMapIterator iter =
@@ -231,7 +211,9 @@ SoundTest::loadAdditionalData(void)
 
 	// Attach the camera to the listener of the sound system
 	mSH.setCamera(mCamera);
-    // everything fine...
+
+	// Playlists functionality checking
+	testPlaylists();
 }
 
 
@@ -296,26 +278,6 @@ SoundTest::parseXML(const std::string& xmlFName, std::string& meshName) const
     meshName = root->Attribute("mesh");
     return true;
 }
-
-
-
-////////////////////////////////////////////////////////////////////////////////
-// TODO: reinsert this code?
-//bool
-//SoundTest::loadEntity(const std::string& meshName)
-//{
-//    mNode = mSceneMgr->getRootSceneNode()->createChildSceneNode();
-//    try {
-//        mEntity = mSceneMgr->createEntity(meshName.c_str());
-//    } catch(...) {
-//        debugERROR("Mesh %s not found!\n", meshName.c_str());
-//        return false;
-//    }
-//    mNode->attachObject(mEntity);
-//
-//    // try to load the animations now
-//    return mEntityAnims.setEntity(mEntity);
-//}
 
 
 
@@ -426,178 +388,6 @@ SoundTest::handleSoundInput(void)
 }
 
 
-//
-// TODO: merge with upper function ("handleSoundInput") and erase
-//
-////
-//// Keyboard & mouse input handling
-////
-//static void
-//handleInput(void)
-//{
-//	static SoundManager& sMgr(SoundManager::getInstance());
-//	static bool mousePressed(false);
-//	static bool keyPressed(false);
-//	static std::vector<SSplayback> state(4, SSplayback::SS_PLAYING);
-//
-//
-//	// MOUSE
-//
-//	const OIS::MouseState& lMouseState = GLOBAL_MOUSE->getMouseState();
-//	mMouseCursor.updatePosition(lMouseState.X.abs, lMouseState.Y.abs);
-//
-//	if(GLOBAL_MOUSE->getMouseState().buttonDown(OIS::MB_Left)){
-//		if (!mousePressed) {
-//			mousePressed = true;
-//			Ogre::Vector3 v;
-//
-//			// check if we are getting a player
-//			static CollisionResult cr;
-//			static PlayerUnit *pu = 0;
-//
-//			// first check if we have a player selected
-//			if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_LSHIFT)){
-//				if(pu){
-//					pu->objectUnselected();
-//					pu = 0;
-//				}
-//				goto exit_mouse_input;
-//			}
-//			// else...
-//
-//			mLevelManager.getRaycastManger()->getPoint(mMouseCursor.getXRelativePos(),
-//					mMouseCursor.getYRelativePos(), v);
-//			mLevelManager.getCollisionManager()->getCollisionObjects(
-//					sm::Point(v.x, v.z), COL_FLAG_UNIT_PLAYER ,cr);
-//
-//			if(!cr.empty()){
-//				// get the player
-//				pu = static_cast<PlayerUnit *>(cr.front()->userDefined);
-//				pu->objectSelected();
-//			} else {
-//				if(pu){
-//					pu->plantBomb(mBomb, sm::Vector2(v.x,v.z));
-//				}
-//			}
-//		}
-//	} else {
-//		if (mousePressed) {
-//			mousePressed = false;
-//		}
-//	}
-//	exit_mouse_input:
-//
-//
-//	// KEYBOARD
-//
-//	// Test collect object
-//	if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_C)){
-//		if (!keyPressed) {
-//			keyPressed = true;
-//			testCollectObject();
-//		}
-//
-//	// Zombies creation
-//	} else if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_G)){
-//		if (!keyPressed) {
-//			keyPressed = true;
-//			testStart();
-//		}
-//
-//	// Zombies attack mode
-//	} else if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_E)){
-//		if (!keyPressed) {
-//			keyPressed = true;
-//			testEngageEveryone();
-//		}
-//
-//	// Toogle play/pause of all sounds.
-//	} else if (GLOBAL_KEYBOARD->isKeyDown(OIS::KC_NUMPAD0)) {
-//		if (!keyPressed) {
-//			keyPressed = true;
-//			if (state[0] == SSplayback::SS_PLAYING) {
-//				mSoundHandler.globalPause();
-//				state[0] = SSplayback::SS_PAUSED;
-//				debugBLUE("Global sounds PAUSED.%s", "\n");
-//			} else {
-//				mSoundHandler.globalPlay();
-//				state[0] = SSplayback::SS_PLAYING;
-//				debugBLUE("Global sounds PLAY.%s", "\n");
-//			}
-//		}
-//
-//	// Toogle play/pause of units sounds.
-//	} else if (GLOBAL_KEYBOARD->isKeyDown(OIS::KC_NUMPAD1)) {
-//		if (!keyPressed) {
-//			keyPressed = true;
-//			if (state[1] == SSplayback::SS_PLAYING) {
-//				pauseUnitsSounds();
-//				state[1] = SSplayback::SS_PAUSED;
-//				debugBLUE("Units' sounds PAUSED.%s", "\n");
-//			} else {
-//				playUnitsSounds();
-//				state[1] = SSplayback::SS_PLAYING;
-//				debugBLUE("Units' sounds PLAY.%s", "\n");
-//			}
-//		}
-//
-//	// Toogle play/pause of environmental music.
-//	} else if (GLOBAL_KEYBOARD->isKeyDown(OIS::KC_NUMPAD2)) {
-//		if (!keyPressed) {
-//			keyPressed = true;
-//			if (state[2] == SSplayback::SS_PLAYING) {
-//				pauseEnvSounds();
-//				state[2] = SSplayback::SS_PAUSED;
-//				debugBLUE("Environmental music PAUSED.%s", "\n");
-//			} else {
-//				playEnvSounds();
-//				state[2] = SSplayback::SS_PLAYING;
-//				debugBLUE("Environmental music PLAY.%s", "\n");
-//			}
-//		}
-//
-//	// Restart all sounds.
-//	} else if (GLOBAL_KEYBOARD->isKeyDown(OIS::KC_SPACE)) {
-//		if (!keyPressed) {
-//			keyPressed = true;
-//			mSoundHandler.globalRestart();
-//			debugBLUE("Global sounds RESTARTED.%s", "\n");
-//		}
-//
-//	// Stop all sounds.
-//	} else if (GLOBAL_KEYBOARD->isKeyDown(OIS::KC_NUMPADENTER)) {
-//		if (!keyPressed) {
-//			keyPressed = true;
-//			mSoundHandler.globalStop();
-//			debugBLUE("Global sounds STOPPED.%s", "\n");
-//		}
-//
-//	// Toogle fade in/out of all sounds.
-//	} else if (GLOBAL_KEYBOARD->isKeyDown(OIS::KC_NUMPAD3)) {
-//		if (!keyPressed) {
-//			keyPressed = true;
-//			if (state[3] != SSplayback::SS_FADING_OUT_AND_PAUSE) {
-//				mSoundHandler.globalFadeOut(FADE_TIME);
-//				state[3] = SSplayback::SS_FADING_OUT_AND_PAUSE;
-//				debugBLUE("Global sounds FADING OUT (%.2f seconds)\n", FADE_TIME);
-//			} else {
-//				mSoundHandler.globalFadeIn(FADE_TIME);
-//				state[3] = SSplayback::SS_FADING_IN;
-//				debugBLUE("Global sounds FADING IN (%.2f seconds)\n", FADE_TIME);
-//			}
-//		}
-//
-//	// No relevant key press.
-//	} else {
-//		if (keyPressed) {
-//			keyPressed = false;
-//		}
-//	}
-//
-//	return;
-//}
-
-
 
 ///////////////////////////////////////////////////////////////////////////////
 void
@@ -609,6 +399,108 @@ SoundTest::printDevices(void)
 		std::cout << "  ¤ " << soundDevices[i] << std::endl;
 	}
 	std::cout << "Using sound device:" << mSH.getSoundDevice() << std::endl;
+}
+
+
+
+///////////////////////////////////////////////////////////////////////////////
+void
+SoundTest::testPlaylists(void)
+{
+	// Create an empty playlist
+	Ogre::String name("Vacía");
+	std::vector<Ogre::String> soundsList;
+	testBEGIN("Creando Playlist \"%s\".\n", name.c_str());
+	mSH.newPlaylist(name, soundsList);
+	if (mSH.existsPlaylist(name)) {
+		testSUCCESS("Playlist \"%s\" creada.\n", name.c_str());
+	} else {
+		testFAIL("Falló.\n");
+		exit(EXIT_FAILURE);
+	}
+
+	// Recreate the same playlist
+	testBEGIN("Reinsertando otra Playlist con el mismo nombre.\n");
+	Ogre::String fails = mSH.newPlaylist(name, soundsList);
+	if (!fails.empty()) {
+		testSUCCESS("Éxito. Mensaje de error recibido: %s", fails.c_str());
+	} else {
+		testFAIL("Falló.\n");
+		exit(EXIT_FAILURE);
+	}
+
+	// Rename that playlist
+	testBEGIN("Renombrando playlist.\n");
+	bool renamed = mSH.renamePlaylist(name, playlist1);
+	if (!renamed) {
+		testFAIL("Falló.\n");
+		exit(EXIT_FAILURE);
+	} else {
+		ASSERT(mSH.existsPlaylist(playlist1));
+		ASSERT(!mSH.existsPlaylist(name));
+		mSH.renamePlaylist(playlist1, name);
+		ASSERT(mSH.existsPlaylist(name));
+		ASSERT(!mSH.existsPlaylist(playlist1));
+		testSUCCESS("Éxito.\n");
+	}
+
+	// Delete playlist
+	testBEGIN("Borrando playlist \"%s\".\n", name.c_str());
+	ASSERT(mSH.existsPlaylist(name));
+	mSH.deletePlaylist(name);
+	if (mSH.existsPlaylist(name)) {
+		testFAIL("Falló.\n");
+		exit(EXIT_FAILURE);
+	} else {
+		testSUCCESS("Playlist eliminada correctamente.\n");
+	}
+
+	// Create a non-empty playlist
+	testBEGIN("Creando Playlist \"%s\".\n", playlist1.c_str());
+	soundsList.push_back("roar.wav");
+	soundsList.push_back("no_existe.mp5");
+	soundsList.push_back("fxZ7.ogg");
+	soundsList.push_back("tampoco_existe.ogg");
+	fails = mSH.newPlaylist(playlist1, soundsList);
+	if (!fails.empty() && mSH.existsPlaylist(playlist1)) {
+		testSUCCESS("Playlist \"%s\" creada. No se pudieron cargar (como "
+				"correspondía) los sonidos:\n%s", playlist1.c_str(), fails.c_str());
+		debugGREEN("Sí se pudieron cargar los sonidos:\n");
+		soundsList = mSH.getPlaylistSounds(playlist1);
+		for (uint i=0 ; i < soundsList.size() ; i++) {
+			debugGREEN(	"%s\n", soundsList[i].c_str());
+		}
+	} else {
+		testFAIL("Falló.\n");
+		exit(EXIT_FAILURE);
+	}
+
+	// Check playlist default creation values
+	testBEGIN("Comprobando los valores por defecto de creación de playlists.\n");
+	if (mSH.getPlaylistPlayState(playlist1) != mm::SSplayback::SS_NONE	||
+		mSH.getPlaylistRandomOrder(playlist1)							||
+		mSH.getPlaylistRandomSilence(playlist1)							||
+		!mSH.getPlaylistRepeat(playlist1)) {
+		testSUCCESS("Valores correctos: repeat, !random, !random_silence, "
+					"state == SSplayback::NONE\n");
+	} else{
+		testFAIL("Falló.\n");
+		exit(EXIT_FAILURE);
+	}
+
+	// Check playlist values modification
+	ASSERT(mSH.existsPlaylist(playlist1));
+	testBEGIN("Modificando valores de reproducción de los playlists.\n");
+	mSH.setPlaylistRandomOrder(playlist1, true);
+	ASSERT(mSH.getPlaylistRandomOrder(playlist1));
+	mSH.setPlaylistRandomSilence(playlist1, true);
+	ASSERT(mSH.getPlaylistRandomSilence(playlist1));
+	mSH.setPlaylistRepeat(playlist1, false);
+	mSH.setPlaylistRepeat(playlist1, true);
+	ASSERT(mSH.getPlaylistRepeat(playlist1));
+	testSUCCESS("Valores seleccionados: repeat, random, random_silence.\n");
+
+	return;
 }
 
 
