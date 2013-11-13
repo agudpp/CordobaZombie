@@ -14,6 +14,7 @@
 
 #include <debug/DebugUtil.h>
 #include <types/StackVector.h>
+#include <types/basics.h>
 #include <os_utils/OSHelper.h>
 
 
@@ -107,7 +108,7 @@ ResourceHandler::loadResourceGroup(ResourceGroup& rg)
 
 
     // Get the path to the resource folder
-    size_t lastBar = 0;
+    core::size_t lastBar = 0;
 #ifdef _WIN32
     lastBar = rg.ogreResourceFile().rfind('\\')+1;
 #else
