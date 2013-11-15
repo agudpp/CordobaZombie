@@ -172,6 +172,7 @@ XMLResourceParser::loadResourceLocation(void)
                 rl.location.c_str());
             return false;
         }
+        debugBLUE("Resource %s loaded correctly\n", rg.ogreResourceFile().c_str());
     }
 
     return true;

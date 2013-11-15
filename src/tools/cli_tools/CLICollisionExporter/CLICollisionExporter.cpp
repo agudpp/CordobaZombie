@@ -95,11 +95,12 @@ CLICollisionExporter::getTemporaryInfo(const std::string& rscName,
 {
     // first get the resource full path of the resource
     std::string rscPath;
-    const Ogre::String& group =
-            Ogre::ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME;
-    if (!rrh::ResourceHandler::getResourcePath(group,
-                                               rscName,
-                                               rscPath)){
+    debugERROR("HARDCODING \"Collisions\" group here, the method "
+            "getResourcePathSomeGroup is not fucking working!! FUCKING WASTE OF "
+            "TIME. Issue #252.\n"
+            "Note that this is hardcoded in other parts of the code so find for"
+            " that string \"Collisions\" and use the correct method\n");
+    if (!rrh::ResourceHandler::getResourcePath("Collisions", rscName, rscPath)){
         debugERROR("We couldn't get the path of the resource %s,"
                 " this probably because you don't load the path where the resource"
                 " is located...\n", rscName.c_str());
@@ -167,13 +168,13 @@ CLICollisionExporter::processObject2D(const TempObjectInfo& tmp) const
 
     // try to get the associated mesh
     Ogre::MeshPtr mesh;
-    const Ogre::String& group =
-            Ogre::ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME;
     try {
-        mesh = Ogre::MeshManager::getSingleton().load(fullName, group);
+        Ogre::ResourceGroupManager& rgm = Ogre::ResourceGroupManager::getSingleton();
+        const Ogre::String& group = rgm.findGroupContainingResource(fullName);
+        mesh = Ogre::MeshManager::getSingleton().load(fullName, "Collisions");
     } catch (Ogre::Exception& e) {
-        debugERROR("Error trying to load mesh %s in group %s, with exception %s\n",
-                   fullName.c_str(), group.c_str(), e.what());
+        debugERROR("Error trying to load mesh %s, with exception %s\n",
+                   fullName.c_str(), e.what());
         return false;
     }
 
@@ -213,13 +214,13 @@ CLICollisionExporter::processObject3D(const TempObjectInfo& tmp) const
 
     // try to get the associated mesh
     Ogre::MeshPtr mesh;
-    const Ogre::String& group =
-            Ogre::ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME;
     try {
-        mesh = Ogre::MeshManager::getSingleton().load(fullName, group);
+        Ogre::ResourceGroupManager& rgm = Ogre::ResourceGroupManager::getSingleton();
+        const Ogre::String& group = rgm.findGroupContainingResource(fullName);
+        mesh = Ogre::MeshManager::getSingleton().load(fullName,  "Collisions");
     } catch (Ogre::Exception& e) {
-        debugERROR("Error trying to load mesh %s in group %s, with exception %s\n",
-                   fullName.c_str(), group.c_str(), e.what());
+        debugERROR("Error trying to load mesh %s, with exception %s\n",
+                   fullName.c_str(), e.what());
         return false;
     }
 
@@ -275,13 +276,22 @@ CLICollisionExporter::execute(const std::vector<std::string>& args)
 
     // now fill the temporary structure
     TempObjectInfo tmpObj;
+    bool everythingOK = true;
     for (std::string& str : rscNames) {
         tmpObj.clear();
         if (getTemporaryInfo(str, tmpObj)) {
             // we will process this object
-
+            bool ok = processObject2D(tmpObj);
+            everythingOK = everythingOK && ok;
+            ok = processObject3D(tmpObj);
+            everythingOK = everythingOK && ok;
         }
     }
+
+    if (!everythingOK) {
+        CLI_PRINT_RED("Check for the possible error that occurr\n");
+    }
+    return true;
 }
 
 }

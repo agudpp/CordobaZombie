@@ -47,6 +47,9 @@ public:
     getResourcePath(const Ogre::String& resourceGroup,
                     const Ogre::String& resourceName,
                     Ogre::String &resourcePath);
+    static bool
+    getResourcePathSomeGroup(const Ogre::String& resourceName,
+                             Ogre::String &resourcePath);
 
 
     // @brief Set the path to the resources folder.

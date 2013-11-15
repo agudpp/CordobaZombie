@@ -162,8 +162,8 @@ ResourceHandler::loadResourceGroup(ResourceGroup& rg)
     	}
 #endif
 
-    	rscMng.initialiseResourceGroup(sec);
         rscMng.loadResourceGroup(sec);
+    	rscMng.initialiseResourceGroup(sec);
         rg.addSection(sec);
     }
 
@@ -256,5 +256,27 @@ ResourceHandler::getResourcePath(const Ogre::String& resourceGroup,
     return true;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+bool
+ResourceHandler::getResourcePathSomeGroup(const Ogre::String& resourceName,
+                                          Ogre::String &resourcePath)
+{
+    // find the group first
+    Ogre::ResourceGroupManager& resGM =
+                        Ogre::ResourceGroupManager::getSingleton();
+    try {
+        const Ogre::String& group = resGM.findGroupContainingResource(resourceName);
+        // call the main method
+        return getResourcePath(resourceName, group, resourcePath);
+    } catch (Ogre::Exception& e) {
+        debugERROR("Couldn't find the group for the resource %s, exception %s\n",
+                   resourceName.c_str(), e.what());
+        return false;
+    }
+
+    // this never happens
+    ASSERT(false);
+    return false;
+}
 
 } /* namespace rrh */
