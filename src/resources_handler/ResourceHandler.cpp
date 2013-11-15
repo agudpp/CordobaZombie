@@ -103,6 +103,7 @@ ogreLoadRsrcFile(const Ogre::String &file,
         }
 
     }
+    Ogre::ResourceGroupManager::getSingleton().initialiseAllResourceGroups();
     return true;
 }
 
@@ -162,8 +163,8 @@ ResourceHandler::loadResourceGroup(ResourceGroup& rg)
     	}
 #endif
 
-        rscMng.loadResourceGroup(sec);
     	rscMng.initialiseResourceGroup(sec);
+        rscMng.loadResourceGroup(sec);
         rg.addSection(sec);
     }
 
@@ -228,8 +229,13 @@ ResourceHandler::getResourcePath(const Ogre::String& resourceGroup,
     // First find file absolute path
     Ogre::ResourceGroupManager& resGM =
                     Ogre::ResourceGroupManager::getSingleton();
-    Ogre::FileInfoListPtr files = resGM.findResourceFileInfo(
-                    resourceGroup, resourceName);
+    Ogre::FileInfoListPtr files;
+    try {
+        files= resGM.findResourceFileInfo(resourceGroup, resourceName);
+    } catch (Ogre::Exception& e) {
+        debugERROR("Exception: %s\n", e.what());
+        return false;
+    }
 
     if (files.isNull()) {
         // resource not found
