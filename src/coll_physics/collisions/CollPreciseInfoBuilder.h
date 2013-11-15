@@ -105,6 +105,7 @@ public:
     //        if the current best type is an AABB this class will return 0.
     // @returns the PreciseInfo object using the best shape possible.
     //          If some error occurr 0 is returned.
+    // @note The allocated memory should be free by the caller
     //
     CollPreciseInfo*
     constructPreciseInfo(void) const;
@@ -116,6 +117,7 @@ public:
     // @returns the collObject associated to the CollisionHandler on success
     //          | 0 otherwise
     // @note that the mask will be set to ~0 and user define = 0
+    // @note The allocated memory should be free by the caller
     //
     CollObject*
     constructCollObject(void) const;

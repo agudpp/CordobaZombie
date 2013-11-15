@@ -1,5 +1,6 @@
 # Define global headers here
 set(HDRS ${HDRS}
+	${DEV_ROOT_PATH}/core/command_line/CLIPrintDefs.h
 	${DEV_ROOT_PATH}/core/command_line/CommandLine.h
 )
 

@@ -64,11 +64,7 @@ public:
     // @return true on success | false otherwise
     inline bool
     getResourceFullPath(const Ogre::String &resourceRelPath,
-<<<<<<< HEAD
     		            Ogre::String &fullPath) const;
-=======
-                        Ogre::String &fullPath);
->>>>>>> asset
 
 private:
 
