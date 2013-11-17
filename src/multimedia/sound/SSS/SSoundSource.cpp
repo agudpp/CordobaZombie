@@ -58,9 +58,10 @@ SSoundSource::SSoundSource() :
 	SoundSource(SSsrctype::SS_SRC_STREAM),
 	mFileOffset(0),
 	mIntBuffersSize(SS_SIZE_INT_BUFFERS),
-	mFirstBuffer(0)
+	mFirstBuffer(0),
+	mFileFinished(false)
 {
-	/* Generate internal buffers. */
+	// Generate internal buffers.
 	alGenBuffers(SS_NUM_INT_BUFFERS, mIntBuffers);
 #ifdef DEBUG
 	ASSERT(alGetError() == AL_NO_ERROR);
@@ -69,7 +70,6 @@ SSoundSource::SSoundSource() :
 	}
 #endif
 	mRepeat = false;
-
 	ASSERT(alGetError() == AL_NO_ERROR);
 }
 
@@ -113,7 +113,7 @@ SSoundSource::play(SoundBuffer* buf,
 	// Void call?
 	if (!buf) {
 		if (!mBuffer) {
-			debug("NULL buffer, cannot start playback.\n");
+			debugERROR("NULL buffer, cannot start playback.\n");
 			return SSerror::SS_NO_BUFFER;
 
 		} else if (st == AL_PAUSED) {
@@ -153,9 +153,10 @@ SSoundSource::play(SoundBuffer* buf,
 	}
 
 	// Fill internal buffers (according to file type).
-	buf->restart();  // Start at the beggining of the buffer
-	for (i=0 ; i < SS_NUM_INT_BUFFERS && readSize==mIntBuffersSize ; i++) {
-		readSize = buf->filler(mIntBuffers[i], mIntBuffersSize, repeat);
+	buf->restart();  // Start at the beggining of the file
+	mFileFinished = false;
+	for (i=0 ; i < SS_NUM_INT_BUFFERS && readSize > 0 && !mFileFinished ; i++) {
+		readSize = buf->filler(mIntBuffers[i], mIntBuffersSize, repeat, &mFileFinished);
 	}
 	if (readSize < 0) {
 		debugRED("Error filling internal buffer #%d\n", i-1);
@@ -192,6 +193,7 @@ SSoundSource::update(const Ogre::Vector3& pos)
 	ALint st(AL_NONE);
 	int processed(0);
 	int readSize(mIntBuffersSize);
+	SSplayback result(SSplayback::SS_NONE);
 
 	ASSERT(alGetError() == AL_NO_ERROR);
 	ASSERT(alIsSource(mSource));
@@ -203,24 +205,26 @@ SSoundSource::update(const Ogre::Vector3& pos)
 		restart = true;
 	} else if (st == AL_STOPPED) {
 		// Playback finished.
+		debugRED("Playback finished.\n");
 		goto finish;
 	}
 
-	// Update position
+	// If source is not relative to listener, then update position.
 	alGetSourcei(mSource, AL_SOURCE_RELATIVE, &st);
 	if (!st) {
 		alSource3f(mSource, AL_POSITION, pos.x, pos.y, pos.z);
-	}  // else: source relative to listener, no position update needed
+	}
 
 	// Refresh used internal buffers
-	while (readSize==mIntBuffersSize && processed-- > 0) {
+	while (!mFileFinished && readSize > 0 && processed-- > 0) {
 		// Unqueue processed buffer.
 		alSourceUnqueueBuffers(mSource, 1, &mIntBuffers[mFirstBuffer]);
-
 		// Refill buffer.
-		readSize = mBuffer->filler(mIntBuffers[mFirstBuffer], mIntBuffersSize, mRepeat);
-
-		// Queue back, if propperly refilled.
+		readSize = mBuffer->filler(mIntBuffers[mFirstBuffer],
+									mIntBuffersSize,
+									mRepeat,
+									&mFileFinished);
+		// Queue back, if properly refilled.
 		if (readSize > 0) {
 			alSourceQueueBuffers(mSource, 1, &mIntBuffers[mFirstBuffer]);
 			if (restart) { alSourcePlay(mSource); restart = false; }
@@ -229,39 +233,45 @@ SSoundSource::update(const Ogre::Vector3& pos)
 	}
 
 	// Check for errors.
-	if (readSize < 0) {
-		debugRED("Error filling internal buffer #%d\n",
+	if (mFileFinished) {
+		result = SSplayback::SS_FINISHED;
+
+	} else if (readSize >= 0){
+		alGetSourcei(mSource, AL_SOURCE_STATE, &st);
+		result = ((st==AL_PLAYING)  ? SSplayback::SS_PLAYING
+									: SSplayback::SS_PAUSED);
+	} else {
+		debugWARNING("Error filling internal buffer #%d\n",
 				((mFirstBuffer-1)%SS_NUM_INT_BUFFERS));
-
 		// Attempt one final buffer refresh before failing.
-		debugYELLOW("Trying to recover.%s", "\n");
-
+		debugYELLOW("Trying to recover.\n");
 		// mIntBuffers[mFirstBuffer] is the problematic buffer,
 		// and hasn't been re-queued yet.
 		readSize = mBuffer->filler(mIntBuffers[mFirstBuffer],
-									mIntBuffersSize, mRepeat);
+									mIntBuffersSize,
+									mRepeat,
+									&mFileFinished);
 		if (readSize > 0) {
-			debugGREEN("Successfull recovery!%s", "\n");
+			debugGREEN("Successfull recovery!\n");
 			alSourceQueueBuffers(mSource, 1, &mIntBuffers[mFirstBuffer]);
 			if (restart) { alSourcePlay(mSource); restart = false; }
 			++mFirstBuffer %= SS_NUM_INT_BUFFERS;
 		} else {
-			debugERROR("Error persists, can not fill internal buffer.%s", "\n");
+			debugERROR("Error persists, can not fill internal buffer.\n");
+			result = SSplayback::SS_FINISHED;
 			goto fail;
 		}
 	}
 
-	while (processed-- > 0) {
-		// Playing finished, but there are still buffers to unqueue.
-		alSourceUnqueueBuffers(mSource, 1, &mIntBuffers[mFirstBuffer]);
-		++mFirstBuffer %= SS_NUM_INT_BUFFERS;
-	}
-
-//	success:
+//  success
+	finish:
+		while (processed-- > 0) {
+			// Playing finished, but there are still buffers to unqueue.
+			alSourceUnqueueBuffers(mSource, 1, &mIntBuffers[mFirstBuffer]);
+			++mFirstBuffer %= SS_NUM_INT_BUFFERS;
+		}
 		ASSERT(alGetError() == AL_NO_ERROR);
-		alGetSourcei(mSource, AL_SOURCE_STATE, &st);
-		return ((st==AL_PLAYING) ? SSplayback::SS_PLAYING
-								 : SSplayback::SS_PAUSED);
+		return result;
 	fail:
 		alSourceStop(mSource);
 		alGetSourcei(mSource, AL_BUFFERS_PROCESSED, &processed);
@@ -269,12 +279,8 @@ SSoundSource::update(const Ogre::Vector3& pos)
 			alSourceUnqueueBuffers(mSource, 1, &mIntBuffers[mFirstBuffer]);
 			++mFirstBuffer %= SS_NUM_INT_BUFFERS;
 		}
-	finish:
-		alSourcei(mSource, AL_BUFFER, AL_NONE);
-		mFirstBuffer = 0u;
-		mBuffer = 0;
 		ASSERT(alGetError() == AL_NO_ERROR);
-		return SSplayback::SS_FINISHED;
+		return result;
 }
 
 
@@ -305,13 +311,13 @@ SSoundSource::stop()
 	ASSERT(alIsSource(mSource));
 
 	alSourceStop(mSource);
-	/* Unqueue buffers. */
+	// Unqueue buffers.
 	alGetSourcei(mSource, AL_BUFFERS_PROCESSED, &processed);
 	while (processed-- > 0) {
 		alSourceUnqueueBuffers(mSource, 1, &mIntBuffers[mFirstBuffer]);
 		++mFirstBuffer %= SS_NUM_INT_BUFFERS;
 	}
-//	mBuffer->restart();
+
 #ifdef DEBUG
 	{
 		ALint st(AL_NONE);
@@ -319,7 +325,7 @@ SSoundSource::stop()
 		ASSERT(st == AL_STOPPED);
 	}
 #endif
-	/* Set NULL buffer. */
+	// Set NULL buffer.
 	alSourcei(mSource, AL_BUFFER, AL_NONE);
 	mFirstBuffer = 0u;
 	mBuffer = 0;
@@ -359,7 +365,7 @@ SSoundSource::restart(const Ogre::Real& gain,
 	mBuffer->restart();
 	mFirstBuffer = 0;
 	for (i=0 ; i < SS_NUM_INT_BUFFERS && readSize==mIntBuffersSize ; i++) {
-		readSize = mBuffer->filler(mIntBuffers[i], mIntBuffersSize, mRepeat);
+		readSize = mBuffer->filler(mIntBuffers[i], mIntBuffersSize, mRepeat, &mFileFinished);
 	}
 
 	if (readSize < 0) {

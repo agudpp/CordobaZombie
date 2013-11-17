@@ -32,16 +32,14 @@
 namespace {
 
 
-// Number of buffers & sources for direct play
+// Number of sources for direct play
 //
-#define  NUM_LBUFFERS  20
 #define  NUM_LSOURCES  25
 
 
-// Number of buffers & sources for streaming
+// Number of sources for streaming
 //
-#define  NUM_SBUFFERS  5
-#define  NUM_SSOURCES  NUM_SBUFFERS
+#define  NUM_SSOURCES  2
 
 
 // Audio files
@@ -314,13 +312,19 @@ SoundTest::initSoundsPlayback(void)
 	// Play environmental water sound  ////////////////////////////////////////
 	// FIXME: direct access to SoundManager, DON'T DO THIS OUTSIDE TESTERS!
 	//
-	testBEGIN("Iniciando reproducción del sonido ambiente %s.\n", audioFile[0]);
+	/* FIXME (erase this comment after fix)
+	 * Decomment following code after issues #146 and #147
+	 * of MantisBT get solved.
+	 * http://cordobazombie.com.ar/dev/tracker/view.php?id=146
+	 */
+	testBEGIN("Iniciando reproducción del sonido ambiente fxA20.ogg\n");
 	err = mm::SoundManager::getInstance().playEnvSound(
-			audioFile[0], DEFAULT_ENV_GAIN, true);
+			"fxA20.ogg", DEFAULT_ENV_GAIN, true);
 	if (err == mm::SSerror::SS_NO_ERROR) {
-		ASSERT(mm::SoundManager::getInstance().isPlayingEnvSound(audioFile[0]));
+		ASSERT(mm::SoundManager::getInstance().isActiveEnvSound("fxA20.ogg"));
+		ASSERT(mm::SoundManager::getInstance().isPlayingEnvSound("fxA20.ogg"));
 		testSUCCESS("Reproducción iniciada exitosamente. Eliminando sonido...\n");
-		err = mm::SoundManager::getInstance().stopEnvSound(audioFile[0]);
+		err = mm::SoundManager::getInstance().stopEnvSound("fxA20.ogg");
 		ASSERT(err == mm::SSerror::SS_NO_ERROR);
 	} else {
 		testFAIL("Falló.%s","\n");
@@ -352,7 +356,7 @@ SoundTest::initSoundsPlayback(void)
 	 * of MantisBT get solved.
 	 * http://cordobazombie.com.ar/dev/tracker/view.php?id=146
 	 */
-//	testBEGIN("Iniciando reproducción del sonidos puntual %s.\n", audioFile[1]);
+//	testBEGIN("Iniciando reproducción del sonido puntual %s.\n", audioFile[1]);
 //	err = sirenSoundAPI->play(audioFile[1], true, DEFAULT_UNIT_GAIN);
 //	if (err == mm::SSerror::SS_NO_ERROR) {
 //		testSUCCESS("Reproducción iniciada.%s", "\n");
@@ -406,16 +410,16 @@ SoundTest::initSoundsPlayback(void)
 	// Start playlists playback  //////////////////////////////////////////////
 	//
 	testBEGIN("Iniciando reproducción de playlists.\n");
-	for (int i=0 ; i < NUM_PLAYLISTS ; i++) {
-		err = mSH.startPlaylist(playlist[i]);
-		if (err != mm::SSerror::SS_NO_ERROR) {
-			testFAIL("Falló la reproducción del playlist[%d]. Error: %s\n",
-					i, SSenumStr(err));
-			return false;
-		} else {
-			ASSERT(mSH.existsPlaylist(playlist[i]));
-		}
-	}
+//	for (int i=0 ; i < NUM_PLAYLISTS ; i++) {
+//		err = mSH.startPlaylist(playlist[i]);
+//		if (err != mm::SSerror::SS_NO_ERROR) {
+//			testFAIL("Falló la reproducción del playlist[%d]. Error: %s\n",
+//					i, SSenumStr(err));
+//			return false;
+//		} else {
+//			ASSERT(mSH.existsPlaylist(playlist[i]));
+//		}
+//	}
 	testSUCCESS("Reproducción iniciada.\n");
 
 
@@ -434,22 +438,22 @@ SoundTest::initSoundsPlayback(void)
 	 * until issues #146 and #147 of MantisBT get solved.
 	 * http://cordobazombie.com.ar/dev/tracker/view.php?id=146
 	 */
-	soundsList.push_back("fxA20.ogg");
-	fails = mSH.newPlaylist(playlist[2], soundsList);
-	if (!fails.empty()) {
-		testFAIL("Falló la creación del nuevo playlist.\n");
-		return false;
-	}
-	ASSERT(mSH.existsPlaylist(playlist[2]));
-	err = mSH.startPlaylist(playlist[2]);
-	if (err == mm::SSerror::SS_NO_ERROR) {
-		testSUCCESS("Playlist \"%s\" creado e iniciado con éxito.\n",
-					playlist[2].c_str());
-	} else {
-		testFAIL("Falló la reproducción del nuevo playlist: %s.\n",
-				SSenumStr(err));
-		return false;
-	}
+//	soundsList.push_back("fxA20.ogg");
+//	fails = mSH.newPlaylist(playlist[2], soundsList);
+//	if (!fails.empty()) {
+//		testFAIL("Falló la creación del nuevo playlist.\n");
+//		return false;
+//	}
+//	ASSERT(mSH.existsPlaylist(playlist[2]));
+//	err = mSH.startPlaylist(playlist[2]);
+//	if (err == mm::SSerror::SS_NO_ERROR) {
+//		testSUCCESS("Playlist \"%s\" creado e iniciado con éxito.\n",
+//					playlist[2].c_str());
+//	} else {
+//		testFAIL("Falló la reproducción del nuevo playlist: %s.\n",
+//				SSenumStr(err));
+//		return false;
+//	}
 
 	return true;
 }
@@ -574,23 +578,30 @@ SoundTest::handleSoundInput(void)
     		keyPressed = true;
 			if (playingState[input::KeyCode::KC_NUMPAD1]
 							 == mm::SSplayback::SS_FADING_IN) {
-				err = mSH.fadeOutPlaylist(playlist[2], 1.5f);
-				if (err != mm::SSerror::SS_NO_ERROR) {
-					debugWARNING("\rWater sound FADE OUT failed: %s.",
-							SSenumStr(err));
-				}
+				mm::SoundManager::getInstance().playEnvSound(
+						"fxA20.ogg", DEFAULT_ENV_GAIN, false);
 				fprintf(stderr,"\r");
-				debugBLUE("Water sound FADING OUT.       ");
+				debugBLUE("Playing env sound \"fxA20.ogg\"");
+//				err = mSH.fadeOutPlaylist(playlist[2], 1.5f);
+//				if (err != mm::SSerror::SS_NO_ERROR) {
+//					debugWARNING("\rWater sound FADE OUT failed: %s.",
+//							SSenumStr(err));
+//				}
+//				fprintf(stderr,"\r");
+//				debugBLUE("Water sound FADING OUT.       ");
 				playingState[input::KeyCode::KC_NUMPAD1] =
 												mm::SSplayback::SS_FADING_OUT;
 			} else {
-				err = mSH.fadeInPlaylist(playlist[2], 1.5f);
-				if (err != mm::SSerror::SS_NO_ERROR) {
-					debugWARNING("\rWater sound FADE IN failed: %s.",
-							SSenumStr(err));
-				}
+				mm::SoundManager::getInstance().stopEnvSound("fxA20.ogg");
 				fprintf(stderr,"\r");
-				debugBLUE("Water sound FADING IN.       ");
+				debugBLUE("Stopping env sound \"fxA20.ogg\"");
+//				err = mSH.fadeInPlaylist(playlist[2], 1.5f);
+//				if (err != mm::SSerror::SS_NO_ERROR) {
+//					debugWARNING("\rWater sound FADE IN failed: %s.",
+//							SSenumStr(err));
+//				}
+//				fprintf(stderr,"\r");
+//				debugBLUE("Water sound FADING IN.       ");
 				playingState[input::KeyCode::KC_NUMPAD1] =
 												mm::SSplayback::SS_FADING_IN;
 			}

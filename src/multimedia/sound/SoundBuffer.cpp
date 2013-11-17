@@ -21,26 +21,31 @@ namespace mm {
 
 ////////////////////////////////////////////////////////////////////////////////
 long long int
-StreamWAVSoundBuffer::filler(ALBuffer& buf, size_t size, bool repeat)
+StreamWAVSoundBuffer::filler(ALBuffer& buf,
+								 size_t    size,
+								 bool     repeat,
+								 bool*    finish)
 {
 	std::streamsize readSize(0);
 
-	/* Try to read 'size' bytes into temp. array */
+	// Check if we're at EOF
 	if (file->eof()) {
 		if (repeat) {
 			file->seekg((long)dataStart, std::ifstream::beg);
 			ASSERT(file->good() && !file->eof());
 		} else {
+			*finish = true;
 			return 0ll;
 		}
 	}
-	file->read(pcmData, size);
 
-	/* EOF? */
-	readSize = file->gcount();
+	// Try to read 'size' bytes into temp. array
+	size = size > SS_SIZE_INT_BUFFERS ? SS_SIZE_INT_BUFFERS : size;
+	file->read(pcmData.begin(), size);
+	readSize = file->gcount(); // EOF?
+
 	if (readSize >= 0 && readSize < size && repeat) {
-
-		/* Must repeat: continue loading from the beginning. */
+		// Must repeat: continue loading from the beginning.
 		file->seekg((long)dataStart, std::ifstream::beg);
 		ASSERT(file->good() && !file->eof());
 
@@ -50,77 +55,107 @@ StreamWAVSoundBuffer::filler(ALBuffer& buf, size_t size, bool repeat)
 		}
 
 		if (file->gcount() < 0) {
-			debugERROR("Problems reading data from file.%s", "\n");
+			debugERROR("Problems reading data from file.\n");
 			return -1ll;
 		} else {
 			readSize += file->gcount();
 		}
+
 	} else if (readSize < 0) {
-		debugERROR("Problems reading data from file.%s", "\n");
+		debugERROR("Problems reading data from file.\n");
+		return -1ll;
+
+	} else if (readSize == 0) {
+		*finish = true;
+	}
+
+	alBufferData(buf, format, pcmData.begin(), readSize, freq);
+
+	ALenum alErr = alGetError();
+	if (alErr != AL_NO_ERROR) {
+		std::map<int, const char*> strErr =
+			{{AL_OUT_OF_MEMORY,"AL_OUT_OF_MEMORY"},
+			 {AL_INVALID_NAME,"AL_INVALID_NAME"},
+			 {AL_INVALID_ENUM,"AL_INVALID_ENUM"},
+			 {AL_INVALID_VALUE,"AL_INVALID_VALUE"},
+			 {AL_INVALID_OPERATION,"AL_INVALID_OPERATION"}};
+		debugERROR("OpenAL error: %s\n", strErr[alErr]);
 		return -1ll;
 	}
 
-	alBufferData(buf, format, pcmData, readSize, freq);
-
-	if (alGetError() != AL_NO_ERROR) {
-		return -1ll;
-	}
 	return ((long long int)readSize);
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////
 long long int
-StreamOGGSoundBuffer::filler(ALBuffer& buf, size_t size, bool repeat)
+StreamOGGSoundBuffer::filler(ALBuffer& buf,
+								 size_t    size,
+								 bool     repeat,
+								 bool*    finish)
 {
-	const int endianness(0);  // 0 LittleEndian, 1 BigEndian. Usually 0
+	const int endianness(0);  // 0 LittleEndian, 1 BigEndian. Usually 0.
 	const int sign(1);        // Signed(1) or unsigned(0) data. Usually 1.
-	const short BPS(16);	  // Bits per sample. We default to 16
+	const short BPS(16);	  // Bits per sample. We default to 16.
 	int chunk(size < OGG_BUFF_SIZE ? ((int)size) : OGG_BUFF_SIZE);
-	char* array = new char[chunk]();
-	long read(0);
-	int err(0);
-	ALenum alErr(AL_NO_ERROR);
-	SSerror error(SSerror::SS_NO_ERROR);
+	int read(0);
 
-	/* Try to read 'size' bytes into pcmData field. */
+	ASSERT(alIsBuffer(buf));
+
+	// Try to read 'size' bytes into pcmData field.
 	pcmData.clear();
 	do {
-		/* Read from Ogg file into temporal array */
-		read = ov_read(oggFile, array, chunk, endianness, BPS/8, sign, &bitStreamSection);
+		// Read from Ogg file into temporal array.
+		read = ov_read(oggFile, pcmData.end(), chunk, endianness, BPS/8, sign,
+						&bitStreamSection);
+//		TODO: erase old way (with std::vector<char>)
+//		read = ov_read(oggFile, array, chunk, endianness, BPS/8, sign, &bitStreamSection);
 
 		if (read > 0) {
-			/* Store fetched audio data */
-			pcmData.insert(pcmData.end(), array, &array[read]);
+			// Successful read from OGG file.
+			pcmData.resize(pcmData.size() + read);
 			size -= read;
 			chunk = size < OGG_BUFF_SIZE ? ((int)size) : OGG_BUFF_SIZE;
+//			TODO: erase old way (with std::vector<char>)
+//			pcmData.insert(pcmData.end(), array, &array[read]);
 
 		} else if (read == 0 && repeat) {
-			/* End of audio data, must repeat. */
-			read = ov_pcm_seek(oggFile, 0);
-			bitStreamSection = 0;
-			ASSERT(read==0);
-			read = 1;  // continue iteration
+			// End of audio data, and must repeat: relocate file get pointer.
+			restart();
+			debugRED("Rellocating file pointer.\n");
+			read = 1;  // We must repeat, continue iteration
+
+		} else if (read == 0) {
+			// End of audio data, but no repeat.
+			debugRED("Audio file ended playback.\n");
+			*finish = true;
 		}
 
 	} while (read > 0 && chunk > 0);
 
 	if (read < 0) {
-		/* Error fetching audio data from Ogg file */
-		std::map<int, const char*> strErr = {{OV_HOLE, "OV_HOLE"},
-											{OV_EBADLINK, "OV_EBADLINK"},
-											{OV_EINVAL, "OV_EINVAL"}};
-		debug("Can't read OGG file. Error: %s\n", strErr[read]);
-		delete[] array;
+		// Error fetching audio data from Ogg file.
+		std::map<int, const char*> strErr =
+			{{OV_HOLE, "OV_HOLE"},
+			 {OV_EINVAL, "OV_EINVAL"},
+			 {OV_EBADLINK, "OV_EBADLINK"}};
+		debugERROR("Can't read OGG file. Error: %s\n", strErr[read]);
 		return -1ll;
 
 	} else {
-		/* Fill OpenAL buffer with fetched audio data */
-		alBufferData(buf, format, &pcmData[0], pcmData.size(), freq);
+		// Fill OpenAL buffer with fetched audio data.
+		alBufferData(buf, format, pcmData.begin(), pcmData.size(), freq);
 	}
 
-	delete[] array;
-	if (alGetError() != AL_NO_ERROR) {
+	ALenum alErr = alGetError();
+	if (alErr != AL_NO_ERROR) {
+		std::map<int, const char*> strErr =
+			{{AL_OUT_OF_MEMORY,"AL_OUT_OF_MEMORY"},
+			 {AL_INVALID_NAME,"AL_INVALID_NAME"},
+			 {AL_INVALID_ENUM,"AL_INVALID_ENUM"},
+			 {AL_INVALID_VALUE,"AL_INVALID_VALUE"},
+			 {AL_INVALID_OPERATION,"AL_INVALID_OPERATION"}};
+		debugERROR("OpenAL error: %s\n", strErr[alErr]);
 		return -1ll;
 	}
 

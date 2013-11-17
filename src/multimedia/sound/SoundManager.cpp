@@ -485,7 +485,9 @@ SoundManager::update(const float globalTimeFrame,
 			// Erase EnvSound and recycle SoundSource.
 			stopEnvSound(std::get<0>(mEnvSounds[i]),
 						 std::get<2>(mEnvSounds[i]));
-			if (mEnvSounds.size() > 0) i--;  // =D
+			// Next hack relies on stopEnvSound() popping out the last sound
+			// in mEnvSounds list, to overwrite with it the stopped sound
+			if (mEnvSounds.size() > 0) i--;
 
 		} else if ((as->mPlayState | as->mGlobalState)
 				  	  & ( SSplayback::SS_FADING_OUT

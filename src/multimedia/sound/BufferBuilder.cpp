@@ -486,7 +486,7 @@ BufferBuilder::streamBufferFromWAV(StreamWAVSoundBuffer* buffer)
 		return SSerror::SS_FILE_TOO_SMALL;
 	}
 
-	/* Reference file and audio data and exit. */
+	// Reference file and audio data and exit.
 	buffer->duration  = ((float)audioDataSize) / byteRate;
 	buffer->dataStart = file->tellg();  // Remember data starting position
 	buffer->loaded = true;

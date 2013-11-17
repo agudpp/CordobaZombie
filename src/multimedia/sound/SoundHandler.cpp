@@ -233,6 +233,7 @@ SoundHandler::update(const float globalTimeFrame)
 		pl = static_cast<Playlist*>(mFinishedPlaylists[i]);
 		checkPlaylistState(pl);
 		// Playlist was playing, and now enters silence.
+		debugGREEN("Playlist \"%s\" into silence.\n", pl->mName.c_str());
 		ASSERT(!sSoundManager.isActiveEnvSound(pl));
 		ASSERT(pl->mState & PLAYLIST_PLAYING);
 		setPlaylistState(pl, PLAYLIST_SILENCE);
@@ -272,6 +273,7 @@ SoundHandler::update(const float globalTimeFrame)
 		if (pl->mTimeSinceFinish >= pl->mSilence) {
 			// Move one track forward.
 			++pl->mCurrent %= pl->mList.size();  // =D
+			debugGREEN("Playlist \"%s\" out of silence.\n", pl->mName.c_str());
 			// Mimic we're stopped, so we can invoke "startPlaylist"
 			setPlaylistState(pl, PLAYLIST_STOPPED);
 			unsetPlaylistState(pl, PLAYLIST_SILENCE);
@@ -587,6 +589,8 @@ SoundHandler::startPlaylist(const Ogre::String& name, Playlist *plp)
 							 | PLAYLIST_STOPPED
 							 | PLAYLIST_SILENCE
 							 | PLAYLIST_GLOBAL_MODE);
+		debugGREEN("Started playing \"%s\" in playlist \"%s\"\n",
+				pl->mList[pl->mPlayOrder[pl->mCurrent]].c_str(), pl->mName.c_str());
 	} else {
 		// Failure
 		debugWARNING("Playlist \"%s\" failed to start: %s\n",
