@@ -37,7 +37,6 @@ public:
     void
     unloadResourceGroup(const ResourceGroup& rg);
 
-
     // @brief Get a resource path from a resource group / name.
     // @param resourceGroup     The resource group where the resource is
     // @param resourceName      The resource name we are looking for.

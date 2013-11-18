@@ -14,6 +14,7 @@
 #include <os_utils/OSHelper.h>
 #include <command_line/CLIPrintDefs.h>
 #include <collisions/helpers/CollObjectExporter.h>
+#include <physics/helpers/BulletExporter.h>
 
 // useful define to print if we are in verbose mode
 //
@@ -99,8 +100,9 @@ CLICollisionExporter::getTemporaryInfo(const std::string& rscName,
             "getResourcePathSomeGroup is not fucking working!! FUCKING WASTE OF "
             "TIME. Issue #252.\n"
             "Note that this is hardcoded in other parts of the code so find for"
-            " that string \"Collisions\" and use the correct method\n");
-    if (!rrh::ResourceHandler::getResourcePath("Collisions", rscName, rscPath)){
+            " that string \"Test\" and use the correct method\n");
+
+    if (!rrh::ResourceHandler::getResourcePath("Test",rscName, rscPath)){
         debugERROR("We couldn't get the path of the resource %s,"
                 " this probably because you don't load the path where the resource"
                 " is located...\n", rscName.c_str());
@@ -170,8 +172,9 @@ CLICollisionExporter::processObject2D(const TempObjectInfo& tmp) const
     Ogre::MeshPtr mesh;
     try {
         Ogre::ResourceGroupManager& rgm = Ogre::ResourceGroupManager::getSingleton();
-        const Ogre::String& group = rgm.findGroupContainingResource(fullName);
-        mesh = Ogre::MeshManager::getSingleton().load(fullName, "Collisions");
+        const Ogre::String& group = "Test";
+//        const Ogre::String& group = rgm.findGroupContainingResource(fullName);
+        mesh = Ogre::MeshManager::getSingleton().load(fullName, group);
     } catch (Ogre::Exception& e) {
         debugERROR("Error trying to load mesh %s, with exception %s\n",
                    fullName.c_str(), e.what());
@@ -187,9 +190,16 @@ CLICollisionExporter::processObject2D(const TempObjectInfo& tmp) const
     std::string path;
     core::OSHelper::extractPath(tmp.coll2DPath, path);
     core::OSHelper::addEndPathVar(path);
-    path += fullName + EXTENSION_COLL_2D;
+    path += tmp.name + EXTENSION_COLL_2D;
 
-    return coll::CollObjectExporter::transform(mesh.get(), path);
+    if (!coll::CollObjectExporter::transform(mesh.get(), path)) {
+        CLI_PRINT_RED("Error saving file %s\n", path.c_str());
+        return false;
+    }
+
+    PRINT(CLI_PRINT_GREEN("File %s saved correctly\n", path.c_str()));
+
+    return true;
 }
 ////////////////////////////////////////////////////////////////////////////////
 bool
@@ -216,8 +226,9 @@ CLICollisionExporter::processObject3D(const TempObjectInfo& tmp) const
     Ogre::MeshPtr mesh;
     try {
         Ogre::ResourceGroupManager& rgm = Ogre::ResourceGroupManager::getSingleton();
-        const Ogre::String& group = rgm.findGroupContainingResource(fullName);
-        mesh = Ogre::MeshManager::getSingleton().load(fullName,  "Collisions");
+//        const Ogre::String& group = rgm.findGroupContainingResource(fullName);
+        const Ogre::String& group = "Test";
+        mesh = Ogre::MeshManager::getSingleton().load(fullName, group);
     } catch (Ogre::Exception& e) {
         debugERROR("Error trying to load mesh %s, with exception %s\n",
                    fullName.c_str(), e.what());
@@ -229,7 +240,20 @@ CLICollisionExporter::processObject3D(const TempObjectInfo& tmp) const
         return false;
     }
 
-    // now we have to export it into a file
+    // now transform the mesh into a 3DColl file format
+    std::string path;
+    core::OSHelper::extractPath(tmp.coll3DPath, path);
+    core::OSHelper::addEndPathVar(path);
+    path += tmp.name + EXTENSION_COLL_3D;
+
+    if (!physics::BulletExporter::transform(mesh.get(), path)) {
+        CLI_PRINT_RED("Error saving file %s\n", path.c_str());
+        return false;
+    }
+
+    PRINT(CLI_PRINT_GREEN("File %s saved correctly\n", path.c_str()));
+
+    return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -259,19 +283,19 @@ CLICollisionExporter::execute(const std::vector<std::string>& args)
     // parse the resource file using the ResourceParser
     if (!mResourcesParser.parse(mArgInfo.rscPath)) {
         debugERROR("Error when parsing the resources, invalid path probably\n");
-        return false;
+        return -1;
     }
 
     // load the resource locations now
     if (!mResourcesParser.loadResourceLocation()) {
         debugERROR("Error loading the resource locations, check if they are valid\n");
-        return false;
+        return -1;
     }
 
     // get the resource names
     std::vector<std::string> rscNames;
     if (!getResourceNames(rscNames)) {
-        return false;
+        return -1;
     }
 
     // now fill the temporary structure
@@ -291,7 +315,8 @@ CLICollisionExporter::execute(const std::vector<std::string>& args)
     if (!everythingOK) {
         CLI_PRINT_RED("Check for the possible error that occurr\n");
     }
-    return true;
+
+    return 0;
 }
 
 }
