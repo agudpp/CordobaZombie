@@ -82,7 +82,7 @@ transform(const Ogre::Mesh* mesh, const std::string& outFile)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-btCollisionShape*
+BulletShape*
 buildShapeFromFile(const std::string& filePath)
 {
     // read the file

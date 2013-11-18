@@ -19,6 +19,10 @@
 #include <math/AABB.h>
 #include <debug/DebugUtil.h>
 
+#ifdef DEBUG
+#include <debug/PrimitiveDrawer.h>
+#endif
+
 #include "CollDefines.h"
 
 namespace coll {
@@ -88,6 +92,12 @@ public:
     inline void
     getBoundingBox(core::AABB& aabb) const;
 
+
+    // DEBUG DATA
+#ifdef DEBUG
+    core::Primitive* _primitive;
+#endif
+
 private:
     friend class CollObject;
     friend class CollisionHandler;
@@ -106,6 +116,9 @@ private:
     {
         ASSERT(s);
         transform.SetIdentity();
+#ifdef DEBUG
+        _primitive = 0;
+#endif
     }
     ~CollPreciseInfo()
     {
@@ -216,6 +229,13 @@ CollPreciseInfo::setPosition(const core::Vector2& pos)
 {
     transform.p.x = pos.x;
     transform.p.y = pos.y;
+#ifdef DEBUG
+    if (_primitive) {
+        _primitive->node->setPosition(pos.x,
+                                      pos.y,
+                                      _primitive->node->getPosition().z);
+    }
+#endif
 }
 inline core::Vector2
 CollPreciseInfo::position(void)
@@ -226,6 +246,12 @@ inline void
 CollPreciseInfo::setAngle(float angle)
 {
     transform.q.Set(angle);
+#ifdef DEBUG
+    if (_primitive) {
+        Ogre::Quaternion q(Ogre::Radian(angle), Ogre::Vector3::UNIT_Z);
+        _primitive->node->setOrientation(q);
+    }
+#endif
 }
 
 

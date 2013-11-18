@@ -123,6 +123,16 @@ public:
     constructCollObject(void) const;
 
 
+    // DEBUG
+#ifdef DEBUG
+    // @brief Build the debug primitive information for the current data set
+    // @return Primitive pointer or 0 on error.
+    //
+    core::Primitive*
+    buildDebugInfo(void);
+#endif
+
+
 private:
 
     // @brief Calculate the bounding box for a list of vertices

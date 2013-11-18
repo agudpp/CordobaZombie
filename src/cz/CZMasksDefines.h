@@ -22,14 +22,16 @@ enum CZRayMask {
     // world objects (id = 4)
     CZRM_RAGDOLL            = (1 << 0),
     CZRM_ZOMBIE             = (1 << 1),
-    CZRM_WORLD              = (1 << 2),
+    CZRM_WORLD_STATIC       = (1 << 2),
+    CZRM_WORLD_DYNAMIC      = (1 << 3),
 
-    CZRM_ZOMBIE_BB          = (1 << 3),
-    CZRM_ZOMBIE_BODY_PART   = (1 << 4),
+    CZRM_ZOMBIE_BB          = (1 << 4),
+    CZRM_ZOMBIE_BODY_PART   = (1 << 5),
 
-    CZRM_RAYCASTABLE        = (1 << 5),
+    CZRM_RAYCASTABLE        = (1 << 6),
 
     // collide against everything
+    CZRM_WORLD              = (CZRM_WORLD_STATIC | CZRM_WORLD_DYNAMIC),
     CZRM_ALL                = (CZRM_ZOMBIE | CZRM_WORLD),
 };
 

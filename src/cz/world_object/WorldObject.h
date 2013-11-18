@@ -35,9 +35,6 @@ namespace cz {
 //        Since this project (CZ0.1) is little and the physics will be handled
 //        outside this as other thing then we will have no problems..
 //
-// @note  That we are not using a virtual destructor for this objects, so if
-//        you allocate someone that inherits and you will handle it at this level
-//        then some memory leaks could occur.
 //
 
 
@@ -257,6 +254,8 @@ public:
     rotate(float r);
     inline void
     rotate(const Ogre::Quaternion& q);
+    inline void
+    setOrientation(const Ogre::Quaternion& q);
     inline const Ogre::Quaternion&
     rotation(void) const;
 
@@ -348,10 +347,7 @@ WorldObject::updateDirectionFromNode(void)
     mNormalizedDir.y = d.y;
     mNormalizedDir.normalize();
     mMovementDirty = true;
-    // TODO: we will not implement this since is not necessary for this
-    //       project and we don't want to decrease the performance :p.
-    //
-//    mCollObj->setAngle(mNode->getOrientation().getYaw());
+    mCollObj->setAngle(mNode->getOrientation().getRoll().valueRadians());
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -604,6 +600,14 @@ WorldObject::rotate(const Ogre::Quaternion& q)
     mNode->rotate(q);
     updateDirectionFromNode();
 }
+inline void
+WorldObject::setOrientation(const Ogre::Quaternion& q)
+{
+    ASSERT(mNode);
+    mNode->setOrientation(q);
+    updateDirectionFromNode();
+}
+
 inline const Ogre::Quaternion&
 WorldObject::rotation(void) const
 {

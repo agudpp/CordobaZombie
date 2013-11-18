@@ -17,7 +17,7 @@
 #include <collisions/CollPreciseInfoBuilder.h>
 
 #define COE_HEADER      "COLLEXPORTER_0.1"
-#define COE_MAX_VERT    128
+#define COE_MAX_VERT    2048
 
 
 namespace coll {
@@ -116,6 +116,13 @@ buildFromFile(const std::string& collPath,
 
     result = builder.constructPreciseInfo();
     aabb = builder.getBoundingBox();
+
+#ifdef DEBUG
+    if (result) {
+        result->_primitive = builder.buildDebugInfo();
+        debugBLUE("Primitive created for CollPreciseInfo\n");
+    }
+#endif
 
     return true;
 }

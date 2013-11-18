@@ -11,7 +11,7 @@
 #include <string>
 #include <OgreMesh.h>
 
-#include <bullet/btBulletCollisionCommon.h>
+#include <physics/BulletShape.h>
 
 namespace physics {
 
@@ -35,7 +35,7 @@ transform(const Ogre::Mesh* mesh, const std::string& outFile);
 // @return the new allocated bullet shape | 0 on error.
 // @note that the caller of this method is the owner of the memory now.
 //
-btCollisionShape*
+BulletShape*
 buildShapeFromFile(const std::string& file);
 
 }

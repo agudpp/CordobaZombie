@@ -54,6 +54,10 @@ struct BulletCollisionObject {
     //
     inline void
     setTransform(const Ogre::Vector3& pos, const Ogre::Quaternion& rot);
+    inline void
+    setRotation(const Ogre::Quaternion& rot);
+    inline void
+    setPosition(const Ogre::Vector3& pos);
 
     // @brief Set / get user defined object
     //
@@ -100,6 +104,18 @@ BulletCollisionObject::setTransform(const Ogre::Vector3& pos, const Ogre::Quater
     btTransform &trans = collObject.getWorldTransform();;
     trans.setOrigin(BulletUtils::ogreToBullet(pos));
     trans.setRotation(BulletUtils::ogreToBullet(rot));
+}
+inline void
+BulletCollisionObject::setRotation(const Ogre::Quaternion& rot)
+{
+    btTransform &trans = collObject.getWorldTransform();;
+    trans.setRotation(BulletUtils::ogreToBullet(rot));
+}
+inline void
+BulletCollisionObject::setPosition(const Ogre::Vector3& pos)
+{
+    btTransform &trans = collObject.getWorldTransform();;
+    trans.setOrigin(BulletUtils::ogreToBullet(pos));
 }
 
 inline void
