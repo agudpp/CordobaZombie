@@ -32,16 +32,14 @@
 namespace {
 
 
-// Number of buffers & sources for direct play
+// Number of sources for direct play
 //
-#define  NUM_LBUFFERS  20
 #define  NUM_LSOURCES  25
 
 
-// Number of buffers & sources for streaming
+// Number of sources for streaming
 //
-#define  NUM_SBUFFERS  5
-#define  NUM_SSOURCES  NUM_SBUFFERS
+#define  NUM_SSOURCES  2
 
 
 // Audio files
@@ -173,6 +171,7 @@ SoundTest::SoundTest() :
 	// Streaming buffers.
 	sounds.push_back("fxA20.ogg");  // "water sound"
 	sounds.push_back("Siren.ogg");
+	sounds.push_back("Siren.wav");
 	testBEGIN("Cargando sonidos streaming.\n");
 	fails = mSH.loadStreamSounds(sounds);
 	if (fails.empty()) {
@@ -314,13 +313,14 @@ SoundTest::initSoundsPlayback(void)
 	// Play environmental water sound  ////////////////////////////////////////
 	// FIXME: direct access to SoundManager, DON'T DO THIS OUTSIDE TESTERS!
 	//
-	testBEGIN("Iniciando reproducción del sonido ambiente %s.\n", audioFile[0]);
+	testBEGIN("Iniciando reproducción del sonido ambiente fxA20.ogg\n");
 	err = mm::SoundManager::getInstance().playEnvSound(
-			audioFile[0], DEFAULT_ENV_GAIN, true);
+			"fxA20.ogg", DEFAULT_ENV_GAIN, true);
 	if (err == mm::SSerror::SS_NO_ERROR) {
-		ASSERT(mm::SoundManager::getInstance().isPlayingEnvSound(audioFile[0]));
+		ASSERT(mm::SoundManager::getInstance().isActiveEnvSound("fxA20.ogg"));
+		ASSERT(mm::SoundManager::getInstance().isPlayingEnvSound("fxA20.ogg"));
 		testSUCCESS("Reproducción iniciada exitosamente. Eliminando sonido...\n");
-		err = mm::SoundManager::getInstance().stopEnvSound(audioFile[0]);
+		err = mm::SoundManager::getInstance().stopEnvSound("fxA20.ogg");
 		ASSERT(err == mm::SSerror::SS_NO_ERROR);
 	} else {
 		testFAIL("Falló.%s","\n");
@@ -352,7 +352,7 @@ SoundTest::initSoundsPlayback(void)
 	 * of MantisBT get solved.
 	 * http://cordobazombie.com.ar/dev/tracker/view.php?id=146
 	 */
-//	testBEGIN("Iniciando reproducción del sonidos puntual %s.\n", audioFile[1]);
+//	testBEGIN("Iniciando reproducción del sonido puntual %s.\n", audioFile[1]);
 //	err = sirenSoundAPI->play(audioFile[1], true, DEFAULT_UNIT_GAIN);
 //	if (err == mm::SSerror::SS_NO_ERROR) {
 //		testSUCCESS("Reproducción iniciada.%s", "\n");
@@ -428,13 +428,7 @@ SoundTest::initSoundsPlayback(void)
 		mSH.stopPlaylist(playlist[2]);
 	mSH.deletePlaylist(playlist[2]);
 	soundsList.clear();
-	/* FIXME (erase this comment after fix)
-	 * Following playlist should load "water sound", viz. audioFile[0]
-	 * Right now we load hardcoded names of direct/stream sounds,
-	 * until issues #146 and #147 of MantisBT get solved.
-	 * http://cordobazombie.com.ar/dev/tracker/view.php?id=146
-	 */
-	soundsList.push_back("fxA20.ogg");
+	soundsList.push_back(audioFile[0]);
 	fails = mSH.newPlaylist(playlist[2], soundsList);
 	if (!fails.empty()) {
 		testFAIL("Falló la creación del nuevo playlist.\n");

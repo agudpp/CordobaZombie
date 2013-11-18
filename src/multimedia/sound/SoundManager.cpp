@@ -485,7 +485,9 @@ SoundManager::update(const float globalTimeFrame,
 			// Erase EnvSound and recycle SoundSource.
 			stopEnvSound(std::get<0>(mEnvSounds[i]),
 						 std::get<2>(mEnvSounds[i]));
-			if (mEnvSounds.size() > 0) i--;  // =D
+			// Next hack relies on stopEnvSound() popping out the last sound
+			// in mEnvSounds list, to overwrite with it the stopped sound
+			if (mEnvSounds.size() > 0) i--;
 
 		} else if ((as->mPlayState | as->mGlobalState)
 				  	  & ( SSplayback::SS_FADING_OUT
@@ -849,7 +851,6 @@ SoundManager::stopEnvSound(const Ogre::String& sName, EnvSoundId id)
 
 	// Stop and release SoundSource.
 	as->mSource->stop();
-	alSourcei(as->mSource->mSource, AL_BUFFER, AL_NONE);
 	alSourcei(as->mSource->mSource, AL_SOURCE_RELATIVE, AL_FALSE);
 	if (as->mSource->getType() == SSsrctype::SS_SRC_LOADED) {
 		// LSoundSource

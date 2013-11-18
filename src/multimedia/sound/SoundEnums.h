@@ -19,7 +19,7 @@ namespace mm {
 
 // Number of internal buffers for each SSoundSource.
 //
-#define  SS_NUM_INT_BUFFERS	3
+#define  SS_NUM_INT_BUFFERS	  4
 
 
 // Maximum data size of each internal buffer in a SSoundSource.
@@ -34,6 +34,7 @@ namespace mm {
 
 
 // Static's array size for OGG files parsing. Usually 4096
+// XXX MUST BE <= SS_SIZE_INT_BUFFERS
 //
 #define  OGG_BUFF_SIZE  (1<<12)  // 4 K
 
