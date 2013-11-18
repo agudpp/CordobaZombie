@@ -103,10 +103,7 @@ struct StreamWAVSoundBuffer : public SoundBuffer
 {
 	std::ifstream* file;		// Pointer to the audio file
 	std::streampos dataStart;	// File's audio data start position
-	core::StackVector<char, SS_SIZE_INT_BUFFERS> pcmData;				// Aux array (here only for efficiency)
-/*  TODO: erase?
- * 	char* pcmData;				// Aux array (here only for efficiency)
- */
+	core::StackVector<char, SS_SIZE_INT_BUFFERS> pcmData;	// Aux array
 
 	inline StreamWAVSoundBuffer();
 	inline virtual ~StreamWAVSoundBuffer();
@@ -138,10 +135,7 @@ struct StreamOGGSoundBuffer : public SoundBuffer
 	FILE* file;					// Pointer to the audio file
 	OggVorbis_File* oggFile;	// Pointer to the OGG formated audio file
 	int bitStreamSection;		// File's audio data current reading position
-	core::StackVector<char,SS_SIZE_INT_BUFFERS> pcmData;	// Aux array (here only for efficiency)
-/* TODO: erase?
- * std::vector<char> pcmData;	// Aux array (here only for efficiency)
- */
+	core::StackVector<char, SS_SIZE_INT_BUFFERS> pcmData;	// Aux array
 
 	inline StreamOGGSoundBuffer();
 	inline virtual ~StreamOGGSoundBuffer();
@@ -215,8 +209,7 @@ inline
 StreamWAVSoundBuffer::StreamWAVSoundBuffer() :
 	SoundBuffer(SSbuftype::SS_BUF_STREAM_WAV),
 	dataStart(0),
-	file(new std::ifstream),
-	pcmData(/*new char[SS_SIZE_INT_BUFFERS]() TODO: erase?*/)
+	file(new std::ifstream)
 { /* Default constructor suffices. */ }
 
 
@@ -237,7 +230,13 @@ inline void
 StreamWAVSoundBuffer::restart()
 {
 	if(file && file->is_open()) {
-		file->seekg((long)dataStart, std::ifstream::beg);
+		debugGREEN("restart!!!\n");
+		pcmData.clear();
+		file->clear();  // Reset file error state flags
+		file->seekg(dataStart, std::ifstream::beg);
+		ASSERT(file->good());
+		ASSERT(!file->eof());
+		ASSERT(file->tellg() == dataStart);
 	}
 }
 
@@ -249,7 +248,7 @@ StreamOGGSoundBuffer::StreamOGGSoundBuffer() :
 	bitStreamSection(0),
 	oggFile(new OggVorbis_File),
 	file(0)
-{ /*pcmData.reserve(SS_SIZE_INT_BUFFERS); TODO: erase?*/ }
+{ /* Default constructor suffices. */ }
 
 
 ////////////////////////////////////////////////////////////////////////////////

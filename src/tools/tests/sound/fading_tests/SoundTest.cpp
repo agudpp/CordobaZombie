@@ -171,6 +171,8 @@ SoundTest::SoundTest() :
 	// Streaming buffers.
 	sounds.push_back("fxA20.ogg");  // "water sound"
 	sounds.push_back("Siren.ogg");
+	sounds.push_back("Siren.wav");
+	sounds.push_back("roar.wav");
 	testBEGIN("Cargando sonidos streaming.\n");
 	fails = mSH.loadStreamSounds(sounds);
 	if (fails.empty()) {
@@ -181,7 +183,6 @@ SoundTest::SoundTest() :
 	}
 	// Direct (loaded) buffers.
 	sounds.clear();
-	sounds.push_back("roar.wav");
 	sounds.push_back("fxM2.ogg");	// "button pressed"
 	sounds.push_back("fxZ1.ogg");
 	sounds.push_back("fxZ2.ogg");
@@ -578,10 +579,10 @@ SoundTest::handleSoundInput(void)
     		keyPressed = true;
 			if (playingState[input::KeyCode::KC_NUMPAD1]
 							 == mm::SSplayback::SS_FADING_IN) {
-				mm::SoundManager::getInstance().playEnvSound(
-						"fxA20.ogg", DEFAULT_ENV_GAIN, false);
 				fprintf(stderr,"\r");
-				debugBLUE("Playing env sound \"fxA20.ogg\"");
+				debugBLUE("Playing env sound \"roar.wav\"");
+				mm::SoundManager::getInstance().playEnvSound(
+						"roar.wav", DEFAULT_ENV_GAIN, false);
 //				err = mSH.fadeOutPlaylist(playlist[2], 1.5f);
 //				if (err != mm::SSerror::SS_NO_ERROR) {
 //					debugWARNING("\rWater sound FADE OUT failed: %s.",
@@ -592,9 +593,9 @@ SoundTest::handleSoundInput(void)
 				playingState[input::KeyCode::KC_NUMPAD1] =
 												mm::SSplayback::SS_FADING_OUT;
 			} else {
-				mm::SoundManager::getInstance().stopEnvSound("fxA20.ogg");
 				fprintf(stderr,"\r");
-				debugBLUE("Stopping env sound \"fxA20.ogg\"");
+				debugBLUE("Stopping env sound \"roar.wav\"");
+				mm::SoundManager::getInstance().stopEnvSound("roar.wav");
 //				err = mSH.fadeInPlaylist(playlist[2], 1.5f);
 //				if (err != mm::SSerror::SS_NO_ERROR) {
 //					debugWARNING("\rWater sound FADE IN failed: %s.",

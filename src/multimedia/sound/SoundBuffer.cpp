@@ -27,29 +27,22 @@ StreamWAVSoundBuffer::filler(ALBuffer& buf,
 								 bool*    finish)
 {
 	std::streamsize readSize(0);
+	size = size > pcmData.max_size() ? pcmData.max_size() : size;
 
-	// Check if we're at EOF
-	if (file->eof()) {
-		if (repeat) {
-			file->seekg((long)dataStart, std::ifstream::beg);
-			ASSERT(file->good() && !file->eof());
-		} else {
-			*finish = true;
-			return 0ll;
-		}
-	}
-
-	// Try to read 'size' bytes into temp. array
-	size = size > SS_SIZE_INT_BUFFERS ? SS_SIZE_INT_BUFFERS : size;
-	file->read(pcmData.begin(), size);
+	// Try to read 'size' bytes into pcmData
+	pcmData.clear();
+	file->read(pcmData.end(), size);
 	readSize = file->gcount(); // EOF?
+	pcmData.resize(readSize);
+	debug("readSize: %ld\tfile->tellg(): %ld\n", readSize, file->tellg());
 
 	if (readSize >= 0 && readSize < size && repeat) {
-		// Must repeat: continue loading from the beginning.
-		file->seekg((long)dataStart, std::ifstream::beg);
-		ASSERT(file->good() && !file->eof());
+		// End of audio data, and must repeat: relocate file get pointer.
+		debugRED("Relocating file pointer.\n");
+		restart();
+		debug("readSize: %ld\tfile->tellg(): %ld\n", readSize, file->tellg());
 
-		file->read(&pcmData[readSize], size-readSize);
+		file->read(pcmData.end(), size-readSize);
 		if (readSize + file->gcount() < size) {
 			debug("Couldn't extract %zu bytes from file.\n", size);
 		}
@@ -59,17 +52,24 @@ StreamWAVSoundBuffer::filler(ALBuffer& buf,
 			return -1ll;
 		} else {
 			readSize += file->gcount();
+			pcmData.resize(readSize);
 		}
+
+	} else if (readSize == 0) {
+		// End of audio data, but no repeat.
+		debugRED("End of audio data.\n");
+		*finish = true;
+		return 0ll;
 
 	} else if (readSize < 0) {
 		debugERROR("Problems reading data from file.\n");
 		return -1ll;
-
-	} else if (readSize == 0) {
-		*finish = true;
 	}
 
-	alBufferData(buf, format, pcmData.begin(), readSize, freq);
+	// Fill OpenAL buffer with fetched audio data.
+	ASSERT(alIsBuffer(buf));
+	ASSERT(pcmData.size() <= SS_SIZE_INT_BUFFERS);
+	alBufferData(buf, format, pcmData.begin(), pcmData.size(), freq);
 
 	ALenum alErr = alGetError();
 	if (alErr != AL_NO_ERROR) {
@@ -83,7 +83,7 @@ StreamWAVSoundBuffer::filler(ALBuffer& buf,
 		return -1ll;
 	}
 
-	return ((long long int)readSize);
+	return ((long long int)pcmData.size());
 }
 
 
@@ -100,34 +100,28 @@ StreamOGGSoundBuffer::filler(ALBuffer& buf,
 	int chunk(size < OGG_BUFF_SIZE ? ((int)size) : OGG_BUFF_SIZE);
 	int read(0);
 
-	ASSERT(alIsBuffer(buf));
-
-	// Try to read 'size' bytes into pcmData field.
+	// Read 'size' bytes into pcmData.
 	pcmData.clear();
 	do {
-		// Read from Ogg file into temporal array.
+		// Read 'chunk' bytes from Ogg file into pcmData.
 		read = ov_read(oggFile, pcmData.end(), chunk, endianness, BPS/8, sign,
 						&bitStreamSection);
-//		TODO: erase old way (with std::vector<char>)
-//		read = ov_read(oggFile, array, chunk, endianness, BPS/8, sign, &bitStreamSection);
 
 		if (read > 0) {
 			// Successful read from OGG file.
 			pcmData.resize(pcmData.size() + read);
 			size -= read;
 			chunk = size < OGG_BUFF_SIZE ? ((int)size) : OGG_BUFF_SIZE;
-//			TODO: erase old way (with std::vector<char>)
-//			pcmData.insert(pcmData.end(), array, &array[read]);
 
 		} else if (read == 0 && repeat) {
 			// End of audio data, and must repeat: relocate file get pointer.
+			debugRED("Relocating file pointer.\n");
 			restart();
-			debugRED("Rellocating file pointer.\n");
 			read = 1;  // We must repeat, continue iteration
 
 		} else if (read == 0) {
 			// End of audio data, but no repeat.
-			debugRED("Audio file ended playback.\n");
+			debugRED("End of audio data.\n");
 			*finish = true;
 		}
 
@@ -144,6 +138,8 @@ StreamOGGSoundBuffer::filler(ALBuffer& buf,
 
 	} else {
 		// Fill OpenAL buffer with fetched audio data.
+		ASSERT(alIsBuffer(buf));
+		ASSERT(pcmData.size() <= SS_SIZE_INT_BUFFERS);
 		alBufferData(buf, format, pcmData.begin(), pcmData.size(), freq);
 	}
 

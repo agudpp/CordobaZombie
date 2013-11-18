@@ -851,7 +851,6 @@ SoundManager::stopEnvSound(const Ogre::String& sName, EnvSoundId id)
 
 	// Stop and release SoundSource.
 	as->mSource->stop();
-	alSourcei(as->mSource->mSource, AL_BUFFER, AL_NONE);
 	alSourcei(as->mSource->mSource, AL_SOURCE_RELATIVE, AL_FALSE);
 	if (as->mSource->getType() == SSsrctype::SS_SRC_LOADED) {
 		// LSoundSource

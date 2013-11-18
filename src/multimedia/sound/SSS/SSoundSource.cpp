@@ -151,10 +151,13 @@ SSoundSource::play(SoundBuffer* buf,
 		++mFirstBuffer %= SS_NUM_INT_BUFFERS;  // I <3 THIS LINES
 		// Erase buffer data? How?
 	}
+	ASSERT(alGetError() == AL_NO_ERROR);
 
-	// Fill internal buffers (according to file type).
-	buf->restart();  // Start at the beggining of the file
+	// Start at the beggining of the file
+	buf->restart();
 	mFileFinished = false;
+
+	// Fill internal buffers
 	for (i=0 ; i < SS_NUM_INT_BUFFERS && readSize > 0 && !mFileFinished ; i++) {
 		readSize = buf->filler(mIntBuffers[i], mIntBuffersSize, repeat, &mFileFinished);
 	}
@@ -205,6 +208,7 @@ SSoundSource::update(const Ogre::Vector3& pos)
 		restart = true;
 	} else if (st == AL_STOPPED) {
 		// Playback finished.
+		result = SSplayback::SS_FINISHED;
 		debugRED("Playback finished.\n");
 		goto finish;
 	}
@@ -216,7 +220,7 @@ SSoundSource::update(const Ogre::Vector3& pos)
 	}
 
 	// Refresh used internal buffers
-	while (!mFileFinished && readSize > 0 && processed-- > 0) {
+	while (!mFileFinished && readSize == mIntBuffersSize && processed-- > 0) {
 		// Unqueue processed buffer.
 		alSourceUnqueueBuffers(mSource, 1, &mIntBuffers[mFirstBuffer]);
 		// Refill buffer.
@@ -233,7 +237,10 @@ SSoundSource::update(const Ogre::Vector3& pos)
 	}
 
 	// Check for errors.
-	if (mFileFinished) {
+	alGetSourcei(mSource, AL_SOURCE_STATE, &st);
+	if (mFileFinished && st == AL_STOPPED) {
+		// Playback finished.
+		debugRED("Playback finished.\n");
 		result = SSplayback::SS_FINISHED;
 
 	} else if (readSize >= 0){
@@ -256,6 +263,9 @@ SSoundSource::update(const Ogre::Vector3& pos)
 			alSourceQueueBuffers(mSource, 1, &mIntBuffers[mFirstBuffer]);
 			if (restart) { alSourcePlay(mSource); restart = false; }
 			++mFirstBuffer %= SS_NUM_INT_BUFFERS;
+			alGetSourcei(mSource, AL_SOURCE_STATE, &st);
+			result = ((st==AL_PLAYING)  ? SSplayback::SS_PLAYING
+										: SSplayback::SS_PAUSED);
 		} else {
 			debugERROR("Error persists, can not fill internal buffer.\n");
 			result = SSplayback::SS_FINISHED;
@@ -311,12 +321,14 @@ SSoundSource::stop()
 	ASSERT(alIsSource(mSource));
 
 	alSourceStop(mSource);
+
 	// Unqueue buffers.
 	alGetSourcei(mSource, AL_BUFFERS_PROCESSED, &processed);
 	while (processed-- > 0) {
 		alSourceUnqueueBuffers(mSource, 1, &mIntBuffers[mFirstBuffer]);
 		++mFirstBuffer %= SS_NUM_INT_BUFFERS;
 	}
+	ASSERT(alGetError() == AL_NO_ERROR);
 
 #ifdef DEBUG
 	{
@@ -325,6 +337,7 @@ SSoundSource::stop()
 		ASSERT(st == AL_STOPPED);
 	}
 #endif
+
 	// Set NULL buffer.
 	alSourcei(mSource, AL_BUFFER, AL_NONE);
 	mFirstBuffer = 0u;
@@ -363,6 +376,7 @@ SSoundSource::restart(const Ogre::Real& gain,
 
 	// Fill internal buffers (according to file type).
 	mBuffer->restart();
+	mFileFinished = false;
 	mFirstBuffer = 0;
 	for (i=0 ; i < SS_NUM_INT_BUFFERS && readSize==mIntBuffersSize ; i++) {
 		readSize = mBuffer->filler(mIntBuffers[i], mIntBuffersSize, mRepeat, &mFileFinished);
