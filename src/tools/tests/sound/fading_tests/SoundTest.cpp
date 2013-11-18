@@ -172,7 +172,6 @@ SoundTest::SoundTest() :
 	sounds.push_back("fxA20.ogg");  // "water sound"
 	sounds.push_back("Siren.ogg");
 	sounds.push_back("Siren.wav");
-	sounds.push_back("roar.wav");
 	testBEGIN("Cargando sonidos streaming.\n");
 	fails = mSH.loadStreamSounds(sounds);
 	if (fails.empty()) {
@@ -183,6 +182,7 @@ SoundTest::SoundTest() :
 	}
 	// Direct (loaded) buffers.
 	sounds.clear();
+	sounds.push_back("roar.wav");
 	sounds.push_back("fxM2.ogg");	// "button pressed"
 	sounds.push_back("fxZ1.ogg");
 	sounds.push_back("fxZ2.ogg");
@@ -313,11 +313,6 @@ SoundTest::initSoundsPlayback(void)
 	// Play environmental water sound  ////////////////////////////////////////
 	// FIXME: direct access to SoundManager, DON'T DO THIS OUTSIDE TESTERS!
 	//
-	/* FIXME (erase this comment after fix)
-	 * Decomment following code after issues #146 and #147
-	 * of MantisBT get solved.
-	 * http://cordobazombie.com.ar/dev/tracker/view.php?id=146
-	 */
 	testBEGIN("Iniciando reproducción del sonido ambiente fxA20.ogg\n");
 	err = mm::SoundManager::getInstance().playEnvSound(
 			"fxA20.ogg", DEFAULT_ENV_GAIN, true);
@@ -411,16 +406,16 @@ SoundTest::initSoundsPlayback(void)
 	// Start playlists playback  //////////////////////////////////////////////
 	//
 	testBEGIN("Iniciando reproducción de playlists.\n");
-//	for (int i=0 ; i < NUM_PLAYLISTS ; i++) {
-//		err = mSH.startPlaylist(playlist[i]);
-//		if (err != mm::SSerror::SS_NO_ERROR) {
-//			testFAIL("Falló la reproducción del playlist[%d]. Error: %s\n",
-//					i, SSenumStr(err));
-//			return false;
-//		} else {
-//			ASSERT(mSH.existsPlaylist(playlist[i]));
-//		}
-//	}
+	for (int i=0 ; i < NUM_PLAYLISTS ; i++) {
+		err = mSH.startPlaylist(playlist[i]);
+		if (err != mm::SSerror::SS_NO_ERROR) {
+			testFAIL("Falló la reproducción del playlist[%d]. Error: %s\n",
+					i, SSenumStr(err));
+			return false;
+		} else {
+			ASSERT(mSH.existsPlaylist(playlist[i]));
+		}
+	}
 	testSUCCESS("Reproducción iniciada.\n");
 
 
@@ -433,28 +428,22 @@ SoundTest::initSoundsPlayback(void)
 		mSH.stopPlaylist(playlist[2]);
 	mSH.deletePlaylist(playlist[2]);
 	soundsList.clear();
-	/* FIXME (erase this comment after fix)
-	 * Following playlist should load "water sound", viz. audioFile[0]
-	 * Right now we load hardcoded names of direct/stream sounds,
-	 * until issues #146 and #147 of MantisBT get solved.
-	 * http://cordobazombie.com.ar/dev/tracker/view.php?id=146
-	 */
-//	soundsList.push_back("fxA20.ogg");
-//	fails = mSH.newPlaylist(playlist[2], soundsList);
-//	if (!fails.empty()) {
-//		testFAIL("Falló la creación del nuevo playlist.\n");
-//		return false;
-//	}
-//	ASSERT(mSH.existsPlaylist(playlist[2]));
-//	err = mSH.startPlaylist(playlist[2]);
-//	if (err == mm::SSerror::SS_NO_ERROR) {
-//		testSUCCESS("Playlist \"%s\" creado e iniciado con éxito.\n",
-//					playlist[2].c_str());
-//	} else {
-//		testFAIL("Falló la reproducción del nuevo playlist: %s.\n",
-//				SSenumStr(err));
-//		return false;
-//	}
+	soundsList.push_back(audioFile[0]);
+	fails = mSH.newPlaylist(playlist[2], soundsList);
+	if (!fails.empty()) {
+		testFAIL("Falló la creación del nuevo playlist.\n");
+		return false;
+	}
+	ASSERT(mSH.existsPlaylist(playlist[2]));
+	err = mSH.startPlaylist(playlist[2]);
+	if (err == mm::SSerror::SS_NO_ERROR) {
+		testSUCCESS("Playlist \"%s\" creado e iniciado con éxito.\n",
+					playlist[2].c_str());
+	} else {
+		testFAIL("Falló la reproducción del nuevo playlist: %s.\n",
+				SSenumStr(err));
+		return false;
+	}
 
 	return true;
 }
@@ -579,30 +568,23 @@ SoundTest::handleSoundInput(void)
     		keyPressed = true;
 			if (playingState[input::KeyCode::KC_NUMPAD1]
 							 == mm::SSplayback::SS_FADING_IN) {
+				err = mSH.fadeOutPlaylist(playlist[2], 1.5f);
+				if (err != mm::SSerror::SS_NO_ERROR) {
+					debugWARNING("\rWater sound FADE OUT failed: %s.",
+							SSenumStr(err));
+				}
 				fprintf(stderr,"\r");
-				debugBLUE("Playing env sound \"roar.wav\"");
-				mm::SoundManager::getInstance().playEnvSound(
-						"roar.wav", DEFAULT_ENV_GAIN, false);
-//				err = mSH.fadeOutPlaylist(playlist[2], 1.5f);
-//				if (err != mm::SSerror::SS_NO_ERROR) {
-//					debugWARNING("\rWater sound FADE OUT failed: %s.",
-//							SSenumStr(err));
-//				}
-//				fprintf(stderr,"\r");
-//				debugBLUE("Water sound FADING OUT.       ");
+				debugBLUE("Water sound FADING OUT.       ");
 				playingState[input::KeyCode::KC_NUMPAD1] =
 												mm::SSplayback::SS_FADING_OUT;
 			} else {
+				err = mSH.fadeInPlaylist(playlist[2], 1.5f);
+				if (err != mm::SSerror::SS_NO_ERROR) {
+					debugWARNING("\rWater sound FADE IN failed: %s.",
+							SSenumStr(err));
+				}
 				fprintf(stderr,"\r");
-				debugBLUE("Stopping env sound \"roar.wav\"");
-				mm::SoundManager::getInstance().stopEnvSound("roar.wav");
-//				err = mSH.fadeInPlaylist(playlist[2], 1.5f);
-//				if (err != mm::SSerror::SS_NO_ERROR) {
-//					debugWARNING("\rWater sound FADE IN failed: %s.",
-//							SSenumStr(err));
-//				}
-//				fprintf(stderr,"\r");
-//				debugBLUE("Water sound FADING IN.       ");
+				debugBLUE("Water sound FADING IN.       ");
 				playingState[input::KeyCode::KC_NUMPAD1] =
 												mm::SSplayback::SS_FADING_IN;
 			}

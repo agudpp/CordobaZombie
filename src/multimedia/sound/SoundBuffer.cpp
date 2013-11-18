@@ -34,14 +34,10 @@ StreamWAVSoundBuffer::filler(ALBuffer& buf,
 	file->read(pcmData.end(), size);
 	readSize = file->gcount(); // EOF?
 	pcmData.resize(readSize);
-	debug("readSize: %ld\tfile->tellg(): %ld\n", readSize, file->tellg());
 
 	if (readSize >= 0 && readSize < size && repeat) {
 		// End of audio data, and must repeat: relocate file get pointer.
-		debugRED("Relocating file pointer.\n");
 		restart();
-		debug("readSize: %ld\tfile->tellg(): %ld\n", readSize, file->tellg());
-
 		file->read(pcmData.end(), size-readSize);
 		if (readSize + file->gcount() < size) {
 			debug("Couldn't extract %zu bytes from file.\n", size);
@@ -57,7 +53,6 @@ StreamWAVSoundBuffer::filler(ALBuffer& buf,
 
 	} else if (readSize == 0) {
 		// End of audio data, but no repeat.
-		debugRED("End of audio data.\n");
 		*finish = true;
 		return 0ll;
 
@@ -115,13 +110,11 @@ StreamOGGSoundBuffer::filler(ALBuffer& buf,
 
 		} else if (read == 0 && repeat) {
 			// End of audio data, and must repeat: relocate file get pointer.
-			debugRED("Relocating file pointer.\n");
 			restart();
 			read = 1;  // We must repeat, continue iteration
 
 		} else if (read == 0) {
 			// End of audio data, but no repeat.
-			debugRED("End of audio data.\n");
 			*finish = true;
 		}
 

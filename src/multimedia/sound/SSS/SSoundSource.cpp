@@ -209,7 +209,6 @@ SSoundSource::update(const Ogre::Vector3& pos)
 	} else if (st == AL_STOPPED) {
 		// Playback finished.
 		result = SSplayback::SS_FINISHED;
-		debugRED("Playback finished.\n");
 		goto finish;
 	}
 
@@ -220,7 +219,7 @@ SSoundSource::update(const Ogre::Vector3& pos)
 	}
 
 	// Refresh used internal buffers
-	while (!mFileFinished && readSize == mIntBuffersSize && processed-- > 0) {
+	while (!mFileFinished && readSize > 0 && processed-- > 0) {
 		// Unqueue processed buffer.
 		alSourceUnqueueBuffers(mSource, 1, &mIntBuffers[mFirstBuffer]);
 		// Refill buffer.
@@ -232,6 +231,9 @@ SSoundSource::update(const Ogre::Vector3& pos)
 		if (readSize > 0) {
 			alSourceQueueBuffers(mSource, 1, &mIntBuffers[mFirstBuffer]);
 			if (restart) { alSourcePlay(mSource); restart = false; }
+		}
+		// Increment buffer pointer if there were no errors.
+		if (readSize >= 0) {
 			++mFirstBuffer %= SS_NUM_INT_BUFFERS;
 		}
 	}
@@ -240,10 +242,10 @@ SSoundSource::update(const Ogre::Vector3& pos)
 	alGetSourcei(mSource, AL_SOURCE_STATE, &st);
 	if (mFileFinished && st == AL_STOPPED) {
 		// Playback finished.
-		debugRED("Playback finished.\n");
 		result = SSplayback::SS_FINISHED;
 
 	} else if (readSize >= 0){
+		// Keep on rollin' baby.
 		alGetSourcei(mSource, AL_SOURCE_STATE, &st);
 		result = ((st==AL_PLAYING)  ? SSplayback::SS_PLAYING
 									: SSplayback::SS_PAUSED);
@@ -321,6 +323,13 @@ SSoundSource::stop()
 	ASSERT(alIsSource(mSource));
 
 	alSourceStop(mSource);
+#ifdef DEBUG
+	{
+		ALint st(AL_NONE);
+		alGetSourcei(mSource, AL_SOURCE_STATE, &st);
+		ASSERT(st == AL_STOPPED);
+	}
+#endif
 
 	// Unqueue buffers.
 	alGetSourcei(mSource, AL_BUFFERS_PROCESSED, &processed);
@@ -330,16 +339,16 @@ SSoundSource::stop()
 	}
 	ASSERT(alGetError() == AL_NO_ERROR);
 
+	// Set NULL buffer.
+	alSourcei(mSource, AL_BUFFER, AL_NONE);
 #ifdef DEBUG
 	{
-		ALint st(AL_NONE);
-		alGetSourcei(mSource, AL_SOURCE_STATE, &st);
-		ASSERT(st == AL_STOPPED);
+		ALint buf(AL_NONE);
+		alGetSourcei(mSource, AL_BUFFER, &buf);
+		ASSERT(buf == AL_NONE);
 	}
 #endif
 
-	// Set NULL buffer.
-	alSourcei(mSource, AL_BUFFER, AL_NONE);
 	mFirstBuffer = 0u;
 	mBuffer = 0;
 	ASSERT(alGetError() == AL_NO_ERROR);

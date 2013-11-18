@@ -230,7 +230,6 @@ inline void
 StreamWAVSoundBuffer::restart()
 {
 	if(file && file->is_open()) {
-		debugGREEN("restart!!!\n");
 		pcmData.clear();
 		file->clear();  // Reset file error state flags
 		file->seekg(dataStart, std::ifstream::beg);
