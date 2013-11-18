@@ -250,7 +250,7 @@ computePlayingFormat(short channels, short BPS)
 		return alGetEnumValue("AL_FORMAT_71CHN16");
 		break;
 	default:
-		/* Can't determine buffer format */
+		// Can't determine buffer format
 		debug("%s", "Could not determine buffer format, defaulting to MONO\n");
 		return AL_FORMAT_MONO16;
 		break;
@@ -280,7 +280,7 @@ clearSoundBuffer(SoundBuffer* buffer)
 SSerror
 BufferBuilder::loadedBufferFromWAV(std::ifstream& file, SoundBuffer *buffer)
 {
-	/* Auxiliary buffers */
+	// Auxiliary buffers.
 	uchar* pcmData(0);  // Raw PCM audio data
 	char magic[5];
 	unsigned char buffer32[4];
@@ -291,11 +291,12 @@ BufferBuilder::loadedBufferFromWAV(std::ifstream& file, SoundBuffer *buffer)
 	int byteRate = 0;
 	ALenum alErr = AL_NO_ERROR;
 
-	/* Preconditions checking and stuff */
+	// Preconditions checking and stuff.
 	ASSERT(file.is_open() && file.good());
 	ASSERT(buffer != NULL);
 	ASSERT(buffer->type == SSbuftype::SS_BUF_LOADED);
 	if (alcGetCurrentContext() == NULL) {
+		debugERROR("NULL OpenAL context! Aborting.\n");
 		file.close();
 		return SSerror::SS_INTERNAL_ERROR;
 	}
@@ -312,7 +313,7 @@ BufferBuilder::loadedBufferFromWAV(std::ifstream& file, SoundBuffer *buffer)
 	}
 	ASSERT(alIsBuffer(buffer->buffer));
 
-	/* Parse file header */
+	// Parse file header.
 	magic[4] = '\0';
 	if (!file.read(magic,4) || strcmp(magic,"RIFF") != 0) {
 		debug("%s","No RIFF header.\n");
@@ -349,7 +350,7 @@ BufferBuilder::loadedBufferFromWAV(std::ifstream& file, SoundBuffer *buffer)
 	bitsPerSample = readByte16(buffer16);
 	buffer->format = computePlayingFormat(buffer->chan, bitsPerSample);
 
-	/* Approaching data section */
+	// Approaching data section.
 	if (!file.read(magic,4) || strcmp(magic,"data") != 0) {
 		if (strcmp(magic,"fact") == 0) {
 			file.ignore(8);  // Skip extra options
@@ -363,13 +364,13 @@ BufferBuilder::loadedBufferFromWAV(std::ifstream& file, SoundBuffer *buffer)
 		}
 	}
 
-	/* Finally, store audio data */
+	// Finally, store audio data.
 	file.read((char*)buffer32, 4);
 	ASSERT(file.good());
 	audioDataSize  = readByte32(buffer32);
 	pcmData = new unsigned char[audioDataSize]();
 
-	// WARNING: next read may be HUGHE.
+	// WARNING: next read may be HUGE.
 	file.read((char*)pcmData, audioDataSize);
 	if(!file.good()) {
 		debug("%s","Unable to load audio data section into memory\n");
@@ -380,7 +381,7 @@ BufferBuilder::loadedBufferFromWAV(std::ifstream& file, SoundBuffer *buffer)
 	}
 	buffer->duration = ((float)audioDataSize) / byteRate;
 
-	/* Now create OpenAL buffer from audio data */
+	// Now create OpenAL buffer from audio data.
 	alBufferData(buffer->buffer,
 		     buffer->format,
 		     pcmData,
@@ -399,7 +400,7 @@ BufferBuilder::loadedBufferFromWAV(std::ifstream& file, SoundBuffer *buffer)
 SSerror
 BufferBuilder::streamBufferFromWAV(StreamWAVSoundBuffer* buffer)
 {
-	/* Auxiliary buffers */
+	// Auxiliary buffers.
 	char magic[5];
 	unsigned char buffer32[4];
 	unsigned char buffer16[2];
@@ -410,18 +411,19 @@ BufferBuilder::streamBufferFromWAV(StreamWAVSoundBuffer* buffer)
 	ALenum alErr = AL_NO_ERROR;
 	std::ifstream* file = buffer->file;
 
-	/* Preconditions checking and stuff */
+	// Preconditions checking and stuff.
 	ASSERT(file->good() && file->is_open());
 	ASSERT(buffer != NULL);
 	ASSERT(buffer->type == SSbuftype::SS_BUF_STREAM_WAV);
 	if (alcGetCurrentContext() == NULL) {
+		debugERROR("NULL OpenAL context! Aborting.\n");
 		file->close();
 		return SSerror::SS_INTERNAL_ERROR;
 	}
 	clearSoundBuffer(buffer);
 	buffer->buffer = 0;
 
-	/* Parse file header */
+	// Parse file header.
 	magic[4] = '\0';
 	if (!file->read(magic,4) || strcmp(magic,"RIFF") != 0) {
 		debug("%s","No RIFF header.\n");
@@ -458,7 +460,7 @@ BufferBuilder::streamBufferFromWAV(StreamWAVSoundBuffer* buffer)
 	bitsPerSample = readByte16(buffer16);
 	buffer->format = computePlayingFormat(buffer->chan, bitsPerSample);
 
-	/* Approaching data section */
+	// Approaching data section.
 	if (!file->read(magic,4) || strcmp(magic,"data") != 0) {
 		if (strcmp(magic,"fact") == 0) {
 			file->ignore(8);  // Skip extra options
@@ -472,7 +474,7 @@ BufferBuilder::streamBufferFromWAV(StreamWAVSoundBuffer* buffer)
 		}
 	}
 
-	/* Check if file size within bounds. */
+	// Check if file size within bounds.
 	file->read((char*)buffer32, 4);
 	ASSERT(file->good());
 	audioDataSize = readByte32(buffer32);
@@ -484,12 +486,12 @@ BufferBuilder::streamBufferFromWAV(StreamWAVSoundBuffer* buffer)
 		return SSerror::SS_FILE_TOO_SMALL;
 	}
 
-	/* Reference file and audio data and exit. */
+	// Reference file and audio data and exit.
 	buffer->duration  = ((float)audioDataSize) / byteRate;
 	buffer->dataStart = file->tellg();  // Remember data starting position
 	buffer->loaded = true;
 
-	/* Postconditions checking. */
+	// Postconditions checking.
 	ASSERT(buffer->file->good());
 	ASSERT(buffer->file->is_open());
 	ASSERT(!buffer->file->eof());
@@ -516,12 +518,13 @@ BufferBuilder::loadedBufferFromOGG(FILE* file, SoundBuffer *buffer)
 	OggVorbis_File oggFile;
 	std::vector<char> pcmData;
 
-	/* Preconditions checking and stuff */
+	// Preconditions checking and stuff.
 	ASSERT(file);
 	ASSERT(fileno(file) >= 0);
 	ASSERT(buffer);
 	ASSERT(buffer->type == SSbuftype::SS_BUF_LOADED);
 	if (alcGetCurrentContext() == NULL) {
+		debugERROR("NULL OpenAL context! Aborting.\n");
 		return SSerror::SS_INTERNAL_ERROR;
 	}
 	clearSoundBuffer(buffer);
@@ -536,8 +539,8 @@ BufferBuilder::loadedBufferFromOGG(FILE* file, SoundBuffer *buffer)
 	}
 	ASSERT(alIsBuffer(buffer->buffer));
 
-	/* Open OGG_file from file.
-	 * DON'T CALL fclose(file) AFTERWARDS, ov_clear() takes care of it. */
+	// Open OGG_file from file.
+	// DON'T CALL fclose(file) AFTERWARDS, ov_clear() takes care of it.
 	err = ov_open_callbacks(file, &oggFile, NULL, 0l, OV_CALLBACKS_DEFAULT);
 	if(err) {
 		std::map<int, const char*> strErr = {{OV_EREAD, "OV_EREAD"},
@@ -549,14 +552,14 @@ BufferBuilder::loadedBufferFromOGG(FILE* file, SoundBuffer *buffer)
 		return SSerror::SS_INVALID_FILE;
 	}
 
-	/* Update buffer's fields with fileInfo. */
+	// Update buffer's fields with fileInfo.
 	fileInfo = ov_info(&oggFile, -1);
 	buffer->chan = fileInfo->channels;
 	buffer->freq = fileInfo->rate;
 	buffer->format = computePlayingFormat(fileInfo->channels, BPS);
 	buffer->duration = (float) ov_time_total(&oggFile, -1);
 
-	/* Extract audio data. */
+	// Extract audio data.
 	read = ov_read(&oggFile, array, OGG_BUFF_SIZE, endianness, BPS/8, sign,
 					&bitStreamSection);
 	while (read > 0) {
@@ -566,7 +569,7 @@ BufferBuilder::loadedBufferFromOGG(FILE* file, SoundBuffer *buffer)
 	}
 
 	if (read < 0) {
-		/* Error fetching audio data from Ogg file */
+		// Error fetching audio data from Ogg file.
 		std::map<int, const char*> strErr = {{OV_HOLE, "OV_HOLE"},
 											{OV_EBADLINK, "OV_EBADLINK"},
 											{OV_EINVAL, "OV_EINVAL"}};
@@ -574,7 +577,7 @@ BufferBuilder::loadedBufferFromOGG(FILE* file, SoundBuffer *buffer)
 		error = SSerror::SS_INTERNAL_ERROR;
 
 	} else {
-		/* Create OpenAL buffer from audio data */
+		// Create OpenAL buffer from audio data.
 		alBufferData(buffer->buffer,
 			     buffer->format,
 			     &pcmData[0],
@@ -600,20 +603,21 @@ BufferBuilder::streamBufferFromOGG(StreamOGGSoundBuffer* buffer)
 	vorbis_info *fileInfo(0);
 	FILE* file = buffer->file;
 
-	/* Preconditions checking and stuff */
+	// Preconditions checking and stuff
 	ASSERT(file);
 	ASSERT(fileno(file) >= 0);
 	ASSERT(buffer);
 	ASSERT(buffer->type == SSbuftype::SS_BUF_STREAM_OGG);
 	if (alcGetCurrentContext() == NULL) {
-		fclose(file);
+		debugERROR("NULL OpenAL context! Aborting.\n");
+		// Don' t close file here, buffer destructor will do it.
 		return SSerror::SS_INTERNAL_ERROR;
 	}
 	clearSoundBuffer(buffer);
 	buffer->buffer = 0;
 
-	/* Open OGG_file from file.
-	 * DON'T CALL fclose(file) AFTERWARDS, ov_clear() takes care of it. */
+	// Open OGG_file from file.
+	// DON'T CALL fclose(file) AFTERWARDS, ov_clear() takes care of it.
 	err = ov_open_callbacks(file, buffer->oggFile, NULL, 0l, OV_CALLBACKS_DEFAULT);
 	ASSERT(!err);
 	if(err) {
@@ -626,7 +630,7 @@ BufferBuilder::streamBufferFromOGG(StreamOGGSoundBuffer* buffer)
 		return SSerror::SS_INVALID_FILE;
 	}
 
-	/* Update buffer's fields with fileInfo. */
+	// Update buffer's fields with fileInfo.
 	fileInfo = ov_info(buffer->oggFile, -1);
 	buffer->chan = fileInfo->channels;
 	buffer->freq = fileInfo->rate;

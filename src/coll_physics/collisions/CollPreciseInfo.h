@@ -79,6 +79,15 @@ public:
     // TODO: implement createChain, createEdge
     //
 
+
+    // @brief Calculate the bounding box for the current shape PreciseInfo
+    //        if it is valid.
+    // @param aabb      The resulting bounding box for the current shape and
+    //                  position
+    //
+    inline void
+    getBoundingBox(core::AABB& aabb) const;
+
 private:
     friend class CollObject;
     friend class CollisionHandler;
@@ -189,6 +198,18 @@ private:
 // inline stuff
 //
 
+inline void
+CollPreciseInfo::getBoundingBox(core::AABB& aabb) const
+{
+    if (shape) {
+        b2AABB bb;
+        shape->ComputeAABB(&bb, transform, 0);
+        aabb.tl.x = bb.lowerBound.x;
+        aabb.tl.y = bb.upperBound.y;
+        aabb.br.x = bb.upperBound.x;
+        aabb.br.y = bb.lowerBound.y;
+    }
+}
 
 inline void
 CollPreciseInfo::setPosition(const core::Vector2& pos)

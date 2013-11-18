@@ -315,13 +315,13 @@ template <typename T, unsigned int MAX_SIZE>
 inline T*
 StackVector<T,MAX_SIZE>::end(void)
 {
-    return mData + mSize; // end + 1
+    return &mData[mSize]; // end + 1
 }
 template <typename T, unsigned int MAX_SIZE>
 inline const T*
 StackVector<T,MAX_SIZE>::end(void) const
 {
-    return mData + mSize; // end + 1
+    return &mData[mSize]; // end + 1
 }
 
 

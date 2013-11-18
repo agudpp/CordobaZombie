@@ -8,6 +8,7 @@
 #include "OSHelper.h"
 
 #include <fstream>
+#include <stdlib.h>
 
 namespace core {
 namespace OSHelper {
@@ -18,6 +19,15 @@ fileExists(const char* path)
     std::ifstream file(path);
     return file;
 }
+
+
+bool
+getEnvVar(const char* var, char* &val)
+{
+    val = std::getenv(var);
+    return val;
+}
+
 
 }
 

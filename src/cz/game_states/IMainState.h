@@ -13,6 +13,10 @@
 #include "MainStateInformation.h"
 #include "MainStateEvent.h"
 
+namespace rrh {
+class ResourceHandler;
+}
+
 
 namespace cz {
 
@@ -54,6 +58,13 @@ public:
     //
     static void
     setOgreData(const OgreCommon& ogreData);
+
+    // @brief Set the ResourceHandler for all main states.
+    // @param rch      The resources handler.
+    //
+    static void
+    setRcHandler(const rrh::ResourceHandler* rch);
+
 
     // @brief This will return the State ID.
     //
@@ -131,6 +142,8 @@ protected:
 
     // the global Ogre information
     static OgreCommon sOgreInfo;
+    // static global resources handler for all main states
+    static const rrh::ResourceHandler *sRcHandler;
 };
 
 

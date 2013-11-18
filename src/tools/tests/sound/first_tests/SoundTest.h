@@ -41,7 +41,7 @@ public:
      ** Load additional stuff before launching update cycle.
      **/
     void
-    loadAdditionalData(void);
+    loadAditionalData(void);
 
     /**
      ** @brief
@@ -89,6 +89,13 @@ private:
      **/
     void
     printDevices(void);
+
+    /**
+     ** @brief
+     ** Test playlists operations
+     **/
+    void
+    testPlaylists(void);
 
 private:
     // Generic members

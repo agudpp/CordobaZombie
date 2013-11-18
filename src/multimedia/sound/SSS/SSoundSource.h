@@ -72,13 +72,14 @@ protected:
 			const bool repeat = false);
 
 private:
-	/* Current playing offset within the file's audio data. */
+	// Current playing offset within the file's audio data.
 	int mFileOffset;
 
-	/* Internal buffers for stream queuing. */
+	// Internal buffers for stream queuing.
 	ALBuffer mIntBuffers[SS_NUM_INT_BUFFERS];	// Buffers array
-	const unsigned int mIntBuffersSize;			// Data size of each
+	const unsigned int mIntBuffersSize;		// Data size of each buffer
 	unsigned int mFirstBuffer;					// First buffer in playing queue
+	bool mFileFinished;							// Stop at end of buffer queue
 };
 
 }

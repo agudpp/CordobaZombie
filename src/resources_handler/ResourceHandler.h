@@ -37,7 +37,6 @@ public:
     void
     unloadResourceGroup(const ResourceGroup& rg);
 
-
     // @brief Get a resource path from a resource group / name.
     // @param resourceGroup     The resource group where the resource is
     // @param resourceName      The resource name we are looking for.
@@ -47,9 +46,65 @@ public:
     getResourcePath(const Ogre::String& resourceGroup,
                     const Ogre::String& resourceName,
                     Ogre::String &resourcePath);
+    static bool
+    getResourcePathSomeGroup(const Ogre::String& resourceName,
+                             Ogre::String &resourcePath);
+
+
+    // @brief Set the path to the resources folder.
+    inline void
+    setResourceRootPath(const Ogre::String &resourcePath);
+    inline const Ogre::String &
+    getResourceRootPath(void) const;
+
+
+    // @brief Get the concatenated string between the resources folder path
+    //        and the resource relative path resourceRelPath.
+    // @param resourceRelPath 	The resource relative path inside the resource
+    //							folder.
+    // @param fullPath			The resulting concatenation.
+    // @return true on success | false otherwise
+    inline bool
+    getResourceFullPath(const Ogre::String &resourceRelPath,
+    		            Ogre::String &fullPath) const;
 
 private:
+
+    Ogre::String mResRootPath;
 };
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+
+
+inline void
+ResourceHandler::setResourceRootPath(const Ogre::String &resourcePath)
+{
+	mResRootPath = resourcePath;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+
+inline const Ogre::String &
+ResourceHandler::getResourceRootPath(void) const
+{
+	return mResRootPath;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+
+inline bool
+ResourceHandler::getResourceFullPath(const Ogre::String &resourceRelPath,
+									 Ogre::String &fullPath) const
+{
+	fullPath = mResRootPath;
+	fullPath += resourceRelPath;
+	return true;
+}
+
 
 } /* namespace rrh */
 #endif /* RESOURCEHANDLER_H_ */

@@ -14,12 +14,52 @@
 
 #include <debug/DebugUtil.h>
 #include <types/StackVector.h>
+#include <types/basics.h>
 #include <os_utils/OSHelper.h>
 
 
 // Helper functions
 //
 namespace {
+///////////////////////////////////////////////////////////////////////////////
+// @brief Helper method used to get the sections of an Ogre configuration file.
+// @param file      The file name (not the path)
+// @param p         The path where the file is.
+static bool
+getRsrcFileSections(const Ogre::String &file,
+        core::StackVector<Ogre::String, 512>& sections,
+        const Ogre::String &p = "")
+{
+	// Load resource paths from config file
+	Ogre::ConfigFile cf;
+	try {
+		cf.load(file);
+	} catch (...) {
+		debugERROR("Resources file not found: %s\n", file.c_str());
+		return false;
+	}
+
+	// Go through all sections & settings in the file
+	Ogre::ConfigFile::SectionIterator seci = cf.getSectionIterator();
+	Ogre::String path = p;
+
+	core::OSHelper::addEndPathVar(path);
+
+	Ogre::String secName;
+	while (seci.hasMoreElements()) {
+		secName = seci.peekNextKey();
+		if(!secName.empty()){
+			sections.push_back(secName);
+			seci.getNext();
+		}else{
+			seci.getNext();
+		}
+	}
+
+	return true;
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////
 
 // @brief Helper method used to load a resources config file from ogre.
@@ -43,30 +83,27 @@ ogreLoadRsrcFile(const Ogre::String &file,
     Ogre::ConfigFile::SectionIterator seci = cf.getSectionIterator();
     Ogre::String path = p;
 
-    int last = path.size() - 1;
-#ifdef _WIN32
-    if(last >= 0 && path[last] != '\\') {
-        path.append("\\");
-    }
-#else
-    if (last >= 0 && path[last] != '/') {
-        path.append("/");
-    }
-#endif
+    core::OSHelper::addEndPathVar(path);
 
     Ogre::String secName, typeName, archName;
     while (seci.hasMoreElements()) {
         secName = seci.peekNextKey();
-        sections.push_back(secName);
-        Ogre::ConfigFile::SettingsMultiMap *settings = seci.getNext();
-        Ogre::ConfigFile::SettingsMultiMap::iterator i;
-        for (i = settings->begin(); i != settings->end(); ++i) {
-            typeName = i->first;
-            archName = path + i->second;
-            Ogre::ResourceGroupManager::getSingleton().addResourceLocation(
-                    archName, typeName, secName);
+        if(!secName.empty()){
+			sections.push_back(secName);
+			Ogre::ConfigFile::SettingsMultiMap *settings = seci.getNext();
+			Ogre::ConfigFile::SettingsMultiMap::iterator i;
+			for (i = settings->begin(); i != settings->end(); ++i) {
+				typeName = i->first;
+				archName = path + i->second;
+				Ogre::ResourceGroupManager::getSingleton().addResourceLocation(
+						archName, typeName, secName);
+			}
+        }else{
+        	seci.getNext();
         }
+
     }
+    Ogre::ResourceGroupManager::getSingleton().initialiseAllResourceGroups();
     return true;
 }
 
@@ -76,7 +113,8 @@ ogreLoadRsrcFile(const Ogre::String &file,
 
 namespace rrh {
 
-ResourceHandler::ResourceHandler()
+ResourceHandler::ResourceHandler():
+		mResRootPath("")
 {
 
 }
@@ -98,7 +136,17 @@ ResourceHandler::loadResourceGroup(ResourceGroup& rg)
     core::StackVector<Ogre::String, 512> sections;
     ASSERT(rg.sections().empty() && "TODO: we need to change this probably, check"
         " issue 186 already closed. We don't need it now");
-    if (!ogreLoadRsrcFile(rg.ogreResourceFile(), sections)) {
+
+
+    // Get the path to the resource folder
+    std::string basePath;
+    if (!core::OSHelper::extractPath(rg.ogreResourceFile(), basePath)) {
+        debugERROR("Error extracting base path from %s\n",
+                   rg.ogreResourceFile().c_str());
+        return false;
+    }
+
+    if (!ogreLoadRsrcFile(rg.ogreResourceFile(), sections, basePath)) {
         debugERROR("We couldn't load the ogre resource file %s\n",
             rg.ogreResourceFile().c_str());
         return false;
@@ -106,7 +154,16 @@ ResourceHandler::loadResourceGroup(ResourceGroup& rg)
 
     // now we will load all the group targets and sa
     Ogre::ResourceGroupManager &rscMng = Ogre::ResourceGroupManager::getSingleton();
+
     for (Ogre::String& sec : sections) {
+
+#ifdef DEBUG
+    	if(!rscMng.resourceGroupExists(sec)){
+    		debugERROR("Can't find section named %s\n", sec.c_str());
+    	}
+#endif
+
+    	rscMng.initialiseResourceGroup(sec);
         rscMng.loadResourceGroup(sec);
         rg.addSection(sec);
     }
@@ -118,18 +175,43 @@ ResourceHandler::loadResourceGroup(ResourceGroup& rg)
 void
 ResourceHandler::unloadResourceGroup(const ResourceGroup& rg)
 {
-    if(rg.sections().empty()){
-        debugWARNING("Resource group %s has no resources associated (sections)\n",
-            rg.ogreResourceFile().c_str());
-        return;
+
+    core::StackVector<Ogre::String, 512> sections;
+    Ogre::ResourceGroupManager &rscMng = Ogre::ResourceGroupManager::getSingleton();
+
+	if(rg.sections().empty()){
+        // Get the path to the resource folder
+        size_t lastBar = 0;
+#ifdef _WIN32
+        lastBar = rg.ogreResourceFile().rfind('\\')+1;
+#else
+        lastBar = rg.ogreResourceFile().rfind('/')+1;
+#endif
+        ASSERT(lastBar > 1);
+        Ogre::String basePath = rg.ogreResourceFile().substr(0,lastBar);
+
+        if (!getRsrcFileSections(rg.ogreResourceFile(), sections, basePath)) {
+             debugERROR("We couldn't get the sections from %s\n",
+                 rg.ogreResourceFile().c_str());
+             return;
+        }
+
+//TODO somehow remove the duplicated code down here
+
+        for (auto it = sections.begin(), end = sections.end(); it != end; ++it) {
+            rscMng.unloadResourceGroup(*it);
+            rscMng.unloadResourceGroup(*it, false);
+            rscMng.destroyResourceGroup(*it);
+        }
+    }else{
+        for (auto it = rg.sections().begin(), end = rg.sections().end(); it != end; ++it) {
+            rscMng.unloadResourceGroup(*it);
+            rscMng.unloadResourceGroup(*it, false);
+            rscMng.destroyResourceGroup(*it);
+        }
+
     }
 
-    Ogre::ResourceGroupManager &rscMng = Ogre::ResourceGroupManager::getSingleton();
-    for (auto it = rg.sections().begin(), end = rg.sections().end(); it != end; ++it) {
-        rscMng.unloadResourceGroup(*it);
-        rscMng.unloadResourceGroup(*it, false);
-        rscMng.destroyResourceGroup(*it);
-    }
     if (!rg.ogreResourceFile().empty()) {
         rscMng.removeResourceLocation(rg.ogreResourceFile());
     }
@@ -147,8 +229,13 @@ ResourceHandler::getResourcePath(const Ogre::String& resourceGroup,
     // First find file absolute path
     Ogre::ResourceGroupManager& resGM =
                     Ogre::ResourceGroupManager::getSingleton();
-    Ogre::FileInfoListPtr files = resGM.findResourceFileInfo(
-                    resourceGroup, resourceName);
+    Ogre::FileInfoListPtr files;
+    try {
+        files= resGM.findResourceFileInfo(resourceGroup, resourceName);
+    } catch (Ogre::Exception& e) {
+        debugERROR("Exception: %s\n", e.what());
+        return false;
+    }
 
     if (files.isNull()) {
         // resource not found
@@ -175,6 +262,27 @@ ResourceHandler::getResourcePath(const Ogre::String& resourceGroup,
     return true;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+bool
+ResourceHandler::getResourcePathSomeGroup(const Ogre::String& resourceName,
+                                          Ogre::String &resourcePath)
+{
+    // find the group first
+    Ogre::ResourceGroupManager& resGM =
+                        Ogre::ResourceGroupManager::getSingleton();
+    try {
+        const Ogre::String& group = resGM.findGroupContainingResource(resourceName);
+        // call the main method
+        return getResourcePath(resourceName, group, resourcePath);
+    } catch (Ogre::Exception& e) {
+        debugERROR("Couldn't find the group for the resource %s, exception %s\n",
+                   resourceName.c_str(), e.what());
+        return false;
+    }
 
+    // this never happens
+    ASSERT(false);
+    return false;
+}
 
 } /* namespace rrh */

@@ -12,6 +12,7 @@
 namespace cz {
 
 OgreCommon IMainState::sOgreInfo;
+const rrh::ResourceHandler *IMainState::sRcHandler = 0;
 
 
 IMainState::IMainState()
@@ -22,6 +23,7 @@ IMainState::IMainState()
     ASSERT(sOgreInfo.renderWindow);
     ASSERT(sOgreInfo.root);
     ASSERT(sOgreInfo.sceneMngr);
+    ASSERT(sRcHandler);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -30,5 +32,13 @@ IMainState::setOgreData(const OgreCommon& ogreData)
 {
     sOgreInfo = ogreData;
 }
+
+void
+IMainState::setRcHandler(const rrh::ResourceHandler* rch)
+{
+	sRcHandler = rch;
+}
+
+
 
 } /* namespace cz */
