@@ -134,6 +134,13 @@ IntroMainStateTest::initializeState(void)
 		return false;
 	}
 
+	Ogre::String path;
+	if (! mRcHandler.getResourcePathSomeGroup(Ogre::String("menu.ogg"), path)){
+		debug("getResourcePathSomeGroup may not be working\n");
+	}else{
+		debug("El path al menu.ogg: %s\n",path.c_str());
+	}
+
 	return true;
 }
 

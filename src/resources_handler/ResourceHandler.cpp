@@ -273,7 +273,7 @@ ResourceHandler::getResourcePathSomeGroup(const Ogre::String& resourceName,
     try {
         const Ogre::String& group = resGM.findGroupContainingResource(resourceName);
         // call the main method
-        return getResourcePath(resourceName, group, resourcePath);
+        return getResourcePath(group, resourceName, resourcePath);
     } catch (Ogre::Exception& e) {
         debugERROR("Couldn't find the group for the resource %s, exception %s\n",
                    resourceName.c_str(), e.what());
