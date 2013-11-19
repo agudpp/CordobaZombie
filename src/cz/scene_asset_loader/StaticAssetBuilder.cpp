@@ -169,6 +169,8 @@ StaticAssetBuilder::build(const core::Asset& asset,
     // everything fine
     // release the scope pointer and put it in the vector
     mWorldObjects->add(swo.release());
+
+    return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

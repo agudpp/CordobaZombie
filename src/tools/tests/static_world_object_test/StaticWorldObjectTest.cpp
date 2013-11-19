@@ -251,7 +251,12 @@ StaticWorldObjectTest::loadStaticWorldObject(void)
         return;
     }
 
-
+    // add all of them into the scene
+    core::DataHolder<cz::StaticWorldObject*>::ElementVec& swos =
+        mWorldObjectsHolder.elements();
+    for (cz::StaticWorldObject* swo : swos) {
+        mSceneMgr->getRootSceneNode()->addChild(swo->sceneNode());
+    }
 
 
 

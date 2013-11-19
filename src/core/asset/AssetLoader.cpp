@@ -96,12 +96,8 @@ AssetLoader::loadAssetFromOgreResource(const std::string& resourceName,
     // try to get the resource file path
     Ogre::String filePath;
 
-    const Ogre::String& groupToLook = (groupName.empty()) ?
-        Ogre::ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME :
-        groupName;
-    if (!rrh::ResourceHandler::getResourcePath(groupToLook, resourceName, filePath)){
-        debugERROR("Error getting the resource %s in group %s\n",
-            resourceName.c_str(), groupToLook.c_str());
+    if (!rrh::ResourceHandler::getResourcePathSomeGroup(resourceName, filePath)){
+        debugERROR("Error getting the resource %s\n", resourceName.c_str());
         return false;
     }
 
