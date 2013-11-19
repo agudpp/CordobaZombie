@@ -10,7 +10,7 @@
 
 #include <vector>
 
-namespace physics {
+namespace core {
 
 // @brief This class will be used to hold elements and remove them (delete its
 //        memory) once we remove the holder instance
@@ -128,5 +128,5 @@ DataHolder<T>::freeAll(void)
     mElements.clear();
 }
 
-} /* namespace physics */
+} /* namespace core */
 #endif /* DATAHOLDER_H_ */
