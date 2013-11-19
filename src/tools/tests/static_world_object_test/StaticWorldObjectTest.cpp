@@ -229,54 +229,80 @@ StaticWorldObjectTest::handleCameraInput()
 void
 StaticWorldObjectTest::loadStaticWorldObject(void)
 {
-    const std::string collTestMesh = "test_coll.mesh";
-    const std::string collTestMesh2D = "test_coll_2D.mesh";
-    const std::string collTestMesh3D = "test_coll.mesh";
-    const std::string coll2D = "test_coll.2DColl";
-    const std::string coll3D = "test_coll.3DColl";
+    // configure the staticBuilder
+    mStaticBuilder.setShapeHolder(&mShapeHolder);
+    mStaticBuilder.setWorldStaticObjectHolder(&mWorldObjectsHolder);
 
-    Ogre::Entity* ent = mSceneMgr->createEntity(collTestMesh);
-    Ogre::Entity* ent2D = mSceneMgr->createEntity(collTestMesh2D);
-    Ogre::Entity* ent3D = mSceneMgr->createEntity(collTestMesh3D);
-    ASSERT(ent && ent2D && ent3D && "We couldn't find mesh! resource problem?");
+    cz::SceneAssetLoader assetLoader;
+    assetLoader.addBuilder(&mStaticBuilder);
 
-    // save 2D and 3D collision mesh representation
-    if (!coll::CollObjectExporter::transform(ent2D->getMesh().get(), coll2D)) {
-        debugERROR("Error exporting the mesh %s to %s\n",
-            collTestMesh.c_str(), coll2D.c_str());
+    // configure the assetLoader
+    std::string scenePath = "sceneAssetLoader.scene";
+    std::string rootRscPath;
+    if (!cz::GlobalData::getRootResourcesPath(rootRscPath)) {
+        debugERROR("Error!!\n");
         return;
     }
-    if (!physics::BulletExporter::transform(ent3D->getMesh().get(), coll3D)) {
-        debugERROR("Error exporting mesh %s to %s\n",
-            collTestMesh.c_str(), coll3D.c_str());
-        return;
-    }
+    scenePath = rootRscPath + "test/static_world_objects/" + scenePath;
 
-    // import that data now
-    coll::CollPreciseInfo* rep2D = 0;
-    core::AABB aabb;
-    if (!coll::CollObjectExporter::buildFromFile(coll2D, rep2D, aabb)) {
-        debugERROR("Error importing 2D\n");
+    // load the scene
+    if (!assetLoader.loadScene(scenePath, rootRscPath, mSceneMgr)) {
+        debugERROR("Error loading scene %s\n", scenePath.c_str());
         return;
     }
 
-    physics::BulletShape* rep3D = physics::BulletExporter::buildShapeFromFile(coll3D);
-    if (!rep3D) {
-        debugERROR("Error importing 3D\n");
-        return;
-    }
 
-    // now configure the static world object
-    mStaticWorldObject.setCollisionInformation(rep2D, aabb);
-    mStaticWorldObject.setShape(rep3D);
 
-    Ogre::SceneNode* node = mSceneMgr->getRootSceneNode()->createChildSceneNode();
-    node->attachObject(ent);
-    node->translate(50,100,150);
-//    node->yaw(Ogre::Radian(Ogre::Math::PI/2));
-//    node->pitch(Ogre::Radian(Ogre::Math::PI/2));
-//    node->roll(Ogre::Radian(Ogre::Math::PI/2));
-    mStaticWorldObject.configure(node, ent);
+
+
+//    const std::string collTestMesh = "test_coll.mesh";
+//    const std::string collTestMesh2D = "test_coll_2D.mesh";
+//    const std::string collTestMesh3D = "test_coll.mesh";
+//    const std::string coll2D = "test_coll.2DColl";
+//    const std::string coll3D = "test_coll.3DColl";
+//
+//    Ogre::Entity* ent = mSceneMgr->createEntity(collTestMesh);
+//    Ogre::Entity* ent2D = mSceneMgr->createEntity(collTestMesh2D);
+//    Ogre::Entity* ent3D = mSceneMgr->createEntity(collTestMesh3D);
+//    ASSERT(ent && ent2D && ent3D && "We couldn't find mesh! resource problem?");
+//
+//    // save 2D and 3D collision mesh representation
+//    if (!coll::CollObjectExporter::transform(ent2D->getMesh().get(), coll2D)) {
+//        debugERROR("Error exporting the mesh %s to %s\n",
+//            collTestMesh.c_str(), coll2D.c_str());
+//        return;
+//    }
+//    if (!physics::BulletExporter::transform(ent3D->getMesh().get(), coll3D)) {
+//        debugERROR("Error exporting mesh %s to %s\n",
+//            collTestMesh.c_str(), coll3D.c_str());
+//        return;
+//    }
+//
+//    // import that data now
+//    coll::CollPreciseInfo* rep2D = 0;
+//    core::AABB aabb;
+//    if (!coll::CollObjectExporter::buildFromFile(coll2D, rep2D, aabb)) {
+//        debugERROR("Error importing 2D\n");
+//        return;
+//    }
+//
+//    physics::BulletShape* rep3D = physics::BulletExporter::buildShapeFromFile(coll3D);
+//    if (!rep3D) {
+//        debugERROR("Error importing 3D\n");
+//        return;
+//    }
+//
+//    // now configure the static world object
+//    mStaticWorldObject.setCollisionInformation(rep2D, aabb);
+//    mStaticWorldObject.setShape(rep3D);
+//
+//    Ogre::SceneNode* node = mSceneMgr->getRootSceneNode()->createChildSceneNode();
+//    node->attachObject(ent);
+//    node->translate(50,100,150);
+////    node->yaw(Ogre::Radian(Ogre::Math::PI/2));
+////    node->pitch(Ogre::Radian(Ogre::Math::PI/2));
+////    node->roll(Ogre::Radian(Ogre::Math::PI/2));
+//    mStaticWorldObject.configure(node, ent);
 }
 
 

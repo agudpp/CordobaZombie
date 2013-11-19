@@ -9,7 +9,7 @@
 
 #include <string.h>
 
-#include <hash_map>
+#include <unordered_map>
 
 #include <OgreVector3.h>
 #include <OgreSceneNode.h>
@@ -27,7 +27,10 @@
 //
 
 #define CHECK_XML_ATTR(xml, varAttrName, errRetVal) \
-    if (xml == 0) return errRetVal; \
+    if (xml == 0) {\
+        debugERROR("xml is null, when trying to get attr " #varAttrName "\n");\
+        return errRetVal; \
+    }\
     const char* varAttrName = xml->Attribute(#varAttrName);\
     if(varAttrName == 0) {\
         debugERROR("Error parsing the attribute " #varAttrName "\n");\
@@ -74,6 +77,7 @@ parseQuaternion(const TiXmlElement* xml, Ogre::Quaternion& result)
     result.y = Ogre::StringConverter::parseReal(qy);
     result.z = Ogre::StringConverter::parseReal(qz);
     result.w = Ogre::StringConverter::parseReal(qw);
+    return true;
 }
 
 // @brief Parse a scene Node info from an xml element
@@ -183,7 +187,7 @@ SceneAssetLoader::loadScene(const std::string& scenePath,
     // we will use a hash to map entName -> asset
     //
     debugOPTIMIZATION("Use a StackHashMap here instead\n");
-    std::hash_map<std::string, core::Asset> nameToAsset;
+    std::unordered_map<std::string, core::Asset> nameToAsset;
     core::StackVector<NodeInfo, 512> nodeInfoVec;
     // we support only until 512 elements
     while (nodes != 0) {
@@ -217,7 +221,7 @@ SceneAssetLoader::loadScene(const std::string& scenePath,
     // well, we have everything we need to start to process all the information
     for (NodeInfo& ni : nodeInfoVec) {
         ASSERT(nameToAsset.find(ni.entInfo.meshFile) != nameToAsset.end());
-        core::Asset& asset = nameToAsset.find(ni.entInfo.meshFile).second;
+        core::Asset& asset = nameToAsset.find(ni.entInfo.meshFile)->second;
         bool processed = false;
 
         // for each builder

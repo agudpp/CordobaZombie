@@ -18,6 +18,10 @@ include(${DEV_ROOT_PATH}/cz/world_object/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/cz/physic_game_object/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/cz/static_world_objects/AutoGen.cmake)
 
+include(${DEV_ROOT_PATH}/cz/scene_asset_loader/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/core/asset/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/resources_handler/AutoGen.cmake)
+
 
 # Define global sources here
 set(HDRS ${HDRS}

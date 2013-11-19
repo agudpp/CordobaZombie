@@ -44,6 +44,9 @@
 #include <physics/helpers/BulletExporter.h>
 #include <collisions/helpers/CollObjectExporter.h>
 #include <physic_game_object/PhysicGameObject.h>
+#include <scene_asset_loader/SceneAssetLoader.h>
+#include <scene_asset_loader/StaticAssetBuilder.h>
+#include <types/DataHolder.h>
 
 
 namespace tests {
@@ -99,6 +102,9 @@ private:
     coll::CollisionHandler& mCollHandler;
 
     cz::StaticWorldObject mStaticWorldObject;
+    cz::StaticAssetBuilder mStaticBuilder;
+    core::DataHolder<physics::BulletShape*> mShapeHolder;
+    core::DataHolder<cz::StaticWorldObject*> mWorldObjectsHolder;
 };
 
 }

@@ -13,6 +13,8 @@
 #include <types/StackVector.h>
 #include <debug/DebugUtil.h>
 
+#include "SceneAssetBuilder.h"
+
 namespace cz {
 
 // forward

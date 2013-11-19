@@ -8,6 +8,8 @@
 #ifndef GLOBALDATA_H_
 #define GLOBALDATA_H_
 
+#include <string>
+
 
 // Forward stuff
 //
@@ -39,6 +41,20 @@ struct GlobalData
     static coll::CollisionHandler* collHandler;
     // last frame elapsed time
     static float lastTimeFrame;
+
+    ////////////////////////////////////////////////////////////////////////////
+    // Helper methods
+    //
+
+    // @brief Get the root resources directory (in this case is the dropbox for
+    //        now). This will be changed later in the final version and we will
+    //        return the real resource path.
+    // @param path      The resulting path where the resources are (with the already
+    //                  ending bar added).
+    // @return true on success | false otherwise
+    //
+    static bool
+    getRootResourcesPath(std::string& path);
 
 };
 

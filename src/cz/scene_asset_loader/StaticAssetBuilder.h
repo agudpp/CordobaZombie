@@ -8,7 +8,7 @@
 #ifndef STATICASSETBUILDER_H_
 #define STATICASSETBUILDER_H_
 
-#include <hash_map>
+#include <unordered_map>
 #include <memory>
 
 #include <types/DataHolder.h>
@@ -42,10 +42,10 @@ public:
     setShapeHolder(void);
 
     // @brief Set the WorldStaticObject vector to be filled with the new allocated
-    //        and built assets.
+    //        and built assets (ready to be used).
     //        Each StaticWorldObject built from the assets of the scene will
     //        be put in this vector and this instance WILL NOT FREE THE MEMORY
-    //        The one who call this is responsible for free the memory
+    //        The one who call this is responsible for free the memory.
     // @param wsoHolder     The WorldStaticObjectHolder
     //
     inline void
@@ -91,11 +91,26 @@ public:
     virtual void
     finish(void);
 
+private:
+
+    // @brief Helper method used to parse the new world object from an asset
+    //        and ogre information.
+    // @param asset     The asset information
+    // @param node      The scene node
+    // @param entity    The entity
+    // @param swo       The static world object to be configured
+    // @return true on success | false otherwise
+    //
+    bool
+    configureStaticWorldObject(const core::Asset& asset,
+                               Ogre::SceneNode* node,
+                               Ogre::Entity* entity,
+                               StaticWorldObject& swo);
 
 private:
     core::DataHolder<physics::BulletShape*>* mShapeHolder;
     core::DataHolder<StaticWorldObject*>* mWorldObjects;
-    std::hash_map<std::string, physics::BulletShape*> mShapeMap;
+    std::unordered_map<std::string, physics::BulletShape*> mShapeMap;
 
 };
 
