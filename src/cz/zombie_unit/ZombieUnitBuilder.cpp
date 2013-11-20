@@ -49,6 +49,12 @@ ZombieUnitBuilder::buildBodyPartElement(const TiXmlElement* xmlElement,
     Ogre::Entity* ent = sceneMngr->createEntity(xmlElement->Attribute("meshName"));
     ASSERT(ent);
 
+    // check if we have a predefined material set
+    const char* materialName = xmlElement->Attribute("matName");
+    if (materialName) {
+        ent->setMaterialName(materialName);
+    }
+
     // now we have to create the bullet object, we can assume that all the
     // elements will be at 0,0,0 position (centered).
     //
@@ -205,15 +211,24 @@ ZombieUnitBuilder::fillBodyPartQueue(BodyPartQueue& queue)
     // parse all the elements and use the queue vector
     BodyPartQueue::BodyPartElementVec& bpeVec = queue.bodyPartElements();
     while (bodyParts != 0) {
-        // we have to increase the size in one of the queue
-        bpeVec.resize(bpeVec.size() + 1);
-        // get the element
-        BodyPartElement& element = bpeVec.back();
+        // check if we have the number of elements set
+        const char* countStr = bodyParts->Attribute("count");
+        unsigned int count = 1;
+        if (countStr) {
+            core::XMLHelper::parseUnsignedInt(bodyParts, "count", count);
+        }
+        // we have to increase the size in then number of elements
+        unsigned int currentIndex = bpeVec.size();
+        bpeVec.resize(bpeVec.size() + count);
+        for (unsigned int i = 0; i < count; ++i) {
+            // get the element
+            BodyPartElement& element = bpeVec[currentIndex++];
 
-        // parse the element here
-        if (!buildBodyPartElement(bodyParts, element)) {
-            debugERROR("Some error occur when building the body part element\n");
-            return false;
+            // parse the element here
+            if (!buildBodyPartElement(bodyParts, element)) {
+                debugERROR("Some error occur when building the body part element\n");
+                return false;
+            }
         }
         bodyParts = bodyParts->NextSiblingElement("BodyPart");
     }

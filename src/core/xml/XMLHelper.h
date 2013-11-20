@@ -18,10 +18,23 @@
 
 
 
-// Forward declaration
+// useful MACROS
 //
-class TiXmlElement;
-class TiXmlDocument;
+
+// @brief check if an xml attribute exists and create a variable named what
+//        varAttrName is assigned to.
+//        In some error case errRetVal is returned
+#define XMLHELPER_CHECK_ATTR(xml, varAttrName, errRetVal) \
+    if (xml == 0) {\
+        debugERROR("xml is null, when trying to get attr " #varAttrName "\n");\
+        return errRetVal; \
+    }\
+    const char* varAttrName = xml->Attribute(#varAttrName);\
+    if(varAttrName == 0) {\
+        debugERROR("Error parsing the attribute " #varAttrName "\n");\
+        return errRetVal;\
+    }\
+
 
 namespace core {
 

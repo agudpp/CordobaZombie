@@ -28,7 +28,12 @@
             - BPE_UPPER_FORE_ARM = 3: All the complete arm (Fore and upper).
         -->
         
-        <BodyPart meshName="cabeza.mesh" type="0" id="1" mass="10" />
+        <BodyPart meshName="cabeza.mesh" 
+                  type="0" 
+                  id="1" 
+                  mass="10" 
+                  count="5"
+                  matName="material1" />
         <BodyPart meshName="ante.mesh" type="1" id="1" mass="10" />
         <BodyPart meshName="brazo.mesh" type="2" id="1" mass="10" />
         <BodyPart meshName="brazoentero.mesh" type="3" id="1" mass="10" />
