@@ -237,7 +237,7 @@ StaticWorldObjectTest::loadStaticWorldObject(void)
     assetLoader.addBuilder(&mStaticBuilder);
 
     // configure the assetLoader
-    std::string scenePath = "sceneAssetLoader.scene";
+    std::string scenePath = "test_19_10.scene";
     std::string rootRscPath;
     if (!cz::GlobalData::getRootResourcesPath(rootRscPath)) {
         debugERROR("Error!!\n");
@@ -358,6 +358,18 @@ StaticWorldObjectTest::loadAditionalData(void)
     Ogre::ResourceManager::ResourceMapIterator iter =
         Ogre::FontManager::getSingleton().getResourceIterator();
     while (iter.hasMoreElements()) { iter.getNext()->load(); }
+
+    // load the resources for the game configuring the resource handler
+    std::string rootRscPath;
+    if (!cz::GlobalData::getRootResourcesPath(rootRscPath)) {
+        debugERROR("Error!!\n");
+        return;
+    }
+    mResourceHandler.setResourceRootPath(rootRscPath);
+    rrh::ResourceGroup rg;
+    rg.setOgreResourceFile(rootRscPath + "test/static_world_objects/resources.cfg");
+    mResourceHandler.loadResourceGroup(rg);
+
 
     // try to load the xml file
     loadFloor();

@@ -112,7 +112,7 @@ StaticAssetBuilder::configureStaticWorldFloor(const core::Asset& asset,
     // We will construct the plane associated to the floor
     Ogre::AxisAlignedBox bb = entity->getBoundingBox();
     debugERROR("Check here if we will have one or more parts of the floor. If we"
-        " will only have one then we can create a PlaneShape instaed of a "
+        " will only have one then we can create a PlaneShape instead of a "
         "bounding box shape. If not, then we need to construct the shape from the"
         " bounding box of the entity (and we will also need to set the size a little"
         " bigger to avoid problems with the fast objects collisions. To do that"

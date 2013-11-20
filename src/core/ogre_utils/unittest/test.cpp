@@ -119,32 +119,55 @@ TEST(CheckGetContourVertices)
         ++numRealVert;
     }
 
+    // reverse them and check that we are getting the same
+    Ogre::Vector3 rverts[NumVerts];
+    for (int i = NumVerts-1, k = 0; i >= 0; --i, ++k) {
+        rverts[k] = verts[i];
+    }
+
     CHECK_EQUAL(NumVerts, numVert);
     unsigned long indices[NumVerts];
+    unsigned long rindices[NumVerts];
     for (unsigned int i = 0; i < NumVerts; ++i) {
         indices[i] = i;
+        rindices[i] = i;
     }
     unsigned int vCount = NumVerts, iCount = NumVerts;
+    unsigned int rvCount = NumVerts, riCount = NumVerts;
 
     CHECK(OgreUtil::getContourVertices(verts, vCount, indices, iCount));
+    CHECK(OgreUtil::getContourVertices(rverts, rvCount, rindices, riCount));
     for (unsigned int i = 0; i < numRealVert; ++i) {
         std::cout << "sortedVerts: " << sortedVerts[i] << std::endl;
     }
 
     CHECK_EQUAL(7, vCount);
+    CHECK_EQUAL(7, rvCount);
     CHECK_EQUAL(NumVerts, iCount);
+    CHECK_EQUAL(NumVerts, riCount);
 
     // check that we maintain the order
     int start = -1;
+    int rstart = -1;
     for (int i = 0; i < vCount; ++i) {
         if (areVerticesEqual(verts[0], sortedVerts[i])) {
             start = i;
             break;
         }
     }
+    for (int i = 0; i < vCount; ++i) {
+        if (areVerticesEqual(rverts[0], sortedVerts[i])) {
+            rstart = i;
+            break;
+        }
+    }
     CHECK(start >= 0);
+    CHECK(rstart >= 0);
     for (unsigned int i = 1; i < vCount; ++i) {
         CHECK_EQUAL(verts[i], sortedVerts[(i+start) % numRealVert]);
+    }
+    for (unsigned int i = 1; i < rvCount; ++i) {
+        CHECK_EQUAL(rverts[i], sortedVerts[(i+rstart) % numRealVert]);
     }
 
 }

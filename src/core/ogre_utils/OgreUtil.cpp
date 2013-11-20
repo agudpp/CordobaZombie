@@ -400,7 +400,8 @@ getContourVertices(Ogre::Vector3* vertices,
 
     // now we should check if they are CW or CCW order... and sort..
     ASSERT(result.size() > 2);
-    if (result[0].dotProduct(result[1]) < 0) {
+    const float crossProdXY = result[0].x * result[1].y - result[0].y * result[1].x;
+    if (crossProdXY < 0) {
         // CW, we need to revert the result
         for (int i = result.size()-1, index = 0; i >= 0; --i, ++index) {
             vertices[index] = result[i];

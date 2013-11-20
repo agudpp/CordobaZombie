@@ -40,6 +40,7 @@
 #include <types/StackVector.h>
 #include <utils/OrbitCamera.h>
 
+#include <ResourceHandler.h>
 #include <static_world_objects/StaticWorldObject.h>
 #include <physics/helpers/BulletExporter.h>
 #include <collisions/helpers/CollObjectExporter.h>
@@ -100,6 +101,8 @@ private:
     ui::MouseCursor mMouseCursor;
     physics::DynamicWorld mDynamicWorld;
     coll::CollisionHandler& mCollHandler;
+
+    rrh::ResourceHandler mResourceHandler;
 
     cz::StaticWorldObject mStaticWorldObject;
     cz::StaticAssetBuilder mStaticBuilder;

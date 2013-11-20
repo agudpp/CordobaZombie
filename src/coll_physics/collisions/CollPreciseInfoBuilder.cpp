@@ -157,8 +157,14 @@ CollPreciseInfoBuilder::isAABB(const core::Vector2* vertices,
 
     const float polyArea = (xMult - yMult) * 0.5f;
     const float bbArea = mBB.getHeight() * mBB.getWidth();
-    ASSERT(bbArea > 0);
-    ASSERT(polyArea > 0);
+    ASSERT(bbArea >= 0);
+    if (polyArea < 0.f) {
+        debugERROR("Poly area %f, numVerts: %d, bbArea: %f\n", polyArea, count, bbArea);
+        for (int i = 0; i < count; ++i) {
+            std::cout << "vertex[" << i << "]:" << vertices[i] << std::endl;
+        }
+    }
+    ASSERT(polyArea >= 0);
     const float factor = (bbArea - polyArea) / bbArea;
 
     if ((factor*factor) <= sqredErr) {
