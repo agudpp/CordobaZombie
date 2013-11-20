@@ -33,7 +33,7 @@ namespace core {
 
 ////////////////////////////////////////////////////////////////////////////////
 bool
-AssetLoader::parseAssetFile(Asset& asset) const
+AssetLoader::parseAssetFile(Asset& asset, const std::string& path) const
 {
     ASSERT(mXMLDoc.RootElement() != 0);
 
@@ -66,8 +66,16 @@ AssetLoader::parseAssetFile(Asset& asset) const
     CHECK_XML_ATTR(root, coll3DRepFile, false);
 
     // now set the values to the asset.
-    asset.coll2DRepFile = coll2DRepFile;
-    asset.coll3DRepFile = coll3DRepFile;
+    if (strlen(coll2DRepFile) == 0) {
+        asset.coll2DRepFile.clear();
+    } else {
+        asset.coll2DRepFile = path + coll2DRepFile;
+    }
+    if (strlen(coll3DRepFile) == 0) {
+        asset.coll3DRepFile.clear();
+    } else {
+        asset.coll3DRepFile = path + coll3DRepFile;
+    }
     asset.meshName = meshName;
     asset.name = name;
     assetStringTypeToEnumType(type, asset.type);
@@ -138,7 +146,7 @@ AssetLoader::loadAssetFromOgreResource(const std::string& resourceName,
     }
 
     // now parse it and return the value
-    return parseAssetFile(result);
+    return parseAssetFile(result, path);
 }
 
 } /* namespace core */

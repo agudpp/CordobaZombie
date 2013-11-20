@@ -10,6 +10,7 @@
 
 #include <world_object/WorldObject.h>
 #include <physics/BulletCollisionObject.h>
+#include <fx/effects/EffectQueueDefs.h>
 
 // @brief This module represents the static world objects of an scene.
 //          - The 3D graphic representation.
@@ -17,6 +18,13 @@
 //          - The 3D collision representation.
 //          - The associated effects when a bullet collide against it.
 //
+
+// forward
+//
+namespace effect {
+class EffectHandler;
+}
+
 
 namespace cz {
 
@@ -27,7 +35,14 @@ public:
     virtual
     ~StaticWorldObject();
 
-
+    // @brief We need to set the global EffectHandler to be used for all the
+    //        effects of the zombies.
+    // @param eh        The global effect handler
+    //
+    static inline void
+    setEffectHandler(effect::EffectHandler* eh);
+    static inline effect::EffectHandler*
+    effectHandler(void);
 
     ////////////////////////////////////////////////////////////////////////////
     // Physics stuff methods
@@ -69,15 +84,12 @@ public:
     // @brief Set the effect queue to be used when a bullet hits this object
     // @param queue     The queue of effects
     //
-    // TODO: issue #255
-
-    // @brief Set the sound we want to play when a bullet hits this object.
-    //        This probably could be an effect sound or just an sound reference.
-    //        Try to avoid using the name of the sound (save the reference to the
-    //        sound instaed since is less memory expensive).
-    // @param sound     The sound to be reproduced when the bullet hits the object
     //
-    // TODO: issue #256
+    inline void
+    setBulletImpactEffectQueue(BulletImpactEffectQueue* queue);
+    inline BulletImpactEffectQueue*
+    bulletImpactEffectQueue(void);
+
 
 
     ////////////////////////////////////////////////////////////////////////////
@@ -113,6 +125,10 @@ public:
 private:
     // the physical representation
     physics::BulletCollisionObject mPhysicsRep;
+    BulletImpactEffectQueue* mBulletEffectQueue;
+
+    // static data
+    static effect::EffectHandler* sEffectHandler;
 };
 
 
@@ -122,6 +138,17 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 // Inline methods
 //
+inline void
+StaticWorldObject::setEffectHandler(effect::EffectHandler* eh)
+{
+    ASSERT(eh);
+    sEffectHandler = eh;
+}
+inline effect::EffectHandler*
+StaticWorldObject::effectHandler(void)
+{
+    return sEffectHandler;
+}
 
 inline void
 StaticWorldObject::setShape(physics::BulletShape* shape)
@@ -133,6 +160,17 @@ inline bool
 StaticWorldObject::hasShape(void) const
 {
     return mPhysicsRep.shape() != 0;
+}
+
+inline void
+StaticWorldObject::setBulletImpactEffectQueue(BulletImpactEffectQueue* queue)
+{
+    mBulletEffectQueue = queue;
+}
+inline BulletImpactEffectQueue*
+StaticWorldObject::bulletImpactEffectQueue(void)
+{
+    return mBulletEffectQueue;
 }
 
 } /* namespace cz */

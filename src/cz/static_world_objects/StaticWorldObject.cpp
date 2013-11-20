@@ -10,11 +10,17 @@
 #include <debug/DebugUtil.h>
 #include <physics/DynamicWorld.h>
 #include <CZMasksDefines.h>
+#include <fx/effects/bullet_impact/BulletImpactEffect.h>
+#include <effect_handler/EffectHandler.h>
 
 namespace cz {
 
+effect::EffectHandler* StaticWorldObject::sEffectHandler = 0;
+
+
 ////////////////////////////////////////////////////////////////////////////////
-StaticWorldObject::StaticWorldObject()
+StaticWorldObject::StaticWorldObject() :
+    mBulletEffectQueue(0)
 {
     // we will set the current bullet user pointer to point this instance
     mPhysicsRep.collObject.setUserPointer(this);
@@ -43,10 +49,26 @@ void
 StaticWorldObject::processImpactInfo(const HitInfo& hitInfo)
 {
     // get the effect from the queue and reproduce if we have an available effect
-    debugERROR("TODO: reproduce the effect here, issue #255\n");
+    if (mBulletEffectQueue == 0) {
+        // nothing to do
+        debugWARNING("We have no effect queue set?\n");
+        return;
+    }
+    BulletImpactEffect* effect = mBulletEffectQueue->getAvailable();
+    if (!effect) {
+        debugWARNING("No effect available\n");
+        return;
+    }
+    // configure the effect
+    effect->setParams(hitInfo.intersectionPoint,
+                      hitInfo.normalIntersection,
+                      hitInfo.ray.getDirection(),
+                      hitInfo.power);
 
-    // get the sound to be reproduce and reproduce it if we can
-    debugERROR("TODO: reproduce the sound here: issue #256\n");
+    // start the effect
+    ASSERT(sEffectHandler && "You need to set the effect handler to be used for"
+        " all the static world objects");
+    sEffectHandler->add(effect);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

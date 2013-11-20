@@ -57,10 +57,11 @@ public:
 private:
     // @brief Parse a .assetInfo file and fill the asset structure
     // @param asset     The asset structure to be filled
+    // @param path      The asset full path
     // @return true on success | false otherwise
     //
     bool
-    parseAssetFile(Asset& asset) const;
+    parseAssetFile(Asset& asset, const std::string& path) const;
 
 
 private:

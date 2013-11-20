@@ -49,6 +49,14 @@ public:
     static BulletShape*
     createBoxShape(const Ogre::AxisAlignedBox& bb);
 
+    // @brief Create a plane shape from a vector (direction) and a float distance
+    // @param direction     The direction of the plane
+    // @param distance      The distance where the plane should be set
+    // @return the new allocated shape or 0 on error.
+    //
+    static BulletShape*
+    createPlaneShape(const Ogre::Vector3& direction, float distance);
+
     // @brief This method will create a shape from a given mesh.
     // @param mesh      The Ogre mesh that we want to use to create the shape
     // @returns btCollisionShape on success | 0 on error

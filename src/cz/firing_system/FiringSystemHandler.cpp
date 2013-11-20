@@ -43,6 +43,7 @@ FiringSystemHandler::update(void)
     //
     HitInfo hitInfo;
 
+
     unsigned int index = 0;
     for (auto it = mBullets.begin(), end = mBullets.end(); it != end; ++it, ++index) {
         Bullet* bullet = *it;
@@ -61,8 +62,9 @@ FiringSystemHandler::update(void)
             // for collisions using bullet.
             mPhysicsRaycastInfo.from = physics::BulletUtils::ogreToBullet(start);
             mPhysicsRaycastInfo.to = physics::BulletUtils::ogreToBullet(endPos);
+            physics::RaycastMultiResult raycastResult;
             if (mDynamicWorld->performRaycast(mPhysicsRaycastInfo,
-                                               mPhysicsRaycastResult)) {
+                                               raycastResult)) {
 
                 // configure the hit info just in case using the bullet
                 // information
@@ -74,18 +76,25 @@ FiringSystemHandler::update(void)
                 // perform whatever we need.
                 //
                 bool impactProcessed = false;
-                const unsigned int numObjects = mPhysicsRaycastResult.size();
+                const unsigned int numObjects = raycastResult.size();
                 for (unsigned int i = 0; i < numObjects && (!impactProcessed); ++i) {
-                    const btCollisionObject* btCollObj = mPhysicsRaycastResult.btCollObject(i);
+                    const btCollisionObject* btCollObj = raycastResult.btCollObject(i);
                     ASSERT(btCollObj && "We should have a bullet collision object "
                         "assoaciated always");
 
                     // get the associated user def pointer..
                     void* userDef = btCollObj->getUserPointer();
+#ifdef DEBUG
+                    if (userDef == 0) {
+                        debugWARNING("We hit an element that is not being tracked!\n");
+                        continue;
+                    }
+#else
                     ASSERT(userDef && "We should always have some element associated "
                         "to each bulletObject since we are performing the raycast"
                         " using the flags to detect zombies and world objects and"
                         " anything that could be raycasted using bullet!");
+#endif
 
                     // get the PhysicGameObject associated to this bullet object
                     PhysicGameObject* physicsGameObj= static_cast<PhysicGameObject*>(userDef);
@@ -97,10 +106,10 @@ FiringSystemHandler::update(void)
                         // we will set the needed information
                         hitInfo.intersectionPoint =
                             physics::BulletUtils::bulletToOgre(
-                                mPhysicsRaycastResult.worldPosition(i));
+                                raycastResult.worldPosition(i));
                         hitInfo.normalIntersection =
                             physics::BulletUtils::bulletToOgre(
-                                mPhysicsRaycastResult.worldNormal(i));
+                                raycastResult.worldNormal(i));
 
                         // process the intersection and hit information
                         physicsGameObj->processImpactInfo(hitInfo);
