@@ -49,6 +49,15 @@
 #include <scene_asset_loader/StaticAssetBuilder.h>
 #include <types/DataHolder.h>
 
+#include <firing_system/BulletQueue.h>
+#include <firing_system/Bullet.h>
+#include <firing_system/FiringSystemHandler.h>
+
+#include <effect_handler/EffectHandler.h>
+#include <fx/effects/blood/BloodParticles.h>
+#include <fx/effects/EffectQueueDefs.h>
+#include <fx/effects/bullet_impact/BulletImpactQueueHandler.h>
+
 
 namespace tests {
 
@@ -87,10 +96,15 @@ private:
     void
     handleCameraInput(void);
 
+    void
+    createBulletSystem(void);
+
     // @brief Load the static world object
     //
     void
     loadStaticWorldObject(void);
+
+
 
 private:
     cz::StaticDataLoader mData;
@@ -108,6 +122,11 @@ private:
     cz::StaticAssetBuilder mStaticBuilder;
     core::DataHolder<physics::BulletShape*> mShapeHolder;
     core::DataHolder<cz::StaticWorldObject*> mWorldObjectsHolder;
+
+    effect::EffectHandler mEffectHandler;
+    cz::FiringSystemHandler mFiringSystem;
+    cz::BulletQueue mBulletsQueue;
+    cz::BulletImpactQueueHandler mBulletImpactQueueHandler;
 };
 
 }

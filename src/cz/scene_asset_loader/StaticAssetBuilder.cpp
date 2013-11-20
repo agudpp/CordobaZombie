@@ -146,9 +146,34 @@ StaticAssetBuilder::configureStaticWorldFloor(const core::Asset& asset,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+BulletImpactEffectQueue*
+StaticAssetBuilder::getBulletImpactQueue(const core::Asset& asset)
+{
+    ASSERT(mBulletImpactHandler);
+
+    BulletImpactQueueHandler::Type type = BulletImpactQueueHandler::Type::BIQT_DEFAULT;
+    switch (asset.materialType) {
+    case core::AssetMaterialType::ASSET_MAT_NONE:
+        break;
+    case core::AssetMaterialType::ASSET_MAT_METAL:
+        type = BulletImpactQueueHandler::Type::BIQT_METAL;
+        break;
+    case core::AssetMaterialType::ASSET_MAT_WOOD:
+        type = BulletImpactQueueHandler::Type::BIQT_WOOD;
+        break;
+    case core::AssetMaterialType::ASSET_MAT_ROCK:
+        type = BulletImpactQueueHandler::Type::BIQT_ROCK;
+        break;
+    }
+
+    return mBulletImpactHandler->queue(type);
+}
+
+////////////////////////////////////////////////////////////////////////////////
 StaticAssetBuilder::StaticAssetBuilder() :
     mShapeHolder(0)
 ,   mWorldObjects(0)
+,   mBulletImpactHandler(0)
 {
     debugOPTIMIZATION("We are using a hash_map here, we can optmize this probably\n");
 }
@@ -166,6 +191,8 @@ StaticAssetBuilder::reset(void)
 {
     ASSERT(mShapeHolder);
     ASSERT(mWorldObjects);
+    ASSERT(mBulletImpactHandler);
+
     mShapeMap.clear();
     if (!mShapeHolder->elements().empty()) {
         debugWARNING("The shape holder is not empty\n");
@@ -220,6 +247,9 @@ StaticAssetBuilder::build(const core::Asset& asset,
         debugERROR("Error configuring asset\n");
         return false;
     }
+
+    // set the queue to be used by this static object
+    swo->setBulletImpactEffectQueue(getBulletImpactQueue(asset));
 
     // everything fine
     // release the scope pointer and put it in the vector

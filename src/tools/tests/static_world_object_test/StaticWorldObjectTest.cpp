@@ -121,6 +121,7 @@ StaticWorldObjectTest::configureBullet(void)
     floor.setExtents(Ogre::Vector3(-1520,-1550,-10),Ogre::Vector3(1520,1550,0));
     // leak here
     physics::BulletObject* floorObject = physics::BulletImporter::createBox(floor, 0);
+    floorObject->setUserPointer(0);
     floorObject->motionState.node()->setVisible(false);
     mDynamicWorld.addObject(*floorObject);
 }
@@ -227,11 +228,23 @@ StaticWorldObjectTest::handleCameraInput()
 
 ////////////////////////////////////////////////////////////////////////////////
 void
+StaticWorldObjectTest::createBulletSystem(void)
+{
+    Ogre::AxisAlignedBox worldLimits(-1000,-1000,-100,1000,1000,1000);
+    mFiringSystem.setInfo(&mDynamicWorld, worldLimits);
+
+    // create the bullets
+    mBulletsQueue.build();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void
 StaticWorldObjectTest::loadStaticWorldObject(void)
 {
     // configure the staticBuilder
     mStaticBuilder.setShapeHolder(&mShapeHolder);
     mStaticBuilder.setWorldStaticObjectHolder(&mWorldObjectsHolder);
+    mStaticBuilder.setBulletImpactQueueHandler(&mBulletImpactQueueHandler);
 
     cz::SceneAssetLoader assetLoader;
     assetLoader.addBuilder(&mStaticBuilder);
@@ -337,6 +350,7 @@ StaticWorldObjectTest::StaticWorldObjectTest() :
     cz::GlobalData::collHandler = &mCollHandler;
     cz::GlobalData::sceneMngr = mSceneMgr;
     cz::PhysicGameObject::setDynamicWorld(&mDynamicWorld);
+    cz::StaticWorldObject::setEffectHandler(&mEffectHandler);
 
     // configure the static world
     core::AABB worldBB(3000,-3000,-3000,3000);
@@ -370,11 +384,17 @@ StaticWorldObjectTest::loadAditionalData(void)
     rg.setOgreResourceFile(rootRscPath + "test/static_world_objects/resources.cfg");
     mResourceHandler.loadResourceGroup(rg);
 
-
     // try to load the xml file
     loadFloor();
 
     configureBullet();
+
+    createBulletSystem();
+
+    // build the queue of effects
+    if (!mBulletImpactQueueHandler.buildQueues()) {
+        debugERROR("Error building queues of bullet impact effects\n");
+    }
 
     // create the static world object
     loadStaticWorldObject();
@@ -409,6 +429,19 @@ StaticWorldObjectTest::update()
         bo->rigidBody->applyCentralImpulse(btForce);
     }
 
+    // if click shoot a bullet
+    if (mInputHelper.isMouseReleased(input::MouseButtonID::MB_Left)) {
+        // fire a bullet
+        cz::Bullet* bullet = mBulletsQueue.getAvailable();
+        if (bullet) {
+            const Ogre::Vector3& camDir = mCamera->getRealDirection();
+            const Ogre::Vector3& camPos = mCamera->getRealPosition();
+            bullet->configure(camPos - Ogre::Vector3(0,0,1.2f), camDir);
+            bullet->setProperties(10.f, 444.f);
+            mFiringSystem.add(bullet);
+        }
+    }
+
     if (mInputHelper.isKeyPressed(input::KeyCode::KC_LEFT)) {
         Ogre::Quaternion current = mStaticWorldObject.rotation();
         current = current * Ogre::Quaternion(Ogre::Degree(0.1), Ogre::Vector3::UNIT_Z);
@@ -421,6 +454,10 @@ StaticWorldObjectTest::update()
     // update dynamic world
     mCollHandler.update();
     mDynamicWorld.simulate(mTimeFrame);
+    mEffectHandler.update(cz::GlobalData::lastTimeFrame);
+
+    // firing system
+    mFiringSystem.update();
 
 }
 

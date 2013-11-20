@@ -14,6 +14,7 @@
 #include <types/DataHolder.h>
 #include <physics/BulletShape.h>
 #include <static_world_objects/StaticWorldObject.h>
+#include <fx/effects/bullet_impact/BulletImpactQueueHandler.h>
 
 #include "SceneAssetBuilder.h"
 
@@ -53,6 +54,14 @@ public:
     inline core::DataHolder<StaticWorldObject*>*
     worldStaticObjectHolder(void);
 
+    // @brief Set the BulletImpactQueueHandler to be used for the elements of
+    //        the world
+    // @param qh     The BulletImpactQueueHandler
+    //
+    inline void
+    setBulletImpactQueueHandler(BulletImpactQueueHandler* qh);
+    inline BulletImpactQueueHandler*
+    bulletImpactQueueHandler(void);
 
 
     ////////////////////////////////////////////////////////////////////////////
@@ -126,13 +135,14 @@ private:
     // @return the queue reference to be used on success | 0 on error. This
     //         pointer shouldn't be free by the caller.
     //
-
+    BulletImpactEffectQueue*
+    getBulletImpactQueue(const core::Asset& asset);
 
 private:
     core::DataHolder<physics::BulletShape*>* mShapeHolder;
     core::DataHolder<StaticWorldObject*>* mWorldObjects;
+    BulletImpactQueueHandler* mBulletImpactHandler;
     std::unordered_map<std::string, physics::BulletShape*> mShapeMap;
-
 };
 
 
@@ -166,6 +176,17 @@ inline core::DataHolder<StaticWorldObject*>*
 StaticAssetBuilder::worldStaticObjectHolder(void)
 {
     return mWorldObjects;
+}
+
+inline void
+StaticAssetBuilder::setBulletImpactQueueHandler(BulletImpactQueueHandler* qh)
+{
+    mBulletImpactHandler = qh;
+}
+inline BulletImpactQueueHandler*
+StaticAssetBuilder::bulletImpactQueueHandler(void)
+{
+    return mBulletImpactHandler;
 }
 
 } /* namespace cz */
