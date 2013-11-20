@@ -21,6 +21,13 @@
         return errRetVal;\
     }\
 
+#define CHECK_XML_OPTIONAL_ATTR(xml, varAttrName) \
+    const char* varAttrName = xml->Attribute(#varAttrName);\
+    if(varAttrName == 0) {\
+        debugWARNING("The attribute " #varAttrName " is not present...we will"\
+                     " use the default value for it\n");\
+    }\
+
 
 namespace core {
 
@@ -35,6 +42,7 @@ AssetLoader::parseAssetFile(Asset& asset) const
 //    <Asset  name="zombie"
 //            meshName="zombie.mesh"
 //            type="ASSET_STATIC_WORLD_ELEMENT"
+//            materialType="..."
 //            coll2DRepFile="zombie.2DColl"
 //            coll3DRepFile="zombie.3DColl"
 //            />
@@ -53,6 +61,7 @@ AssetLoader::parseAssetFile(Asset& asset) const
     CHECK_XML_ATTR(root, name, false);
     CHECK_XML_ATTR(root, meshName, false);
     CHECK_XML_ATTR(root, type, false);
+    CHECK_XML_OPTIONAL_ATTR(root, materialType);
     CHECK_XML_ATTR(root, coll2DRepFile, false);
     CHECK_XML_ATTR(root, coll3DRepFile, false);
 
@@ -62,6 +71,9 @@ AssetLoader::parseAssetFile(Asset& asset) const
     asset.meshName = meshName;
     asset.name = name;
     assetStringTypeToEnumType(type, asset.type);
+    if (materialType) {
+        assetStringTypeToMaterialEnumType(materialType, asset.materialType);
+    }
 
     return true;
 }

@@ -3,6 +3,8 @@
 <!-- The asset information:
     // The type of the asset (3D static world object / 2D dynamic object / etc)
     AssetType type;
+    // The asset material type if it has, or could be NONE by default
+    AssetMaterialType materialType;
     // this is the id used by the asset
     std::string meshName;
     // the full path to the asset file info (including the asset file)
@@ -15,12 +17,17 @@
     where:
         AssetType could be:
             ASSET_STATIC_WORLD_ELEMENT,
-            
+        AssetMaterialType could be:
+            ASSET_MAT_NONE,
+            ASSET_MAT_METAL,
+            ASSET_MAT_WOOD,
+            ASSET_MAT_ROCK,
 -->
 
 <Asset  name="zombie"
         meshName="zombie.mesh"
         type="ASSET_STATIC_WORLD_ELEMENT"
+        materialType="ASSET_MAT_WOOD"
         coll2DRepFile="zombie.2DColl"
         coll3DRepFile="zombie.3DColl"
         />

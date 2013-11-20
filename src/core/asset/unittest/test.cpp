@@ -35,6 +35,7 @@ TEST(CheckAssetLoader)
     CHECK_EQUAL("asset_test", a1.name);
     CHECK_EQUAL("asset_test.mesh", a1.meshName);
     CHECK_EQUAL(AssetType::ASSET_STATIC_WORLD_ELEMENT, a1.type);
+    CHECK_EQUAL(AssetMaterialType::ASSET_MAT_NONE, a1.materialType);
     CHECK_EQUAL("asset_test_2dcol.mesh", a1.coll2DRepFile);
     CHECK_EQUAL("", a1.coll3DRepFile);
 
@@ -42,6 +43,7 @@ TEST(CheckAssetLoader)
     CHECK_EQUAL("asset_test2", a2.name);
     CHECK_EQUAL("asset_test2.mesh", a2.meshName);
     CHECK_EQUAL(AssetType::ASSET_STATIC_WORLD_ELEMENT, a2.type);
+    CHECK_EQUAL(AssetMaterialType::ASSET_MAT_METAL, a2.materialType);
     CHECK_EQUAL("asset_test2_2dcol.mesh", a2.coll2DRepFile);
     CHECK_EQUAL("", a2.coll3DRepFile);
 }
