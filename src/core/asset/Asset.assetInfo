@@ -17,6 +17,7 @@
     where:
         AssetType could be:
             ASSET_STATIC_WORLD_ELEMENT,
+            ASSET_STATIC_WORLD_FLOOR,
         AssetMaterialType could be:
             ASSET_MAT_NONE,
             ASSET_MAT_METAL,

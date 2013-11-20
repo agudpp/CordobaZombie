@@ -1,4 +1,5 @@
 include(${DEV_ROOT_PATH}/core/command_line/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/core/debug/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/coll_physics/collisions/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/coll_physics/collisions/helpers/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/coll_physics/physics/helpers/AutoGen.cmake)

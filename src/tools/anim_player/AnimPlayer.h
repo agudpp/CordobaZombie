@@ -25,6 +25,7 @@
 #include <utils/OrbitCamera.h>
 #include <input/InputHelper.h>
 
+#include <debug/PrimitiveDrawer.h>
 
 // The xml file for this tool
 // <AnimPlayer mesh="file.mesh" />
@@ -141,6 +142,8 @@ private:
     core::OgreTextTable mTextTable;
     EntityAnimations mEntityAnims;
     input::InputHelper mInputHelper;
+
+    core::Primitive* mAxisPrim;
 };
 
 }

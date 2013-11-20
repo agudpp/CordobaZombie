@@ -10,6 +10,7 @@
 #include <bullet/btBulletCollisionCommon.h>
 #include <bullet/btBulletDynamicsCommon.h>
 #include <bullet/BulletCollision/CollisionShapes/btShapeHull.h>
+#include <bullet/BulletCollision/CollisionShapes/btStaticPlaneShape.h>
 
 #include <debug/PrimitiveDrawer.h>
 #include <ogre_utils/OgreUtil.h>
@@ -80,6 +81,13 @@ BulletImporter::createBoxShape(const Ogre::AxisAlignedBox& bb)
 {
     const Ogre::Vector3 halfsize = bb.getHalfSize();
     return new btBoxShape(btVector3(halfsize.x, halfsize.y, halfsize.z));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+BulletShape*
+BulletImporter::createPlaneShape(const Ogre::Vector3& direction, float distance)
+{
+    return new btStaticPlaneShape(BulletUtils::ogreToBullet(direction), distance);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

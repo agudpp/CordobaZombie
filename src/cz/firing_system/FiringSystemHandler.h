@@ -78,7 +78,6 @@ private:
 
 private:
     physics::DynamicWorld* mDynamicWorld;
-    physics::RaycastMultiResult mPhysicsRaycastResult;
     physics::RaycastInfo mPhysicsRaycastInfo;
     Ogre::AxisAlignedBox mWorldLimits;
     std::vector<Bullet*> mBullets;

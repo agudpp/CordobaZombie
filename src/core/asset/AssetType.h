@@ -17,6 +17,7 @@ namespace core {
 enum AssetType {
     ASSET_INVALID = 0,
     ASSET_STATIC_WORLD_ELEMENT,
+    ASSET_STATIC_WORLD_FLOOR,
 };
 
 
@@ -31,6 +32,8 @@ assetStringTypeToEnumType(const std::string& strType,
     enumType = AssetType::ASSET_INVALID;
     if (strType == "ASSET_STATIC_WORLD_ELEMENT") {
         enumType = AssetType::ASSET_STATIC_WORLD_ELEMENT;
+    } else if (strType == "ASSET_STATIC_WORLD_FLOOR") {
+        enumType = AssetType::ASSET_STATIC_WORLD_FLOOR;
     }
 
     return enumType != AssetType::ASSET_INVALID;

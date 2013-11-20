@@ -310,8 +310,9 @@ SoundTest::initSoundsPlayback(void)
 	std::vector<Ogre::String> soundsList;
 
 
-	// Play environmental water sound  ////////////////////////////////////////
-	// FIXME: direct access to SoundManager, DON'T DO THIS OUTSIDE TESTERS!
+	// Try to start playing environmental sound  //////////////////////////////
+	// Do this only for env sounds which need constant playback.
+	// Else embed into a playlist (see below)
 	//
 	testBEGIN("Iniciando reproducción del sonido ambiente fxA20.ogg\n");
 	err = mm::SoundManager::getInstance().playEnvSound(
@@ -347,19 +348,14 @@ SoundTest::initSoundsPlayback(void)
 
 	// Play punctual sound, using his (detached) SoundAPI  ////////////////////
 	//
-	/* FIXME (erase this comment after fix)
-	 * Decomment following code after issues #146 and #147
-	 * of MantisBT get solved.
-	 * http://cordobazombie.com.ar/dev/tracker/view.php?id=146
-	 */
-//	testBEGIN("Iniciando reproducción del sonido puntual %s.\n", audioFile[1]);
-//	err = sirenSoundAPI->play(audioFile[1], true, DEFAULT_UNIT_GAIN);
-//	if (err == mm::SSerror::SS_NO_ERROR) {
-//		testSUCCESS("Reproducción iniciada.%s", "\n");
-//	} else {
-//		testFAIL("Falló.\n");
-//		return false;
-//	}
+	testBEGIN("Iniciando reproducción del sonido puntual %s.\n", audioFile[1]);
+	err = sirenSoundAPI->play(audioFile[1], true, DEFAULT_UNIT_GAIN);
+	if (err == mm::SSerror::SS_NO_ERROR) {
+		testSUCCESS("Reproducción iniciada.%s", "\n");
+	} else {
+		testFAIL("Falló.\n");
+		return false;
+	}
 
 
 	// Create three different playlists  //////////////////////////////////////
@@ -419,8 +415,10 @@ SoundTest::initSoundsPlayback(void)
 	testSUCCESS("Reproducción iniciada.\n");
 
 
-	// Embed loose environmental sound into playlist   ////////////////////////
-	// (this is the correct way of playing env sounds)
+	// Embed environmental sound into playlist   //////////////////////////////
+	// This is the default way of playing env sounds.
+	// If constant playback needed, e.g. water sound near a river,
+	// then create&handle env sound directly through SoundManagar (see above)
 	//
 	testBEGIN("Iniciando el sonido ambiente \"%s\" dentro de un playlist.\n",
 			audioFile[0]);
@@ -596,178 +594,6 @@ SoundTest::handleSoundInput(void)
 
 	return;
 }
-
-
-//
-// TODO: merge with upper function ("handleSoundInput") and erase
-//
-////
-//// Keyboard & mouse input handling
-////
-//static void
-//handleInput(void)
-//{
-//	static SoundManager& sMgr(SoundManager::getInstance());
-//	static bool mousePressed(false);
-//	static bool keyPressed(false);
-//	static std::vector<SSplayback> state(4, SSplayback::SS_PLAYING);
-//
-//
-//	// MOUSE
-//
-//	const OIS::MouseState& lMouseState = GLOBAL_MOUSE->getMouseState();
-//	mMouseCursor.updatePosition(lMouseState.X.abs, lMouseState.Y.abs);
-//
-//	if(GLOBAL_MOUSE->getMouseState().buttonDown(OIS::MB_Left)){
-//		if (!mousePressed) {
-//			mousePressed = true;
-//			Ogre::Vector3 v;
-//
-//			// check if we are getting a player
-//			static CollisionResult cr;
-//			static PlayerUnit *pu = 0;
-//
-//			// first check if we have a player selected
-//			if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_LSHIFT)){
-//				if(pu){
-//					pu->objectUnselected();
-//					pu = 0;
-//				}
-//				goto exit_mouse_input;
-//			}
-//			// else...
-//
-//			mLevelManager.getRaycastManger()->getPoint(mMouseCursor.getXRelativePos(),
-//					mMouseCursor.getYRelativePos(), v);
-//			mLevelManager.getCollisionManager()->getCollisionObjects(
-//					sm::Point(v.x, v.z), COL_FLAG_UNIT_PLAYER ,cr);
-//
-//			if(!cr.empty()){
-//				// get the player
-//				pu = static_cast<PlayerUnit *>(cr.front()->userDefined);
-//				pu->objectSelected();
-//			} else {
-//				if(pu){
-//					pu->plantBomb(mBomb, sm::Vector2(v.x,v.z));
-//				}
-//			}
-//		}
-//	} else {
-//		if (mousePressed) {
-//			mousePressed = false;
-//		}
-//	}
-//	exit_mouse_input:
-//
-//
-//	// KEYBOARD
-//
-//	// Test collect object
-//	if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_C)){
-//		if (!keyPressed) {
-//			keyPressed = true;
-//			testCollectObject();
-//		}
-//
-//	// Zombies creation
-//	} else if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_G)){
-//		if (!keyPressed) {
-//			keyPressed = true;
-//			testStart();
-//		}
-//
-//	// Zombies attack mode
-//	} else if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_E)){
-//		if (!keyPressed) {
-//			keyPressed = true;
-//			testEngageEveryone();
-//		}
-//
-//	// Toogle play/pause of all sounds.
-//	} else if (GLOBAL_KEYBOARD->isKeyDown(OIS::KC_NUMPAD0)) {
-//		if (!keyPressed) {
-//			keyPressed = true;
-//			if (state[0] == SSplayback::SS_PLAYING) {
-//				mSoundHandler.globalPause();
-//				state[0] = SSplayback::SS_PAUSED;
-//				debugBLUE("Global sounds PAUSED.%s", "\n");
-//			} else {
-//				mSoundHandler.globalPlay();
-//				state[0] = SSplayback::SS_PLAYING;
-//				debugBLUE("Global sounds PLAY.%s", "\n");
-//			}
-//		}
-//
-//	// Toogle play/pause of units sounds.
-//	} else if (GLOBAL_KEYBOARD->isKeyDown(OIS::KC_NUMPAD1)) {
-//		if (!keyPressed) {
-//			keyPressed = true;
-//			if (state[1] == SSplayback::SS_PLAYING) {
-//				pauseUnitsSounds();
-//				state[1] = SSplayback::SS_PAUSED;
-//				debugBLUE("Units' sounds PAUSED.%s", "\n");
-//			} else {
-//				playUnitsSounds();
-//				state[1] = SSplayback::SS_PLAYING;
-//				debugBLUE("Units' sounds PLAY.%s", "\n");
-//			}
-//		}
-//
-//	// Toogle play/pause of environmental music.
-//	} else if (GLOBAL_KEYBOARD->isKeyDown(OIS::KC_NUMPAD2)) {
-//		if (!keyPressed) {
-//			keyPressed = true;
-//			if (state[2] == SSplayback::SS_PLAYING) {
-//				pauseEnvSounds();
-//				state[2] = SSplayback::SS_PAUSED;
-//				debugBLUE("Environmental music PAUSED.%s", "\n");
-//			} else {
-//				playEnvSounds();
-//				state[2] = SSplayback::SS_PLAYING;
-//				debugBLUE("Environmental music PLAY.%s", "\n");
-//			}
-//		}
-//
-//	// Restart all sounds.
-//	} else if (GLOBAL_KEYBOARD->isKeyDown(OIS::KC_SPACE)) {
-//		if (!keyPressed) {
-//			keyPressed = true;
-//			mSoundHandler.globalRestart();
-//			debugBLUE("Global sounds RESTARTED.%s", "\n");
-//		}
-//
-//	// Stop all sounds.
-//	} else if (GLOBAL_KEYBOARD->isKeyDown(OIS::KC_NUMPADENTER)) {
-//		if (!keyPressed) {
-//			keyPressed = true;
-//			mSoundHandler.globalStop();
-//			debugBLUE("Global sounds STOPPED.%s", "\n");
-//		}
-//
-//	// Toogle fade in/out of all sounds.
-//	} else if (GLOBAL_KEYBOARD->isKeyDown(OIS::KC_NUMPAD3)) {
-//		if (!keyPressed) {
-//			keyPressed = true;
-//			if (state[3] != SSplayback::SS_FADING_OUT_AND_PAUSE) {
-//				mSoundHandler.globalFadeOut(FADE_TIME);
-//				state[3] = SSplayback::SS_FADING_OUT_AND_PAUSE;
-//				debugBLUE("Global sounds FADING OUT (%.2f seconds)\n", FADE_TIME);
-//			} else {
-//				mSoundHandler.globalFadeIn(FADE_TIME);
-//				state[3] = SSplayback::SS_FADING_IN;
-//				debugBLUE("Global sounds FADING IN (%.2f seconds)\n", FADE_TIME);
-//			}
-//		}
-//
-//	// No relevant key press.
-//	} else {
-//		if (keyPressed) {
-//			keyPressed = false;
-//		}
-//	}
-//
-//	return;
-//}
 
 
 

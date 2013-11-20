@@ -14,6 +14,7 @@
 #include <os_utils/OSHelper.h>
 #include <collisions/helpers/CollObjectExporter.h>
 #include <physics/helpers/BulletExporter.h>
+#include <physics/BulletImporter.h>
 
 
 
@@ -98,9 +99,81 @@ StaticAssetBuilder::configureStaticWorldObject(const core::Asset& asset,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+bool
+StaticAssetBuilder::configureStaticWorldFloor(const core::Asset& asset,
+                                              Ogre::SceneNode* node,
+                                              Ogre::Entity* entity,
+                                              StaticWorldObject& swo)
+{
+    ASSERT(entity);
+    ASSERT(node);
+
+    // for this particular case we don't need any collision precise information
+    // We will construct the plane associated to the floor
+    Ogre::AxisAlignedBox bb = entity->getBoundingBox();
+    debugERROR("Check here if we will have one or more parts of the floor. If we"
+        " will only have one then we can create a PlaneShape instead of a "
+        "bounding box shape. If not, then we need to construct the shape from the"
+        " bounding box of the entity (and we will also need to set the size a little"
+        " bigger to avoid problems with the fast objects collisions. To do that"
+        " we cannot just increase the z axis value because the shape will be "
+        "moved down or up to be centered with the graphical representation."
+        " We have to investigate how to set an offset!");
+
+    // check if the z axis
+    physics::BulletShape* shape = physics::BulletImporter::createBoxShape(bb);
+
+    // set the shape to the object
+    if (shape) {
+        swo.setShape(shape);
+        mShapeHolder->add(shape);
+    } else {
+        debugERROR("Error creating the shape for the floor!! this is not good\n");
+    }
+
+    // TODO: complete here with the material type to use specific effects.
+    debugERROR("TODO: check issue #250, #260, #261\n");
+
+    // now configure the static world object
+    swo.configure(node, entity);
+
+    // we have to remove the collision 2D object from the world since we don't
+    // want it
+    swo.removeFromCollWorld();
+    swo.setCollMask(0);
+
+    return true;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+BulletImpactEffectQueue*
+StaticAssetBuilder::getBulletImpactQueue(const core::Asset& asset)
+{
+    ASSERT(mBulletImpactHandler);
+
+    BulletImpactQueueHandler::Type type = BulletImpactQueueHandler::Type::BIQT_DEFAULT;
+    switch (asset.materialType) {
+    case core::AssetMaterialType::ASSET_MAT_NONE:
+        break;
+    case core::AssetMaterialType::ASSET_MAT_METAL:
+        type = BulletImpactQueueHandler::Type::BIQT_METAL;
+        break;
+    case core::AssetMaterialType::ASSET_MAT_WOOD:
+        type = BulletImpactQueueHandler::Type::BIQT_WOOD;
+        break;
+    case core::AssetMaterialType::ASSET_MAT_ROCK:
+        type = BulletImpactQueueHandler::Type::BIQT_ROCK;
+        break;
+    }
+
+    return mBulletImpactHandler->queue(type);
+}
+
+////////////////////////////////////////////////////////////////////////////////
 StaticAssetBuilder::StaticAssetBuilder() :
     mShapeHolder(0)
 ,   mWorldObjects(0)
+,   mBulletImpactHandler(0)
 {
     debugOPTIMIZATION("We are using a hash_map here, we can optmize this probably\n");
 }
@@ -118,6 +191,8 @@ StaticAssetBuilder::reset(void)
 {
     ASSERT(mShapeHolder);
     ASSERT(mWorldObjects);
+    ASSERT(mBulletImpactHandler);
+
     mShapeMap.clear();
     if (!mShapeHolder->elements().empty()) {
         debugWARNING("The shape holder is not empty\n");
@@ -132,7 +207,8 @@ bool
 StaticAssetBuilder::canProcess(const core::Asset& asset) const
 {
     // we will process the asset if the type is the static one
-    return asset.type == core::AssetType::ASSET_STATIC_WORLD_ELEMENT;
+    return (asset.type == core::AssetType::ASSET_STATIC_WORLD_ELEMENT) ||
+        (asset.type == core::AssetType::ASSET_STATIC_WORLD_FLOOR);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -160,11 +236,20 @@ StaticAssetBuilder::build(const core::Asset& asset,
             node->getName().c_str(), entity->getName().c_str());
         return false;
     }
-    // now parse the asset
-    if (!configureStaticWorldObject(asset, node, entity, *(swo.get()))) {
+    // now parse the asset, check if it is the floor or a normal object
+    bool result = false;
+    if (asset.type == core::AssetType::ASSET_STATIC_WORLD_ELEMENT) {
+        result = configureStaticWorldObject(asset, node, entity, *(swo.get()));
+    } else if (asset.type == core::AssetType::ASSET_STATIC_WORLD_FLOOR) {
+        result = configureStaticWorldFloor(asset, node, entity, *(swo.get()));
+    }
+    if (!result) {
         debugERROR("Error configuring asset\n");
         return false;
     }
+
+    // set the queue to be used by this static object
+    swo->setBulletImpactEffectQueue(getBulletImpactQueue(asset));
 
     // everything fine
     // release the scope pointer and put it in the vector
@@ -177,7 +262,10 @@ StaticAssetBuilder::build(const core::Asset& asset,
 void
 StaticAssetBuilder::finish(void)
 {
-    // we probably do nothing here...
+    // clear the map memory
+    mShapeMap.clear();
+
+    // we probably do nothing else here...
 }
 
 } /* namespace cz */

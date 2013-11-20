@@ -56,6 +56,7 @@ getKeyboardKeys(void)
     buttons.push_back(input::KeyCode::KC_LEFT);
     buttons.push_back(input::KeyCode::KC_DOWN);
     buttons.push_back(input::KeyCode::KC_RIGHT);
+    buttons.push_back(input::KeyCode::KC_SPACE);
     buttons.push_back(input::KeyCode::KC_UP);
     buttons.push_back(input::KeyCode::KC_1);
     buttons.push_back(input::KeyCode::KC_2);
@@ -378,6 +379,7 @@ AnimPlayer::AnimPlayer() :
 ,   mOrbitCamera(mCamera, mSceneMgr, mTimeFrame)
 ,   mEntityAnims(mTextTable)
 ,   mInputHelper(getMouseButtons(), getKeyboardKeys())
+,   mAxisPrim(0)
 {
     // configure the input
     input::Mouse::setMouse(mMouse);
@@ -398,6 +400,9 @@ AnimPlayer::loadAditionalData(void)
     Ogre::ResourceManager::ResourceMapIterator iter =
         Ogre::FontManager::getSingleton().getResourceIterator();
     while (iter.hasMoreElements()) { iter.getNext()->load(); }
+
+    // create the axis
+    mAxisPrim = core::PrimitiveDrawer::instance().create3DAxis(Ogre::Vector3::ZERO, 15);
 
     // try to load the xml file
     std::string meshName;
@@ -429,6 +434,12 @@ AnimPlayer::update()
     // update the animations
     mEntityAnims.updateAnims(mTimeFrame);
 
+    // hide the axis
+    if (mInputHelper.isKeyReleased(input::KeyCode::KC_SPACE)) {
+        if (mAxisPrim) {
+            mAxisPrim->node->flipVisibility();
+        }
+    }
     // check for the input to handle the selection
     if (mInputHelper.isKeyReleased(input::KeyCode::KC_L)) {
         mEntityAnims.loopCurrentAnim(!mEntityAnims.isLoopCurrentAnim());

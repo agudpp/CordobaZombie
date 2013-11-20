@@ -1,4 +1,5 @@
 include(${DEV_ROOT_PATH}/core/asset/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/core/os_utils/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/core/debug/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/resources_handler/AutoGen.cmake)
 
