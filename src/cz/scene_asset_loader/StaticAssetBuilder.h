@@ -107,6 +107,27 @@ private:
                                Ogre::Entity* entity,
                                StaticWorldObject& swo);
 
+    // @brief Helper method to construct the floor instead of an static element
+    // @param asset     The asset information
+    // @param node      The scene node
+    // @param entity    The entity
+    // @param swo       The static world object to be configured
+    // @return true on success | false otherwise
+    //
+    bool
+    configureStaticWorldFloor(const core::Asset& asset,
+                               Ogre::SceneNode* node,
+                               Ogre::Entity* entity,
+                               StaticWorldObject& swo);
+
+    // @brief Get the particle effect to be used for this asset.
+    // @param asset     The asset used to retrieve the information we need
+    //                  to return the associated particleEffect
+    // @return the queue reference to be used on success | 0 on error. This
+    //         pointer shouldn't be free by the caller.
+    //
+
+
 private:
     core::DataHolder<physics::BulletShape*>* mShapeHolder;
     core::DataHolder<StaticWorldObject*>* mWorldObjects;
