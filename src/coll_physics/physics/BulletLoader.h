@@ -14,9 +14,9 @@
 #include <bullet/btBulletDynamicsCommon.h>
 
 #include <types/StackVector.h>
+#include <types/DataHolder.h>
 
 #include "BulletObject.h"
-#include "DataHolder.h"
 
 namespace physics {
 
@@ -90,8 +90,8 @@ public:
     freeMemory(void);
 
 private:
-    DataHolder<btCollisionShape*> mShapes;
-    DataHolder<BulletObject*> mBulletObjects;
+    core::DataHolder<btCollisionShape*> mShapes;
+    core::DataHolder<BulletObject*> mBulletObjects;
 };
 
 
