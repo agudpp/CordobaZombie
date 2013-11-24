@@ -15,6 +15,7 @@
 #include <debug/DebugUtil.h>
 #include <fx/effects/EffectQueueDefs.h>
 #include <fx/effects/QueuedEffect.h>
+#include <sound/SoundAPI.h>
 
 namespace cz {
 
@@ -34,12 +35,11 @@ public:
     // @brief Configure the effect with the name of the particle system to be
     //        used and the sound to be used
     // @param particleName      The particle system name to be loaded
-    // @param sound             The sound to be used
+    // @param soundName         The sound to be used
     // @return true on success | false otherwise
-    // TODO: complete with the sound stuff here, issue #256
     //
     bool
-    construct(const Ogre::String& particleName);
+    construct(const Ogre::String& particleName, const Ogre::String* soundName);
 
     // @brief Destroy all the data used by this instance
     //
@@ -49,7 +49,7 @@ public:
     // @brief Configure the effect before reproducing it. This method
     //        will put the effect in the correct position / direction / and
     //        any other thing we need.
-    // @param position      The position where the bullect impact (world pos)
+    // @param position      The position where the bullet impacts (world pos)
     // @param surfaceNormal The normal of the surface where the bullet impact
     // @param bulletDir     The direction of the bullet
     // @param power         The power of the bullet (mass and velocity for example)
@@ -85,6 +85,7 @@ public:
 private:
     Ogre::SceneNode* mNode;
     Ogre::ParticleSystem* mParticleSystem;
+    mm::SoundAPI mSound;
     float mCurrentTime;
 };
 

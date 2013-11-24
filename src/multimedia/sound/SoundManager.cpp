@@ -518,7 +518,9 @@ SoundManager::update(const float globalTimeFrame,
 			// Buffer was automatically detached from source.
 			// Erase UnitSound and recycle SoundSource.
 			stopSound(*mUnitSounds[i].first);
-			if (mUnitSounds.size() > 0) { i--; }  // Woooaaaahhh!!!
+			// Next hack relies on stopEnvSound() popping out the last sound
+			// in mUnitSounds list, to overwrite with it the stopped sound
+			if (mUnitSounds.size() > 0) i--;
 
 		} else if ((as->mPlayState | as->mGlobalState)
 				  	  & ( SSplayback::SS_FADING_IN
@@ -1010,7 +1012,7 @@ bool
 SoundManager::isActiveAPISound(const Ogre::String& sName) const
 {
 	for (uint i=0 ; i < mUnitSounds.size() ; i++) {
-		if (sName == mUnitSounds[i].first->getCurrentSound()) {
+		if (sName == mUnitSounds[i].first->getSound()) {
 			ASSERT(mUnitSounds[i].second->mSource->isActive());
 			return true;
 		}
@@ -1220,7 +1222,7 @@ SoundManager::restartSound(SoundAPI& sAPI)
 	} else {
 		// Failure
 		debugERROR("Failed to restart unit sound \"%s\"",
-					sAPI.getCurrentSound().c_str());
+					sAPI.getSound().c_str());
 		stopSound(sAPI);
 	}
 

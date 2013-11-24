@@ -13,6 +13,7 @@
 
 #include <debug/DebugUtil.h>
 #include <fx/effects/EffectQueueDefs.h>
+#include <sound/SoundFamilyTable.h>
 
 namespace cz {
 
@@ -65,6 +66,7 @@ public:
 
 private:
     BulletImpactEffectQueue mQueues[Type::COUNT];
+    mm::SoundFamilyTable mSounds;
 };
 
 

@@ -11,6 +11,7 @@
 #include <OgreParticleEmitter.h>
 
 #include <global_data/GlobalData.h>
+#include <sound/SoundEnums.h>
 
 namespace cz {
 
@@ -20,22 +21,20 @@ const float BulletImpactEffect::ACTIVE_TIME_SECS = 1.;
 BulletImpactEffect::BulletImpactEffect() :
     mNode(0)
 ,   mParticleSystem(0)
+,	mCurrentTime(-1.0f)
 {
-
+	/* Default constructor suffices */
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-BulletImpactEffect::~BulletImpactEffect()
-{
-    destroy();
-}
+BulletImpactEffect::~BulletImpactEffect() { destroy(); }
 
 ////////////////////////////////////////////////////////////////////////////////
 bool
-BulletImpactEffect::construct(const Ogre::String& particleName)
+BulletImpactEffect::construct(const Ogre::String& particleName,
+								  const Ogre::String* soundName)
 {
-    // destroy first if we have something
-    destroy();
+    destroy();  // Erase any previous information
 
     static char charCounter = '0';
     Ogre::SceneManager* scnMngr = GlobalData::sceneMngr;
@@ -45,7 +44,16 @@ BulletImpactEffect::construct(const Ogre::String& particleName)
     mNode = scnMngr->createSceneNode();
     mNode->attachObject(mParticleSystem);
 
-    debugERROR("TODO: missing sound stuff here, issue #256\n");
+    if (!soundName) {
+    	debugERROR("NULL sound name given.\n");
+    	return false;
+    }
+    mm::SSerror err = mSound.setSound(*soundName);
+    if (err != mm::SSerror::SS_NO_ERROR) {
+    	debugERROR("Failed to load effect sound \"%s\": %s\n",
+    				soundName->c_str(), SSenumStr(err));
+    	return false;
+    }
 
     return true;
 }
@@ -66,8 +74,10 @@ BulletImpactEffect::destroy(void)
         GlobalData::sceneMngr->destroyParticleSystem(mParticleSystem);
         mParticleSystem = 0;
     }
-
-    debugERROR("TODO: missing sound stuff here, issue #256\n");
+	if (mSound.active())
+		mSound.stop();
+	mSound.setSound("");
+	mSound.setSceneNode(0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -89,6 +99,8 @@ BulletImpactEffect::setParams(const Ogre::Vector3& position,
 
     debugWARNING("We are not using the power here, probably this can be used to"
         " set the number of particles and the velocity of them, size or whatever\n");
+
+    mSound.setSceneNode(mNode);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -106,7 +118,9 @@ BulletImpactEffect::beforeStart(void)
     }
     mCurrentTime = 0.f;
 
-    debugERROR("TODO: Play sound here...\n");
+    mm::SSerror err = mSound.play();
+    if (err != mm::SSerror::SS_NO_ERROR)
+    	debugERROR("Couldn't start effect sound: %s\n", SSenumStr(err));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -134,8 +148,8 @@ BulletImpactEffect::afterFinish(void)
     // we will put this particle again in the queue
     letThisFree();
 
-    // we have nothing to do with the sound since the SoundSystem will be in charge
-    // of stop it.
+    // Don't touch the sound, it may last longer that the effect.
+    // The SoundHandler takes care of the cleanup once the sound finishes.
 }
 
 } /* namespace cz */

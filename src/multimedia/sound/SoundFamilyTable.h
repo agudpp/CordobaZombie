@@ -44,8 +44,6 @@ typedef int SSsoundCode;
  */
 class SoundFamilyTable
 {
-	typedef std::pair<Ogre::String*, uint> SoundsList;
-
 public:
 	inline SoundFamilyTable();
 	inline virtual ~SoundFamilyTable();
@@ -124,6 +122,7 @@ public:
 	getChosenRandomSound(SSsoundCode sc, uint choice) const;
 
 private:
+	typedef std::pair<Ogre::String*, uint> SoundsList;
 	std::vector<SoundsList> mList;  // Sounds names lists
 };
 
