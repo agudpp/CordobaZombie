@@ -381,16 +381,15 @@ bool
 MainPlayer::addWeapon(Weapon* weapon)
 {
     ASSERT(weapon);
-
     // check if the weapon already exists.
     if (mWeapons[weapon->weaponID()] != 0) {
         return false;
     }
-
     // add this weapon
     mWeapons[weapon->weaponID()] = weapon;
-
-    debugWARNING("Probably we want to set this weapon as current?\n");
+    if (!mCurrentWeapon) {
+    	configurePlayerWeapon(weapon);
+    }
     return true;
 }
 
@@ -399,7 +398,7 @@ void
 MainPlayer::changeWeapon(WeaponID wid)
 {
     if (mWeapons[wid] == 0) {
-        debugWARNING("We are trying to change to a weapon that we have not already\n");
+        debugWARNING("We are trying to change to a weapon that we don't have\n");
         return;
     }
 

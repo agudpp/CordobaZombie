@@ -11,7 +11,6 @@
 #include <string>
 #include <cmath>
 
-#include <OgreSceneNode.h>
 #include <OgreEntity.h>
 #include <OgreSceneManager.h>
 #include <OgreAnimationState.h>

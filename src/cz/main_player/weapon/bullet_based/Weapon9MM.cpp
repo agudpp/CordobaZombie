@@ -32,8 +32,9 @@ Weapon9MM::Weapon9MM() :
 
     debugWARNING("We are hardcoding the values here, we need to change this\n");
 
-    // load the animations
-    loadAnims(ANIM_NAMES);
+    debugYELLOW("load animations?\n");
+//    // load the animations
+//    loadAnims(ANIM_NAMES);
 
     // set the ID
     setWeaponID(WeaponID::WID_9MM);
