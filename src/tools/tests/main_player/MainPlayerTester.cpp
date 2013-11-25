@@ -65,6 +65,20 @@ getKeyboardKeys(void)
     buttons.push_back(input::KeyCode::KC_ADD);
     buttons.push_back(input::KeyCode::KC_SPACE);
 
+    // handling the input for the attaching
+    buttons.push_back(input::KeyCode::KC_R);
+    buttons.push_back(input::KeyCode::KC_T);
+    buttons.push_back(input::KeyCode::KC_Y);
+    buttons.push_back(input::KeyCode::KC_F);
+    buttons.push_back(input::KeyCode::KC_G);
+    buttons.push_back(input::KeyCode::KC_H);
+    buttons.push_back(input::KeyCode::KC_U);
+    buttons.push_back(input::KeyCode::KC_I);
+    buttons.push_back(input::KeyCode::KC_O);
+    buttons.push_back(input::KeyCode::KC_J);
+    buttons.push_back(input::KeyCode::KC_K);
+    buttons.push_back(input::KeyCode::KC_L);
+
     return buttons;
 }
 
@@ -118,6 +132,8 @@ MainPlayerTester::loadPlayer(void)
     node->attachObject(ent);
 
     mNode = node;
+    mEntity = ent;
+
     mAnim = ent->getAnimationState("9mm_quieto");
     mAnim->setLoop(true);
     mAnim->setEnabled(true);
@@ -135,16 +151,98 @@ MainPlayerTester::loadPlayer(void)
     mCamController.setConstraints(Ogre::Radian(0), Ogre::Radian(M_PI),
                                   Ogre::Radian(-M_PI_2), Ogre::Radian(M_PI_2));
 
-//    mCamera->detachFromParent();
-//    Ogre::Quaternion offsetRot;
-//    offsetRot = Ogre::Quaternion(Ogre::Degree(270), Ogre::Vector3::UNIT_Z);/* *
-//        Ogre::Quaternion(Ogre::Degree(90), Ogre::Vector3::UNIT_Y);*/
-//    ent->attachObjectToBone("B_HEAD", mCamera, offsetRot);
-//
     // get the weapon
-    Ogre::Entity* weapon = mSceneMgr->createEntity("pistola.mesh");
-    ent->attachObjectToBone("palma", weapon);
 
+    Ogre::Quaternion rotQuat(Ogre::Quaternion::IDENTITY);
+    rotQuat = rotQuat * Ogre::Quaternion(Ogre::Degree(112.996), Ogre::Vector3::UNIT_X);
+    rotQuat = rotQuat * Ogre::Quaternion(Ogre::Degree(-84.4396), Ogre::Vector3::UNIT_Y);
+    rotQuat = rotQuat * Ogre::Quaternion(Ogre::Degree(-2.2), Ogre::Vector3::UNIT_Z);
+
+    Ogre::Entity* weapon = mSceneMgr->createEntity("pistola.mesh");
+    ent->attachObjectToBone("palma", weapon, rotQuat, Ogre::Vector3(0.29,-1.79,-4.54));
+    mWeaponEnt = weapon;
+
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void
+MainPlayerTester::handleAttachingInput(void)
+{
+    // keys:
+    // R, T, Y will increase X,Y,Z values in offsetPosition respectively.
+    // F,G,H  will decrease X,Y,Z respectively.
+    // U,I,O / J,K,L will increase / decrease the rotation angles in axis X,Y,Z
+    // respectively
+
+    Ogre::Vector3 offset(mOffsetPos);
+    Ogre::Vector3 rot(mOffsetRot);
+
+    // position
+    static const float factor = 0.01f;
+    if (mInputHelper.isKeyPressed(input::KeyCode::KC_R)) {
+        offset.x += factor;
+    }
+    if (mInputHelper.isKeyPressed(input::KeyCode::KC_F)) {
+        offset.x -= factor;
+    }
+    if (mInputHelper.isKeyPressed(input::KeyCode::KC_T)) {
+        offset.y += factor;
+    }
+    if (mInputHelper.isKeyPressed(input::KeyCode::KC_G)) {
+        offset.y -= factor;
+    }
+    if (mInputHelper.isKeyPressed(input::KeyCode::KC_Y)) {
+        offset.z += factor;
+    }
+    if (mInputHelper.isKeyPressed(input::KeyCode::KC_H)) {
+        offset.z -= factor;
+    }
+
+    // rotation
+    if (mInputHelper.isKeyPressed(input::KeyCode::KC_U)) {
+        rot.x += factor;
+    }
+    if (mInputHelper.isKeyPressed(input::KeyCode::KC_J)) {
+        rot.x -= factor;
+    }
+    if (mInputHelper.isKeyPressed(input::KeyCode::KC_I)) {
+        rot.y += factor;
+    }
+    if (mInputHelper.isKeyPressed(input::KeyCode::KC_K)) {
+        rot.y -= factor;
+    }
+    if (mInputHelper.isKeyPressed(input::KeyCode::KC_O)) {
+        rot.z += factor;
+    }
+    if (mInputHelper.isKeyPressed(input::KeyCode::KC_L)) {
+        rot.z -= factor;
+    }
+
+    // check if we need to update something
+    if (offset != mOffsetPos || rot != mOffsetRot) {
+        ASSERT(mEntity);
+        ASSERT(mWeaponEnt);
+        mEntity->detachObjectFromBone(mWeaponEnt);
+
+        // attach it with the new rotation and offset
+        Ogre::Quaternion rotQuat(Ogre::Quaternion::IDENTITY);
+        rotQuat = rotQuat * Ogre::Quaternion(Ogre::Degree(rot.x), Ogre::Vector3::UNIT_X);
+        rotQuat = rotQuat * Ogre::Quaternion(Ogre::Degree(rot.y), Ogre::Vector3::UNIT_Y);
+        rotQuat = rotQuat * Ogre::Quaternion(Ogre::Degree(rot.z), Ogre::Vector3::UNIT_Z);
+        mEntity->attachObjectToBone("palma", mWeaponEnt, rotQuat, offset);
+
+        // update the texts
+        Ogre::String str = "Rotation: " + Ogre::StringConverter::toString(rot.x) +
+            ", " + Ogre::StringConverter::toString(rot.y) + ", " +
+            Ogre::StringConverter::toString(rot.z);
+        mTextTable.setText(0, str);
+        str = "Position: " + Ogre::StringConverter::toString(offset.x) +
+            ", " + Ogre::StringConverter::toString(offset.y) + ", " +
+            Ogre::StringConverter::toString(offset.z);
+        mTextTable.setText(1, str);
+    }
+    mOffsetPos = offset;
+    mOffsetRot = rot;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -244,6 +342,9 @@ MainPlayerTester::MainPlayerTester() :
     core::AppTester(cz::GlobalData::lastTimeFrame)
 ,   mNode(0)
 ,   mEntity(0)
+,   mOffsetPos(Ogre::Vector3::ZERO)
+,   mOffsetRot(Ogre::Vector3::ZERO)
+,   mWeaponEnt(0)
 ,   mOrbitCamera(mCamera, mSceneMgr, cz::GlobalData::lastTimeFrame)
 ,   mSelHelper(*mSceneMgr, *mCamera, mMouseCursor)
 ,   mInputHelper(getMouseButtons(), getKeyboardKeys())
@@ -295,6 +396,11 @@ MainPlayerTester::loadAditionalData(void)
 
     // load the player and weapons
     loadPlayer();
+
+    // Load the text tables
+    // first position will be rotation
+    // last position will be position
+    mTextTable.setNumRows(2, 0.01, 0, 0);
 }
 
 /* function called every frame. Use GlobalObjects::lastTimeFrame */
@@ -315,6 +421,9 @@ MainPlayerTester::update()
 
     // update the camera
     handleCameraInput();
+
+    // update the attaching position
+    handleAttachingInput();
 
     if (mAnim)    mAnim->addTime(cz::GlobalData::lastTimeFrame);
 }

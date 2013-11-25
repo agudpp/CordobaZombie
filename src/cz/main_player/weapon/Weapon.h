@@ -11,6 +11,7 @@
 #include <string>
 #include <cmath>
 
+#include <OgreSceneNode.h>
 #include <OgreEntity.h>
 #include <OgreSceneManager.h>
 #include <OgreAnimationState.h>
@@ -57,6 +58,7 @@ public:
     Weapon() :
         mEntity(0),
         mCurrentAnim(0),
+        mID(WeaponID::WID_INVALID),
         mOffsetPos(Ogre::Vector3::ZERO),
         mOffsetRot(Ogre::Quaternion::IDENTITY)
     {};
@@ -102,6 +104,11 @@ public:
     posEntityOffset(void) const;
     inline const Ogre::Quaternion&
     rotEntityOffset(void) const;
+
+    // @brief Set the node visible / invisible
+    //
+    inline void
+    setVisible(bool visible);
 
     ////////////////////////////////////////////////////////////////////////////
     //                  General methods for all the weapons                   //
@@ -402,6 +409,13 @@ inline const Ogre::Quaternion&
 Weapon::rotEntityOffset(void) const
 {
     return mOffsetRot;
+}
+
+inline void
+Weapon::setVisible(bool visible)
+{
+    ASSERT(mEntity);
+    mEntity->setVisible(visible);
 }
 
 inline bool

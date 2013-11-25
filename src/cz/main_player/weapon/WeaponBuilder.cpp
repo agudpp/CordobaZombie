@@ -31,20 +31,16 @@ buildWeapon(WeaponID wid)
     Ogre::Entity* entity = 0;
 
     debugWARNING("Values hardcoded, check issue #155 also\n");
-    ASSERT(GlobalData::sceneMngr);
 
-    switch (wid)
-    {
+    switch (wid) {
     case WeaponID::WID_9MM:
         result = new Weapon9MM;
         entity = GlobalData::sceneMngr->createEntity("9mm.mesh");
         break;
-
     case WeaponID::WID_FAL:
         result = new WeaponFAL;
         entity = GlobalData::sceneMngr->createEntity("fal.mesh");
         break;
-
     default:
         debugERROR("Invalid weapon type: %d\n", wid);
         return 0;
@@ -53,6 +49,7 @@ buildWeapon(WeaponID wid)
     ASSERT(result);
     ASSERT(entity);
 
+    // set the entity
     result->setOgreStuff(entity);
 
     return result;

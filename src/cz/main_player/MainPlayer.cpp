@@ -164,6 +164,7 @@ MainPlayer::configurePlayerWeapon(Weapon* weapon)
 void
 MainPlayer::newEvent(Event event)
 {
+
     // we will check the event by state
     switch(mState) {
     /////////////////////////////////////////////////////////////////////
@@ -280,6 +281,7 @@ MainPlayer::newEvent(Event event)
     default:
         debugERROR("Invalid current state %d\n", mState);
         ASSERT(false);
+        break;
     }
 }
 
@@ -388,10 +390,7 @@ MainPlayer::addWeapon(Weapon* weapon)
     // add this weapon
     mWeapons[weapon->weaponID()] = weapon;
 
-    if (!mCurrentWeapon) {
-    	configurePlayerWeapon(weapon);
-    }
-
+    debugWARNING("Probably we want to set this weapon as current?\n");
     return true;
 }
 
@@ -400,9 +399,10 @@ void
 MainPlayer::changeWeapon(WeaponID wid)
 {
     if (mWeapons[wid] == 0) {
-        debugWARNING("We are trying to change to a weapon that we don't have.\n");
+        debugWARNING("We are trying to change to a weapon that we have not already\n");
         return;
     }
+
     // set the current weapon to the player using the states
     if (mState != State::S_IDLE) {
         // we cannot change the weapon now
@@ -582,6 +582,7 @@ MainPlayer::update(void)
         debugERROR("Unkown state %d\n", mState);
         ASSERT(false);
     }
+
 }
 
 } /* namespace cz */
