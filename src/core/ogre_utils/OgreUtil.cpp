@@ -9,6 +9,12 @@
 
 #include <OgreSubMesh.h>
 #include <OgreMesh.h>
+#include <OgreMaterial.h>
+#include <OgreTechnique.h>
+#include <OgreTexture.h>
+#include <OgreTextureUnitState.h>
+#include <OgreTextureManager.h>
+#include <OgrePass.h>
 
 #include <set>
 #include <bitset>
@@ -40,21 +46,7 @@ areVerticesEqual(const Ogre::Vector3& v1,
 namespace core {
 namespace OgreUtil{
 
-// @brief Get the mesh information (triangles and vertices from a mesh).
-// @param mesh      The mesh that we want to extract the information
-// @param vCount    [in|out] The max number of vertices we can handle
-//                           And the resulting number of vertices read.
-// @param vertices  The vertex buffer of size vCount where we will read all the
-//                  vertices.
-// @param iCount    [in|out] The size of the indices buffer.
-//                           And the resulting number of indices read.
-// @param indices   The buffer of size iCount where we will put the indices of
-//                  the triangles.
-// @param transform The transform we want to apply to each vertex, if
-//                  transform == Ogre::Matrix4::IDENTITY no transformation will be
-//                  applied
-// @return true on success | false otherwise
-//
+////////////////////////////////////////////////////////////////////////////////
 bool
 getMeshInformation(const Ogre::Mesh* const mesh,
                    core::size_t &vCount,
@@ -258,6 +250,7 @@ removeDuplicated(Ogre::Vector3* vertices,
     std::memcpy(vertices, verts.begin(), sizeof(Ogre::Vector3) * vCount);
 }
 
+////////////////////////////////////////////////////////////////////////////////
 bool
 getContourVertices(const Ogre::Mesh* const mesh,
                    core::size_t &vCount,
@@ -281,6 +274,7 @@ getContourVertices(const Ogre::Mesh* const mesh,
     return getContourVertices(vertices, vCount, indices, iCount);
 }
 
+////////////////////////////////////////////////////////////////////////////////
 bool
 getContourVertices(Ogre::Vector3* vertices,
                    core::size_t &vCount,
@@ -416,6 +410,7 @@ getContourVertices(Ogre::Vector3* vertices,
     return true;
 }
 
+////////////////////////////////////////////////////////////////////////////////
 Ogre::Entity*
 loadEntity(const Ogre::String& name, Ogre::SceneManager* sceneMngr)
 {
@@ -428,6 +423,29 @@ loadEntity(const Ogre::String& name, Ogre::SceneManager* sceneMngr)
         debugERROR("Error loading mesh %s, not found\n", name.c_str());
     }
     return ent;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+bool
+getTextureSize(const Ogre::Material* mat, core::Vector2& sizes)
+{
+    if (mat == 0 || mat->getTechnique(0) == 0 ||
+        mat->getTechnique(0)->getPass(0) == 0 ||
+        mat->getTechnique(0)->getPass(0)->getTextureUnitState(0) == 0) {
+        return false;
+    }
+    const Ogre::Technique* tec = mat->getTechnique(0);
+    const Ogre::Pass* pass = tec->getPass(0);
+    const Ogre::TextureUnitState* unit = pass->getTextureUnitState(0);
+    Ogre::TexturePtr texture = Ogre::TextureManager::getSingleton().getByName(
+        unit->getTextureName());
+    if (texture.isNull()) {
+        return false;
+    }
+
+    sizes.x = texture->getWidth();
+    sizes.y = texture->getHeight();
+    return true;
 }
 
 } /* namespace OgreUtil */

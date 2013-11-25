@@ -13,10 +13,17 @@
 #include "MainStateInformation.h"
 #include "MainStateEvent.h"
 
+
+// Forward declaration
+//
 namespace rrh {
 class ResourceHandler;
 }
 
+namespace mm {
+class VideoPlayer;
+class SoundManager;
+}
 
 namespace cz {
 
@@ -58,6 +65,18 @@ public:
     //
     static void
     setOgreData(const OgreCommon& ogreData);
+
+    // @brief Set the VideoPlayer global instance
+    // @param videoPlayer   The Video Player.
+    //
+    static void
+    setVideoPlayer(mm::VideoPlayer* videoPlayer);
+
+    // @brief Set the SoundManager global instance
+    // @param soundManager  The SoundManager.
+    //
+    static void
+    setSoundManager(mm::SoundManager* soundManager);
 
     // @brief Set the ResourceHandler for all main states.
     // @param rch      The resources handler.
@@ -142,6 +161,10 @@ protected:
 
     // the global Ogre information
     static OgreCommon sOgreInfo;
+    // the global VideoPlayer instance
+    static mm::VideoPlayer* sVideoPlayer;
+    // the global SoundManager instance
+    static mm::SoundManager* sSoundManager;
     // static global resources handler for all main states
     static const rrh::ResourceHandler *sRcHandler;
 };

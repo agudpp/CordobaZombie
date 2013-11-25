@@ -90,6 +90,16 @@ getContourVertices(Ogre::Vector3* vertices,
 Ogre::Entity*
 loadEntity(const Ogre::String& name, Ogre::SceneManager* sceneMngr);
 
+// @brief Get the texture size of a particular material. If the material has
+//        no texture or the texture is not present then we return 0. We will
+//        use the first texture in the first technique defined in the material
+// @param material      The material containing the texture
+// @param sizes         The sizes of the texture
+// @return true on success | false otherwise
+//
+bool
+getTextureSize(const Ogre::Material* mat, core::Vector2& sizes);
+
 
 } /* namespace OgreUtil */
 } /* namespace core */

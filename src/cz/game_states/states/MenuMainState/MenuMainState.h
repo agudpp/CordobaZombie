@@ -10,6 +10,9 @@
 
 #include <game_states/IMainState.h>
 
+#include "substates/MainMenuSubState.h"
+#include "MainMenuTT.h"
+
 namespace cz {
 
 class MenuMainState : public IMainState
@@ -87,6 +90,32 @@ public:
     //
     virtual bool
     getResourcesToUnload(ResourceGroupList& resourceList);
+
+private:
+
+    // @brief Helper methods to set a new state to be used (show the new one
+    //        and hide the old one).
+    // @param newState      The new state to be shown
+    //
+    void
+    changeState(MainMenuSubState* newState);
+
+    // @brief Process a MainMenuSubStateEvent and check if the event is an event
+    //        that will cause the stop of this state or not.
+    //        This method will automatically modify the mEventInfo inherited
+    //        variable and set the correct event to be returned.
+    // @param event     The MainMenuSubStateEvent to be checked
+    // @return true if the event will stop the execution of the current state
+    //         or false if not.
+    //
+    bool
+    processSubStateEvent(MainMenuSubStateEvent event);
+
+
+private:
+    MainMenuTT mTransitionTable;
+    MainMenuSubStateEvent mLastEvent;
+    MainMenuSubState* mCurrentState;
 };
 
 } /* namespace cz */

@@ -26,6 +26,8 @@ template <unsigned int NUM_ATLAS = 1>
 class FEOgreElement : public FEElement
 {
 public:
+    static const unsigned int ATLAS_SIZE = NUM_ATLAS;
+public:
     FEOgreElement(FEManager* manager = 0, const core::AABB& aabb = core::AABB()) :
         FEElement(manager, aabb)
     ,   mContainer(0)
