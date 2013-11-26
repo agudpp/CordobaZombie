@@ -10,13 +10,13 @@
 
 
 #include "MainStateInformation.h"
+#include "MainStateID.h"
 
 namespace cz {
 
 // forward
 //
 class IMainState;
-enum class MainStateID;
 
 
 class MainStateBuilder

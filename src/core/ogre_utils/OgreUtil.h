@@ -14,6 +14,8 @@
 #include <OgreSceneManager.h>
 
 #include <types/basics.h>
+#include <math/Vec2.h>
+
 
 namespace core {
 namespace OgreUtil {
@@ -98,7 +100,7 @@ loadEntity(const Ogre::String& name, Ogre::SceneManager* sceneMngr);
 // @return true on success | false otherwise
 //
 bool
-getTextureSize(const Ogre::Material* mat, core::Vector2& sizes);
+getTextureSize(Ogre::Material* mat, core::Vector2& sizes);
 
 
 } /* namespace OgreUtil */

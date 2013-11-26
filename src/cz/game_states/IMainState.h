@@ -12,6 +12,7 @@
 
 #include "MainStateInformation.h"
 #include "MainStateEvent.h"
+#include "MainStateID.h"
 
 
 // Forward declaration
@@ -49,9 +50,6 @@ namespace cz {
 //
 
 
-// Forward
-//
-enum class MainStateID;
 
 class IMainState
 {

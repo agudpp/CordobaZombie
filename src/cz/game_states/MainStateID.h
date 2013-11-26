@@ -14,7 +14,7 @@ namespace cz {
 // @brief All the ID's should be consecutive and should be between [0, Count)
 //
 
-enum class MainStateID {
+enum MainStateID {
     InfoState = 0,
     IntroState,
     MenuState,

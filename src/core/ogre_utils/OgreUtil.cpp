@@ -427,16 +427,16 @@ loadEntity(const Ogre::String& name, Ogre::SceneManager* sceneMngr)
 
 ////////////////////////////////////////////////////////////////////////////////
 bool
-getTextureSize(const Ogre::Material* mat, core::Vector2& sizes)
+getTextureSize(Ogre::Material* mat, core::Vector2& sizes)
 {
-    if (mat == 0 || mat->getTechnique(0) == 0 ||
+    if (mat == 0 ||
+        mat->getTechnique(0) == 0 ||
         mat->getTechnique(0)->getPass(0) == 0 ||
         mat->getTechnique(0)->getPass(0)->getTextureUnitState(0) == 0) {
         return false;
     }
-    const Ogre::Technique* tec = mat->getTechnique(0);
-    const Ogre::Pass* pass = tec->getPass(0);
-    const Ogre::TextureUnitState* unit = pass->getTextureUnitState(0);
+    const Ogre::TextureUnitState* unit =
+        mat->getTechnique(0)->getPass(0)->getTextureUnitState(0);
     Ogre::TexturePtr texture = Ogre::TextureManager::getSingleton().getByName(
         unit->getTextureName());
     if (texture.isNull()) {

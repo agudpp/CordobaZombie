@@ -50,7 +50,7 @@ configureButton(ui::FESimpleButton& button,
 
     // create the coordinates now needed for the buttons
     core::StackVector<ui::UVCoord, ui::FESimpleButton::ATLAS_SIZE> atlas;
-    const float wstep = texSize.x / static_cast<float>(ui::FESimpleButton::ATLAS_SIZE);
+    const float wstep = 1.f/3.f;
     for (unsigned int i = 0; i < ui::FESimpleButton::ATLAS_SIZE; ++i) {
         const float fi = static_cast<float>(i);
         atlas.push_back(ui::UVCoord(fi*wstep, (fi+1.f)*wstep, 0, 1.f));

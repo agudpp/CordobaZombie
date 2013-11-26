@@ -20,4 +20,65 @@ MainMenuHelpState::~MainMenuHelpState()
     // TODO Auto-generated destructor stub
 }
 
+
+////////////////////////////////////////////////////////////////////////////
+//                          Inherited methods                             //
+////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////
+bool
+MainMenuHelpState::getResourcesToLoad(ResourceGroupList& resourceList)
+{
+    debugERROR("TODO: Implement this, for now we will return true for test only\n");
+    return true;
+}
+
+////////////////////////////////////////////////////////////////////////////
+bool
+MainMenuHelpState::load(void)
+{
+    debugERROR("TODO: Implement this, for now we will return true for test only\n");
+    return true;
+}
+
+////////////////////////////////////////////////////////////////////////////
+bool
+MainMenuHelpState::show(void)
+{
+    debugERROR("TODO: Implement this, for now we will return true for test only\n");
+    return true;
+}
+
+////////////////////////////////////////////////////////////////////////////
+MainMenuSubStateEvent
+MainMenuHelpState::update(float timeFrame)
+{
+    debugERROR("TODO: Implement this, for now we will return true for test only\n");
+    return MainMenuSubStateEvent::MMSSE_DONE;
+}
+
+////////////////////////////////////////////////////////////////////////////
+bool
+MainMenuHelpState::hide(void)
+{
+    debugERROR("TODO: Implement this, for now we will return true for test only\n");
+    return true;
+}
+
+////////////////////////////////////////////////////////////////////////////
+bool
+MainMenuHelpState::unload(void)
+{
+    debugERROR("TODO: Implement this, for now we will return true for test only\n");
+    return true;
+}
+
+////////////////////////////////////////////////////////////////////////////
+bool
+MainMenuHelpState::getResourcesToUnload(ResourceGroupList& resourceList)
+{
+    debugERROR("TODO: Implement this, for now we will return true for test only\n");
+    return true;
+}
+
 } /* namespace cz */

@@ -48,6 +48,7 @@ MenuMainState::processSubStateEvent(MainMenuSubStateEvent event)
 ////////////////////////////////////////////////////////////////////////////////
 MenuMainState::MenuMainState() :
     mCurrentState(0)
+,   mID(MainStateID::MenuState)
 {
     // since when we build an instance of a MainState we already have the
     // global information we can safely set it to the substates
@@ -70,7 +71,7 @@ MenuMainState::~MenuMainState()
 const MainStateID&
 MenuMainState::ID(void) const
 {
-    return MainStateID::MenuState;
+    return mID;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -82,6 +83,7 @@ MenuMainState::configureState(const MainStateInformation& info)
     mTransitionTable.build();
     mCurrentState = 0;
 
+    return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -90,7 +92,7 @@ MenuMainState::getResourcesToLoad(ResourceGroupList& resourceList)
 {
     // get all the sub states and get its resources to load
     unsigned int size = 0;
-    MainMenuSubState* subStates = mTransitionTable.subStates(size);
+    MainMenuSubState** subStates = mTransitionTable.subStates(size);
     if (subStates == 0 || size == 0) {
         debugERROR("There are no substates to work with! something is wrong\n");
         return false;
@@ -99,7 +101,8 @@ MenuMainState::getResourcesToLoad(ResourceGroupList& resourceList)
     // iterate over all the substates and get its resources
     for (int i = 0; i < size; ++i) {
         ResourceGroupList rl;
-        MainMenuSubState& subs = subStates[i];
+        ASSERT(subStates[i]);
+        MainMenuSubState& subs = *subStates[i];
         if (!subs.getResourcesToLoad(rl)) {
             debugERROR("Error getting resources for a substate\n");
             return false;
@@ -126,7 +129,7 @@ MenuMainState::readyToGo(void)
 {
     // here we need to tell each substate to be ready to show its information.
     unsigned int size = 0;
-    MainMenuSubState* subStates = mTransitionTable.subStates(size);
+    MainMenuSubState** subStates = mTransitionTable.subStates(size);
 
     if (subStates == 0 || size == 0) {
         debugERROR("There are no substates to work with! something is wrong\n");
@@ -134,7 +137,8 @@ MenuMainState::readyToGo(void)
     }
 
     for (int i = 0; i < size; ++i) {
-        MainMenuSubState& subs = subStates[i];
+        ASSERT(subStates[i]);
+        MainMenuSubState& subs = *subStates[i];
         if (!subs.load()) {
             debugERROR("Error loading a substate\n");
             return false;
@@ -197,11 +201,9 @@ MenuMainState::update(float timeFrame)
 bool
 MenuMainState::unload(void)
 {
-    ASSERT(false && "TODO");
-
     // here we should call all the substates and unload all the information
     unsigned int size = 0;
-    MainMenuSubState* subStates = mTransitionTable.subStates(size);
+    MainMenuSubState** subStates = mTransitionTable.subStates(size);
 
     if (subStates == 0 || size == 0) {
         debugERROR("There are no substates to work with! something is wrong\n");
@@ -209,7 +211,9 @@ MenuMainState::unload(void)
     }
 
     for (int i = 0; i < size; ++i) {
-        MainMenuSubState& subs = subStates[i];
+        ASSERT(subStates[i]);
+        MainMenuSubState& subs = *subStates[i];
+
         if (!subs.unload()) {
             debugERROR("Error unloading a substate\n");
             return false;
@@ -233,7 +237,7 @@ MenuMainState::getResourcesToUnload(ResourceGroupList& resourceList)
     // here we should iterate over all the substates and get its resources
     // to unload
     unsigned int size = 0;
-    MainMenuSubState* subStates = mTransitionTable.subStates(size);
+    MainMenuSubState** subStates = mTransitionTable.subStates(size);
     if (subStates == 0 || size == 0) {
         debugERROR("There are no substates to work with! something is wrong\n");
         return false;
@@ -242,7 +246,9 @@ MenuMainState::getResourcesToUnload(ResourceGroupList& resourceList)
     // iterate over all the substates and get its resources
     for (int i = 0; i < size; ++i) {
         ResourceGroupList rl;
-        MainMenuSubState& subs = subStates[i];
+        ASSERT(subStates[i]);
+        MainMenuSubState& subs = *subStates[i];
+
         if (!subs.getResourcesToUnload(rl)) {
             debugERROR("Error getting resources to unload for a substate\n");
             return false;

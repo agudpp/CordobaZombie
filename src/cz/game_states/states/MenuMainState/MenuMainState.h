@@ -9,8 +9,8 @@
 #define MENUMAINSTATE_H_
 
 #include <game_states/IMainState.h>
+#include <game_states/states/MenuMainState/substates/MainMenuSubState.h>
 
-#include "substates/MainMenuSubState.h"
 #include "MainMenuTT.h"
 
 namespace cz {
@@ -116,6 +116,7 @@ private:
     MainMenuTT mTransitionTable;
     MainMenuSubStateEvent mLastEvent;
     MainMenuSubState* mCurrentState;
+    MainStateID mID;
 };
 
 } /* namespace cz */

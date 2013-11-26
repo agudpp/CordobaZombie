@@ -7,10 +7,10 @@
 
 #include "MainMenuTT.h"
 
-#include "substates/MainMenuCreditsState.h"
-#include "substates/MainMenuHelpState.h"
-#include "substates/MainMenuHistoryState.h"
-#include "substates/MainMenuMainState.h"
+#include <game_states/states/MenuMainState/substates/MainMenuCreditsState.h>
+#include <game_states/states/MenuMainState/substates/MainMenuHelpState.h>
+#include <game_states/states/MenuMainState/substates/MainMenuHistoryState.h>
+#include <game_states/states/MenuMainState/substates/MainMenuMainState.h>
 
 namespace cz {
 
@@ -89,12 +89,13 @@ MainMenuTT::mainState(void) const
 
 ////////////////////////////////////////////////////////////////////////////////
 MainMenuSubState*
-MainMenuTT::getNext(const MainMenuSubState* current, const MainMenuSubStateEvent& event) const
+MainMenuTT::getNext(const MainMenuSubState* current,
+                    const MainMenuSubStateEvent& event) const
 {
      for (unsigned int i = 0; i < mStates.size(); ++i) {
          MainMenuSubState* s = mStates[i];
          if (current == s) {
-             EventToStateMap::iterator it = mTable[i].find(event);
+             EventToStateMap::const_iterator it = mTable[i].find(event);
              if (it == mTable[i].end()) {
                  // not found
                  return 0;
@@ -106,7 +107,7 @@ MainMenuTT::getNext(const MainMenuSubState* current, const MainMenuSubStateEvent
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-MainMenuSubState*
+MainMenuSubState**
 MainMenuTT::subStates(unsigned int& size)
 {
     size = mStates.size();
@@ -115,7 +116,7 @@ MainMenuTT::subStates(unsigned int& size)
     }
     return mStates.begin();
 }
-const MainMenuSubState*
+const MainMenuSubState*const *
 MainMenuTT::subStates(unsigned int& size) const
 {
     size = mStates.size();

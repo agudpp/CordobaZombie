@@ -11,14 +11,15 @@
 
 namespace cz {
 
-static OgreCommon MainMenuSubState::sOgreInfo;
-static mm::SoundManager* MainMenuSubState::sSoundManager = 0;
+OgreCommon MainMenuSubState::sOgreInfo;
+mm::SoundManager* MainMenuSubState::sSoundManager = 0;
 
 
 ////////////////////////////////////////////////////////////////////////////////
 MainMenuSubState::MainMenuSubState()
 {
-    ASSERT(sSoundManager != 0);
+    debugERROR("We need to uncomment this asserts\n");
+//    ASSERT(sSoundManager != 0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

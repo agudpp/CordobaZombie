@@ -12,7 +12,7 @@
 
 #include <types/StackVector.h>
 
-#include "MainMenuSubState.h"
+#include <game_states/states/MenuMainState/substates/MainMenuSubState.h>
 
 
 namespace cz {
@@ -49,9 +49,9 @@ public:
     // @param size      The number of sub states
     // @return the pointer to the first sub states | 0 if no substates are
     //
-    MainMenuSubState*
+    MainMenuSubState**
     subStates(unsigned int& size);
-    const MainMenuSubState*
+    const MainMenuSubState*const *
     subStates(unsigned int& size) const;
 
 private:
