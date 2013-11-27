@@ -31,6 +31,7 @@ IMainState::IMainState()
 //    ASSERT(sVideoPlayer);
     ASSERT(sRcHandler);
     ASSERT(sCommonHandlers.frontEndManager);
+    ASSERT(sCommonHandlers.inputHelper);
 
 }
 

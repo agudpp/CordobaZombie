@@ -135,7 +135,8 @@ IntroMainState::getResourcesToUnload(ResourceGroupList& resourceList)
 const MainStateID&
 IntroMainState::ID(void) const
 {
-	return MainStateID::IntroState;
+    static const MainStateID id = MainStateID::IntroState;
+	return id;
 }
 
 

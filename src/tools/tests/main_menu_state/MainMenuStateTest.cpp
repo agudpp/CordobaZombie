@@ -46,6 +46,7 @@ getKeyboardKeys(void)
     buttons.reserve(18); // just in case :p
 
     buttons.push_back(input::KeyCode::KC_ESCAPE);
+    buttons.push_back(input::KeyCode::KC_SPACE);
     buttons.push_back(input::KeyCode::KC_L);
     buttons.push_back(input::KeyCode::KC_U);
 
@@ -124,6 +125,7 @@ MainMenuStateTest::MainMenuStateTest() :
 
     cz::CommonHandlers handlers;
     handlers.frontEndManager = &mFrontEndManager;
+    handlers.inputHelper = &mInputHelper;
     cz::IMainState::setCommonHandlers(handlers);
 
     mMouseCursor.setCursor(ui::MouseCursor::Cursor::NORMAL_CURSOR);

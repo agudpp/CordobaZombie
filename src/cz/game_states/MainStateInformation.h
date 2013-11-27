@@ -27,6 +27,9 @@ class Camera;
 namespace ui {
 class FEManager;
 }
+namespace input {
+class InputHelper;
+}
 
 
 namespace cz {
@@ -61,9 +64,11 @@ struct OgreCommon {
 //
 struct CommonHandlers {
     ui::FEManager* frontEndManager;
+    input::InputHelper* inputHelper;
 
     CommonHandlers() :
         frontEndManager(0)
+    ,   inputHelper(0)
     {}
 };
 

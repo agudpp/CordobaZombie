@@ -35,6 +35,7 @@ namespace cz {
 
 MainMenuMainState::MainMenuMainState() :
     mOverlay(0)
+,   mRetVal(MainMenuSubStateEvent::MMSSE_CONTINUE)
 {
 }
 
@@ -62,6 +63,8 @@ MainMenuMainState::buttonPressed(ui::FESimpleButton* button,
         debugGREEN("PLAY GAME PRESSED!\n");
     } else if (button == &(mButtons[Buttons::B_HELP])) {
         debugGREEN("HELP PRESSED!\n");
+        // we need to emit this event
+        mRetVal = MainMenuSubStateEvent::MMSSE_HELP;
     } else if (button == &(mButtons[Buttons::B_CREDITS])) {
         debugGREEN("CREDITS PRESSED!\n");
     } else if (button == &(mButtons[Buttons::B_HISTORY])) {
@@ -142,8 +145,11 @@ MainMenuMainState::show(void)
     // we need to show all the buttons and activate all of them
     mOverlay->show();
     for (ui::FESimpleButton& b : mButtons) {
+        b.setButtonState(ui::FESimpleButton::State::S_NORMAL);
         sCommonHandlers.frontEndManager->add(&b);
     }
+
+    mRetVal = MainMenuSubStateEvent::MMSSE_CONTINUE;
 
     return true;
 }
@@ -152,8 +158,7 @@ MainMenuMainState::show(void)
 MainMenuSubStateEvent
 MainMenuMainState::update(float timeFrame)
 {
-//    debugERROR("TODO: Implement this, for now we will return true for test only\n");
-    return MainMenuSubStateEvent::MMSSE_CONTINUE;
+    return mRetVal;
 }
 
 ////////////////////////////////////////////////////////////////////////////

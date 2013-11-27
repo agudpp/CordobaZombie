@@ -114,6 +114,7 @@ public:
 private:
     core::StackVector<ui::FESimpleButton, Buttons::B_COUNT> mButtons;
     Ogre::Overlay* mOverlay;
+    MainMenuSubStateEvent mRetVal;
 
 };
 

@@ -8,6 +8,11 @@
 #ifndef MAINMENUHELPSTATE_H_
 #define MAINMENUHELPSTATE_H_
 
+#include <OgreOverlay.h>
+#include <OgreOverlayContainer.h>
+
+#include <frontend/element/button/FESimpleButton.h>
+
 #include "MainMenuSubState.h"
 
 namespace cz {
@@ -19,6 +24,14 @@ public:
     virtual
     ~MainMenuHelpState();
 
+    ////////////////////////////////////////////////////////////////////////////
+    // Signals
+    //
+    // @brief Whenever a button is pressed this method will be called. This is
+    //        the "callback" for the FESimpleButton.
+    //
+    void
+    buttonPressed(ui::FESimpleButton* button, ui::FESimpleButton::Event event);
 
     ////////////////////////////////////////////////////////////////////////////
     //                          Inherited methods                             //
@@ -86,6 +99,19 @@ public:
     //
     bool
     getResourcesToUnload(ResourceGroupList& resourceList);
+
+private:
+
+    // @brief Method called when we need to go out from this state
+    //
+    void
+    letsGoOut(void);
+
+private:
+    Ogre::Overlay* mOverlay;
+    Ogre::OverlayContainer* mInfoImg;
+    ui::FESimpleButton mBackButton;
+    MainMenuSubStateEvent mRetEvent;
 };
 
 } /* namespace cz */
