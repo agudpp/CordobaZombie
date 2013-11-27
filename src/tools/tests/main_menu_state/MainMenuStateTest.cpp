@@ -122,6 +122,10 @@ MainMenuStateTest::MainMenuStateTest() :
     // Set state info
     cz::IMainState::setOgreData(ogreInfo);
 
+    cz::CommonHandlers handlers;
+    handlers.frontEndManager = &mFrontEndManager;
+    cz::IMainState::setCommonHandlers(handlers);
+
     mMouseCursor.setCursor(ui::MouseCursor::Cursor::NORMAL_CURSOR);
     mMouseCursor.setVisible(true);
     mMouseCursor.setWindowDimensions(mWindow->getWidth(), mWindow->getHeight());
@@ -221,7 +225,7 @@ MainMenuStateTest::loadAditionalData(void)
         iter.getNext()->load();
     }
 
-    loadButtonFromOverlay();
+//    loadButtonFromOverlay();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

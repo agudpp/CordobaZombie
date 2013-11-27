@@ -15,6 +15,7 @@ OgreCommon IMainState::sOgreInfo;
 mm::VideoPlayer* IMainState::sVideoPlayer = 0;
 mm::SoundManager* IMainState::sSoundManager = 0;
 const rrh::ResourceHandler *IMainState::sRcHandler = 0;
+CommonHandlers IMainState::sCommonHandlers;
 
 
 IMainState::IMainState()
@@ -29,6 +30,7 @@ IMainState::IMainState()
 //    ASSERT(sSoundManager);
 //    ASSERT(sVideoPlayer);
     ASSERT(sRcHandler);
+    ASSERT(sCommonHandlers.frontEndManager);
 
 }
 
@@ -55,6 +57,11 @@ void
 IMainState::setRcHandler(const rrh::ResourceHandler* rch)
 {
 	sRcHandler = rch;
+}
+void
+IMainState::setCommonHandlers(const CommonHandlers& ch)
+{
+    sCommonHandlers = ch;
 }
 
 

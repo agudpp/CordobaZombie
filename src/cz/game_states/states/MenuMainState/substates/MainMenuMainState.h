@@ -8,17 +8,40 @@
 #ifndef MAINMENUMAINSTATE_H_
 #define MAINMENUMAINSTATE_H_
 
+#include <frontend/element/button/FESimpleButton.h>
+#include <types/StackVector.h>
+
 #include "MainMenuSubState.h"
 
 namespace cz {
 
 class MainMenuMainState : public MainMenuSubState
 {
+
+    // internal defines
+    enum Buttons {
+        B_PLAY = 0,
+        B_HELP,
+        B_CREDITS,
+        B_HISTORY,
+        B_EXIT,
+
+        B_COUNT,
+    };
+
 public:
     MainMenuMainState();
     virtual
     ~MainMenuMainState();
 
+    ////////////////////////////////////////////////////////////////////////////
+    // Signals
+    //
+    // @brief Whenever a button is pressed this method will be called. This is
+    //        the "callback" for the FESimpleButton.
+    //
+    void
+    buttonPressed(ui::FESimpleButton* button, ui::FESimpleButton::Event event);
 
     ////////////////////////////////////////////////////////////////////////////
     //                          Inherited methods                             //
@@ -86,6 +109,12 @@ public:
     //
     bool
     getResourcesToUnload(ResourceGroupList& resourceList);
+
+
+private:
+    core::StackVector<ui::FESimpleButton, Buttons::B_COUNT> mButtons;
+    Ogre::Overlay* mOverlay;
+
 };
 
 } /* namespace cz */

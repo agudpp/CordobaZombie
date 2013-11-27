@@ -80,6 +80,11 @@ IntroMainStateTest::IntroMainStateTest() :
 
 	// Set state info
 	cz::IMainState::setOgreData(ogreInfo);
+
+	cz::CommonHandlers handlers;
+	handlers.frontEndManager = &mFrontEnd;
+	cz::IMainState::setCommonHandlers(handlers);
+
 	// Set resource Handler for intro state
     char *ENV = 0;
     ASSERT(core::OSHelper::getEnvVar("CZ01_RC_PATH",ENV));

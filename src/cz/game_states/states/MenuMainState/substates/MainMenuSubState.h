@@ -8,6 +8,8 @@
 #ifndef MAINMENUSUBSTATE_H_
 #define MAINMENUSUBSTATE_H_
 
+#include <OgreString.h>
+
 #include <game_states/MainStateInformation.h>
 
 
@@ -62,6 +64,12 @@ public:
     //
     static void
     setSoundManager(mm::SoundManager* soundManager);
+
+    // @brief Set the CommonHandlers structure for all main states.
+    // @param ch      The common handlers structure with all the handlers
+    //
+    static void
+    setCommonHandlers(const CommonHandlers& ch);
 
     // @brief Return the list of resources used by this sub-state.
     //        This list should contain all the resources that we need to use
@@ -126,12 +134,24 @@ public:
     getResourcesToUnload(ResourceGroupList& resourceList) = 0;
 
 protected:
+
+    // @brief Helper method used to get the absolute path from a relative path.
+    // @param relPath       The relative path to be transformed in absolute path
+    // @returns true on success and in the relPath arg the absolute path for
+    //          the given relPath.
+    //
+    bool
+    convertToAbsolute(Ogre::String& relPath) const;
+
+protected:
     // The OgreStuff information and the SoundSystem associated
     //
     // the global Ogre information
     static OgreCommon sOgreInfo;
     // the global SoundManager instance
     static mm::SoundManager* sSoundManager;
+    // static global general shared handlers
+    static CommonHandlers sCommonHandlers;
 };
 
 } /* namespace cz */

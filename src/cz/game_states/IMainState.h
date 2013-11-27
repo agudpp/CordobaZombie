@@ -82,6 +82,12 @@ public:
     static void
     setRcHandler(const rrh::ResourceHandler* rch);
 
+    // @brief Set the CommonHandlers structure for all main states.
+    // @param ch      The common handlers structure with all the handlers
+    //
+    static void
+    setCommonHandlers(const CommonHandlers& ch);
+
 
     // @brief This will return the State ID.
     //
@@ -165,6 +171,8 @@ protected:
     static mm::SoundManager* sSoundManager;
     // static global resources handler for all main states
     static const rrh::ResourceHandler *sRcHandler;
+    // static global general shared handlers
+    static CommonHandlers sCommonHandlers;
 };
 
 

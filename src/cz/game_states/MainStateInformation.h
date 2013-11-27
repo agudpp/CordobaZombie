@@ -24,6 +24,9 @@ class RenderWindow;
 class Root;
 class Camera;
 }
+namespace ui {
+class FEManager;
+}
 
 
 namespace cz {
@@ -54,6 +57,15 @@ struct OgreCommon {
     {}
 };
 
+// Here we will define the global shared handlers we will use
+//
+struct CommonHandlers {
+    ui::FEManager* frontEndManager;
+
+    CommonHandlers() :
+        frontEndManager(0)
+    {}
+};
 
 // We will define the list of resources that a state can handle.
 // For now we will be sure than we are not handling more than 128 files at

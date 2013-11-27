@@ -10,6 +10,7 @@
 #include <debug/DebugUtil.h>
 
 
+
 namespace cz {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -54,6 +55,7 @@ MenuMainState::MenuMainState() :
     // global information we can safely set it to the substates
     MainMenuSubState::setOgreData(sOgreInfo);
     MainMenuSubState::setSoundManager(sSoundManager);
+    MainMenuSubState::setCommonHandlers(sCommonHandlers);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -16,6 +16,7 @@
 #include <debug/DebugUtil.h>
 #include <game_states/IMainState.h>
 #include <ResourceHandler.h>
+#include <frontend/FEManager.h>
 
 #include <input/InputHelper.h>
 
@@ -50,6 +51,7 @@ private:
     input::InputHelper 		mInputHelper;
     cz::IMainState			*mIntroMainState;
     rrh::ResourceHandler	mRcHandler;
+    ui::FEManager           mFrontEnd;
 
 
 };

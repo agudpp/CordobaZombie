@@ -62,7 +62,7 @@ FEManager::remove(FEElement* element)
 
     // remove it from the current elements vector and the matrix
     mElements.disorder_remove(element->_elemIndex);
-    if (!mElements.empty()) {
+    if (element->_elemIndex < mElements.size()) {
         mElements[element->_elemIndex]->_elemIndex = element->_elemIndex;
     }
 
