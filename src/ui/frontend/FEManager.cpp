@@ -154,7 +154,7 @@ FEManager::update(void)
 
     // check if we have elements to check
     //
-    if (mElements.empty() || mLastElements.empty()) {
+    if (mElements.empty() && mLastElements.empty()) {
         return; // nothing to do
     }
 

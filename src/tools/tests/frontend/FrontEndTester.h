@@ -28,9 +28,13 @@
 #include <global_data/GlobalData.h>
 #include <cursor/MouseCursor.h>
 
+#include <effect_handler/EffectHandler.h>
 #include <frontend/FEManager.h>
 #include <frontend/FEInfo.h>
 #include <frontend/element/button/FESimpleButton.h>
+#include <frontend/effects/FESimpleButtonEffect.h>
+#include <overlay_effects/SlideOverlayEffect.h>
+#include <overlay_effects/AlphaOverlayEffect.h>
 
 
 
@@ -58,6 +62,11 @@ private:
     void
     loadFrontEndElements(void);
 
+    // @brief Configure effects
+    //
+    void
+    configureEffects(void);
+
     void
     handleCameraInput(void);
 
@@ -71,8 +80,12 @@ private:
     core::OgreTextTable mTextTable;
     input::InputHelper mInputHelper;
 
+    effect::EffectHandler mEffectHandler;
     ui::FEManager mFrontEndManager;
-    ui::FESimpleButton* button;
+    ui::FESimpleButton* mButton;
+    ui::AlphaOverlayEffect mAlphaEffect;
+    ui::SlideOverlayEffect mSlideEffect;
+    ui::FESimpleButtonEffect mButtonEffect;
 };
 
 }

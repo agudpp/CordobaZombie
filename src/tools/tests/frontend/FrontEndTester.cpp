@@ -85,7 +85,7 @@ FrontEndTester::loadFrontEndElements(void)
     Ogre::Overlay* overlay = om.getByName("FrontEndTest");
     Ogre::PanelOverlayElement* panel =
         static_cast<Ogre::PanelOverlayElement*>(overlay->getChild("Test/Button1"));
-    button = new ui::FESimpleButton(&mFrontEndManager, core::AABB(0.5,0.5,0.4,0.8));
+    mButton = new ui::FESimpleButton(&mFrontEndManager, core::AABB(0.5,0.5,0.4,0.8));
 
     overlay->show();
     panel->show();
@@ -97,8 +97,8 @@ FrontEndTester::loadFrontEndElements(void)
     coords.push_back(ui::UVCoord(0.333333f, 0.66666, 0.f, 1.f));
     coords.push_back(ui::UVCoord(0.6666f, 1.f, 0.f, 1.f));
     coords.push_back(ui::UVCoord(0.6666f, 1.f, 0.f, 1.f));
-    button->build(panel, coords);
-    mFrontEndManager.add(button);
+    mButton->build(panel, coords);
+    mFrontEndManager.add(mButton);
 
     // callback element
     struct CBElement {
@@ -107,10 +107,24 @@ FrontEndTester::loadFrontEndElements(void)
         }
     };
     static CBElement cb;
-    button->setButtonPressedCallback(std::bind(&CBElement::fun,
+    mButton->setButtonPressedCallback(std::bind(&CBElement::fun,
                                                &cb,
                                                std::placeholders::_1,
                                                std::placeholders::_2));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void
+FrontEndTester::configureEffects(void)
+{
+    // configure alpha
+    mAlphaEffect.setTime(5);
+
+
+    // configure slide
+    mSlideEffect.setDuration(5);
+    mSlideEffect.setTranslationPositions(core::Vector2(0,0),
+                                         core::Vector2(0.8,0.8));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -133,20 +147,16 @@ FrontEndTester::handleCameraInput()
     // MOUSE
     const OIS::MouseState& lMouseState = mMouse->getMouseState();
 
-    if(mInputHelper.isKeyPressed(input::KeyCode::KC_LEFT) ||
-        mInputHelper.isKeyPressed(input::KeyCode::KC_A)) {
+    if(mInputHelper.isKeyPressed(input::KeyCode::KC_LEFT)) {
         mTranslationVec.x -= 1.0f;
     }
-    if(mInputHelper.isKeyPressed(input::KeyCode::KC_RIGHT) ||
-        mInputHelper.isKeyPressed(input::KeyCode::KC_D)) {
+    if(mInputHelper.isKeyPressed(input::KeyCode::KC_RIGHT)) {
         mTranslationVec.x += 1.0f;
     }
-    if(mInputHelper.isKeyPressed(input::KeyCode::KC_UP) ||
-        mInputHelper.isKeyPressed(input::KeyCode::KC_W)) {
+    if(mInputHelper.isKeyPressed(input::KeyCode::KC_UP)) {
         mTranslationVec.z -= 1.0f;
     }
-    if(mInputHelper.isKeyPressed(input::KeyCode::KC_DOWN) ||
-        mInputHelper.isKeyPressed(input::KeyCode::KC_S)) {
+    if(mInputHelper.isKeyPressed(input::KeyCode::KC_DOWN)) {
         mTranslationVec.z += 1.0f;
     }
 
@@ -195,6 +205,7 @@ FrontEndTester::FrontEndTester() :
 ,   mSelHelper(*mSceneMgr, *mCamera, mMouseCursor)
 ,   mInputHelper(getMouseButtons(), getKeyboardKeys())
 ,   mFrontEndManager(mInputHelper, mMouseCursor)
+,   mButton(0)
 {
     // configure the input
     input::Mouse::setMouse(mMouse);
@@ -242,6 +253,9 @@ FrontEndTester::loadAditionalData(void)
 
     // load front end objects
     loadFrontEndElements();
+
+    // configure effects
+    configureEffects();
 }
 
 /* function called every frame. Use GlobalObjects::lastTimeFrame */
@@ -263,21 +277,36 @@ FrontEndTester::update()
     // apply some logic here
     if (mInputHelper.isKeyReleased(input::KeyCode::KC_1)) {
         static bool active = false;
-        button->setActive(active);
+        mButton->setActive(active);
         debugGREEN("Setting active to %d\n", active);
         active = !active;
     }
     if (mInputHelper.isKeyReleased(input::KeyCode::KC_2)) {
         static bool visible = false;
-        button->setVisible(visible);
+        mButton->setVisible(visible);
         debugGREEN("Setting visible to %d\n", visible);
         visible = !visible;
     }
     if (mInputHelper.isKeyReleased(input::KeyCode::KC_3)) {
         static bool enable = false;
-        button->setEnabled(enable);
+        mButton->setEnabled(enable);
         debugGREEN("Setting enable to %d\n", enable);
         enable = !enable;
+    }
+
+    // Apply effects
+    if(mInputHelper.isKeyReleased(input::KeyCode::KC_UP)) {
+        debugGREEN("Setting complement of Slide\n");
+        mSlideEffect.complement();
+        mButtonEffect.setFESimpleButton(mButton);
+        mButtonEffect.setOverlayEffect(&mSlideEffect);
+        mEffectHandler.add(&mButtonEffect);
+    } else if (mInputHelper.isKeyReleased(input::KeyCode::KC_DOWN)) {
+        debugGREEN("Setting complement of alpha effect\n");
+        mAlphaEffect.complement();
+        mButtonEffect.setFESimpleButton(mButton);
+        mButtonEffect.setOverlayEffect(&mAlphaEffect);
+        mEffectHandler.add(&mButtonEffect);
     }
 
 
@@ -286,6 +315,9 @@ FrontEndTester::update()
 
     // update the front end manager
     mFrontEndManager.update();
+
+    // update the effects
+    mEffectHandler.update(cz::GlobalData::lastTimeFrame);
 
 }
 

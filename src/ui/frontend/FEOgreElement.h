@@ -51,6 +51,12 @@ public:
     build(Ogre::PanelOverlayElement* cont,
           const core::StackVector<UVCoord, NUM_ATLAS>& coords);
 
+    // @brief Update the dimensions and position using the current overlay panel
+    //        associated.
+    //
+    inline void
+    updateDimensionsFromOverlay(void);
+
     // @brief Return the associated Overlay Container.
     //
     inline Ogre::PanelOverlayElement*
@@ -136,18 +142,27 @@ FEOgreElement<NUM_ATLAS>::build(Ogre::PanelOverlayElement* cont,
     mUVCoords = coords;
 
     // set the new dimensions
-    ASSERT(cont->getTop() <= 1.f);
-    ASSERT(cont->getLeft() <= 1.f);
-    ASSERT(cont->getHeight() <= 1.f);
-    ASSERT(cont->getWidth() <= 1.f);
-    core::AABB dims(1.f - cont->getTop(),
-                    cont->getLeft(),
-                    1.f - cont->getTop() - cont->getHeight(),
-                    cont->getLeft() + cont->getWidth());
-    setDimensions(dims);
+    updateDimensionsFromOverlay();
 
     // set the first atlas
     setAtlasCoords(0);
+}
+
+template <unsigned int NUM_ATLAS>
+inline void
+FEOgreElement<NUM_ATLAS>::updateDimensionsFromOverlay(void)
+{
+    ASSERT(mContainer);
+    // set the new dimensions
+    ASSERT(mContainer->getTop() <= 1.f);
+    ASSERT(mContainer->getLeft() <= 1.f);
+    ASSERT(mContainer->getHeight() <= 1.f);
+    ASSERT(mContainer->getWidth() <= 1.f);
+    core::AABB dims(1.f - mContainer->getTop(),
+                    mContainer->getLeft(),
+                    1.f - mContainer->getTop() - mContainer->getHeight(),
+                    mContainer->getLeft() + mContainer->getWidth());
+    setDimensions(dims);
 }
 
 template <unsigned int NUM_ATLAS>
