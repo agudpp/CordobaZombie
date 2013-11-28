@@ -48,7 +48,7 @@ Engine::Engine()
     mLoader.addModuleLoader(rscLoader);
 
     // SoundSystem
-    SoundSystemLoader* soundLoader = new SoundSystemLoader(mSoundData.manager);
+    SoundSystemLoader* soundLoader = new SoundSystemLoader(mSoundData.handler);
 
     mLoaders.push_back(soundLoader);
     mLoader.addModuleLoader(soundLoader);

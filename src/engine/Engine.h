@@ -26,7 +26,7 @@ class Camera;
 }
 
 namespace mm {
-class SoundManager;
+class SoundHandler;
 class VideoPlayer;
 }
 
@@ -67,10 +67,10 @@ public:
     // SoundSystem information
     //
     struct SoundData {
-        mm::SoundManager* manager;
+        mm::SoundHandler* handler;
 
         SoundData() :
-            manager(0)
+            handler(0)
         {}
     };
 

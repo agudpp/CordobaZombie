@@ -13,7 +13,7 @@
 #include <OgreRoot.h>
 #include <OgreRenderWindow.h>
 
-#include <sound/SoundManager.h>
+#include <sound/SoundHandler.h>
 
 #include "IModuleLoader.h"
 
@@ -23,7 +23,7 @@ class SoundSystemLoader : public IModuleLoader
 {
 public:
     // Pass the pointer we of the manager to be built
-    SoundSystemLoader(mm::SoundManager*& soundManager);
+    SoundSystemLoader(mm::SoundHandler*& soundhandler);
     virtual
     ~SoundSystemLoader();
 
@@ -45,7 +45,7 @@ public:
     unload(void);
 
 private:
-    mm::SoundManager*& mSoundManager;
+    mm::SoundHandler*& mSoundHandler;
 };
 
 } /* namespace engine */

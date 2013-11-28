@@ -11,9 +11,9 @@
 
 namespace engine {
 
-SoundSystemLoader::SoundSystemLoader(mm::SoundManager*& soundManager) :
+SoundSystemLoader::SoundSystemLoader(mm::SoundHandler*& soundHandler) :
     IModuleLoader("SoundSystemLoader")
-,   mSoundManager(soundManager)
+,   mSoundHandler(soundHandler)
 {
 }
 
@@ -29,12 +29,12 @@ SoundSystemLoader::~SoundSystemLoader()
 bool
 SoundSystemLoader::load(const EngineConfiguration& config)
 {
-    if (mSoundManager != 0) {
+    if (mSoundHandler != 0) {
         debugWARNING("The sound system was already built\n");
     }
 
     // get the singleton instance for now
-    mSoundManager = &mm::SoundManager::getInstance();
+    mSoundHandler = &mm::SoundHandler::getInstance();
     debugERROR("TODO: we need to configure the sound system here... reading the"
         " values in the config structure...\n");
 
@@ -48,7 +48,7 @@ SoundSystemLoader::unload(void)
     debugERROR("Check if we have to do something here... since it is a singleton "
         "we cannot free its memory\n");
 
-    mSoundManager = 0;
+    mSoundHandler = 0;
     return true;
 }
 

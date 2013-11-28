@@ -54,7 +54,7 @@ MenuMainState::MenuMainState() :
     // since when we build an instance of a MainState we already have the
     // global information we can safely set it to the substates
     MainMenuSubState::setOgreData(sOgreInfo);
-    MainMenuSubState::setSoundManager(sSoundManager);
+    MainMenuSubState::setSoundHandler(sSoundHandler);
     MainMenuSubState::setCommonHandlers(sCommonHandlers);
 }
 

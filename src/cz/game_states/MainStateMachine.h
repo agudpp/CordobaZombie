@@ -61,8 +61,10 @@ public:
 
     // @brief Execute (update) the current state of the state machine
     // @param timeFrame     The time frame to be used by the states.
+    // @return true on success | false on error or if we finish and need to
+    //         go out
     //
-    void
+    bool
     update(float timeFrame);
 
 

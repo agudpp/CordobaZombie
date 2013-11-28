@@ -34,10 +34,14 @@ public:
 
 public:
     inline
-    MouseCursor();
+    MouseCursor(bool buildNow = true);
 
-    inline virtual
+    inline
     ~MouseCursor(void);
+
+    // Method used to build the cursor with delay
+    inline void
+    build(void);
 
     inline void
     setCursor(Cursor c);
@@ -100,6 +104,7 @@ private:
     Ogre::Real mAtlasSize;
     int mTextureSize;
     Cursor mCursor;
+    bool mIsVisible;
 };
 
 /******************************************************************************/
@@ -107,9 +112,39 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 inline
-MouseCursor::MouseCursor() :
+MouseCursor::MouseCursor(bool buildNow) :
     mGuiOverlay(0), mCursorContainer(0)
 {
+    if (buildNow) {
+        build();
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+inline
+MouseCursor::~MouseCursor(void)
+{
+    Ogre::MaterialManager::getSingleton().unload(mMaterial->getName());
+    if (mCursorContainer) {
+        Ogre::OverlayManager::getSingleton().destroyOverlayElement(
+            mCursorContainer);
+    }
+    if (mGuiOverlay) {
+        Ogre::OverlayManager::getSingleton().destroy(mGuiOverlay);
+    }
+    if (mTexture->isLoaded()) {
+        Ogre::TextureManager::getSingleton().unload(mTexture->getName());
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+inline void
+MouseCursor::build(void)
+{
+    if (mGuiOverlay != 0) {
+        debugERROR("Cursor already build!\n");
+        return;
+    }
     mMaterial = Ogre::MaterialManager::getSingleton().create(
         MOUSE_CURSOR_MATERIAL_NAME, "Popular");
     ASSERT(!mMaterial.isNull());
@@ -144,6 +179,8 @@ MouseCursor::MouseCursor() :
     mCursorContainer->setDimensions(MOUSE_RELATIVE_WIDTH,
         MOUSE_RELATIVE_HEIGHT);
 
+    mIsVisible = true;
+
     // get the factor to multiply
     Ogre::TexturePtr text = Ogre::TextureManager::getSingleton().getByName(
         MOUSE_CURSOR_IMAGE_NAME);
@@ -156,24 +193,6 @@ MouseCursor::MouseCursor() :
     // start using normal cursor
     setCursor(NORMAL_CURSOR);
 }
-
-////////////////////////////////////////////////////////////////////////////////
-inline
-MouseCursor::~MouseCursor(void)
-{
-    Ogre::MaterialManager::getSingleton().unload(mMaterial->getName());
-    if (mCursorContainer) {
-        Ogre::OverlayManager::getSingleton().destroyOverlayElement(
-            mCursorContainer);
-    }
-    if (mGuiOverlay) {
-        Ogre::OverlayManager::getSingleton().destroy(mGuiOverlay);
-    }
-    if (mTexture->isLoaded()) {
-        Ogre::TextureManager::getSingleton().unload(mTexture->getName());
-    }
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 inline void
 MouseCursor::setCursor(Cursor c)
@@ -214,15 +233,16 @@ inline void
 MouseCursor::setVisible(bool visible)
 {
     if (visible) {
-        mCursorContainer->show();
+        mGuiOverlay->show();
     } else {
-        mCursorContainer->hide();
+        mGuiOverlay->hide();
     }
+    mIsVisible = visible;
 }
 inline bool
 MouseCursor::isVisible(void) const
 {
-    return mCursorContainer->isVisible();
+    return mIsVisible;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

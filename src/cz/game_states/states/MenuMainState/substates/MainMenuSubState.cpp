@@ -13,7 +13,7 @@
 namespace cz {
 
 OgreCommon MainMenuSubState::sOgreInfo;
-mm::SoundManager* MainMenuSubState::sSoundManager = 0;
+mm::SoundHandler* MainMenuSubState::sSoundHandler = 0;
 CommonHandlers MainMenuSubState::sCommonHandlers;
 
 
@@ -57,9 +57,9 @@ MainMenuSubState::setOgreData(const OgreCommon& ogreData)
 
 ////////////////////////////////////////////////////////////////////////////////
 void
-MainMenuSubState::setSoundManager(mm::SoundManager* soundManager)
+MainMenuSubState::setSoundHandler(mm::SoundHandler* soundHandler)
 {
-    sSoundManager = soundManager;
+    sSoundHandler = soundHandler;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

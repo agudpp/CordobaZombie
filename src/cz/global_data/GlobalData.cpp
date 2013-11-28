@@ -15,6 +15,7 @@ namespace cz {
 Ogre::SceneManager* GlobalData::sceneMngr = 0;
 Ogre::Camera* GlobalData::camera = 0;
 
+rrh::ResourceHandler* GlobalData::rscHandler = 0;
 coll::CollisionHandler* GlobalData::collHandler = 0;
 float GlobalData::lastTimeFrame = 0.f;
 
@@ -23,6 +24,7 @@ float GlobalData::lastTimeFrame = 0.f;
 bool
 GlobalData::getRootResourcesPath(std::string& path)
 {
+    // TODO: here we should return the resourceHandler->getRootPath();
     char* envVar = 0;
     // for now we will use the one used by CZ = CZ01_RC_PATH
     if (!core::OSHelper::getEnvVar("CZ01_RC_PATH", envVar) ||

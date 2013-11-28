@@ -13,7 +13,7 @@ namespace cz {
 
 OgreCommon IMainState::sOgreInfo;
 mm::VideoPlayer* IMainState::sVideoPlayer = 0;
-mm::SoundManager* IMainState::sSoundManager = 0;
+mm::SoundHandler* IMainState::sSoundHandler = 0;
 const rrh::ResourceHandler *IMainState::sRcHandler = 0;
 CommonHandlers IMainState::sCommonHandlers;
 
@@ -27,7 +27,7 @@ IMainState::IMainState()
     ASSERT(sOgreInfo.root);
     ASSERT(sOgreInfo.sceneMngr);
     debugERROR("We need to uncomment this asserts\n");
-//    ASSERT(sSoundManager);
+//    ASSERT(sSoundHandler);
 //    ASSERT(sVideoPlayer);
     ASSERT(sRcHandler);
     ASSERT(sCommonHandlers.frontEndManager);
@@ -49,9 +49,9 @@ IMainState::setVideoPlayer(mm::VideoPlayer* videoPlayer)
 }
 
 void
-IMainState::setSoundManager(mm::SoundManager* soundManager)
+IMainState::setSoundHandler(mm::SoundHandler* soundHandler)
 {
-    sSoundManager = soundManager;
+    sSoundHandler = soundHandler;
 }
 
 void

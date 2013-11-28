@@ -22,6 +22,10 @@ class SceneManager;
 class Camera;
 }
 
+namespace rrh {
+class ResourceHandler;
+}
+
 namespace cz {
 
 struct GlobalData
@@ -37,6 +41,8 @@ struct GlobalData
     // Own classes
     //
 
+    // resource handler instance
+    static rrh::ResourceHandler* rscHandler;
     // Collision handler used
     static coll::CollisionHandler* collHandler;
     // last frame elapsed time

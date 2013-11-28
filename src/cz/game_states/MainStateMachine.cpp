@@ -137,12 +137,12 @@ MainStateMachine::executeLastState(void)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void
+bool
 MainStateMachine::update(float timeFrame)
 {
     // check if we have a current state
     if (mCurrentState == 0) {
-        return; // nothing to do
+        return false; // nothing to do
     }
 
     // if we have an state, then we need to execute it
@@ -150,20 +150,24 @@ MainStateMachine::update(float timeFrame)
         // we need to change the current state.. Check the event information
         const MainStateEvent& event = mCurrentState->getEventInformation();
         IMainState* nextState = mTransitionTable.getNext(mCurrentState, event);
-        ASSERT(nextState);
+        if (nextState == 0) {
+            // no more states, probably we finish?
+            debug("No more states found from %d and event %d\n",
+                  mCurrentState->ID(), event);
+            return false;
+        }
 
         // load the new state
         if (!changeState(nextState)) {
             debugERROR("Error changing from state %d to state %d with event %d\n",
                 (int) mCurrentState->ID(), (int) nextState->ID(), event);
-            ASSERT(false && "How we can handle the error here? probably we cannot "
-                "do anything :(");
-            return;
+            return false;
         }
         mLastEvent = event;
     }
 
     // else there is nothing to do, and everything goes fine :)
+    return true;
 }
 
 

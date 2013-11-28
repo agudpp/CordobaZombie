@@ -26,7 +26,7 @@
 // forward
 //
 namespace mm {
-class SoundManager;
+class SoundHandler;
 };
 
 namespace cz {
@@ -59,11 +59,11 @@ public:
     static void
     setOgreData(const OgreCommon& ogreData);
 
-    // @brief Set the SoundManager global instance
-    // @param soundManager  The SoundManager.
+    // @brief Set the SoundHandler global instance
+    // @param soundHandler  The SoundManager.
     //
     static void
-    setSoundManager(mm::SoundManager* soundManager);
+    setSoundHandler(mm::SoundHandler* soundHandler);
 
     // @brief Set the CommonHandlers structure for all main states.
     // @param ch      The common handlers structure with all the handlers
@@ -148,8 +148,8 @@ protected:
     //
     // the global Ogre information
     static OgreCommon sOgreInfo;
-    // the global SoundManager instance
-    static mm::SoundManager* sSoundManager;
+    // the global SoundHandler instance
+    static mm::SoundHandler* sSoundHandler;
     // static global general shared handlers
     static CommonHandlers sCommonHandlers;
 };

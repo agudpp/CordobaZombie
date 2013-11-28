@@ -23,7 +23,7 @@ class ResourceHandler;
 
 namespace mm {
 class VideoPlayer;
-class SoundManager;
+class SoundHandler;
 }
 
 namespace cz {
@@ -70,11 +70,11 @@ public:
     static void
     setVideoPlayer(mm::VideoPlayer* videoPlayer);
 
-    // @brief Set the SoundManager global instance
-    // @param soundManager  The SoundManager.
+    // @brief Set the SoundHandler global instance
+    // @param soundManager  The SoundHandler.
     //
     static void
-    setSoundManager(mm::SoundManager* soundManager);
+    setSoundHandler(mm::SoundHandler* soundHandler);
 
     // @brief Set the ResourceHandler for all main states.
     // @param rch      The resources handler.
@@ -168,7 +168,7 @@ protected:
     // the global VideoPlayer instance
     static mm::VideoPlayer* sVideoPlayer;
     // the global SoundManager instance
-    static mm::SoundManager* sSoundManager;
+    static mm::SoundHandler* sSoundHandler;
     // static global resources handler for all main states
     static const rrh::ResourceHandler *sRcHandler;
     // static global general shared handlers

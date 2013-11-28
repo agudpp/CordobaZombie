@@ -152,6 +152,12 @@ FEManager::update(void)
         return;
     }
 
+    // check if we have elements to check
+    //
+    if (mElements.empty() || mLastElements.empty()) {
+        return; // nothing to do
+    }
+
     // check if the mouse has moved
     if (mLastMousePos == mEventInfo.mousePos) {
         // no, it doesn't move

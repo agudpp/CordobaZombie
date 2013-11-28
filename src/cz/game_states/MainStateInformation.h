@@ -26,6 +26,7 @@ class Camera;
 }
 namespace ui {
 class FEManager;
+class MouseCursor;
 }
 namespace input {
 class InputHelper;
@@ -63,11 +64,13 @@ struct OgreCommon {
 // Here we will define the global shared handlers we will use
 //
 struct CommonHandlers {
+    ui::MouseCursor* mouseCursor;
     ui::FEManager* frontEndManager;
     input::InputHelper* inputHelper;
 
     CommonHandlers() :
-        frontEndManager(0)
+        mouseCursor(0)
+    ,   frontEndManager(0)
     ,   inputHelper(0)
     {}
 };
