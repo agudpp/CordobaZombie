@@ -8,6 +8,9 @@
 #include "CollPreciseInfoBuilder.h"
 
 #include <limits>
+#ifdef DEBUG
+#include <vector>
+#endif
 
 #include <debug/DebugUtil.h>
 
@@ -154,8 +157,14 @@ CollPreciseInfoBuilder::isAABB(const core::Vector2* vertices,
 
     const float polyArea = (xMult - yMult) * 0.5f;
     const float bbArea = mBB.getHeight() * mBB.getWidth();
-    ASSERT(bbArea > 0);
-    ASSERT(polyArea > 0);
+    ASSERT(bbArea >= 0);
+    if (polyArea < 0.f) {
+        debugERROR("Poly area %f, numVerts: %d, bbArea: %f\n", polyArea, count, bbArea);
+        for (int i = 0; i < count; ++i) {
+            std::cout << "vertex[" << i << "]:" << vertices[i] << std::endl;
+        }
+    }
+    ASSERT(polyArea >= 0);
     const float factor = (bbArea - polyArea) / bbArea;
 
     if ((factor*factor) <= sqredErr) {
@@ -273,5 +282,28 @@ CollPreciseInfoBuilder::constructCollObject(void) const
     CollObject* result = mCollHandler->getNewCollObject(~0, mBB, 0, pi);
     return result;
 }
+
+////////////////////////////////////////////////////////////////////////////////
+#ifdef DEBUG
+core::Primitive*
+CollPreciseInfoBuilder::buildDebugInfo(void)
+{
+    if (mVertices == 0 || mCount == 0) {
+        debugERROR("No vertices set to build anything\n");
+        return 0;
+    }
+
+    // Transform into ogre vertices
+    std::vector<Ogre::Vector3> ogreVec;
+    ogreVec.resize(mCount+1);
+    for (unsigned int i = 0; i < mCount; ++i) {
+        ogreVec[i] = Ogre::Vector3(mVertices[i].x, mVertices[i].y, 0);
+    }
+    ogreVec[mCount] = Ogre::Vector3(mVertices[0].x, mVertices[0].y, 0);
+
+    core::PrimitiveDrawer& pd = core::PrimitiveDrawer::instance();
+    return pd.createMultiline(ogreVec, pd.getFreshColour());
+}
+#endif
 
 } /* namespace coll */

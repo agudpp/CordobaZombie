@@ -3,15 +3,20 @@
 # Define global sources here
 set(HDRS ${HDRS}
 	${DEV_ROOT_PATH}/coll_physics/physics/BulletObject.h
+	${DEV_ROOT_PATH}/coll_physics/physics/BulletCollisionObject.h
 	${DEV_ROOT_PATH}/coll_physics/physics/BulletUtils.h
 	${DEV_ROOT_PATH}/coll_physics/physics/DynamicWorld.h
 	${DEV_ROOT_PATH}/coll_physics/physics/RagDoll.h
+	${DEV_ROOT_PATH}/coll_physics/physics/BulletImporter.h
+	${DEV_ROOT_PATH}/coll_physics/physics/BulletLoader.h
 )
 
 set(SRCS ${SRCS}
 	${DEV_ROOT_PATH}/coll_physics/physics/BulletUtils.cpp
 	${DEV_ROOT_PATH}/coll_physics/physics/DynamicWorld.cpp
 	${DEV_ROOT_PATH}/coll_physics/physics/RagDoll.cpp
+	${DEV_ROOT_PATH}/coll_physics/physics/BulletImporter.cpp
+	${DEV_ROOT_PATH}/coll_physics/physics/BulletLoader.cpp
 )
 
 ################################################################################

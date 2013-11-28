@@ -1,0 +1,26 @@
+<EngineConfiguration>
+    <!--    OgreSystem loader
+        Some of the parameters:
+        -ogreLogLeve = High (lot of info) | Low (poor info)
+        -sceneManagerType = ST_GENERIC
+                            ST_EXTERIOR_CLOSE
+                            ST_EXTERIOR_FAR,
+                            ST_EXTERIOR_REAL_FAR,
+                            ST_INTERIOR
+    -->
+    <OgreSystemLoader resources="resources.cfg" 
+                      plugins="plugins.cfg" 
+                      ogre="ogre.cfg" 
+                      ogreLogLevel="High" 
+                      sceneManagerType="ST_GENERIC"/> 
+    
+    
+    <!--    InputSystem loader
+    -->
+    <InputSystemLoader disableInputGrabbing="1" />
+    
+    
+    <ResourcesSystemLoader rootRscPath="./" />
+    <SoundSystemLoader />
+    <VideoSystemLoader />
+</EngineConfiguration>

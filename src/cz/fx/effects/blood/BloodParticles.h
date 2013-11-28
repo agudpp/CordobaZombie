@@ -50,8 +50,6 @@ public:
               const Ogre::Vector3& direction,
               float intensity);
 
-
-
     // @brief Function called before the effect will be reproduced
     //
     virtual void

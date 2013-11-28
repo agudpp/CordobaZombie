@@ -8,6 +8,8 @@
 #ifndef STACKVECTOR_H_
 #define STACKVECTOR_H_
 
+#include <cstring> // memcpy
+
 #include <debug/DebugUtil.h>
 
 
@@ -124,6 +126,15 @@ public:
     end(void);
     inline const T*
     end(void) const;
+
+
+    ////////////////////////////////////////////////////////////////////////////
+    // Operators
+    //
+    inline StackVector&
+    operator=(const StackVector<T, MAX_SIZE>& other);
+    inline bool
+    operator==(const StackVector<T, MAX_SIZE>& other) const;
 
 
 private:
@@ -304,13 +315,40 @@ template <typename T, unsigned int MAX_SIZE>
 inline T*
 StackVector<T,MAX_SIZE>::end(void)
 {
-    return mData + mSize; // end + 1
+    return &mData[mSize]; // end + 1
 }
 template <typename T, unsigned int MAX_SIZE>
 inline const T*
 StackVector<T,MAX_SIZE>::end(void) const
 {
-    return mData + mSize; // end + 1
+    return &mData[mSize]; // end + 1
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+template <typename T, unsigned int MAX_SIZE>
+inline StackVector<T,MAX_SIZE>&
+StackVector<T,MAX_SIZE>::operator=(const StackVector<T, MAX_SIZE>& other)
+{
+    resize(other.size());
+    std::memcpy(begin(), other.begin(), other.size() * sizeof(T));
+}
+
+template <typename T, unsigned int MAX_SIZE>
+inline bool
+StackVector<T,MAX_SIZE>::operator==(const StackVector<T, MAX_SIZE>& other) const
+{
+    if (size() != other.size()) {
+        return false;
+    }
+    T* b1 = begin(), *b2 = other.begin(), *last = end();
+    while (b1 != last) {
+        if (*b1 != *b2) {
+            return false;
+        }
+        ++b1; ++b2;
+    }
+    return true;
 }
 
 } /* namespace core */

@@ -11,11 +11,15 @@
 #include <vector>
 #include <functional>
 
+#include <OgreRay.h>
+
 #include <bullet/btBulletDynamicsCommon.h>
 
 #include <debug/DebugUtil.h>
 
 #include "BulletObject.h"
+#include "BulletCollisionObject.h"
+#include "RaycastInfo.h"
 
 namespace physics {
 
@@ -39,6 +43,8 @@ public:
     // @brief Set the gravity vector for this world.
     // @param gravity   The gravity vector
     //
+    inline void
+    setGravity(const Ogre::Vector3& gravity);
     inline void
     setGravity(const btVector3& gravity);
 
@@ -73,6 +79,24 @@ public:
     inline void
     removeObject(BulletObject& bo);
 
+    // @brief Add a collision object into the world. We will not check anything
+    //        just add it to the world directly
+    // @param bco       The bullet collision object to add
+    // @param groupMask The group mask associated to this bco [optional]
+    // @param bcoMask   The object mask [optional]
+    //
+    inline void
+    addObject(BulletCollisionObject& bco, short int groupMask = ~0, short int bcoMask = ~0);
+
+    // @brief Remove a collision object from the world. We will not check for
+    //        anything, just call bullet->removeCollisionObject().
+    // @param bo        The bullet collision object to remove
+    //
+    inline void
+    removeObject(BulletCollisionObject& bco);
+
+    ////////////////////////////////////////////////////////////////////////////
+
     // @brief Add an BulletObject to be tracked until it stops moving. Note that
     //        we must call the update() method each frame if we want to know
     //        about this.
@@ -90,6 +114,28 @@ public:
     //
     inline void
     stopCheckMovement(BulletObject* bo);
+
+    ////////////////////////////////////////////////////////////////////////////
+
+    // @brief Perform raycast and returns the first BulletObject we intersect
+    //        for the given ray and masks
+    // @param ri          The raycast information
+    // @param result      The raycast result
+    // @return true if some object was intersected | false otherwise
+    //
+    bool
+    performClosestRay(const RaycastInfo& ri, RaycastResult& result) const;
+
+    // @brief Perform a raycast and return all the raycasted world objects
+    //        already sorted by distance.
+    // @param ri        The raycast information
+    // @param result    The raycast result
+    // @return true if some object was intersected | false otherwise
+    //
+    bool
+    performRaycast(const RaycastInfo& ri, RaycastMultiResult& result) const;
+
+    ////////////////////////////////////////////////////////////////////////////
 
     // @brief Update the objects we are tracking
     //
@@ -126,6 +172,11 @@ private:
 // Inline
 //
 
+inline void
+DynamicWorld::setGravity(const Ogre::Vector3& gravity)
+{
+    mDynamicWorld.setGravity(BulletUtils::ogreToBullet(gravity));
+}
 inline void
 DynamicWorld::setGravity(const btVector3& gravity)
 {
@@ -167,6 +218,25 @@ DynamicWorld::removeObject(BulletObject& bo)
 }
 
 inline void
+DynamicWorld::addObject(BulletCollisionObject& bco,
+                        short int groupMask,
+                        short int bcoMask)
+{
+    ASSERT(bco.shape());
+    if (groupMask == ~0 && bcoMask == ~0) {
+        mDynamicWorld.addCollisionObject(&(bco.collObject));
+    } else {
+        mDynamicWorld.addCollisionObject(&(bco.collObject), groupMask, bcoMask);
+    }
+}
+
+inline void
+DynamicWorld::removeObject(BulletCollisionObject& bco)
+{
+    mDynamicWorld.removeCollisionObject(&(bco.collObject));
+}
+
+inline void
 DynamicWorld::checkMovement(BulletObject* bo, MovementObjCb& cb)
 {
     ASSERT(bo);
@@ -193,9 +263,12 @@ DynamicWorld::update(void)
     for (MovementInfo& mi : mMovableObjects) {
         if (!mi.object->motionState.isDirty()) {
             // we need to advise that this object is not being moved anymore
+            ASSERT(false && "TODO!");
         }
     }
 }
+
+
 
 } /* namespace physics */
 #endif /* DYNAMICWORLD_H_ */

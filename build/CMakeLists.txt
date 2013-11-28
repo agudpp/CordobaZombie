@@ -98,15 +98,20 @@ set (DEV_ROOT_PATH $ENV{CZ01_DEV_PATH})
 set (THIRD_PARTY_LIBS $ENV{CZ01_THIRD_PARTY})
 
 if(NOT DEV_ROOT_PATH)
-  message(SEND_ERROR "you need to set CZ01_DEV_PATH environment variable")
+  message(SEND_ERROR "You need to set CZ01_DEV_PATH environment variable")
 endif()
 
 if(NOT THIRD_PARTY_LIBS)
-  message(SEND_ERROR "you need to set CZ01_THIRD_PARTY environment variable")
+  message(SEND_ERROR "You need to set CZ01_THIRD_PARTY environment variable")
 endif()
 
 # include third party libs and includes directories
-include_directories(${THIRD_PARTY_LIBS}/include)
+include_directories(${THIRD_PARTY_LIBS}/include
+	${THIRD_PARTY_LIBS}/include/libavutil
+	${THIRD_PARTY_LIBS}/include/libavcodec
+	${THIRD_PARTY_LIBS}/include/libavformat
+	${THIRD_PARTY_LIBS}/include/libswscale
+)
 link_directories(${THIRD_PARTY_LIBS}/lib)
 
 
@@ -142,8 +147,11 @@ include_directories( ${OIS_INCLUDE_DIRS}
 	${DEV_ROOT_PATH}/ui
 	${DEV_ROOT_PATH}/io_interfaces
 	${DEV_ROOT_PATH}/gps
+	${DEV_ROOT_PATH}/multimedia
 	${DEV_ROOT_PATH}/cz
     ${DEV_ROOT_PATH}/effect
+    ${DEV_ROOT_PATH}/resources_handler
+    ${DEV_ROOT_PATH}/engine
 )
 
 # Include all the other specific files

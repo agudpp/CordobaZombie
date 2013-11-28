@@ -12,16 +12,39 @@
 #include <OgreAnimationState.h>
 #include <OgreSceneNode.h>
 
-#include <world_object/WorldObject.h>
+#include <debug/DebugUtil.h>
+#include <fx/effects/blood/BloodParticles.h>
+#include <fx/effects/body_part/BodyPartEffect.h>
+#include <fx/effects/EffectQueueDefs.h>
+#include <global_data/GlobalData.h>
+#include <helpers/AnimTable.h>
 #include <ia/fsm/FSMTransitionTable.h>
 #include <ia/path_handler/PathHandler.h>
-#include <debug/DebugUtil.h>
-#include <global_data/GlobalData.h>
+#include <physics/BulletCollisionObject.h>
+#include <world_object/WorldObject.h>
 
-#include "AnimTable.h"
 #include "states/ZombieFSMDefs.h"
+#include "ZombieBody.h"
+#include "RagDollQueue.h"
+
+
+
+// forward
+//
+namespace effect {
+class EffectHandler;
+}
+
+namespace physics {
+class DynamicWorld;
+}
 
 namespace cz {
+
+// forward
+//
+class BodyPartQueue;
+
 
 // Some typedefs used by this class
 //
@@ -33,6 +56,9 @@ class ZombieUnit : public WorldObject
     //        particular zombies.
     //
     static const unsigned int NUM_ANIMATIONS = 10;
+
+    // Some defines
+    //
 
 public:
 
@@ -58,6 +84,54 @@ public:
     ZombieUnit();
     ~ZombieUnit();
 
+    // @brief We need to set the global EffectHandler to be used for all the
+    //        effects of the zombies.
+    // @param eh        The global effect handler
+    //
+    static inline void
+    setEffectHandler(effect::EffectHandler* eh);
+    static inline effect::EffectHandler*
+    effectHandler(void);
+
+    // @brief Set the Blood particle effect queue to be shared for all the
+    //        zombies
+    // @param bpq       Blood particle queue
+    //
+    static inline void
+    setBloodParticlesQueue(BloodParticlesQueue* bpq);
+    static inline BloodParticlesQueue*
+    bloodParticlesQueue(void);
+
+    // @brief Set the queues used by this zombie unit.
+    // @param rq        The RagDollQueue instance
+    // @param bpq       The BodyPartQueue instance
+    //
+    inline void
+    setQueues(RagDollQueue<>* rq, BodyPartQueue* bpq);
+    inline RagDollQueue<>*
+    ragDollQueue(void);
+    inline const RagDollQueue<>*
+    ragDollQueue(void) const;
+    inline BodyPartQueue*
+    bodyPartQueue(void);
+    inline const BodyPartQueue*
+    bodyPartQueue(void) const;
+
+    // @brief Return the BodyPartEffectQueue reference associated to this zombie
+    // @return BodyPartsEffectQueue
+    //
+    inline BodyPartsEffectQueue&
+    bodyPartsEffectQueue(void);
+    inline const BodyPartsEffectQueue&
+    bodyPartsEffectQueue(void) const;
+
+    // @brief Set the associated body part ID to be used for this zombie.
+    //
+    inline void
+    setBodyPartID(unsigned short id);
+    inline unsigned short
+    bodyPartID(void) const;
+
     // @brief Configure the Zombie unit from a given entity and a scene node.
     //        This method will configure the radius of the zombie, the collision
     //        object, the masks for collisions and raycasts, the animation state
@@ -76,6 +150,24 @@ public:
     setVelocity(float vel);
     inline float
     velocity(void) const;
+
+    // @brief Get / set the life of the zombie
+    // @param life      The life of the zombie
+    //
+    inline void
+    setLife(short life);
+    inline short
+    life(void) const;
+    inline bool
+    hasLife(void) const;
+
+    // @brief Set the initial life to be used every time the zombie is reset
+    // @param initialLife   The initial life to be used
+    //
+    inline void
+    setInitialLife(short initialLife);
+    inline short
+    initialLife(void) const;
 
     ////////////////////////////////////////////////////////////////////////////
 
@@ -114,11 +206,6 @@ public:
     //
     inline void
     newEvent(ZombieEvent event);
-
-    // @brief Return a reference to the state machine of the zombie instance.
-    //
-    inline ZombieFSM&
-    fsm(void);
 
     ////////////////////////////////////////////////////////////////////////////
 
@@ -180,21 +267,74 @@ public:
     stopAllAnimations(void);
 
     ////////////////////////////////////////////////////////////////////////////
-
-    // @brief Return the skeleton information for this particular instance.
+    // Physics stuff methods
     //
+
+    // @brief Check for a possible impact. This method will only check if we
+    //        impact (the zombie) against any bullet... We will not perform
+    //        any other operation.
+    // @param hitInfo       The hit information structure used to check the
+    //                      impact and retrieve the information also. This
+    //                      information will be used later if necessary to process
+    //                      the ImpactInfo.
+    // @return true if we had impact the zombie | false otherwise
+    //
+    virtual bool
+    checkImpact(HitInfo& hitInfo) const;
 
     // @brief The zombie was hit by a bullet or something (indicated in the
     //        HitInfo structure). This method will animate the zombie / hide
     //        the parts that were extirpated and create the body part to be
     //        animated in the physics world (we need to use the BodyPartsContainer
     //        and PhysicsEffectSystem).
+    // @param hitInfo       The hit information structure. This structure should
+    //                      be filled in the checkImpact() method.
+    // @note that we will perform the effects here (blood + bodyPart).
     //
+    virtual void
+    processImpactInfo(const HitInfo& hitInfo);
+
+    // @brief Return the last hit information associated to this unit.
+    // @return the reference to the HitInfo structure holding the last hitting
+    //         information against this zombie
+    //
+    inline const HitInfo&
+    lastHitInfo(void) const;
+
+    // @brief This method will configure the ragdoll velocity depending on the
+    //        current state of the zombie.
+    //
+    void
+    configureRagdollVelocity(void);
+
+    // @brief Set enable the ragdoll. This will stop all the animations and
+    //        turn on the ragdoll.
+    //
+    inline void
+    setRagDollEnabled(bool enabled);
 
 
     ////////////////////////////////////////////////////////////////////////////
     // Reproduce an specific sound
 
+
+    ////////////////////////////////////////////////////////////////////////////
+    // General "getters" methods
+    //
+
+    // @brief Return the ZombieBody instance of this class
+    //
+    inline ZombieBody&
+    zombieBody(void);
+    inline const ZombieBody&
+    zombieBody(void) const;
+
+    // @brief Return the FSM associated to this instance
+    //
+    inline ZombieFSM&
+    FSM(void);
+    inline const ZombieFSM&
+    FSM(void) const;
 
     ////////////////////////////////////////////////////////////////////////////
 
@@ -205,10 +345,20 @@ public:
     update(void);
 
 protected:
+
+protected:
     // static members
     // the table used for all the zombies of this type
     static ZombieTTable sTTable;
-
+    // global blood queue
+    static BloodParticlesQueue* sBloodQueue;
+    // global body part effect to be used, this will be shared for all the zombies
+    static BodyPartsEffectQueue sBodyPartEffectQueue;
+    // global effect handler
+    static effect::EffectHandler* sEffectHandler;
+    // Last hit information, since we are not running in parallel we can do this
+    // safely.
+    static HitInfo sLastHitInfo;
 
 protected:
     // General members
@@ -216,6 +366,14 @@ protected:
     ZombieFSM mFSM;
     PathHandler mPathHandler;
     float mVelocity;
+    short mInitialLife;
+    short mLife;
+    // The zombie body instance associated to this zombie
+    ZombieBody mBody;
+    // The physic bounding box representation of the zombie to be able to receive
+    // raycast and probably intersect against body parts
+    physics::BulletCollisionObject mPhysicBB;
+
 
 private:
     // Avoid copying this class
@@ -231,7 +389,81 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////
 // Inline stuff
+//
 
+inline void
+ZombieUnit::setEffectHandler(effect::EffectHandler* eh)
+{
+    ASSERT(eh);
+    sEffectHandler = eh;
+}
+inline effect::EffectHandler*
+ZombieUnit::effectHandler(void)
+{
+    return sEffectHandler;
+}
+
+inline void
+ZombieUnit::setBloodParticlesQueue(BloodParticlesQueue* bpq)
+{
+    ASSERT(bpq);
+    sBloodQueue = bpq;
+}
+inline BloodParticlesQueue*
+ZombieUnit::bloodParticlesQueue(void)
+{
+    return sBloodQueue;
+}
+
+
+inline void
+ZombieUnit::setQueues(RagDollQueue<>* rq, BodyPartQueue* bpq)
+{
+    mBody.setRagDollQueue(rq);
+    mBody.setBodyPartQueue(bpq);
+}
+inline RagDollQueue<>*
+ZombieUnit::ragDollQueue(void)
+{
+    return mBody.ragDollQueue();
+}
+inline const RagDollQueue<>*
+ZombieUnit::ragDollQueue(void) const
+{
+    return mBody.ragDollQueue();
+}
+inline BodyPartQueue*
+ZombieUnit::bodyPartQueue(void)
+{
+    return mBody.bodyPartQueue();
+}
+inline const BodyPartQueue*
+ZombieUnit::bodyPartQueue(void) const
+{
+    return mBody.bodyPartQueue();
+}
+
+inline BodyPartsEffectQueue&
+ZombieUnit::bodyPartsEffectQueue(void)
+{
+    return sBodyPartEffectQueue;
+}
+inline const BodyPartsEffectQueue&
+ZombieUnit::bodyPartsEffectQueue(void) const
+{
+    return sBodyPartEffectQueue;
+}
+
+inline void
+ZombieUnit::setBodyPartID(unsigned short id)
+{
+    mBody.setBodyPartID(id);
+}
+inline unsigned short
+ZombieUnit::bodyPartID(void) const
+{
+    return mBody.bodyPartID();
+}
 
 inline void
 ZombieUnit::setVelocity(float vel)
@@ -246,6 +478,35 @@ ZombieUnit::velocity(void) const
 }
 
 ////////////////////////////////////////////////////////////////////////////
+inline void
+ZombieUnit::setLife(short life)
+{
+    mLife = life;
+}
+inline short
+ZombieUnit::life(void) const
+{
+    return mLife;
+}
+inline bool
+ZombieUnit::hasLife(void) const
+{
+    return mLife > 0;
+}
+
+////////////////////////////////////////////////////////////////////////////
+inline void
+ZombieUnit::setInitialLife(short initialLife)
+{
+    mInitialLife = initialLife;
+}
+inline short
+ZombieUnit::initialLife(void) const
+{
+    return mInitialLife;
+}
+
+////////////////////////////////////////////////////////////////////////////
 inline bool
 ZombieUnit::isAlive(void) const
 {
@@ -257,12 +518,6 @@ inline void
 ZombieUnit::newEvent(ZombieEvent event)
 {
     mFSM.newEvent(event);
-}
-
-inline ZombieFSM&
-ZombieUnit::fsm(void)
-{
-    return mFSM;
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -289,7 +544,7 @@ ZombieUnit::moveAndLook(const core::Vector2& move)
 {
     core::Vector2 tvec(move);
     tvec *= GlobalData::lastTimeFrame;
-    translate(tvec);
+    translate(tvec * velocity());
     lookAt(position() + tvec);
 }
 
@@ -310,7 +565,7 @@ ZombieUnit::isAnimActive(unsigned int animID)
 inline void
 ZombieUnit::stopAnim(unsigned int animID)
 {
-
+    mAnimTable.stopAnim(animID);
 }
 
 inline Ogre::AnimationState*
@@ -325,11 +580,59 @@ ZombieUnit::stopAllAnimations(void)
     mAnimTable.stopAll();
 }
 
+
+////////////////////////////////////////////////////////////////////////////
+
+inline const HitInfo&
+ZombieUnit::lastHitInfo(void) const
+{
+    return sLastHitInfo;
+}
+
+inline void
+ZombieUnit::setRagDollEnabled(bool enabled)
+{
+    if (enabled) {
+        mAnimTable.stopAll();
+    }
+    mBody.setRagdollEnable(enabled);
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+inline ZombieBody&
+ZombieUnit::zombieBody(void)
+{
+    return mBody;
+}
+inline const ZombieBody&
+ZombieUnit::zombieBody(void) const
+{
+    return mBody;
+}
+inline ZombieFSM&
+ZombieUnit::FSM(void)
+{
+    return mFSM;
+}
+inline const ZombieFSM&
+ZombieUnit::FSM(void) const
+{
+    return mFSM;
+}
+
 ////////////////////////////////////////////////////////////////////////////
 
 inline void
 ZombieUnit::update(void)
 {
+    // first check if we have to update the physics bounding box
+    if (hasMovedOrRotated()) {
+        mPhysicBB.setTransform(position3D(), rotation());
+        resetMovedOrRotatedFlag();
+    }
+
+    // update everything
     mFSM.update();
     mAnimTable.update(GlobalData::lastTimeFrame);
 }

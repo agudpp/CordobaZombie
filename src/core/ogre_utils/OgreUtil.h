@@ -9,8 +9,13 @@
 #define OGREUTIL_H_
 
 #include <OgreMatrix4.h>
+#include <OgreString.h>
+#include <OgreEntity.h>
+#include <OgreSceneManager.h>
 
 #include <types/basics.h>
+#include <math/Vec2.h>
+
 
 namespace core {
 namespace OgreUtil {
@@ -79,6 +84,23 @@ getContourVertices(Ogre::Vector3* vertices,
                    unsigned long* indices,
                    core::size_t iCount);
 
+// @brief Create an entity from a mesh name and return if we could load it or not.
+// @param name      The mesh name
+// @param sceneMngr The scene manager
+// @return loaded entity pointer or 0 on error
+//
+Ogre::Entity*
+loadEntity(const Ogre::String& name, Ogre::SceneManager* sceneMngr);
+
+// @brief Get the texture size of a particular material. If the material has
+//        no texture or the texture is not present then we return 0. We will
+//        use the first texture in the first technique defined in the material
+// @param material      The material containing the texture
+// @param sizes         The sizes of the texture
+// @return true on success | false otherwise
+//
+bool
+getTextureSize(Ogre::Material* mat, core::Vector2& sizes);
 
 
 } /* namespace OgreUtil */

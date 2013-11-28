@@ -12,11 +12,13 @@
 #include <OgreEntity.h>
 #include <OgreSceneNode.h>
 
-#include <debug/DebugUtil.h>
+#include <collisions/CollDefines.h>
 #include <collisions/CollisionHandler.h>
 #include <collisions/CollObject.h>
-#include <collisions/CollDefines.h>
+#include <debug/DebugUtil.h>
 #include <math/Vec2.h>
+#include <physic_game_object/HitInfo.h>
+#include <physic_game_object/PhysicGameObject.h>
 
 
 // Forward
@@ -33,13 +35,10 @@ namespace cz {
 //        Since this project (CZ0.1) is little and the physics will be handled
 //        outside this as other thing then we will have no problems..
 //
-// @note  That we are not using a virtual destructor for this objects, so if
-//        you allocate someone that inherits and you will handle it at this level
-//        then some memory leaks could occur.
 //
 
 
-class WorldObject
+class WorldObject : public PhysicGameObject
 {
 public:
 
@@ -63,6 +62,7 @@ public:
 
     // @brief Will automatically destroy the associated collision object.
     //
+    virtual
     ~WorldObject();
 
     ////////////////////////////////////////////////////////////////////////////
@@ -159,6 +159,30 @@ public:
     inline coll::mask_t
     collMask(void) const;
 
+    ////////////////////////////////////////////////////////////////////////////
+    // Physics stuff methods
+    //
+
+    // @brief Check for a possible impact. This method will only check if we
+    //        impact the current object.
+    // @param hitInfo       The hit information structure used to check the
+    //                      impact and retrieve the information also. This
+    //                      information will be used later if necessary to process
+    //                      the ImpactInfo.
+    // @return true if we had impact the world object or not.
+    //
+    virtual bool
+    checkImpact(HitInfo& hitInfo) const = 0;
+
+    // @brief The world was hit by a bullet or something (indicated in the
+    //        HitInfo structure). Here we will perform all the operations we
+    //        when something hits this object.
+    // @param hitInfo       The hit information structure. This structure should
+    //                      be filled in the checkImpact() method.
+    //
+    virtual void
+    processImpactInfo(const HitInfo& hitInfo) = 0;
+
 
     ////////////////////////////////////////////////////////////////////////////
     // Movement stuff methods
@@ -230,6 +254,10 @@ public:
     rotate(float r);
     inline void
     rotate(const Ogre::Quaternion& q);
+    inline void
+    setOrientation(const Ogre::Quaternion& q);
+    inline const Ogre::Quaternion&
+    rotation(void) const;
 
     // @brief Set a particular direction for this object. Only valid for 2D
     // @param d     The new direction of the object.
@@ -251,6 +279,15 @@ public:
     inline void
     lookAt(const Ogre::Vector3& pos);
 
+    // @brief Check if this object has been moved or its orientation has changed
+    // @return true if it was | false otherwise.
+    // @note THAT THIS FLAG IT SHOULD BE RESTED MANUALLY!
+    //
+    inline bool
+    hasMovedOrRotated(void) const;
+    inline void
+    resetMovedOrRotatedFlag(void);
+
 
 protected:
     // All the world objects will share the same CollisionHandler object (world)
@@ -269,6 +306,7 @@ protected:
     // movement stuff
     core::Vector2 mNormalizedDir;
     float mHeight;
+    bool mMovementDirty;
 
 private:
     // Avoid copying this object
@@ -308,10 +346,8 @@ WorldObject::updateDirectionFromNode(void)
     mNormalizedDir.x = d.x;
     mNormalizedDir.y = d.y;
     mNormalizedDir.normalize();
-    // TODO: we will not implement this since is not necessary for this
-    //       project and we don't want to decrease the performance :p.
-    //
-//    mCollObj->setAngle(mNode->getOrientation().getYaw());
+    mMovementDirty = true;
+    mCollObj->setAngle(mNode->getOrientation().getRoll().valueRadians());
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -500,6 +536,7 @@ WorldObject::translate(const core::Vector2& tvec)
     // put the right position of the node
     const core::Vector2& pos = mCollObj->center();
     mNode->setPosition(pos.x, pos.y, floorHeight() + mHeight);
+    mMovementDirty = true;
 }
 inline void
 WorldObject::translate(float x, float y)
@@ -519,6 +556,7 @@ WorldObject::translate3D(const Ogre::Vector3& tvec)
     ASSERT(mNode);
     mCollObj->translate(core::Vector2(tvec.x,tvec.y));
     mNode->translate(tvec);
+    mMovementDirty = true;
 }
 
 inline void
@@ -534,6 +572,7 @@ WorldObject::advance(const core::Vector2& avec)
 
     // move coll object
     mCollObj->translate(core::Vector2(oldPos.x, oldPos.y));
+    mMovementDirty = true;
 }
 inline void
 WorldObject::advance(float x, float y)
@@ -561,6 +600,20 @@ WorldObject::rotate(const Ogre::Quaternion& q)
     mNode->rotate(q);
     updateDirectionFromNode();
 }
+inline void
+WorldObject::setOrientation(const Ogre::Quaternion& q)
+{
+    ASSERT(mNode);
+    mNode->setOrientation(q);
+    updateDirectionFromNode();
+}
+
+inline const Ogre::Quaternion&
+WorldObject::rotation(void) const
+{
+    ASSERT(mNode);
+    return mNode->getOrientation();
+}
 
 inline void
 WorldObject::setDirection(const core::Vector2& d)
@@ -586,11 +639,13 @@ inline void
 WorldObject::lookAt(const core::Vector2& pos)
 {
     lookAt(Ogre::Vector3(pos.x,pos.y,position3D().z));
+    mMovementDirty = true;
 }
 inline void
 WorldObject::lookAt(float x, float y)
 {
     lookAt(Ogre::Vector3(x, y, position3D().z));
+    mMovementDirty = true;
 }
 inline void
 WorldObject::lookAt(const Ogre::Vector3& pos)
@@ -598,6 +653,17 @@ WorldObject::lookAt(const Ogre::Vector3& pos)
     ASSERT(mNode);
     mNode->lookAt(pos, Ogre::SceneNode::TS_WORLD, Ogre::Vector3::UNIT_Y);
     updateDirectionFromNode();
+}
+
+inline bool
+WorldObject::hasMovedOrRotated(void) const
+{
+    return mMovementDirty;
+}
+inline void
+WorldObject::resetMovedOrRotatedFlag(void)
+{
+    mMovementDirty = false;
 }
 
 } /* namespace cz */

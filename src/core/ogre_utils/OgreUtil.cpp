@@ -9,6 +9,12 @@
 
 #include <OgreSubMesh.h>
 #include <OgreMesh.h>
+#include <OgreMaterial.h>
+#include <OgreTechnique.h>
+#include <OgreTexture.h>
+#include <OgreTextureUnitState.h>
+#include <OgreTextureManager.h>
+#include <OgrePass.h>
 
 #include <set>
 #include <bitset>
@@ -40,21 +46,7 @@ areVerticesEqual(const Ogre::Vector3& v1,
 namespace core {
 namespace OgreUtil{
 
-// @brief Get the mesh information (triangles and vertices from a mesh).
-// @param mesh      The mesh that we want to extract the information
-// @param vCount    [in|out] The max number of vertices we can handle
-//                           And the resulting number of vertices read.
-// @param vertices  The vertex buffer of size vCount where we will read all the
-//                  vertices.
-// @param iCount    [in|out] The size of the indices buffer.
-//                           And the resulting number of indices read.
-// @param indices   The buffer of size iCount where we will put the indices of
-//                  the triangles.
-// @param transform The transform we want to apply to each vertex, if
-//                  transform == Ogre::Matrix4::IDENTITY no transformation will be
-//                  applied
-// @return true on success | false otherwise
-//
+////////////////////////////////////////////////////////////////////////////////
 bool
 getMeshInformation(const Ogre::Mesh* const mesh,
                    core::size_t &vCount,
@@ -92,8 +84,8 @@ getMeshInformation(const Ogre::Mesh* const mesh,
     // check if we have enough space
     if (vCount > maxVertices || iCount > maxIndices) {
         debugERROR("We cannot read all the vertices or indices on the current"
-            " buffers: iCount: %d | %d,\t vCount: %d | %d\n", iCount, maxIndices,
-            vCount, maxVertices);
+            " buffers: iCount: %zu | %zu,\t vCount: %zu | %zu\n",
+            iCount, maxIndices, vCount, maxVertices);
         return false;
     }
 
@@ -184,9 +176,9 @@ removeDuplicated(Ogre::Vector3* vertices,
 
     // We will do an slow algorithm here but easy to implement.
     //
-    ASSERT(vCount < 1024 && "To much vertices?\n");
-    core::StackVector<unsigned int, 1024> modifiedIndices;
-    core::StackVector<Ogre::Vector3, 1024> verts;
+    ASSERT(vCount < 10000 && "To much vertices?\n");
+    core::StackVector<unsigned int, 10000> modifiedIndices;
+    core::StackVector<Ogre::Vector3, 10000> verts;
     std::set<unsigned int> toRemove;
     modifiedIndices.resize(vCount);
     for (unsigned int i = 0; i < vCount; ++i) {
@@ -258,6 +250,7 @@ removeDuplicated(Ogre::Vector3* vertices,
     std::memcpy(vertices, verts.begin(), sizeof(Ogre::Vector3) * vCount);
 }
 
+////////////////////////////////////////////////////////////////////////////////
 bool
 getContourVertices(const Ogre::Mesh* const mesh,
                    core::size_t &vCount,
@@ -281,6 +274,7 @@ getContourVertices(const Ogre::Mesh* const mesh,
     return getContourVertices(vertices, vCount, indices, iCount);
 }
 
+////////////////////////////////////////////////////////////////////////////////
 bool
 getContourVertices(Ogre::Vector3* vertices,
                    core::size_t &vCount,
@@ -291,7 +285,7 @@ getContourVertices(Ogre::Vector3* vertices,
     ASSERT(indices);
 
     if (vCount < 3 || iCount < 3) {
-        debugWARNING("There is nothing to do with %d vertices and %d indices\n",
+        debugWARNING("There is nothing to do with %zu vertices and %zu indices\n",
             vCount, iCount);
         return false;
     }
@@ -331,7 +325,7 @@ getContourVertices(Ogre::Vector3* vertices,
     // we don't support that (now)
     //
     if ((iCount % 3) != 0) {
-        debugERROR("Invalid indices count? we haven't triangles?!: %d\n", iCount);
+        debugERROR("Invalid indices count? we haven't triangles?!: %zu\n", iCount);
         return false;
     }
 
@@ -393,14 +387,15 @@ getContourVertices(Ogre::Vector3* vertices,
 
     if (result.size() != edges.size()) {
         debugERROR("We have some interior contours? This means that the mesh is "
-            "composed for not connected triangle lists, exterior edges: %d and"
+            "composed for not connected triangle lists, exterior edges: %zu and"
             " vertices analyzed: %d\n", edges.size(), result.size());
         return false;
     }
 
     // now we should check if they are CW or CCW order... and sort..
     ASSERT(result.size() > 2);
-    if (result[0].dotProduct(result[1]) < 0) {
+    const float crossProdXY = result[0].x * result[1].y - result[0].y * result[1].x;
+    if (crossProdXY < 0) {
         // CW, we need to revert the result
         for (int i = result.size()-1, index = 0; i >= 0; --i, ++index) {
             vertices[index] = result[i];
@@ -415,7 +410,43 @@ getContourVertices(Ogre::Vector3* vertices,
     return true;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+Ogre::Entity*
+loadEntity(const Ogre::String& name, Ogre::SceneManager* sceneMngr)
+{
+    ASSERT(sceneMngr);
 
+    Ogre::Entity* ent = 0;
+    try {
+        ent = sceneMngr->createEntity(name);
+    } catch (...) {
+        debugERROR("Error loading mesh %s, not found\n", name.c_str());
+    }
+    return ent;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+bool
+getTextureSize(Ogre::Material* mat, core::Vector2& sizes)
+{
+    if (mat == 0 ||
+        mat->getTechnique(0) == 0 ||
+        mat->getTechnique(0)->getPass(0) == 0 ||
+        mat->getTechnique(0)->getPass(0)->getTextureUnitState(0) == 0) {
+        return false;
+    }
+    const Ogre::TextureUnitState* unit =
+        mat->getTechnique(0)->getPass(0)->getTextureUnitState(0);
+    Ogre::TexturePtr texture = Ogre::TextureManager::getSingleton().getByName(
+        unit->getTextureName());
+    if (texture.isNull()) {
+        return false;
+    }
+
+    sizes.x = texture->getWidth();
+    sizes.y = texture->getHeight();
+    return true;
+}
 
 } /* namespace OgreUtil */
 } /* namespace core */

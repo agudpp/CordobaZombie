@@ -9,6 +9,12 @@
 
 #include <cmath>
 
+#include <physics/BulletObject.h>
+#include <physics/BulletImporter.h>
+#include <physics/DynamicWorld.h>
+#include <effect_handler/EffectHandler.h>
+
+#include "BodyPartElement.h"
 #include "CZMasksDefines.h"
 
 // helper stuff
@@ -44,19 +50,35 @@ static const char* ZA_ANIMS[] = {
 namespace cz {
 
 ZombieTTable ZombieUnit::sTTable;
+effect::EffectHandler* ZombieUnit::sEffectHandler = 0;
+BloodParticlesQueue* ZombieUnit::sBloodQueue = 0;
+BodyPartsEffectQueue ZombieUnit::sBodyPartEffectQueue;
+HitInfo ZombieUnit::sLastHitInfo;
+
 
 ////////////////////////////////////////////////////////////////////////////////
 ZombieUnit::ZombieUnit() :
     WorldObject()
 ,   mFSM(sTTable)
 ,   mVelocity(15.f)
+,   mInitialLife(100)
+,   mLife(100)
 {
     mFSM.setRef(this);
+
+    // set the reference to the physics object
+    mPhysicBB.setUserDef(this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 ZombieUnit::~ZombieUnit()
 {
+    // delete the associated shape if we have one
+    if (mPhysicBB.shape()) {
+        ASSERT(sDynamicWorld);
+        sDynamicWorld->removeObject(mPhysicBB);
+        delete mPhysicBB.shape();
+    }
     debugWARNING("we should remove the scenenode and entity here?\n");
 }
 
@@ -69,7 +91,7 @@ ZombieUnit::configure(Ogre::SceneNode* node, Ogre::Entity* entity)
 
     // check if the entity is already attached
     if (entity->getParentNode()) {
-        ASSERT(entity->getParentNode() == node);
+//        ASSERT(entity->getParentNode() == node);
     } else {
         // attach it
         node->attachObject(entity);
@@ -86,7 +108,7 @@ ZombieUnit::configure(Ogre::SceneNode* node, Ogre::Entity* entity)
     mAnimTable.loadAnims(ZA_ANIMS, entity);
 
     // configure the masks for raytracing and collisions
-    entity->setQueryFlags(CZRayMask::CZRM_ZOMBIE);
+    entity->setQueryFlags(CZRayMask::CZRM_ZOMBIE_BB);
     setCollMask(~0); // we want to collide with everything
 
     // configure the size of the coll object
@@ -98,13 +120,32 @@ ZombieUnit::configure(Ogre::SceneNode* node, Ogre::Entity* entity)
                              // more easy to understand
     enableCollisions(false); // disable the collisions for now
 
+    // create the physic representation of the zombie, for now we will use a capsule
+    ASSERT(sDynamicWorld);
+    if (mPhysicBB.shape()) {
+        // destroy the current one
+        sDynamicWorld->removeObject(mPhysicBB);
+        delete mPhysicBB.shape();
+    }
+
+    mPhysicBB.setShape(physics::BulletImporter::createBoxShape(ogreBB));
+    ASSERT(mPhysicBB.shape() && "Error creating the shape?");
+    sDynamicWorld->addObject(mPhysicBB,
+                             CZRayMask::CZRM_ZOMBIE_BB,     // collision mask
+                             CZRayMask::CZRM_RAYCASTABLE);  // collide against
+
+
     // set the radius of the pathHandler
     mPathHandler.setRadius(std::sqrt(sqrRadius()));
 
+    // configure the body here
+    mBody.setEntity(entity);
+    mBody.setSceneNode(node);
+    mBody.setSkeleton(entity->getSkeleton());
+    mBody.build();
+
     // TODO: load sounds here
-    debugRED("TODO: \n\t* load sounds here... "
-        "\n\t* physics information? "
-        "\n\t* Create the skeletal information for firing system and for the ragdolls?\n");
+    debugRED("TODO: \n\t* load sounds here... \n");
 
 }
 
@@ -112,6 +153,8 @@ ZombieUnit::configure(Ogre::SceneNode* node, Ogre::Entity* entity)
 void
 ZombieUnit::reset(void)
 {
+    mLife = mInitialLife;
+    mBody.resetBody();
     debugERROR("TODO\n");
 }
 
@@ -135,5 +178,47 @@ ZombieUnit::dead(void)
 {
     debugERROR("TODO\n");
 }
+
+////////////////////////////////////////////////////////////////////////////////
+bool
+ZombieUnit::checkImpact(HitInfo& hitInfo) const
+{
+    ZombieBody::BodyPart bp;
+    hitInfo.hasImpact = mBody.checkIntersection(hitInfo.ray,
+                                                hitInfo.intersectionPoint,
+                                                bp);
+    hitInfo.bodyPart = bp;
+    return hitInfo.hasImpact;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void
+ZombieUnit::processImpactInfo(const HitInfo& hitInfo)
+{
+    ASSERT(hitInfo.hasImpact);
+    ASSERT(hitInfo.power > 0.f);
+
+    // we will just save the hit information and analyze everything in the
+    // BeingHit state
+    sLastHitInfo = hitInfo;
+
+    mFSM.newEvent(ZombieEvent::ZE_BEING_HIT);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void
+ZombieUnit::configureRagdollVelocity(void)
+{
+    // we will apply the same force to all the body parts of the ragdoll
+    //
+
+    // calculate the force
+    Ogre::Vector3 force(getNormalizedDir().x, getNormalizedDir().y, 0);
+    force *= velocity();
+    for (unsigned int i = 0; i < ZombieBody::BodyPart::BP_MAX; ++i) {
+        mBody.applyForce(force, ZombieBody::BodyPart(i));
+    }
+}
+
 
 } /* namespace cz */

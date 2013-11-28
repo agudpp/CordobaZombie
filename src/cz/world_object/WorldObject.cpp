@@ -52,10 +52,13 @@ WorldObject::setCollisionInformation(coll::CollPreciseInfo* pi,
 
     // now we will calculate the radius of the object
     mSqrRadius = mCollObj->boundingBox().calculateSquaredRadius();
-    core::PrimitiveDrawer& pd = core::PrimitiveDrawer::instance();
-    core::Primitive* p = pd.createBox(mCollObj->boundingBox(), pd.getFreshColour());
-    p->node->getParentSceneNode()->removeChild(p->node);
-    mNode->addChild(p->node);
+
+//#ifdef 0
+//    core::PrimitiveDrawer& pd = core::PrimitiveDrawer::instance();
+//    core::Primitive* p = pd.createBox(mCollObj->boundingBox(), pd.getFreshColour());
+//    p->node->getParentSceneNode()->removeChild(p->node);
+//    mNode->addChild(p->node);
+//#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////

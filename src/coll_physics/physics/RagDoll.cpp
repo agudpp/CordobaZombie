@@ -53,7 +53,7 @@ globalOgreRotation(const Ogre::Bone *bone, const Ogre::SceneNode* parentNode)
 inline Ogre::Vector3
 globalOgrePosition(const Ogre::Bone *bone, const Ogre::SceneNode* parentNode)
 {
-    return parentNode->getPosition() + parentNode->getOrientation() *
+    return parentNode->_getDerivedPosition() + parentNode->_getDerivedOrientation() *
         (bone->getParent() ? bone->_getDerivedPosition() : bone->getPosition());
 }
 
@@ -665,9 +665,8 @@ RagDoll::~RagDoll()
 ////////////////////////////////////////////////////////////////////////////////
 bool
 RagDoll::buildFromSkeleton(const BoneTable& ogreBones,
-                           Ogre::SceneNode* parentNode)
+                           const Ogre::SceneNode* parentNode)
 {
-    ASSERT(parentNode);
     ASSERT(mDynamicWorld);
 
     if (ogreBones.size() != ogreBones.max_size()) {
@@ -801,7 +800,9 @@ RagDoll::setEnable(bool enable)
             bi.rigidBody->clearForces();
             bi.rigidBody->setAngularVelocity(btVector3(0,0,0));
             bi.rigidBody->setLinearVelocity(btVector3(0,0,0));
-            mDynamicWorld->addRigidBody(bi.rigidBody);
+            mDynamicWorld->addRigidBody(bi.rigidBody,
+                                        COLLISION_MASK_ID,
+                                        COLLISION_AGAINST_MASK_ID);
             bi.bone->setManuallyControlled(true);
         }
         for (btTypedConstraint* c : mConstraints) {
@@ -882,6 +883,8 @@ bool
 RagDoll::getClosestIntersection(const BoneTable& bones,
                                 const Ogre::SceneNode* parentNode,
                                 const Ogre::Ray& ray,
+                                const BodyPartMask& mask,
+                                Ogre::Vector3& intPoint,
                                 BodyPartID& bpIntersected) const
 {
     // first of all we will calculate the distance of the ray with each boxShape
@@ -899,6 +902,8 @@ RagDoll::getClosestIntersection(const BoneTable& bones,
     bool anyCollision = false;
 
     for (unsigned int i = 0; i < mRagdollBones.size(); ++i) {
+        // check if the part exists
+        if (mask[i]) {
             const RagdollBoneInfo& bi = mRagdollBones[i];
             OBBInfo& ob = obbs[i];
 
@@ -920,8 +925,13 @@ RagDoll::getClosestIntersection(const BoneTable& bones,
                     bpIntersected = BodyPartID(i);
                 }
             }
+        }
     }
 
+    // if we got a collision, set the position where it was
+    if (anyCollision) {
+        intPoint = ray.getPoint(minDistance);
+    }
 
     return anyCollision;
 }
