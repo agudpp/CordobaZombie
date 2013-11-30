@@ -22,6 +22,7 @@
 #include <frontend/FEManager.h>
 #include <frontend/FEInfo.h>
 #include <frontend/element/button/FESimpleButton.h>
+#include <effect_handler/EffectHandler.h>
 
 namespace tests {
 
@@ -59,6 +60,7 @@ private:
     cz::IMainState *mMainState;
     rrh::ResourceHandler mRcHandler;
     ui::FEManager mFrontEndManager;
+    effect::EffectHandler mEffectHandler;
 
 };
 

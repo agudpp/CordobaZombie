@@ -8,7 +8,12 @@
 #ifndef INFOMAINSTATE_H_
 #define INFOMAINSTATE_H_
 
+#include <OgreOverlayContainer.h>
+#include <OgreOverlay.h>
+
+#include <overlay_effects/AlphaOverlayEffect.h>
 #include <game_states/IMainState.h>
+#include <types/StackQueue.h>
 
 namespace cz {
 
@@ -87,6 +92,15 @@ public:
     //
     virtual bool
     getResourcesToUnload(ResourceGroupList& resourceList);
+
+private:
+    // hardcode some value here, this is not critical and it will be very easy
+    // to change.
+    core::StackQueue<Ogre::OverlayContainer*, 10> mSlides;
+    Ogre::Overlay* mOverlay;
+    float mAccumTime;
+    ui::AlphaOverlayEffect mEffect;
+    bool mNeedToFade;
 };
 
 } /* namespace cz */

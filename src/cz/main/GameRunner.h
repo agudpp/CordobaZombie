@@ -15,6 +15,7 @@
 #include <game_states/MainStateBuilder.h>
 #include <game_states/MainStateTT.h>
 #include <game_states/MainStateMachine.h>
+#include <effect_handler/EffectHandler.h>
 
 namespace cz {
 
@@ -62,6 +63,7 @@ private:
     input::InputHelper mInputHelper;
     ui::MouseCursor mMouseCursor;
     ui::FEManager mFrontEndManager;
+    effect::EffectHandler mEffectHandler;
     // Main state machine
     MainStateBuilder mStatesBuilder;
     MainStateTT mTransitionTable;

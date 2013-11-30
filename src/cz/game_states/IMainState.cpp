@@ -32,6 +32,7 @@ IMainState::IMainState()
     ASSERT(sRcHandler);
     ASSERT(sCommonHandlers.frontEndManager);
     ASSERT(sCommonHandlers.inputHelper);
+    ASSERT(sCommonHandlers.effectHandler);
 
 }
 

@@ -31,6 +31,9 @@ class MouseCursor;
 namespace input {
 class InputHelper;
 }
+namespace effect {
+class EffectHandler;
+}
 
 
 namespace cz {
@@ -67,11 +70,13 @@ struct CommonHandlers {
     ui::MouseCursor* mouseCursor;
     ui::FEManager* frontEndManager;
     input::InputHelper* inputHelper;
+    effect::EffectHandler* effectHandler;
 
     CommonHandlers() :
         mouseCursor(0)
     ,   frontEndManager(0)
     ,   inputHelper(0)
+    ,   effectHandler(0)
     {}
 };
 

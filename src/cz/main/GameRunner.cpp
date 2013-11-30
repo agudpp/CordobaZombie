@@ -165,6 +165,7 @@ GameRunner::initMainStateMachine(void)
     handlers.frontEndManager = &mFrontEndManager;
     handlers.inputHelper = &mInputHelper;
     handlers.mouseCursor = &mMouseCursor;
+    handlers.effectHandler = &mEffectHandler;
     IMainState::setCommonHandlers(handlers);
 
     IMainState::setRcHandler(mEngine.resourcesData().handler);
@@ -232,6 +233,9 @@ GameRunner::run(void)
         if (mMouseCursor.isVisible()) {
             mMouseCursor.updatePosition(input::Mouse::absX(), input::Mouse::absY());
         }
+
+        // update the effect handler
+        mEffectHandler.update(GlobalData::lastTimeFrame);
 
         // front end manager (if no elements this will do nothing)
         mFrontEndManager.update();

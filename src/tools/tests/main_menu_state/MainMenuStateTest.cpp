@@ -16,6 +16,7 @@
 #include <game_states/IMainState.h>
 #include <game_states/states/MenuMainState/MenuMainState.h>
 #include <game_states/states/MenuMainState/helper/MainMenuHelper.h>
+#include <game_states/states/InfoMainState/InfoMainState.h>
 
 #include "MainMenuStateTest.h"
 
@@ -126,6 +127,7 @@ MainMenuStateTest::MainMenuStateTest() :
     cz::CommonHandlers handlers;
     handlers.frontEndManager = &mFrontEndManager;
     handlers.inputHelper = &mInputHelper;
+    handlers.effectHandler = &mEffectHandler;
     cz::IMainState::setCommonHandlers(handlers);
 
     mMouseCursor.setCursor(ui::MouseCursor::Cursor::NORMAL_CURSOR);
@@ -144,7 +146,7 @@ MainMenuStateTest::MainMenuStateTest() :
     input::Keyboard::setKeyboard(mKeyboard);
     setUseDefaultInput(false);
 
-    mMainState = new cz::MenuMainState();
+    mMainState = new cz::InfoMainState();
 
     initializeState();
 
@@ -257,6 +259,7 @@ MainMenuStateTest::update()
 
     // update the front end manager
     mFrontEndManager.update();
+    mEffectHandler.update(cz::GlobalData::lastTimeFrame);
 
 }
 
