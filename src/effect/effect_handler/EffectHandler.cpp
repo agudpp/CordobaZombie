@@ -9,15 +9,5 @@
 
 namespace effect {
 
-EffectHandler::EffectHandler()
-{
-    // TODO Auto-generated constructor stub
-
-}
-
-EffectHandler::~EffectHandler()
-{
-    // TODO Auto-generated destructor stub
-}
 
 } /* namespace effect */

@@ -50,6 +50,8 @@ getKeyboardKeys(void)
     buttons.push_back(input::KeyCode::KC_SPACE);
     buttons.push_back(input::KeyCode::KC_L);
     buttons.push_back(input::KeyCode::KC_U);
+    buttons.push_back(input::KeyCode::KC_LEFT);
+    buttons.push_back(input::KeyCode::KC_RIGHT);
 
     return buttons;
 }
@@ -140,6 +142,13 @@ MainMenuStateTest::MainMenuStateTest() :
     ASSERT(core::OSHelper::getEnvVar("CZ01_RC_PATH",ENV));
     mRcHandler.setResourceRootPath(std::string(ENV));
     cz::IMainState::setRcHandler(&mRcHandler);
+
+    // load global resources
+    rrh::ResourceGroup globalRsc;
+    Ogre::String globalRscPath;
+    mRcHandler.getResourceFullPath("GlobalResources.cfg", globalRscPath);
+    globalRsc.setOgreResourceFile(globalRscPath);
+    mRcHandler.loadResourceGroup(globalRsc);
 
     // configure the input
     input::Mouse::setMouse(mMouse);

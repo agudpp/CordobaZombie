@@ -133,6 +133,11 @@ public:
     virtual bool
     getResourcesToUnload(ResourceGroupList& resourceList) = 0;
 
+private:
+    // avoid copying
+    MainMenuSubState(const MainMenuSubState&);
+    MainMenuSubState& operator=(const MainMenuSubState&);
+
 protected:
 
     // @brief Helper method used to get the absolute path from a relative path.

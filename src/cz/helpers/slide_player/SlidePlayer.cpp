@@ -93,6 +93,8 @@ SlidePlayer::init(void)
         mNextSlide->show();
     }
 
+    mPrevSlide->hide();
+    mHiddenSlide->hide();
     mPrevSlide->setMaterialName(mSlides[0]);
     mHiddenSlide->setMaterialName(mSlides[0]);
 
@@ -139,6 +141,14 @@ SlidePlayer::~SlidePlayer()
     // destroy mConfigOverlay
     if (mConfigOverlay) {
         om.destroy(mConfigOverlay);
+    }
+
+    // remove all its effects
+    if (mInfo.effectHandler) {
+        mInfo.effectHandler->remove(&mCenterEffect);
+        mInfo.effectHandler->remove(&mPrevEffect);
+        mInfo.effectHandler->remove(&mNextEffect);
+        mInfo.effectHandler->remove(&mHiddenEffect);
     }
 }
 
@@ -318,6 +328,13 @@ SlidePlayer::seek(unsigned int i)
 {
     ASSERT(false && "TODO, not needed right now");
     return true;
+}
+
+////////////////////////////////////////////////////////////////////////////
+void
+SlidePlayer::reset(void)
+{
+    init();
 }
 
 ////////////////////////////////////////////////////////////////////////////

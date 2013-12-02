@@ -21,6 +21,8 @@
 //
 #define MENUMAINSTATE_OVERLAY   "MainMenu"
 
+namespace {
+
 static const char* BUTTONS_NAME[] = {
     "MainMenu/Main/Play",
     "MainMenu/Main/Help",
@@ -28,6 +30,8 @@ static const char* BUTTONS_NAME[] = {
     "MainMenu/Main/History",
     "MainMenu/Main/Exit",
 };
+
+}
 
 
 
@@ -70,6 +74,7 @@ MainMenuMainState::buttonPressed(ui::FESimpleButton* button,
         mRetVal = MainMenuSubStateEvent::MMSSE_CREDITS;
     } else if (button == &(mButtons[Buttons::B_HISTORY])) {
         debugGREEN("HISTORY PRESSED!\n");
+        mRetVal = MainMenuSubStateEvent::MMSSE_HISTORY;
     } else if (button == &(mButtons[Buttons::B_EXIT])) {
         debugGREEN("EXIT PRESSED!\n");
     } else {

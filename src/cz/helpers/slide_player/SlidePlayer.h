@@ -140,6 +140,11 @@ public:
     bool
     seek(unsigned int i);
 
+    // @brief Reset to the initial state
+    //
+    void
+    reset(void);
+
     // @brief Check if we can move right now or not to another slide (i.e this
     //        way we can check if we are currently moving the slide).
     // @return true if we can move | false otherwise
@@ -148,6 +153,10 @@ public:
     canMove(void) const;
 
 private:
+
+    // avoid copying
+    SlidePlayer(const SlidePlayer&);
+    SlidePlayer& operator=(const SlidePlayer&);
 
     // @brief Load the configuration from the Overlay associated
     // @return true on success | false otherwise

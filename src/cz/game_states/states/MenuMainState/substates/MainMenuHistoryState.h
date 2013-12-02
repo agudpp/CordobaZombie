@@ -8,17 +8,42 @@
 #ifndef MAINMENUHISTORYSTATE_H_
 #define MAINMENUHISTORYSTATE_H_
 
+#include <OgreOverlay.h>
+
+#include <frontend/element/button/FESimpleButton.h>
+#include <helpers/slide_player/SlidePlayer.h>
+#include <types/StackVector.h>
+
 #include "MainMenuSubState.h"
+
+
+
 
 namespace cz {
 
 class MainMenuHistoryState : public MainMenuSubState
 {
+    // internal enum for buttons
+    enum Buttons {
+        NEXT_SLIDE = 0,
+        PREV_SLIDE,
+        BACK,
+
+        COUNT,
+    };
 public:
     MainMenuHistoryState();
     virtual
     ~MainMenuHistoryState();
 
+    ////////////////////////////////////////////////////////////////////////////
+    // Signals
+    //
+    // @brief Whenever a button is pressed this method will be called. This is
+    //        the "callback" for the FESimpleButton.
+    //
+    void
+    buttonPressed(ui::FESimpleButton* button, ui::FESimpleButton::Event event);
 
     ////////////////////////////////////////////////////////////////////////////
     //                          Inherited methods                             //
@@ -86,6 +111,23 @@ public:
     //
     bool
     getResourcesToUnload(ResourceGroupList& resourceList);
+
+private:
+
+    // @brief Get all the materials we can found an put it in the vector of
+    //        slides.
+    // @param slides        The resulting vector with the slides names to be
+    //                      fill.
+    //
+    void
+    getSlides(SlidePlayer::SlidesVec& slides);
+
+private:
+    Ogre::Overlay* mOverlay;
+    core::StackVector<ui::FESimpleButton, Buttons::COUNT> mButtons;
+    SlidePlayer mSlidePlayer;
+    MainMenuSubStateEvent mRetVal;
+
 };
 
 } /* namespace cz */

@@ -19,10 +19,10 @@ class EffectHandler
 {
     // define the number of effects we can handle at the same time
     //
-    static const unsigned int MAX_EFFECTS = 16;
+    static const unsigned int MAX_EFFECTS = 128;
 public:
-    EffectHandler();
-    ~EffectHandler();
+    EffectHandler() {};
+    ~EffectHandler() {};
 
     // @brief Add an effect to be reproduced in each frame.
     // @param effect        The effect we want to reproduce.
@@ -50,6 +50,12 @@ public:
     inline void
     update(float timeFrame);
 
+    // @brief Return the number of effects that we have.
+    // @return the number of effects we are currently handling
+    //
+    inline unsigned int
+    effectsCount(void) const;
+
 private:
     core::StackVector<Effect*, MAX_EFFECTS> mEffects;
 };
@@ -68,6 +74,7 @@ EffectHandler::add(Effect* effect)
         return;
     }
     effect->beforeStart();
+    effect->id = mEffects.size();
     mEffects.push_back(effect);
 }
 
@@ -102,6 +109,12 @@ EffectHandler::update(float timeFrame)
             --end;
         }
     }
+}
+
+inline unsigned int
+EffectHandler::effectsCount(void) const
+{
+    return mEffects.size();
 }
 
 } /* namespace effect */
