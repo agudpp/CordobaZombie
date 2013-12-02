@@ -8,6 +8,11 @@
 #ifndef PREPLAYINTROMAINSTATE_H_
 #define PREPLAYINTROMAINSTATE_H_
 
+
+#include <OgreOverlayContainer.h>
+#include <OgreOverlay.h>
+
+#include <overlay_effects/AlphaOverlayEffect.h>
 #include <game_states/IMainState.h>
 
 namespace cz {
@@ -87,6 +92,14 @@ public:
     //
     virtual bool
     getResourcesToUnload(ResourceGroupList& resourceList);
+
+
+private:
+    Ogre::Overlay* mOverlay;
+    Ogre::OverlayContainer* mSlide;
+    float mAccumTime;
+    ui::AlphaOverlayEffect mEffect;
+    bool mNeedToFade;
 };
 
 } /* namespace cz */
