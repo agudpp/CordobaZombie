@@ -8,7 +8,8 @@
 #include "OSHelper.h"
 
 #include <fstream>
-#include <stdlib.h>
+#include <cstdlib>
+#include <cstdio>
 
 namespace core {
 namespace OSHelper {
