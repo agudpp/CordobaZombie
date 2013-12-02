@@ -330,8 +330,10 @@ template <typename T, unsigned int MAX_SIZE>
 inline StackVector<T,MAX_SIZE>&
 StackVector<T,MAX_SIZE>::operator=(const StackVector<T, MAX_SIZE>& other)
 {
-    resize(other.size());
-    std::memcpy(begin(), other.begin(), other.size() * sizeof(T));
+    clear();
+    for (const T* b = other.begin(), *end = other.end(); b != end; ++b) {
+        push_back(*b);
+    }
 }
 
 template <typename T, unsigned int MAX_SIZE>

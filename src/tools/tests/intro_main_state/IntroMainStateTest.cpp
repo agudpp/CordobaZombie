@@ -64,6 +64,7 @@ namespace tests {
 IntroMainStateTest::IntroMainStateTest() :
     core::AppTester(cz::GlobalData::lastTimeFrame)
 ,   mInputHelper(getMouseButtons(), getKeyboardKeys())
+,   mFrontEnd(mInputHelper, mCursor)
 {
 
 	debug("\n\nTESTING...\n\n");
@@ -83,6 +84,8 @@ IntroMainStateTest::IntroMainStateTest() :
 
 	cz::CommonHandlers handlers;
 	handlers.frontEndManager = &mFrontEnd;
+	handlers.inputHelper = &mInputHelper;
+	handlers.effectHandler = &mEffectHandler;
 	cz::IMainState::setCommonHandlers(handlers);
 
 	// Set resource Handler for intro state
@@ -98,7 +101,12 @@ IntroMainStateTest::IntroMainStateTest() :
 
     mIntroMainState = new cz::IntroMainState();
 
-    initializeState();
+    debugGREEN("Ready to init the state\n");
+    if (!initializeState()) {
+        debugERROR("Error initializing the state\n");
+    } else {
+        debugGREEN("Everything loaded fine\n");
+    }
 
 }
 
@@ -146,6 +154,7 @@ IntroMainStateTest::initializeState(void)
 		debug("El path al menu.ogg: %s\n",path.c_str());
 	}
 
+	debugGREEN("Everything loaded right\n");
 	return true;
 }
 

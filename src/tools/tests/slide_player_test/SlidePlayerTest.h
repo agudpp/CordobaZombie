@@ -1,12 +1,12 @@
 /*
- * ResourcesLoadingTest.h
+ * SlidePlayerTest.h
  *
  *  Created on: 1/11/2013
- *      Author: raul
+ *      Author: agustin
  */
 
-#ifndef IntroMainStateTest_H_
-#define IntroMainStateTest_H_
+#ifndef SlidePlayerTest_H_
+#define SlidePlayerTest_H_
 
 
 #include <vector>
@@ -14,22 +14,22 @@
 
 #include <app_tester/AppTester.h>
 #include <debug/DebugUtil.h>
-#include <game_states/IMainState.h>
 #include <ResourceHandler.h>
 #include <frontend/FEManager.h>
 #include <cursor/MouseCursor.h>
 #include <input/InputHelper.h>
 #include <effect_handler/EffectHandler.h>
+#include <helpers/slide_player/SlidePlayer.h>
 
 
 namespace tests {
 
-class IntroMainStateTest : public core::AppTester
+class SlidePlayerTest : public core::AppTester
 {
 public:
-	IntroMainStateTest();
+    SlidePlayerTest();
 
-	~IntroMainStateTest();
+    ~SlidePlayerTest();
 
     /* Load additional info */
     void
@@ -45,19 +45,23 @@ public:
     bool
     closeState(void);
 
+private:
+    void
+    configureSlidePlayer(void);
+
 
 private:
     ui::MouseCursor mCursor;
-    float 					mTimeFrame;
-    input::InputHelper 		mInputHelper;
-    cz::IMainState			*mIntroMainState;
-    rrh::ResourceHandler	mRcHandler;
-    ui::FEManager           mFrontEnd;
-    effect::EffectHandler   mEffectHandler;
+    float mTimeFrame;
+    input::InputHelper mInputHelper;
+    rrh::ResourceHandler mRcHandler;
+    ui::FEManager mFrontEnd;
+    effect::EffectHandler mEffectHandler;
+    cz::SlidePlayer mSlidePlayer;
 
 
 };
 
 }
 
-#endif /* IntroMainStateTest_H_ */
+#endif /* SlidePlayerTest_H_ */

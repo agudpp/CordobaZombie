@@ -82,6 +82,9 @@ InfoMainState::getResourcesToLoad(ResourceGroupList& resourceList)
 bool
 InfoMainState::readyToGo(void)
 {
+    // in any case we want to continue running normally
+    mEventInfo = MainStateEvent::EVENT_DONE;
+
     // get the overlay and each of the slides to be shown
     mOverlay = Ogre::OverlayManager::getSingleton().getByName(INFOMAINSTATE_OVERLAY_NAME);
     if (mOverlay == 0) {
