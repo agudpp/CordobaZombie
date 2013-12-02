@@ -114,7 +114,8 @@ MainMenuSubStateEvent
 MainMenuCreditsState::update(float timeFrame)
 {
     // we will check until we press escape to go back
-    if (sCommonHandlers.inputHelper->isKeyReleased(input::KeyCode::KC_SPACE)) {
+    if (sCommonHandlers.inputHelper->isKeyReleased(input::KeyCode::KC_SPACE) ||
+        sCommonHandlers.inputHelper->isMouseReleased(input::MouseButtonID::MB_Left)) {
         debugERROR("We need to change this to escape\n");
         return MainMenuSubStateEvent::MMSSE_DONE;
     }
