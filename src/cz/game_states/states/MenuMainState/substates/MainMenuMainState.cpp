@@ -67,6 +67,7 @@ MainMenuMainState::buttonPressed(ui::FESimpleButton* button,
         mRetVal = MainMenuSubStateEvent::MMSSE_HELP;
     } else if (button == &(mButtons[Buttons::B_CREDITS])) {
         debugGREEN("CREDITS PRESSED!\n");
+        mRetVal = MainMenuSubStateEvent::MMSSE_CREDITS;
     } else if (button == &(mButtons[Buttons::B_HISTORY])) {
         debugGREEN("HISTORY PRESSED!\n");
     } else if (button == &(mButtons[Buttons::B_EXIT])) {

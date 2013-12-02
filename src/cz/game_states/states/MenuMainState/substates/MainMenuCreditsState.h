@@ -8,6 +8,12 @@
 #ifndef MAINMENUCREDITSSTATE_H_
 #define MAINMENUCREDITSSTATE_H_
 
+#include <OgreOverlay.h>
+#include <OgreOverlayContainer.h>
+
+#include <overlay_effects/SlideOverlayEffect.h>
+#include <math/Vec2.h>
+
 #include "MainMenuSubState.h"
 
 namespace cz {
@@ -86,6 +92,14 @@ public:
     //
     bool
     getResourcesToUnload(ResourceGroupList& resourceList);
+
+
+private:
+    Ogre::Overlay* mOverlay;
+    Ogre::OverlayContainer* mCreditsCont;
+    ui::SlideOverlayEffect mSlideEffect;
+    core::Vector2 mOrig;
+    core::Vector2 mDest;
 };
 
 } /* namespace cz */

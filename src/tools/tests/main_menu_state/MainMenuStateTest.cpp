@@ -146,7 +146,7 @@ MainMenuStateTest::MainMenuStateTest() :
     input::Keyboard::setKeyboard(mKeyboard);
     setUseDefaultInput(false);
 
-    mMainState = new cz::InfoMainState();
+    mMainState = new cz::MenuMainState();
 
     initializeState();
 

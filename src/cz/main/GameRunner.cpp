@@ -242,7 +242,6 @@ GameRunner::run(void)
 
         // sounds of the game (this is global, doesn't matter the current state
         // we can always be playing sounds, that's why we put this here)
-        // TODO: check if the sound handler needs to be updated
         soundHandler->update(GlobalData::lastTimeFrame);
 
         // TODO: check if we need to update the video player, and if we have, update it.
