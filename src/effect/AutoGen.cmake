@@ -6,7 +6,6 @@ set(HDRS ${HDRS}
 )
 
 set(SRCS ${SRCS}
-	${DEV_ROOT_PATH}/effect/effect_handler/EffectHandler.cpp
 )
 
 
