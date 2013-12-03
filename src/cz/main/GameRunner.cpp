@@ -249,7 +249,7 @@ GameRunner::run(void)
         soundHandler->update(GlobalData::lastTimeFrame);
 
         // check if we have some video to reproduce
-        if (videoPlayer->isPlaying()) {
+        if (videoPlayer->isPlaying() && videoPlayer->isVisible()) {
             videoPlayer->update(GlobalData::lastTimeFrame);
         }
 

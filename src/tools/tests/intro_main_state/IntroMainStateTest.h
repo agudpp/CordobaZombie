@@ -20,6 +20,7 @@
 #include <cursor/MouseCursor.h>
 #include <input/InputHelper.h>
 #include <effect_handler/EffectHandler.h>
+#include <video/OgreVideoPlayer.h>
 
 
 namespace tests {
@@ -54,6 +55,7 @@ private:
     rrh::ResourceHandler	mRcHandler;
     ui::FEManager           mFrontEnd;
     effect::EffectHandler   mEffectHandler;
+    mm::OgreVideoPlayer mOgreVideoPlayer;
 
 
 };

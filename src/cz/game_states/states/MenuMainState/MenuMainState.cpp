@@ -8,7 +8,13 @@
 #include "MenuMainState.h"
 
 #include <debug/DebugUtil.h>
+#include <video/OgreVideoPlayer.h>
+#include <ResourceHandler.h>
 
+// Some useful defines
+//
+#define MENUMAINSTATE_RSC_PATH              "multimedia/video/resources.cfg"
+#define MENUMAINSTATE_BACKGROUND_VIDEO      "menu_base.ogv"
 
 
 namespace cz {
@@ -115,10 +121,15 @@ MenuMainState::getResourcesToLoad(ResourceGroupList& resourceList)
         }
     }
 
-    // TODO: add the resources associated to the video here (if we have to load
-    //       an overlay or whatever here is the place, or if we will create
-    //       a empty overlay for the background.
-    debugERROR("TODO:!!!\n");
+    rrh::ResourceGroup videoRsc;
+    if (!sRcHandler->getResourceFullPath(MENUMAINSTATE_RSC_PATH, mRscPath)) {
+        debugERROR("Error getting the path to " MENUMAINSTATE_RSC_PATH "\n");
+        return false;
+    }
+    videoRsc.setOgreResourceFile(mRscPath);
+    resourceList.push_back(videoRsc);
+
+    return true;
 
     // everything goes fine
     return true;
@@ -147,9 +158,34 @@ MenuMainState::readyToGo(void)
         }
     }
 
-    // TODO: here we also need to set the video to be ready to be reproduced
-    //       with the video player.
-    debugERROR("TODO:!!!\n");
+    // dequeue all the videos and set the one we want and show the video player
+    std::string videoPath;
+    if (!sRcHandler->getResourcePath("Videos",
+                                     MENUMAINSTATE_BACKGROUND_VIDEO,
+                                     videoPath)) {
+        debugERROR("Can find intro video of name <%s> in "
+            "resource group <Video>\n", MENUMAINSTATE_BACKGROUND_VIDEO);
+        return false;
+    }
+    sVideoPlayer->dequeueAll();
+
+    // enqueue the video
+    if (sVideoPlayer->queue(videoPath.c_str(), videoPath.c_str(), 0, -1)
+            == mm::OgreVideoPlayer::ERROR) {
+        debugERROR("Can't queue intro video at %s\n", videoPath.c_str());
+        return false;
+    }
+
+    if (sVideoPlayer->play() != mm::OgreVideoPlayer::OK) {
+        debugERROR("Video player doesn't play for video %s\n", videoPath.c_str());
+        return false;
+    }
+
+    // configure to repeat the video
+    sVideoPlayer->setRepeatVideo(true);
+
+    // show the video player
+    sVideoPlayer->setVisible(true);
 
     // get the main state and show its information since it will be the first
     // state
@@ -222,8 +258,9 @@ MenuMainState::unload(void)
         }
     }
 
-    // TODO: here we should also remove all the video information
-    debugERROR("TODO:!!\n");
+    // unload all the stuff for the video player
+    sVideoPlayer->dequeueAll();
+    sVideoPlayer->setVisible(false);
 
     // everything fine
     return true;
@@ -234,8 +271,6 @@ MenuMainState::unload(void)
 bool
 MenuMainState::getResourcesToUnload(ResourceGroupList& resourceList)
 {
-    ASSERT(false && "TODO");
-
     // here we should iterate over all the substates and get its resources
     // to unload
     unsigned int size = 0;
@@ -261,9 +296,10 @@ MenuMainState::getResourcesToUnload(ResourceGroupList& resourceList)
         }
     }
 
-    // TODO: unload everything related with the background video here.
-    //
-    debugERROR("TODO:!!!\n");
+    // unload video information
+    rrh::ResourceGroup videoRsc;
+    videoRsc.setOgreResourceFile(mRscPath);
+    resourceList.push_back(videoRsc);
 
     // everything goes fine
     return true;

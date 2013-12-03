@@ -114,6 +114,7 @@ MainMenuStateTest::MainMenuStateTest() :
 ,   mInputHelper(getMouseButtons(), getKeyboardKeys())
 ,   mMainState(0)
 ,   mFrontEndManager(mInputHelper, mMouseCursor)
+,   mOgreVideoPlayer(-1, 1, 1, -1, mSceneMgr, mWindow->getHeight(), mWindow->getWidth())
 {
     cz::GlobalData::camera = mCamera;
     cz::GlobalData::sceneMngr = mSceneMgr;
@@ -126,6 +127,7 @@ MainMenuStateTest::MainMenuStateTest() :
 
     // Set state info
     cz::IMainState::setOgreData(ogreInfo);
+    cz::IMainState::setVideoPlayer(&mOgreVideoPlayer);
 
     cz::CommonHandlers handlers;
     handlers.frontEndManager = &mFrontEndManager;
@@ -156,8 +158,8 @@ MainMenuStateTest::MainMenuStateTest() :
     input::Keyboard::setKeyboard(mKeyboard);
     setUseDefaultInput(false);
 
-//    mMainState = new cz::MenuMainState();
-    mMainState = new cz::PrePlayIntroMainState();
+    mMainState = new cz::MenuMainState();
+//    mMainState = new cz::PrePlayIntroMainState();
 
     initializeState();
 
@@ -272,6 +274,9 @@ MainMenuStateTest::update()
     mFrontEndManager.update();
     mEffectHandler.update(cz::GlobalData::lastTimeFrame);
 
+    if (mOgreVideoPlayer.isPlaying() && mOgreVideoPlayer.isVisible()) {
+        mOgreVideoPlayer.update(cz::GlobalData::lastTimeFrame);
+    }
 }
 
 }

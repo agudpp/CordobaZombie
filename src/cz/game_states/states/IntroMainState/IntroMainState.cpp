@@ -5,30 +5,30 @@
  *      Author: agustin
  */
 
+#include "IntroMainState.h"
+
 #include <string.h>
 
 #include <video/OgreVideoPlayer.h>
 #include <os_utils/OSHelper.h>
 #include <ResourceHandler.h>
 #include <game_states/IMainState.h>
+#include <video/OgreVideoPlayer.h>
 
 
-
-#include "IntroMainState.h"
 
 namespace cz {
 
 
 
-const char* IntroMainState::INTRO_VIDEO_NAME = "intro_video.ogg";
+const char* IntroMainState::INTRO_VIDEO_NAME = "intro.ogv";
 const char* IntroMainState::INTRO_RC_PATH =
-		"main_states/intro_main_state/resources.cfg";
+		"multimedia/video/resources.cfg";
 
 
 
 
-IntroMainState::IntroMainState() :
-		mVideoPlayer(-1,1,1,-1,sOgreInfo.sceneMngr,800,600)
+IntroMainState::IntroMainState()
 {
 }
 
@@ -36,7 +36,6 @@ IntroMainState::IntroMainState() :
 ///////////////////////////////////////////////////////////////////////////////
 IntroMainState::~IntroMainState()
 {
-    // TODO Auto-generated destructor stub
 }
 
 
@@ -69,26 +68,32 @@ IntroMainState::getResourcesToLoad(ResourceGroupList& resourceList)
 bool
 IntroMainState::readyToGo(void)
 {
-	std::string path;
-	if(!sRcHandler->getResourcePath("Videos",INTRO_VIDEO_NAME,path)){
-		debugERROR("Can find intro video of name <%s> in "
-				"resource group <Video>\n", INTRO_VIDEO_NAME);
-		return false;
-	}
+    std::string path;
+    if (!sRcHandler->getResourcePath("Videos", INTRO_VIDEO_NAME, path)) {
+        debugERROR("Can find intro video of name <%s> in "
+            "resource group <Video>\n", INTRO_VIDEO_NAME);
+        return false;
+    }
 
-	if(mm::OgreVideoPlayer::ERROR ==
-			mVideoPlayer.queue(path.c_str(), path.c_str(),0,-1))
-	{
-		debugERROR("Can't queue intro video at %s\n", path.c_str());
-		return false;
-	}
+    // remove all the previous videos just in case
+    sVideoPlayer->dequeueAll();
 
-	if(mm::OgreVideoPlayer::OK != mVideoPlayer.play()){
-		debugERROR("Video player doesn't play :(\n");
-		return false;
-	}
+    // enqueue the video
+    if (mm::OgreVideoPlayer::ERROR
+        == sVideoPlayer->queue(path.c_str(), path.c_str(), 0, -1)) {
+        debugERROR("Can't queue intro video at %s\n", path.c_str());
+        return false;
+    }
 
-	return true;
+    if (mm::OgreVideoPlayer::OK != sVideoPlayer->play()) {
+        debugERROR("Video player doesn't play :(\n");
+        return false;
+    }
+
+    // show the video player
+    sVideoPlayer->setVisible(true);
+
+    return true;
 }
 
 
@@ -96,19 +101,15 @@ IntroMainState::readyToGo(void)
 bool
 IntroMainState::update(float timeFrame)
 {
+    // check if the video is still playing then we have nothing to do
+    if (sVideoPlayer->isPlaying()) {
+        return true;
+    }
 
-	int err = mVideoPlayer.update(timeFrame);
+    // else we finish, nothing else to do here
+    mEventInfo = MainStateEvent::EVENT_DONE;
 
-	if(err == mm::OgreVideoPlayer::ERROR){
-		mEventInfo = EVENT_DONE;
-		return false;
-	}else if(err == mm::OgreVideoPlayer::OK){
-		mEventInfo = EVENT_DONE;
-	}else if(err == mm::OgreVideoPlayer::ENDED){
-		mEventInfo == EVENT_EXIT;
-		return false;
-	}
-	return true;
+    return false;
 }
 
 
@@ -116,7 +117,12 @@ IntroMainState::update(float timeFrame)
 bool
 IntroMainState::unload(void)
 {
-	return true;
+    // remove all the videos just in case
+    sVideoPlayer->dequeueAll();
+
+    // hide the video player
+    sVideoPlayer->setVisible(false);
+    return true;
 }
 
 

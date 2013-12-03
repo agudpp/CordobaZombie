@@ -11,7 +11,6 @@
 
 #include <game_states/IMainState.h>
 #include <game_states/MainStateID.h>
-#include <video/OgreVideoPlayer.h>
 
 
 namespace cz {
@@ -98,9 +97,7 @@ public:
     getResourcesToUnload(ResourceGroupList& resourceList);
 
 private:
-
-    mm::OgreVideoPlayer	mVideoPlayer;
-    rrh::ResourceGroup 	mrg;
+    rrh::ResourceGroup mrg;
 };
 
 } /* namespace cz */

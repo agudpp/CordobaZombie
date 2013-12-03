@@ -23,6 +23,8 @@
 #include <frontend/FEInfo.h>
 #include <frontend/element/button/FESimpleButton.h>
 #include <effect_handler/EffectHandler.h>
+#include <video/OgreVideoPlayer.h>
+
 
 namespace tests {
 
@@ -61,6 +63,7 @@ private:
     rrh::ResourceHandler mRcHandler;
     ui::FEManager mFrontEndManager;
     effect::EffectHandler mEffectHandler;
+    mm::OgreVideoPlayer mOgreVideoPlayer;
 
 };
 

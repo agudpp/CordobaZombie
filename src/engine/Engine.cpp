@@ -54,7 +54,9 @@ Engine::Engine()
     mLoader.addModuleLoader(soundLoader);
 
     // VideoSystem
-    VideoSystemLoader* videoLoader = new VideoSystemLoader(mVideoData.player);
+    VideoSystemLoader* videoLoader = new VideoSystemLoader(mVideoData.player,
+                                                           mOgreData.sceneMngr,
+                                                           mOgreData.renderWindow);
 
     mLoaders.push_back(videoLoader);
     mLoader.addModuleLoader(videoLoader);

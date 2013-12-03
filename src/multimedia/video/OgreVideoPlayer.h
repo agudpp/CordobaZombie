@@ -110,6 +110,13 @@ public:
 	int
 	resize(unsigned int h, unsigned int w);
 
+	// @brief Set visible / invisible the screen.
+	//
+    inline void
+    setVisible(bool visible);
+    inline bool
+    isVisible(void) const;
+
 
 private:
 
@@ -159,6 +166,12 @@ public:
 	 */
 	int
 	queue(const char *path, const char* name, double start, double end);
+
+	// @brief Remove all the current lists and videos. This will stop the
+	//        current reproduction also.
+	//
+	void
+	dequeueAll(void);
 
 	/*
 	 * Start or continue playing.
@@ -212,6 +225,12 @@ public:
     inline bool
     isPlaying() const;
 
+    // @brief Hide / show the video player.
+    //
+    inline void
+    setVisible(bool visible);
+    inline bool
+    isVisible(void) const;
 
 protected:
 
@@ -298,6 +317,24 @@ Video::getEnd(double & end)
 
 
 ///////////////////////////////////////////////////////////////////////////////
+// OgreVideoScreen inline methods
+///////////////////////////////////////////////////////////////////////////////
+
+inline void
+OgreVideoScreen::setVisible(bool visible)
+{
+    if (mScreenNode == 0) {
+        return;
+    }
+    mScreenNode->setVisible(visible);
+}
+inline bool
+OgreVideoScreen::isVisible(void) const
+{
+    return mScreenNode && mScreen.isVisible();
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // OgreVideoPlayer inline methods
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -325,7 +362,16 @@ OgreVideoPlayer::isPlaying() const
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
+inline void
+OgreVideoPlayer::setVisible(bool visible)
+{
+    mScreen.setVisible(visible);
+}
+inline bool
+OgreVideoPlayer::isVisible(void) const
+{
+    return mScreen.isVisible();
+}
 
 }
 

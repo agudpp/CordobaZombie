@@ -65,6 +65,7 @@ IntroMainStateTest::IntroMainStateTest() :
     core::AppTester(cz::GlobalData::lastTimeFrame)
 ,   mInputHelper(getMouseButtons(), getKeyboardKeys())
 ,   mFrontEnd(mInputHelper, mCursor)
+,   mOgreVideoPlayer(-1, 1, 1, -1, mSceneMgr, mWindow->getHeight(), mWindow->getWidth())
 {
 
 	debug("\n\nTESTING...\n\n");
@@ -81,6 +82,7 @@ IntroMainStateTest::IntroMainStateTest() :
 
 	// Set state info
 	cz::IMainState::setOgreData(ogreInfo);
+	cz::IMainState::setVideoPlayer(&mOgreVideoPlayer);
 
 	cz::CommonHandlers handlers;
 	handlers.frontEndManager = &mFrontEnd;
@@ -218,7 +220,9 @@ IntroMainStateTest::update()
         return;
     }
 
-
+    if (mOgreVideoPlayer.isPlaying() && mOgreVideoPlayer.isVisible()) {
+        mOgreVideoPlayer.update(cz::GlobalData::lastTimeFrame);
+    }
 
 }
 

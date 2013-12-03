@@ -245,6 +245,17 @@ OgreVideoPlayer::queue(const char* path, const char* name,
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+void
+OgreVideoPlayer::dequeueAll(void)
+{
+    stop();
+    mIndex = -1;
+    mPlayList.clear();
+    mVideoPlayer.unload();
+//    mVideoPlayer.paint_black_screen(); ??? it says that was never defined?
+}
+
+///////////////////////////////////////////////////////////////////////////////
 
 int
 OgreVideoPlayer::load(int index){

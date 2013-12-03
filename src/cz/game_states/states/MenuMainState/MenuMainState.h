@@ -116,6 +116,7 @@ private:
     MainMenuTT mTransitionTable;
     MainMenuSubStateEvent mLastEvent;
     MainMenuSubState* mCurrentState;
+    std::string mRscPath;
     MainStateID mID;
 };
 
