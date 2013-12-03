@@ -11,13 +11,73 @@ namespace cz {
 
 ExitMainState::ExitMainState()
 {
-    // TODO Auto-generated constructor stub
 
 }
 
 ExitMainState::~ExitMainState()
 {
-    // TODO Auto-generated destructor stub
+
+}
+
+////////////////////////////////////////////////////////////////////////////
+//                           Inherited methods
+////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
+const MainStateID&
+ExitMainState::ID(void) const
+{
+    debugERROR("TODO\n");
+    static MainStateID id;
+    return id;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+bool
+ExitMainState::configureState(const MainStateInformation& info)
+{
+    debugERROR("TODO\n");
+    return true;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+bool
+ExitMainState::getResourcesToLoad(ResourceGroupList& resourceList)
+{
+    debugERROR("TODO\n");
+    return true;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+bool
+ExitMainState::readyToGo(void)
+{
+    debugERROR("TODO\n");
+    return true;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+bool
+ExitMainState::update(float timeFrame)
+{
+    debugERROR("TODO\n");
+    return true;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+bool
+ExitMainState::unload(void)
+{
+    debugERROR("TODO\n");
+    return true;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+bool
+ExitMainState::getResourcesToUnload(ResourceGroupList& resourceList)
+{
+    debugERROR("TODO\n");
+    return true;
 }
 
 } /* namespace cz */
