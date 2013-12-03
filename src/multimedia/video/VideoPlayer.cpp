@@ -12,6 +12,12 @@ extern "C" {
 #include "VideoPlayer.h"
 
 
+// TODO: this is a fix to support old versions of ffmpeg. In version 2.1
+// seems that the macro was undefined...
+#ifndef AVCODEC_MAX_AUDIO_FRAME_SIZE
+#define AVCODEC_MAX_AUDIO_FRAME_SIZE 192000
+#endif
+
 namespace mm{
 
 
@@ -302,7 +308,8 @@ int VideoPlayer::load(const char *fileName){
     // Find the first video and the first audio stream
     videoStream = -1;
     audioStream = -1;
-    for(int i=0; i<pFormatCtx->nb_streams; i++)
+    for(int i=0; i<pFormatCtx->nb_streams && videoStream == -1 && audioStream == -1;
+        i++)
     {
         if(pFormatCtx->streams[i]->codec->codec_type == AVMEDIA_TYPE_VIDEO &&
         		videoStream < 0)

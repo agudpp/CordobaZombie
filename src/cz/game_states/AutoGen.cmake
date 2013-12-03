@@ -26,8 +26,8 @@ set(SRCS ${SRCS}
 #	${DEV_ROOT_PATH}/cz/game_states/states/ExitMainState/ExitMainState.cpp
     ${DEV_ROOT_PATH}/cz/game_states/states/InfoMainState/InfoMainState.cpp
 	${DEV_ROOT_PATH}/cz/game_states/states/IntroMainState/IntroMainState.cpp
+	${DEV_ROOT_PATH}/cz/game_states/states/PrePlayIntroMainState/PrePlayIntroMainState.cpp
 #	${DEV_ROOT_PATH}/cz/game_states/states/PlayingMainState/PlayingMainState.cpp
-#	${DEV_ROOT_PATH}/cz/game_states/states/PrePlayIntroMainState/PlayingMainState.cpp
 )
 
 # include the MainMenuState

@@ -17,6 +17,7 @@
 #include <game_states/states/MenuMainState/MenuMainState.h>
 #include <game_states/states/MenuMainState/helper/MainMenuHelper.h>
 #include <game_states/states/InfoMainState/InfoMainState.h>
+#include <game_states/states/PrePlayIntroMainState/PrePlayIntroMainState.h>
 
 #include "MainMenuStateTest.h"
 
@@ -155,7 +156,8 @@ MainMenuStateTest::MainMenuStateTest() :
     input::Keyboard::setKeyboard(mKeyboard);
     setUseDefaultInput(false);
 
-    mMainState = new cz::MenuMainState();
+//    mMainState = new cz::MenuMainState();
+    mMainState = new cz::PrePlayIntroMainState();
 
     initializeState();
 
