@@ -18,6 +18,7 @@
 #include <input/InputKeyboard.h>
 #include <global_data/GlobalData.h>
 #include <sound/SoundHandler.h>
+#include <video/OgreVideoPlayer.h>
 #include <ResourceGroup.h>
 
 
@@ -211,8 +212,11 @@ GameRunner::run(void)
     float timeStamp = 0;
     Ogre::Real accumTimer = 0.0f;
     unsigned int numFrames = 0;
+
+    // Get pointers
     Ogre::Root* ogreRoot = mEngine.ogreData().root;
     mm::SoundHandler* soundHandler = mEngine.soundData().handler;
+    mm::OgreVideoPlayer* videoPlayer = mEngine.videoData().player;
 
     // prepare the state machine
     mMainStateMachine.start();
@@ -244,7 +248,10 @@ GameRunner::run(void)
         // we can always be playing sounds, that's why we put this here)
         soundHandler->update(GlobalData::lastTimeFrame);
 
-        // TODO: check if we need to update the video player, and if we have, update it.
+        // check if we have some video to reproduce
+        if (videoPlayer->isPlaying()) {
+            videoPlayer->update(GlobalData::lastTimeFrame);
+        }
 
         // render the frame
         if (!mContinueRunning || !ogreRoot->renderOneFrame()) {

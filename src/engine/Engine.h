@@ -27,7 +27,7 @@ class Camera;
 
 namespace mm {
 class SoundHandler;
-class VideoPlayer;
+class OgreVideoPlayer;
 }
 
 namespace rrh {
@@ -77,7 +77,7 @@ public:
     // Video information
     //
     struct VideoData {
-        mm::VideoPlayer* player;
+        mm::OgreVideoPlayer* player;
 
         VideoData() :
             player(0)

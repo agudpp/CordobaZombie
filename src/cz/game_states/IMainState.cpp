@@ -12,7 +12,7 @@
 namespace cz {
 
 OgreCommon IMainState::sOgreInfo;
-mm::VideoPlayer* IMainState::sVideoPlayer = 0;
+mm::OgreVideoPlayer* IMainState::sVideoPlayer = 0;
 mm::SoundHandler* IMainState::sSoundHandler = 0;
 const rrh::ResourceHandler *IMainState::sRcHandler = 0;
 CommonHandlers IMainState::sCommonHandlers;
@@ -44,7 +44,7 @@ IMainState::setOgreData(const OgreCommon& ogreData)
 }
 
 void
-IMainState::setVideoPlayer(mm::VideoPlayer* videoPlayer)
+IMainState::setVideoPlayer(mm::OgreVideoPlayer* videoPlayer)
 {
     sVideoPlayer = videoPlayer;
 }

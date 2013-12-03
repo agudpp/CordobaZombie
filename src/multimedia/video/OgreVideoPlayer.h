@@ -55,8 +55,8 @@ private:
 
 	double		mStart;
 	double 		mEnd;
-	std::string *mPath;
-	std::string *mName;
+	std::string mPath;
+	std::string mName;
 };
 
 
@@ -113,7 +113,7 @@ public:
 
 private:
 
-	Ogre::Rectangle2D 			*mScreen;
+	Ogre::Rectangle2D 			mScreen;
 	Ogre::SceneNode 			*mScreenNode;
 	Ogre::TexturePtr 			mRttTexture;
 	Ogre::MaterialPtr 			mRenderMaterial;
@@ -125,7 +125,7 @@ private:
 
 
 
-class OgreVideoPlayer{
+class OgreVideoPlayer {
 
 public:
 	enum{
@@ -204,6 +204,14 @@ public:
 	inline void
 	setRepeatVideo(bool rep);
 
+    /*
+     * @ Inline fast method to avoid updating when not playing
+     * @ returns 'true' if there is a video being played at the moment, 'false'
+     * otherwise.
+     */
+    inline bool
+    isPlaying() const;
+
 
 protected:
 
@@ -214,14 +222,13 @@ protected:
 
 private:
 
-	mm::VideoPlayer			*mVideoPlayer;
-	mm::OgreVideoScreen 	*mScreen;
-	std::vector<mm::Video*>	mPlayList;
+	mm::OgreVideoScreen 	mScreen;
+	mm::VideoPlayer			mVideoPlayer;
+	std::vector<mm::Video>	mPlayList;
 	bool					mIsPlaying;
 	bool					mRepeatV;
 	bool					mRepeatP;
 	int						mIndex;  	// Index of the loaded video.
-	mm::Video				*mVideo; 	// Loaded video.
 };
 
 
@@ -235,16 +242,14 @@ private:
 inline const char*
 Video::getName(void)
 {
-	ASSERT(mName);
-	return mName->c_str();
+	return mName.c_str();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 inline const char*
 Video::getPath(void)
 {
-	ASSERT(mPath);
-	return mPath->c_str();
+	return mPath.c_str();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -299,17 +304,25 @@ Video::getEnd(double & end)
 
 
 inline void
-OgreVideoPlayer::setRepeatPlayList(bool rep){
+OgreVideoPlayer::setRepeatPlayList(bool rep)
+{
 	mRepeatP = rep;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 inline void
-OgreVideoPlayer::setRepeatVideo(bool rep){
+OgreVideoPlayer::setRepeatVideo(bool rep)
+{
 	mRepeatV = rep;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+inline bool
+OgreVideoPlayer::isPlaying() const
+{
+    return mIsPlaying;
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 

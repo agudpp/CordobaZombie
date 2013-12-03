@@ -22,7 +22,7 @@ class ResourceHandler;
 }
 
 namespace mm {
-class VideoPlayer;
+class OgreVideoPlayer;
 class SoundHandler;
 }
 
@@ -68,7 +68,7 @@ public:
     // @param videoPlayer   The Video Player.
     //
     static void
-    setVideoPlayer(mm::VideoPlayer* videoPlayer);
+    setVideoPlayer(mm::OgreVideoPlayer* videoPlayer);
 
     // @brief Set the SoundHandler global instance
     // @param soundManager  The SoundHandler.
@@ -166,7 +166,7 @@ protected:
     // the global Ogre information
     static OgreCommon sOgreInfo;
     // the global VideoPlayer instance
-    static mm::VideoPlayer* sVideoPlayer;
+    static mm::OgreVideoPlayer* sVideoPlayer;
     // the global SoundManager instance
     static mm::SoundHandler* sSoundHandler;
     // static global resources handler for all main states

@@ -8,7 +8,10 @@
 #ifndef VIDEOSYSTEMLOADER_H_
 #define VIDEOSYSTEMLOADER_H_
 
-#include <video/VideoPlayer.h>
+#include <OgreSceneManager.h>
+#include <OgreRenderWindow.h>
+
+#include <video/OgreVideoPlayer.h>
 
 #include "IModuleLoader.h"
 
@@ -18,7 +21,9 @@ class VideoSystemLoader : public IModuleLoader
 {
 public:
     // Pass the reference to the pointer where we will construct the video player
-    VideoSystemLoader(mm::VideoPlayer*& videoPlayer);
+    VideoSystemLoader(mm::OgreVideoPlayer*& videoPlayer,
+                      Ogre::SceneManager* sceneMngr,
+                      Ogre::RenderWindow* renderWindow);
     virtual
     ~VideoSystemLoader();
 
@@ -40,7 +45,9 @@ public:
     unload(void);
 
 private:
-    mm::VideoPlayer* mVideoPlayer;
+    mm::OgreVideoPlayer* mVideoPlayer;
+    Ogre::SceneManager* mSceneManager;
+    Ogre::RenderWindow* mRenderWindow;
 };
 
 } /* namespace engine */
