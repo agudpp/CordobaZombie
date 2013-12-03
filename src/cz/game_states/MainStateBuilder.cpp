@@ -68,7 +68,7 @@ MainStateBuilder::buildState(const MainStateID& id) const
     if (result == 0) {
         debugERROR("We are not supporting the ID type %d right now\n", id);
     }
-    return 0;
+    return result;
 }
 
 } /* namespace cz */

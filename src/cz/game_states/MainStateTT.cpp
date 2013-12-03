@@ -24,7 +24,8 @@ MainStateTT::addTransition(IMainState* from,
     ASSERT(index < NUM_STATES);
 
     EventToStateMap& map = mTransitionTable[index];
-    if (map.find(event) != map.end()) {
+    EventToStateMap::iterator it = map.find(event);
+    if (it != map.end() && it->second == to) {
         debugERROR("We are adding the same transition twice, this is not possible "
             "nor supported by this kind of FSM\n");
         ASSERT(false);
@@ -57,13 +58,13 @@ MainStateTT::build(const MainStateBuilder& builder)
 {
     // build all the states, remove them first
     freeAllStates();
-    for (unsigned int i = 0; i < mStates.size(); ++i) {
+    for (unsigned int i = 0; i < NUM_STATES; ++i) {
         IMainState* state = builder.buildState(MainStateID(i));
         if (state == 0) {
             debugERROR("Error creating the state with id %d\n", i);
             return false;
         }
-        mStates.push_back(state);
+        mStates[i] = state;
     }
 
     // build the transitions now, following the diagram in issue #184

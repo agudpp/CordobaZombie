@@ -12,8 +12,8 @@
 namespace engine {
 
 VideoSystemLoader::VideoSystemLoader(mm::OgreVideoPlayer*& videoPlayer,
-                                     Ogre::SceneManager* sceneMngr,
-                                     Ogre::RenderWindow* renderWindow) :
+                                     Ogre::SceneManager*& sceneMngr,
+                                     Ogre::RenderWindow*& renderWindow) :
     IModuleLoader("VideoSystemLoader")
 ,   mVideoPlayer(videoPlayer)
 ,   mSceneManager(sceneMngr)
@@ -47,6 +47,7 @@ VideoSystemLoader::load(const EngineConfiguration& config)
                                            mSceneManager,
                                            mRenderWindow->getHeight(),
                                            mRenderWindow->getWidth());
+    mVideoPlayer->setVisible(false);
 
     return true;
 }

@@ -22,8 +22,8 @@ class VideoSystemLoader : public IModuleLoader
 public:
     // Pass the reference to the pointer where we will construct the video player
     VideoSystemLoader(mm::OgreVideoPlayer*& videoPlayer,
-                      Ogre::SceneManager* sceneMngr,
-                      Ogre::RenderWindow* renderWindow);
+                      Ogre::SceneManager*& sceneMngr,
+                      Ogre::RenderWindow*& renderWindow);
     virtual
     ~VideoSystemLoader();
 
@@ -45,9 +45,9 @@ public:
     unload(void);
 
 private:
-    mm::OgreVideoPlayer* mVideoPlayer;
-    Ogre::SceneManager* mSceneManager;
-    Ogre::RenderWindow* mRenderWindow;
+    mm::OgreVideoPlayer*& mVideoPlayer;
+    Ogre::SceneManager*& mSceneManager;
+    Ogre::RenderWindow*& mRenderWindow;
 };
 
 } /* namespace engine */

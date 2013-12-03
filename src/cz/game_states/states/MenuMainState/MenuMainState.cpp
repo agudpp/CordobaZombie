@@ -7,9 +7,10 @@
 
 #include "MenuMainState.h"
 
+#include <cursor/MouseCursor.h>
 #include <debug/DebugUtil.h>
-#include <video/OgreVideoPlayer.h>
 #include <ResourceHandler.h>
+#include <video/OgreVideoPlayer.h>
 
 // Some useful defines
 //
@@ -191,6 +192,9 @@ MenuMainState::readyToGo(void)
     // state
     changeState(mTransitionTable.mainState());
 
+    // show the mouse cursor
+    sCommonHandlers.mouseCursor->setVisible(true);
+
     return true;
 }
 
@@ -261,6 +265,9 @@ MenuMainState::unload(void)
     // unload all the stuff for the video player
     sVideoPlayer->dequeueAll();
     sVideoPlayer->setVisible(false);
+
+    // hide the mouse cursor
+    sCommonHandlers.mouseCursor->setVisible(false);
 
     // everything fine
     return true;

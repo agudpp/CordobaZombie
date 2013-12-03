@@ -150,8 +150,7 @@ MainMenuSubStateEvent
 MainMenuHelpState::update(float timeFrame)
 {
     // check the input here
-    if (sCommonHandlers.inputHelper->isKeyReleased(input::KeyCode::KC_SPACE)) {
-        debugERROR("We need to change this with ESCAPE key\n");
+    if (sCommonHandlers.inputHelper->isKeyReleased(input::KeyCode::KC_ESCAPE)) {
         letsGoOut();
     }
 

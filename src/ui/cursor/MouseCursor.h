@@ -146,7 +146,7 @@ MouseCursor::build(void)
         return;
     }
     mMaterial = Ogre::MaterialManager::getSingleton().create(
-        MOUSE_CURSOR_MATERIAL_NAME, "Popular");
+        MOUSE_CURSOR_MATERIAL_NAME, Ogre::ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME);
     ASSERT(!mMaterial.isNull());
 
     // check if the container already exists

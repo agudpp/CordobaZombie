@@ -17,6 +17,7 @@ include(${DEV_ROOT_PATH}/ui/frontend/AutoGen.cmake)
 
 include(${DEV_ROOT_PATH}/cz/game_states/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/cz/global_data/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/cz/helpers/slide_player/AutoGen.cmake)
 
 # Define global sources here
 set(HDRS ${HDRS}

@@ -204,8 +204,7 @@ MainMenuHistoryState::update(float timeFrame)
 {
     // now we have to check if we press escape then we go out
     // we will check until we press escape to go back
-    if (sCommonHandlers.inputHelper->isKeyReleased(input::KeyCode::KC_SPACE)) {
-        debugERROR("We need to change this to escape\n");
+    if (sCommonHandlers.inputHelper->isKeyReleased(input::KeyCode::KC_ESCAPE)) {
         return MainMenuSubStateEvent::MMSSE_DONE;
     }
 
