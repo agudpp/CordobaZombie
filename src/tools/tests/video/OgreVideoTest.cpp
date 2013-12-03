@@ -6,6 +6,7 @@
  *      Author: Raul
  */
 
+#include "OgreVideoTest.h"
 
 #include <OgreResourceManager.h>
 #include <OgreFontManager.h>
@@ -13,9 +14,6 @@
 #include <string>
 #include <Ogre.h>
 
-#include <OgreVideoPlayer.h>
-
-#include "OgreVideoTest.h"
 
 
 

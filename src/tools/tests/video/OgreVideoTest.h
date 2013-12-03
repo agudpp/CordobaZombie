@@ -12,7 +12,7 @@
 
 #include <input/InputHelper.h>
 #include <app_tester/AppTester.h>
-#include <OgreVideoPlayer.h>
+#include <video/OgreVideoPlayer.h>
 
 
 namespace tests {

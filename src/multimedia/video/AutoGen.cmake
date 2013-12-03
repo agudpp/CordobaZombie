@@ -24,39 +24,28 @@ set(HDRS
 	
 )
 
-set(ACTUAL_DIRS
-	${DEV_ROOT_PATH}/multimedia/video
-	${DEV_ROOT_PATH}/multimedia/video/unittest
-)
-
-
-include_directories(${ACTUAL_DIRS})
-
-
 ## Specific libs
 
 set(OPENAL_LIBRARIES openal vorbis vorbisfile)
 set(COMMON_LIBRARIES ${COMMON_LIBRARIES} ${OPENAL_LIBRARIES}
-avcodec avutil avformat swscale)
+    avcodec avutil avformat swscale)
 
 
 # Static imported libs:
 
-
-
-## avcodec static linkage 
+# avcodec static linkage 
 #add_library(mavcodec STATIC IMPORTED)
 ## point the imported target at the real file
 #set_property(TARGET mavcodec PROPERTY
 #                IMPORTED_LOCATION ${THIRD_PARTY_LIBS}/lib/libavcodec.a)
 
-## avformat static linkage 
+# avformat static linkage 
 #add_library(mavformat STATIC IMPORTED)
 ## point the imported target at the real file
 #set_property(TARGET mavformat PROPERTY
 #                IMPORTED_LOCATION ${THIRD_PARTY_LIBS}/lib/libavformat.a)
 
-## swscale static linkage 
+# swscale static linkage 
 #add_library(mswscale STATIC IMPORTED)
 ## point the imported target at the real file
 #set_property(TARGET mswscale PROPERTY
@@ -69,8 +58,6 @@ avcodec avutil avformat swscale)
 #                IMPORTED_LOCATION ${THIRD_PARTY_LIBS}/lib/libavutil.a)
 
 #set(COMMON_LIBRARIES ${COMMON_LIBRARIES} mavcodec mavformat mswscale mavutil)
-
-
 
 
 # Flag because UINT64_C macro is defined in standard C header stdint.h, 
