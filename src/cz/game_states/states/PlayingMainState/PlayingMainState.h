@@ -11,6 +11,10 @@
 
 #include <game_states/IMainState.h>
 
+// TODO: this will be only for the demo stuff
+#include <game_states/states/PlayingMainState/AngryZombie/MiniDemoApp.h>
+#include <game_states/states/PlayingMainState/AngryZombie/StatisticsInformer.h>
+
 
 namespace cz {
 
@@ -89,6 +93,10 @@ public:
     //
     virtual bool
     getResourcesToUnload(ResourceGroupList& resourceList);
+
+private:
+    demo_app::MiniDemoApp mDemoApp;
+    demo_app::StatisticsInformer mInformer;
 };
 
 } /* namespace cz */
