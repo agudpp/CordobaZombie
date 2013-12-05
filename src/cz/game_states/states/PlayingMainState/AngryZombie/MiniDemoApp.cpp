@@ -69,6 +69,20 @@ MiniDemoApp::loadFloor(void)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+Projectile*
+MiniDemoApp::buildPorjectile(const Ogre::Vector3& pos)
+{
+    Ogre::Entity* ent = mData.sceneMngr->createEntity("zombieZ.mesh");
+    Ogre::SceneNode* node = mData.sceneMngr->getRootSceneNode()->createChildSceneNode();
+    node->attachObject(ent);
+    node->setPosition(pos);
+    Projectile* result = new Projectile(node, ent);
+    result->reset(pos);
+
+    return result;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 void
 MiniDemoApp::handlePlayerInput(float frameTime)
 {
@@ -95,23 +109,33 @@ MiniDemoApp::handlePlayerInput(float frameTime)
     // check if we need to reset the scene!
     if (mData.inputHelper->isKeyReleased(input::KeyCode::KC_SPACE)) {
         mSceneHandler.configureCurrentScene();
+        mProjectiles.clear();
     }
 
     // check if we fire something
     if (mData.inputHelper->isMouseReleased(input::MouseButtonID::MB_Left)) {
-        Ogre::Ray ray = mData.camera->getCameraToViewportRay(0.5f, 0.5f);
+        if (mProjectiles.size() == NUM_PROJECTILES) {
+            debugWARNING("We cannot throw any more projectiles!\n");
+            return;
+        }
+
         const Ogre::Vector3 halfSize(2.5,2.5,2.5);
         const Ogre::Vector3 camPos = mData.camera->getRealPosition();
         Ogre::AxisAlignedBox bb(camPos - halfSize, camPos + halfSize);
-        PhysicObject* po = new PhysicObject;
-        physics::BulletImporter::createBox(po->bulletObject(), bb, 10);
-        mSceneHandler.addPhysicObject(po);
+
+        // create the ragdoll we want to fire
+        std::shared_ptr<Projectile> projectile(buildPorjectile(camPos));
+        mProjectiles.push_back(projectile);
+//        PhysicObject* po = new PhysicObject;
+//        physics::BulletImporter::createBox(po->bulletObject(), bb, 10);
+//        mSceneHandler.addPhysicObject(po);
 
         Ogre::Vector3 force(mData.camera->getDerivedDirection());
         force.normalise();
         force *= 2700;
         btVector3 btForce(force.x, force.y, force.z);
-        po->bulletObject().rigidBody->applyCentralImpulse(btForce);
+//        po->bulletObject().rigidBody->applyCentralImpulse(btForce);
+        projectile->applyForce(force);
     }
 
 }
@@ -138,6 +162,8 @@ MiniDemoApp::setData(const DemoData& data)
     mData = data;
 
     PRECONDITION_CHECK;
+
+    Projectile::setDynamicWorld(&mDynamicWorld);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -216,6 +242,11 @@ MiniDemoApp::update(float timeFrame)
 
     // update the physics world
     mDynamicWorld.simulate(timeFrame);
+
+    // update all the projectiles
+    for (std::shared_ptr<Projectile>& p : mProjectiles) {
+        p->update(timeFrame);
+    }
 
     return true;
 }

@@ -226,7 +226,7 @@ SceneHandler::configureCurrentScene(void)
     // configure the player position
     const float distance = elementsBB.getSize().length();
     Ogre::Vector3 center = elementsBB.getCenter();
-    center.z = 10;
+    center.z = 40;
     mData.player->setPositions(center,
                                Ogre::Vector3(distance,distance,0));
 //    mPlayer.setRotationLimitsRadians(0, M_PI/2.f);

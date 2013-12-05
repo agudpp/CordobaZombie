@@ -63,6 +63,16 @@ public:
         // do nothing!
     }
 
+    // @brief update method used to update the logic of the element if needed
+    // @return true if we need to continue updating | false otherwise
+    //
+    virtual bool
+    update(float timeFrame)
+    {
+        // do nothing.
+        return false;
+    }
+
 private:
     Type mType;
     physics::BulletObject mBulletObject;

@@ -9,12 +9,17 @@
 #define MINIDEMOAPP_H_
 
 #include <string.h>
+#include <memory>
+#include <vector>
 
 #include <physics/DynamicWorld.h>
+#include <types/StackVector.h>
 
 #include "StatisticsInformer.h"
 #include "Player.h"
 #include "PhysicsHandler.h"
+#include "PhysicObject.h"
+#include "Projectile.h"
 #include "SceneHandler.h"
 
 
@@ -71,6 +76,7 @@ struct DemoData {
 
 class MiniDemoApp
 {
+    static const unsigned int NUM_PROJECTILES = 25;
 public:
     MiniDemoApp();
     ~MiniDemoApp();
@@ -113,9 +119,10 @@ private:
     // Helper internal methods, the name of the methods should be enough to
     // understand what it does.
     //
-
     void
     loadFloor(void);
+    Projectile*
+    buildPorjectile(const Ogre::Vector3& pos);
 
 private:
     DemoData mData;
@@ -124,6 +131,7 @@ private:
     Ogre::SceneNode* mFloorNode;
     SceneHandler mSceneHandler;
     PhysicsHandler mPhysicsHandler;
+    std::vector<std::shared_ptr<Projectile> > mProjectiles;
 };
 
 } /* namespace demo_app */

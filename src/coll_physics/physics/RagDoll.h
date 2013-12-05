@@ -312,10 +312,15 @@ private:
     };
 
     struct BoneChildOffset {
+        BonesID boneID;
         Ogre::Bone* bone;
         btVector3 offset;
 
-        BoneChildOffset(Ogre::Bone* b, const btVector3& o) : bone(b), offset(o){}
+        BoneChildOffset(Ogre::Bone* b, const btVector3& o, BonesID bID) :
+            bone(b)
+        ,   offset(o)
+        ,   boneID(bID)
+        {}
         BoneChildOffset() : bone(0) {};
     };
 

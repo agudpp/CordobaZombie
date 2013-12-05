@@ -388,7 +388,7 @@ ZombieBody::applyForce(const Ogre::Vector3& force, BodyPart bodyPart)
     ASSERT(mCurrentRagdoll);
     ASSERT(mCurrentRagdoll->getRigidBody(bodyPart));
 
-    mCurrentRagdoll->getRigidBody(bodyPart)->applyCentralForce(
+    mCurrentRagdoll->getRigidBody(bodyPart)->applyCentralImpulse(
         physics::BulletUtils::ogreToBullet(force));
 }
 

@@ -291,7 +291,8 @@ RagDoll::buildRagdollBoneInfo(const TempBoneInfoVec& boneInfo)
     // we will track the hand child
     bi->childJoints.push_back(mAdditionalOffsets.size());
     mAdditionalOffsets.push_back(BoneChildOffset(boneInfo[B_HAND_L].bone,
-        boneInfo[B_FORE_ARM_L].toLocal(boneInfo[B_HAND_L].worldPos) + bi->offset));
+        boneInfo[B_FORE_ARM_L].toLocal(boneInfo[B_HAND_L].worldPos) + bi->offset,
+        B_HAND_L));
 
     ////////////////////////////////////////////////////////////////////////////
     // construct the BP_FORE_ARM_R
@@ -315,7 +316,8 @@ RagDoll::buildRagdollBoneInfo(const TempBoneInfoVec& boneInfo)
     // we will track the hand child
     bi->childJoints.push_back(mAdditionalOffsets.size());
     mAdditionalOffsets.push_back(BoneChildOffset(boneInfo[B_HAND_R].bone,
-        boneInfo[B_FORE_ARM_R].toLocal(boneInfo[B_HAND_R].worldPos) + bi->offset));
+        boneInfo[B_FORE_ARM_R].toLocal(boneInfo[B_HAND_R].worldPos) + bi->offset,
+        B_HAND_R));
 
     ////////////////////////////////////////////////////////////////////////////
     // construct the BP_SPINE
@@ -340,13 +342,16 @@ RagDoll::buildRagdollBoneInfo(const TempBoneInfoVec& boneInfo)
     // B_NECK, B_CLAVICLE_R, B_CLAVICLE_L, B_PELVIS
     bi->childJoints.push_back(mAdditionalOffsets.size());
     mAdditionalOffsets.push_back(BoneChildOffset(boneInfo[B_NECK].bone ,
-        boneInfo[B_SPINE].toLocal(boneInfo[B_NECK].worldPos) + bi->offset));
+        boneInfo[B_SPINE].toLocal(boneInfo[B_NECK].worldPos) + bi->offset,
+        B_NECK));
     bi->childJoints.push_back(mAdditionalOffsets.size());
     mAdditionalOffsets.push_back(BoneChildOffset(boneInfo[B_CLAVICLE_R].bone ,
-        boneInfo[B_SPINE].toLocal(boneInfo[B_CLAVICLE_R].worldPos) + bi->offset));
+        boneInfo[B_SPINE].toLocal(boneInfo[B_CLAVICLE_R].worldPos) + bi->offset,
+        B_CLAVICLE_R));
     bi->childJoints.push_back(mAdditionalOffsets.size());
     mAdditionalOffsets.push_back(BoneChildOffset(boneInfo[B_CLAVICLE_L].bone ,
-        boneInfo[B_SPINE].toLocal(boneInfo[B_CLAVICLE_L].worldPos) + bi->offset));
+        boneInfo[B_SPINE].toLocal(boneInfo[B_CLAVICLE_L].worldPos) + bi->offset,
+        B_CLAVICLE_L));
 
     ////////////////////////////////////////////////////////////////////////////
     // construct the BP_PELVIS
@@ -425,7 +430,8 @@ RagDoll::buildRagdollBoneInfo(const TempBoneInfoVec& boneInfo)
     // track foot child bone
     bi->childJoints.push_back(mAdditionalOffsets.size());
     mAdditionalOffsets.push_back(BoneChildOffset(boneInfo[B_FOOT_L].bone,
-        boneInfo[B_CALF_L].toLocal(boneInfo[B_FOOT_L].worldPos) + bi->offset));
+        boneInfo[B_CALF_L].toLocal(boneInfo[B_FOOT_L].worldPos) + bi->offset,
+        B_FOOT_L));
 
     ////////////////////////////////////////////////////////////////////////////
     // construct the BP_LEG_R
@@ -449,7 +455,8 @@ RagDoll::buildRagdollBoneInfo(const TempBoneInfoVec& boneInfo)
     // track foot child bone
     bi->childJoints.push_back(mAdditionalOffsets.size());
     mAdditionalOffsets.push_back(BoneChildOffset(boneInfo[B_FOOT_R].bone,
-        boneInfo[B_CALF_R].toLocal(boneInfo[B_FOOT_R].worldPos) + bi->offset));
+        boneInfo[B_CALF_R].toLocal(boneInfo[B_FOOT_R].worldPos) + bi->offset,
+        B_FOOT_R));
 
 
     return true;
@@ -757,6 +764,16 @@ RagDoll::configureRagdoll(const BoneTable& bones,
         bi->motionState.dirty = true;
         configureRigidBody(*bi->rigidBody, bi->bone, parentNode, -bi->offset);
         bi->motionState.setWorldTransform(bi->rigidBody->getWorldTransform());
+
+        // set the child now
+        if (!bi->childJoints.empty()) {
+            for (unsigned short& i : bi->childJoints) {
+                ASSERT(i < mAdditionalOffsets.size());
+                BoneChildOffset& co = mAdditionalOffsets[i];
+                ASSERT(co.bone);
+                co.bone = bones[co.boneID];
+            }
+        }
     }
 
     // we will track the global position of the pelvis as reference to move the
@@ -809,7 +826,9 @@ RagDoll::setEnable(bool enable)
             mDynamicWorld->addConstraint(c, true);
         }
         for (BoneChildOffset& co : mAdditionalOffsets) {
-            co.bone->setManuallyControlled(true);
+            if (!co.bone->isManuallyControlled()) {
+                co.bone->setManuallyControlled(true);
+            }
         }
     } else {
         for (RagdollBoneInfo& bi : mRagdollBones) {
