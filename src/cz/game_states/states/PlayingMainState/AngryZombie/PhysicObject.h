@@ -58,7 +58,10 @@ public:
     // @brief Method called whenever some other physics object hits this one
     //
     virtual void
-    performCollision(CollisionInfo* collInfo) = 0;
+    performCollision(CollisionInfo* collInfo)
+    {
+        // do nothing!
+    }
 
 private:
     Type mType;

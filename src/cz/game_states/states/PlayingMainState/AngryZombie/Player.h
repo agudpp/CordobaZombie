@@ -8,9 +8,13 @@
 #ifndef PLAYER_H_
 #define PLAYER_H_
 
+#include <cmath>
+
 #include <OgreSceneManager.h>
 #include <OgreCamera.h>
 #include <OgreSceneNode.h>
+
+#include <debug/DebugUtil.h>
 
 namespace demo_app {
 
@@ -37,11 +41,15 @@ public:
     //
     inline void
     setRotationVelocityFactor(float rotVelFactor);
+    inline void
+    setRotationLimitsRadians(float min, float max);
 
     // @brief Rotate the camera over the 2 angles supported
     //
-    inline void
-    rotateCamera(const Ogre::Radian yaw, const Ogre::Radian pitch);
+    void
+    rotateCamera(const Ogre::Radian yaw,
+                 const Ogre::Radian pitch,
+                 const Ogre::Radian roll);
 
 private:
     Ogre::SceneManager* mSceneMngr;
@@ -50,7 +58,36 @@ private:
     Ogre::SceneNode* mCamYNode;
     Ogre::SceneNode* mZoomNode;
     float mRotVelFactor;
+    Ogre::Radian mRotLimits[2];
 };
+
+
+
+
+
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Inline stuff
+//
+
+
+inline void
+Player::setRotationVelocityFactor(float rotVelFactor)
+{
+    mRotVelFactor = rotVelFactor;
+}
+inline void
+Player::setRotationLimitsRadians(float min, float max)
+{
+    mRotLimits[0] = min;
+    mRotLimits[1] = max;
+}
+
+
 
 } /* namespace demo_app */
 #endif /* PLAYER_H_ */

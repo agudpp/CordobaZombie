@@ -13,6 +13,10 @@
 #include <physics/DynamicWorld.h>
 
 #include "StatisticsInformer.h"
+#include "Player.h"
+#include "PhysicsHandler.h"
+#include "SceneHandler.h"
+
 
 
 // Forward
@@ -103,10 +107,23 @@ private:
 
     // @brief Handle the camera / player.
     //
+    void
+    handlePlayerInput(float frameTime);
+
+    // Helper internal methods, the name of the methods should be enough to
+    // understand what it does.
+    //
+
+    void
+    loadFloor(void);
 
 private:
     DemoData mData;
+    Player mPlayer;
     physics::DynamicWorld mDynamicWorld;
+    Ogre::SceneNode* mFloorNode;
+    SceneHandler mSceneHandler;
+    PhysicsHandler mPhysicsHandler;
 };
 
 } /* namespace demo_app */

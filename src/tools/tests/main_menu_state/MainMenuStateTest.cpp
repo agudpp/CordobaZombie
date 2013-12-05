@@ -18,6 +18,7 @@
 #include <game_states/states/MenuMainState/helper/MainMenuHelper.h>
 #include <game_states/states/InfoMainState/InfoMainState.h>
 #include <game_states/states/PrePlayIntroMainState/PrePlayIntroMainState.h>
+#include <game_states/states/PlayingMainState/PlayingMainState.h>
 
 #include "MainMenuStateTest.h"
 
@@ -53,6 +54,8 @@ getKeyboardKeys(void)
     buttons.push_back(input::KeyCode::KC_U);
     buttons.push_back(input::KeyCode::KC_LEFT);
     buttons.push_back(input::KeyCode::KC_RIGHT);
+    buttons.push_back(input::KeyCode::KC_A);
+    buttons.push_back(input::KeyCode::KC_D);
 
     return buttons;
 }
@@ -115,6 +118,7 @@ MainMenuStateTest::MainMenuStateTest() :
 ,   mMainState(0)
 ,   mFrontEndManager(mInputHelper, mMouseCursor)
 ,   mOgreVideoPlayer(-1, 1, 1, -1, mSceneMgr, mWindow->getHeight(), mWindow->getWidth())
+,   mSoundHandler(mm::SoundHandler::getInstance())
 {
     cz::GlobalData::camera = mCamera;
     cz::GlobalData::sceneMngr = mSceneMgr;
@@ -127,12 +131,15 @@ MainMenuStateTest::MainMenuStateTest() :
 
     // Set state info
     cz::IMainState::setOgreData(ogreInfo);
+    mOgreVideoPlayer.setVisible(false);
     cz::IMainState::setVideoPlayer(&mOgreVideoPlayer);
+    cz::IMainState::setSoundHandler(&mSoundHandler);
 
     cz::CommonHandlers handlers;
     handlers.frontEndManager = &mFrontEndManager;
     handlers.inputHelper = &mInputHelper;
     handlers.effectHandler = &mEffectHandler;
+    handlers.mouseCursor = &mMouseCursor;
     cz::IMainState::setCommonHandlers(handlers);
 
     mMouseCursor.setCursor(ui::MouseCursor::Cursor::NORMAL_CURSOR);
@@ -158,7 +165,8 @@ MainMenuStateTest::MainMenuStateTest() :
     input::Keyboard::setKeyboard(mKeyboard);
     setUseDefaultInput(false);
 
-    mMainState = new cz::MenuMainState();
+    mMainState = new cz::PlayingMainState();
+//    mMainState = new cz::MenuMainState();
 //    mMainState = new cz::PrePlayIntroMainState();
 
     initializeState();
@@ -277,6 +285,8 @@ MainMenuStateTest::update()
     if (mOgreVideoPlayer.isPlaying() && mOgreVideoPlayer.isVisible()) {
         mOgreVideoPlayer.update(cz::GlobalData::lastTimeFrame);
     }
+
+    mSoundHandler.update(cz::GlobalData::lastTimeFrame);
 }
 
 }

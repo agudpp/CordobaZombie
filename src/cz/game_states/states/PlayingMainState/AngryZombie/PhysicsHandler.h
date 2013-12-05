@@ -22,7 +22,7 @@ class PhysicsHandler
 public:
     static const unsigned int MAX_ELEMENTS = 1024;
 
-    typedef core::StackVector<PhysicObject, MAX_ELEMENTS> PhysicObjectVec;
+    typedef core::StackVector<PhysicObject*, MAX_ELEMENTS> PhysicObjectVec;
 public:
     PhysicsHandler();
     ~PhysicsHandler();
@@ -52,6 +52,8 @@ public:
 private:
     PhysicObjectVec mObjects;
 };
+
+
 
 } /* namespace demo_app */
 #endif /* PHYSICSHANDLER_H_ */

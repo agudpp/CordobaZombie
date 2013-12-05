@@ -7,17 +7,34 @@
 
 #include "StatisticsInformer.h"
 
+#include <debug/DebugUtil.h>
+
 namespace demo_app {
 
+
+////////////////////////////////////////////////////////////////////////////////
 StatisticsInformer::StatisticsInformer()
 {
-    // TODO Auto-generated constructor stub
+
+}
+////////////////////////////////////////////////////////////////////////////////
+StatisticsInformer::~StatisticsInformer()
+{
 
 }
 
-StatisticsInformer::~StatisticsInformer()
+////////////////////////////////////////////////////////////////////////////////
+void
+StatisticsInformer::reset(void)
 {
-    // TODO Auto-generated destructor stub
+    debugERROR("TODO\n");
+}
+
+////////////////////////////////////////////////////////////////////////////////
+bool
+StatisticsInformer::dumpInform(const std::string& filename)
+{
+    debugERROR("TODO\n");
 }
 
 } /* namespace demo_app */
