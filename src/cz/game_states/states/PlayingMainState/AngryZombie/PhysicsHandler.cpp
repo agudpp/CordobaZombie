@@ -40,10 +40,17 @@ PhysicsHandler::build(void)
 
 ////////////////////////////////////////////////////////////////////////////////
 void
-PhysicsHandler::performCollisions(void)
+PhysicsHandler::performCollisions(float timeFrame)
 {
-    ASSERT(false && "TODO");
-    // TODO
+    // we will iterate over all the elements and will update them and remove
+    // all the elements that have nothing to do
+    for (unsigned int i = 0; i < mObjects.size(); ++i) {
+        if (!mObjects[i]->update(timeFrame)) {
+            //remove this one
+            mObjects.disorder_remove(i);
+            --i;
+        }
+    }
 }
 
 } /* namespace demo_app */

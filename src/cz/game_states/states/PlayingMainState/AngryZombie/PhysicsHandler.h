@@ -20,7 +20,7 @@ namespace demo_app {
 class PhysicsHandler
 {
 public:
-    static const unsigned int MAX_ELEMENTS = 1024;
+    static const unsigned int MAX_ELEMENTS = 4096;
 
     typedef core::StackVector<PhysicObject*, MAX_ELEMENTS> PhysicObjectVec;
 public:
@@ -47,7 +47,7 @@ public:
     //        of objects that collide of physicObjects).
     //
     void
-    performCollisions(void);
+    performCollisions(float timeFrame);
 
 private:
     PhysicObjectVec mObjects;

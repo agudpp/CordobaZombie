@@ -21,6 +21,7 @@
 #include "PhysicObject.h"
 #include "Projectile.h"
 #include "SceneHandler.h"
+#include "GameLogicData.h"
 
 
 
@@ -125,13 +126,15 @@ private:
     buildPorjectile(const Ogre::Vector3& pos);
 
 private:
+    physics::DynamicWorld mDynamicWorld;
     DemoData mData;
     Player mPlayer;
-    physics::DynamicWorld mDynamicWorld;
-    Ogre::SceneNode* mFloorNode;
-    SceneHandler mSceneHandler;
     PhysicsHandler mPhysicsHandler;
+    SceneHandler mSceneHandler;
+    Ogre::SceneNode* mFloorNode;
     std::vector<std::shared_ptr<Projectile> > mProjectiles;
+    StatisticsInformer::Data mInformerData;
+    GameLogicData mGameLogicData;
 };
 
 } /* namespace demo_app */

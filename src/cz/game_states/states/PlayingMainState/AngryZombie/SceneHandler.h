@@ -43,6 +43,13 @@ public:
             memset(this, 0, sizeof(*this));
         }
     };
+
+    enum SceneType {
+        SIMPLE = 0,
+        NORMAL,
+        COMPLEX,
+    };
+
 public:
     SceneHandler();
     ~SceneHandler();
@@ -51,12 +58,6 @@ public:
     //
     void
     setData(const Data& data);
-
-    // @brief Parse the scenes information.
-    // @param scenes        File path to the scenes information
-    //
-    bool
-    parseSceneInformation(const std::string& scenes);
 
     // @brief Configure / reset the current scene.
     //
@@ -69,11 +70,16 @@ public:
     void
     addPhysicObject(PhysicObject* po);
 
-    // @brief Go to next scene. This method will not configure the scene.
+    // @brief Set the scene we want to use
     // @return true if we could go to next scene or not
     //
     bool
-    goToNextScene(void);
+    setSceneType(SceneType);
+
+    // @brief Return the number of objects that this scene is currently handling
+    //
+    unsigned int
+    getObjectsCount(void) const;
 
 private:
     // avoid copying
@@ -189,6 +195,7 @@ private:
     Data mData;
     PhysicObjectHolder mHolder;
     PhysicsHandler mPhysicsHandler;
+    SceneType mCurrentSceneType;
 };
 
 } /* namespace demo_app */

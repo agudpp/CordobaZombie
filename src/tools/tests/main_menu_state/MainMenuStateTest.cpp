@@ -56,6 +56,9 @@ getKeyboardKeys(void)
     buttons.push_back(input::KeyCode::KC_RIGHT);
     buttons.push_back(input::KeyCode::KC_A);
     buttons.push_back(input::KeyCode::KC_D);
+    buttons.push_back(input::KeyCode::KC_1);
+    buttons.push_back(input::KeyCode::KC_2);
+    buttons.push_back(input::KeyCode::KC_3);
 
     return buttons;
 }

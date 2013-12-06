@@ -8,6 +8,8 @@
 #ifndef STATISTICSINFORMER_H_
 #define STATISTICSINFORMER_H_
 
+#include <string.h>
+
 #include <string>
 
 namespace demo_app {
@@ -15,8 +17,21 @@ namespace demo_app {
 class StatisticsInformer
 {
 public:
+
+    struct Data {
+        unsigned int numRagdolls;
+        unsigned int totalPhysicsObjects;
+
+        Data() {reset();}
+
+        void reset(void)
+        {
+            memset(this, 0, sizeof(*this));
+        }
+    };
+
+public:
     StatisticsInformer();
-    virtual
     ~StatisticsInformer();
 
     // @brief Clear / reset the data.
@@ -31,6 +46,11 @@ public:
     //
     bool
     dumpInform(const std::string& filename);
+
+    // @brief Call this method each frame with the associated data
+    //
+    void
+    update(float frameTime, const Data& data);
 };
 
 } /* namespace demo_app */

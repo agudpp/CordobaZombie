@@ -148,13 +148,17 @@ SceneHandler::buildWorldPhysicsLimits(const Ogre::AxisAlignedBox& bb)
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
-SceneHandler::SceneHandler()
+SceneHandler::SceneHandler() :
+    mCurrentSceneType(SceneType::SIMPLE)
 {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 SceneHandler::~SceneHandler()
 {
+    // this will reset all the current information
+    mHolder.clearAll();
+    mPhysicsHandler.clear();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -166,16 +170,6 @@ SceneHandler::setData(const Data& data)
 
     // configure the holder
     mHolder.dynamicWorld = mData.dynamicWorld;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-bool
-SceneHandler::parseSceneInformation(const std::string& scenes)
-{
-    CHECK_PRECONDITION;
-
-    // nothing to do right now
-    return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -198,13 +192,30 @@ SceneHandler::configureCurrentScene(void)
     buildWorldPhysicsLimits(worldLimits);
 
     Ogre::AxisAlignedBox elementsBB(Ogre::Vector3::ZERO, Ogre::Vector3::ZERO);
-    // we will construct all the boxes
+    // we will construct all the boxes and we will build different number of
+    // boxes depending on the scene type
+    unsigned int numBoxesX = 0, numBoxesY = 0;
+    switch(mCurrentSceneType) {
+    case SceneType::SIMPLE:
+        numBoxesX = 20;
+        numBoxesY = 10;
+        break;
+    case SceneType::NORMAL:
+        numBoxesX = 20;
+        numBoxesY = 25;
+        break;
+    case SceneType::COMPLEX:
+        numBoxesX = 40;
+        numBoxesY = 40;
+        break;
+    }
+
     Ogre::Vector3 size(20,20,20);
     float currentZ = 10;
-    for (unsigned int i = 0; i < 20; ++i) {
-        for (unsigned int j = 0; j < 20; ++j) {
+    for (unsigned int i = 0; i < numBoxesX; ++i) {
+        for (unsigned int j = 0; j < numBoxesY; ++j) {
             Ogre::Vector3 min(j*size.x+2,0,currentZ);
-            Ogre::Vector3 max((j+1)*size.x,10,currentZ + size.z);
+            Ogre::Vector3 max((j+1)*size.x,size.y,currentZ + size.z);
 
             PhysicObject* po = new PhysicObject;;
             physics::BulletObject& bo = po->bulletObject();
@@ -246,11 +257,17 @@ SceneHandler::addPhysicObject(PhysicObject* po)
 
 ///////////////////////////////////////////////////////////////////////////////
 bool
-SceneHandler::goToNextScene(void)
+SceneHandler::setSceneType(SceneType t)
 {
     CHECK_PRECONDITION;
-    ASSERT(false && "TODO");
+    mCurrentSceneType = t;
     return true;
+}
+///////////////////////////////////////////////////////////////////////////////
+unsigned int
+SceneHandler::getObjectsCount(void) const
+{
+    return mData.physicsHandler->physicObjectsVec().size();
 }
 
 

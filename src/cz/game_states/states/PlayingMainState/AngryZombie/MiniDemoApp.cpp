@@ -107,35 +107,55 @@ MiniDemoApp::handlePlayerInput(float frameTime)
                          Ogre::Radian(lMouseX * factor));
 
     // check if we need to reset the scene!
-    if (mData.inputHelper->isKeyReleased(input::KeyCode::KC_SPACE)) {
-        mSceneHandler.configureCurrentScene();
+    bool resetScene = false;
+    if (mData.inputHelper->isKeyReleased(input::KeyCode::KC_1)) {
+        // simple scene
+        mSceneHandler.setSceneType(SceneHandler::SceneType::SIMPLE);
+        resetScene = true;
+    } else if (mData.inputHelper->isKeyReleased(input::KeyCode::KC_2)) {
+        // simple scene
+        mSceneHandler.setSceneType(SceneHandler::SceneType::NORMAL);
+        resetScene = true;
+    } else if (mData.inputHelper->isKeyReleased(input::KeyCode::KC_3)) {
+        // simple scene
+        mSceneHandler.setSceneType(SceneHandler::SceneType::COMPLEX);
+        resetScene = true;
+    }
+    if (resetScene) {
         mProjectiles.clear();
+        mSceneHandler.configureCurrentScene();
+        mInformerData.reset();
     }
 
     // check if we fire something
     if (mData.inputHelper->isMouseReleased(input::MouseButtonID::MB_Left)) {
-        if (mProjectiles.size() == NUM_PROJECTILES) {
-            debugWARNING("We cannot throw any more projectiles!\n");
-            return;
-        }
-
-        const Ogre::Vector3 halfSize(2.5,2.5,2.5);
+        // get the basic information of the camera and everything else
         const Ogre::Vector3 camPos = mData.camera->getRealPosition();
-        Ogre::AxisAlignedBox bb(camPos - halfSize, camPos + halfSize);
-
-        // create the ragdoll we want to fire
-        std::shared_ptr<Projectile> projectile(buildPorjectile(camPos));
-        mProjectiles.push_back(projectile);
-//        PhysicObject* po = new PhysicObject;
-//        physics::BulletImporter::createBox(po->bulletObject(), bb, 10);
-//        mSceneHandler.addPhysicObject(po);
-
         Ogre::Vector3 force(mData.camera->getDerivedDirection());
         force.normalise();
-        force *= 2700;
-        btVector3 btForce(force.x, force.y, force.z);
-//        po->bulletObject().rigidBody->applyCentralImpulse(btForce);
-        projectile->applyForce(force);
+
+        // check what we have to fire a box or a ragdoll (cheat)
+        if (mData.inputHelper->isMousePressed(input::MouseButtonID::MB_Right)) {
+            // RAGDOLL!
+            if (mProjectiles.size() == NUM_PROJECTILES) {
+                debugWARNING("We cannot throw any more projectiles!\n");
+                return;
+            }
+            std::shared_ptr<Projectile> projectile(buildPorjectile(camPos));
+            mProjectiles.push_back(projectile);
+            force *= 4700;
+            projectile->applyForce(force);
+        } else {
+            // we have to fire a box
+            const Ogre::Vector3 halfSize(2.5,2.5,2.5);
+            Ogre::AxisAlignedBox bb(camPos - halfSize, camPos + halfSize);
+            PhysicObject* po = new PhysicObject;
+            physics::BulletImporter::createBox(po->bulletObject(), bb, 10);
+            mSceneHandler.addPhysicObject(po);
+            force *= 2700;
+            btVector3 btForce(force.x, force.y, force.z);
+            po->bulletObject().rigidBody->applyCentralImpulse(btForce);
+        }
     }
 
 }
@@ -247,6 +267,16 @@ MiniDemoApp::update(float timeFrame)
     for (std::shared_ptr<Projectile>& p : mProjectiles) {
         p->update(timeFrame);
     }
+
+    // update all the elements
+    mPhysicsHandler.performCollisions(timeFrame);
+
+    // configure the statistics informer data
+    mInformerData.numRagdolls = mProjectiles.size();
+    mInformerData.totalPhysicsObjects = mInformerData.numRagdolls +
+        mSceneHandler.getObjectsCount();
+    mData.informer->update(timeFrame, mInformerData);
+
 
     return true;
 }

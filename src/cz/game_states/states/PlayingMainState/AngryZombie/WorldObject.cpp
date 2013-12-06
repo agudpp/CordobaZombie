@@ -7,17 +7,43 @@
 
 #include "WorldObject.h"
 
+#include <debug/DebugUtil.h>
+#include <physics/BulletObject.h>
+
 namespace demo_app {
 
-WorldObject::WorldObject()
-{
-    // TODO Auto-generated constructor stub
+GameLogicData* WorldObject::sGameLogicData = 0;
 
+
+WorldObject::WorldObject(float maxSide, bool isGood) :
+    mMaxSize(maxSide)
+,   mIsGood(isGood)
+{
+    ASSERT(sGameLogicData);
 }
 
 WorldObject::~WorldObject()
 {
-    // TODO Auto-generated destructor stub
+}
+
+bool
+WorldObject::update(float timeFrame)
+{
+    // check if we are in the floor
+    physics::BulletObject& bo = bulletObject();
+    const float z = bo.motionState.node()->getPosition().z;
+    if (z < mMaxSize) {
+        // we finish here, increment the counter
+        if (mIsGood) {
+            (sGameLogicData->goodBoxes)++;
+        } else {
+            (sGameLogicData->badBoxes)++;
+        }
+
+        return false;
+    }
+
+    return true;
 }
 
 } /* namespace demo_app */
