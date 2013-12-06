@@ -26,7 +26,7 @@ public:
     //        floor (incrementing the variable in one).
     //
     static void
-    setFloorCounter(GameLogicData* data) {sGameLogicData = data;}
+    setGameLogicData(GameLogicData* data) {sGameLogicData = data;}
 
     // @brief Method called whenever some other physics object hits this one
     //

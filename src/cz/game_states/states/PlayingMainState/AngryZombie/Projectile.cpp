@@ -63,9 +63,9 @@ void
 Projectile::reset(const Ogre::Vector3& pos)
 {
     mBody.resetBody();
-    mBody.setRagdollEnable(true);
     ASSERT(mBody.sceneNode());
     mBody.sceneNode()->setPosition(pos);
+    mBody.setRagdollEnable(true);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

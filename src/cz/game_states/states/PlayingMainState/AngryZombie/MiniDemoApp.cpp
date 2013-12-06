@@ -7,12 +7,16 @@
 
 #include "MiniDemoApp.h"
 
+#include <string.h>
+
 #include <OgreResourceGroupManager.h>
 #include <OgreMeshManager.h>
 #include <OgrePlane.h>
 #include <OgreEntity.h>
 #include <OgreSceneManager.h>
 #include <OgreSceneNode.h>
+#include <OgreOverlayManager.h>
+#include <OgreStringConverter.h>
 
 #include <debug/DebugUtil.h>
 #include <debug/PrimitiveDrawer.h>
@@ -20,6 +24,8 @@
 #include <input/InputKeyboard.h>
 #include <ResourceHandler.h>
 #include <physics/BulletImporter.h>
+
+#include "WorldObject.h"
 
 
 
@@ -38,7 +44,101 @@
 
 namespace demo_app {
 
+////////////////////////////////////////////////////////////////////////////////
+// Internal HUD
+//
+MiniDemoApp::HUD::HUD() :
+    mOverlay(0)
+{
+    memset(mTextAreas, 0, sizeof(Ogre::TextAreaOverlayElement*) * T_COUNT);
+}
+MiniDemoApp::HUD::~HUD()
+{
+    destroy();
+}
 
+bool
+MiniDemoApp::HUD::build(void)
+{
+    // get the overlay
+    mOverlay = Ogre::OverlayManager::getSingleton().getByName("MiniDemoHUD");
+    if (!mOverlay) {
+        debugERROR("Overlay MiniDemoHUD not found\n");
+        return false;
+    }
+    mOverlay->show();
+
+    // get the text areas
+    mTextAreas[Texts::TOTAL_GOOD] = reinterpret_cast<Ogre::TextAreaOverlayElement*>(
+        mOverlay->getChild("MiniDemoHUD/TotalGood"));
+    if (!mTextAreas[Texts::TOTAL_GOOD]) {
+        debugERROR("Text area MiniDemoHUD/TotalGood not found\n");
+        return false;
+    }
+    mTextAreas[Texts::TOTAL_BAD] = reinterpret_cast<Ogre::TextAreaOverlayElement*>(
+        mOverlay->getChild("MiniDemoHUD/TotalBad"));
+    if (!mTextAreas[Texts::TOTAL_BAD]) {
+        debugERROR("Text area MiniDemoHUD/TotalBad not found\n");
+        return false;
+    }
+    mTextAreas[Texts::GOOD] = reinterpret_cast<Ogre::TextAreaOverlayElement*>(
+        mOverlay->getChild("MiniDemoHUD/Good"));
+    if (!mTextAreas[Texts::GOOD]) {
+        debugERROR("Text area MiniDemoHUD/Good not found\n");
+        return false;
+    }
+    mTextAreas[Texts::BAD] = reinterpret_cast<Ogre::TextAreaOverlayElement*>(
+        mOverlay->getChild("MiniDemoHUD/Bad"));
+    if (!mTextAreas[Texts::BAD]) {
+        debugERROR("Text area MiniDemoHUD/Bad not found\n");
+        return false;
+    }
+
+    // everything perfect
+    return true;
+}
+void
+MiniDemoApp::HUD::destroy(void)
+{
+    if (mOverlay == 0) {
+        return;
+    }
+    Ogre::OverlayManager::getSingleton().destroy(mOverlay);
+    mOverlay = 0;
+    memset(mTextAreas, 0, sizeof(Ogre::TextAreaOverlayElement*) * T_COUNT);
+}
+void
+MiniDemoApp::HUD::setVisible(bool visible)
+{
+    ASSERT(mOverlay);
+    if (visible) {
+        mOverlay->show();
+    } else {
+        mOverlay->hide();
+    }
+}
+void
+MiniDemoApp::HUD::setData(const GameLogicData& data)
+{
+    ASSERT(mOverlay);
+    // set the data
+    mTextAreas[Texts::TOTAL_GOOD]->setCaption(
+        Ogre::StringConverter::toString(data.totalGoodBoxes));
+
+    mTextAreas[Texts::TOTAL_BAD]->setCaption(
+        Ogre::StringConverter::toString(data.totalBadBoxes));
+
+    mTextAreas[Texts::GOOD]->setCaption(
+        Ogre::StringConverter::toString(data.goodBoxes));
+
+    mTextAreas[Texts::BAD]->setCaption(
+        Ogre::StringConverter::toString(data.badBoxes));
+
+}
+
+
+
+////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 void
 MiniDemoApp::loadFloor(void)
@@ -122,9 +222,7 @@ MiniDemoApp::handlePlayerInput(float frameTime)
         resetScene = true;
     }
     if (resetScene) {
-        mProjectiles.clear();
-        mSceneHandler.configureCurrentScene();
-        mInformerData.reset();
+        resetCurrentScene();
     }
 
     // check if we fire something
@@ -143,7 +241,7 @@ MiniDemoApp::handlePlayerInput(float frameTime)
             }
             std::shared_ptr<Projectile> projectile(buildPorjectile(camPos));
             mProjectiles.push_back(projectile);
-            force *= 4700;
+            force *= 8700;
             projectile->applyForce(force);
         } else {
             // we have to fire a box
@@ -152,7 +250,7 @@ MiniDemoApp::handlePlayerInput(float frameTime)
             PhysicObject* po = new PhysicObject;
             physics::BulletImporter::createBox(po->bulletObject(), bb, 10);
             mSceneHandler.addPhysicObject(po);
-            force *= 2700;
+            force *= 4700;
             btVector3 btForce(force.x, force.y, force.z);
             po->bulletObject().rigidBody->applyCentralImpulse(btForce);
         }
@@ -161,9 +259,106 @@ MiniDemoApp::handlePlayerInput(float frameTime)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+void
+MiniDemoApp::runningState(void)
+{
+    // update the input
+    handlePlayerInput(mTimeFrame);
+
+    // update the physics world
+    mDynamicWorld.simulate(mTimeFrame);
+
+    // update all the projectiles
+    for (unsigned int i = 0; i < mProjectiles.size(); ++i) {
+        std::shared_ptr<Projectile>& p = mProjectiles[i];
+        p->update(mTimeFrame);
+//        if (!p->update(mTimeFrame)) {
+//            // remove this
+//            p = mProjectiles.back();
+//            mProjectiles.pop_back();
+//            --i;
+//        }
+    }
+
+    // update all the elements
+    mPhysicsHandler.performCollisions(mTimeFrame);
+
+    // configure the statistics informer data
+    mInformerData.numRagdolls = mProjectiles.size();
+    mInformerData.totalPhysicsObjects = mInformerData.numRagdolls +
+        mSceneHandler.getObjectsCount();
+    mData.informer->update(mTimeFrame, mInformerData);
+
+    if (mGameLogicData != mGameLogicDataInternal) {
+        mGameLogicDataInternal = mGameLogicData;
+
+        // check if we win | loose
+        if (mGameLogicData.loose()) {
+            // we loose
+            debugRED("GAME OVER!\n");
+            resetCurrentScene();
+        } else if (mGameLogicData.win()) {
+            // we win
+            debugGREEN("WE WINNN!!!\n");
+            resetCurrentScene();
+        }
+
+        mHud.setData(mGameLogicData);
+    }
+
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void
+MiniDemoApp::pauseState(void)
+{
+    // now we have to check if we will continue or we will go out
+    if (mData.inputHelper->isKeyReleased(input::KeyCode::KC_ESCAPE)) {
+        mRunning = false;
+        if (mPauseOverlay) {
+            mPauseOverlay->hide();
+        }
+        return;
+    }
+    // if we press the click we will continue
+    if (mData.inputHelper->isMouseReleased(input::MouseButtonID::MB_Left)) {
+        if (mPauseOverlay) {
+            mPauseOverlay->hide();
+        }
+        mInternalState = State::RUNNING;
+        return;
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void
+MiniDemoApp::finishingState(void)
+{
+
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void
+MiniDemoApp::resetCurrentScene(void)
+{
+    mProjectiles.clear();
+    mSceneHandler.configureCurrentScene();
+    mInformerData.reset();
+    mGameLogicData.reset();
+    mHud.setData(mGameLogicData);
+
+    mGameLogicData.totalBadBoxes = mSceneHandler.badBoxesCount();
+    mGameLogicData.totalGoodBoxes = mSceneHandler.goodBoxesCount();
+}
+
+////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 MiniDemoApp::MiniDemoApp() :
-    mFloorNode(0)
+    mDynamicWorld(btVector3(0,0,-50))
+,   mFloorNode(0)
+,   mInternalState(RUNNING)
+,   mRunning(true)
+,   mPauseOverlay(0)
 {
 
 }
@@ -184,6 +379,7 @@ MiniDemoApp::setData(const DemoData& data)
     PRECONDITION_CHECK;
 
     Projectile::setDynamicWorld(&mDynamicWorld);
+    WorldObject::setGameLogicData(&mGameLogicData);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -232,8 +428,22 @@ MiniDemoApp::load(void)
     // reset the informer
     mData.informer->reset();
 
+    // configure / load the hud
+    if (!mHud.build()) {
+        return false;
+    }
+
+    // load the pause overlay
+    mPauseOverlay = Ogre::OverlayManager::getSingleton().getByName("MiniDemoPause");
+    if (mPauseOverlay == 0) {
+        debugERROR("We couldn't load the overlay MiniDemoPause\n");
+        return false;
+    }
+
     // build the scene
-    mSceneHandler.configureCurrentScene();
+    resetCurrentScene();
+
+    mRunning = true;
 
     return true;
 }
@@ -250,6 +460,13 @@ MiniDemoApp::unload(void)
         mFloorNode = 0;
     }
 
+    mHud.destroy();
+
+    // destroy pause overlay
+    if (mPauseOverlay) {
+        Ogre::OverlayManager::getSingleton().destroy(mPauseOverlay);
+    }
+
     return true;
 }
 
@@ -257,28 +474,33 @@ MiniDemoApp::unload(void)
 bool
 MiniDemoApp::update(float timeFrame)
 {
-    // update the input
-    handlePlayerInput(timeFrame);
+    mTimeFrame = timeFrame;
 
-    // update the physics world
-    mDynamicWorld.simulate(timeFrame);
-
-    // update all the projectiles
-    for (std::shared_ptr<Projectile>& p : mProjectiles) {
-        p->update(timeFrame);
+    switch (mInternalState) {
+        case State::RUNNING:
+            runningState();
+            break;
+        case State::PAUSE:
+            pauseState();
+            break;
+        case State::FINISH_CURRENT_GAME:
+            finishingState();
+            break;
+        default:
+            debugERROR("Invalid state? %d\n", mInternalState);
+            return false;
     }
 
-    // update all the elements
-    mPhysicsHandler.performCollisions(timeFrame);
 
-    // configure the statistics informer data
-    mInformerData.numRagdolls = mProjectiles.size();
-    mInformerData.totalPhysicsObjects = mInformerData.numRagdolls +
-        mSceneHandler.getObjectsCount();
-    mData.informer->update(timeFrame, mInformerData);
+    // check if escaped was pressed
+    if (mData.inputHelper->isKeyReleased(input::KeyCode::KC_ESCAPE)) {
+        mInternalState = State::PAUSE;
+        if (mPauseOverlay) {
+            mPauseOverlay->show();
+        }
+    }
 
-
-    return true;
+    return mRunning;
 }
 
 } /* namespace demo_app */

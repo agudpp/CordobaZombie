@@ -8,7 +8,7 @@ set(HDRS ${HDRS}
     ${DEV_ROOT_PATH}/cz/game_states/states/PlayingMainState/AngryZombie/Projectile.h
     ${DEV_ROOT_PATH}/cz/game_states/states/PlayingMainState/AngryZombie/SceneHandler.h
     ${DEV_ROOT_PATH}/cz/game_states/states/PlayingMainState/AngryZombie/StatisticsInformer.h
-#   ${DEV_ROOT_PATH}/cz/game_states/states/PlayingMainState/AngryZombie/WorldObject.h
+    ${DEV_ROOT_PATH}/cz/game_states/states/PlayingMainState/AngryZombie/WorldObject.h
 )
 
 set(SRCS ${SRCS}
@@ -19,7 +19,7 @@ set(SRCS ${SRCS}
     ${DEV_ROOT_PATH}/cz/game_states/states/PlayingMainState/AngryZombie/Projectile.cpp
     ${DEV_ROOT_PATH}/cz/game_states/states/PlayingMainState/AngryZombie/SceneHandler.cpp
     ${DEV_ROOT_PATH}/cz/game_states/states/PlayingMainState/AngryZombie/StatisticsInformer.cpp
-#   ${DEV_ROOT_PATH}/cz/game_states/states/PlayingMainState/AngryZombie/WorldObject.cpp
+    ${DEV_ROOT_PATH}/cz/game_states/states/PlayingMainState/AngryZombie/WorldObject.cpp
 )
 
 include(${DEV_ROOT_PATH}/core/xml/AutoGen.cmake)

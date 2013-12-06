@@ -817,18 +817,23 @@ RagDoll::setEnable(bool enable)
             bi.rigidBody->clearForces();
             bi.rigidBody->setAngularVelocity(btVector3(0,0,0));
             bi.rigidBody->setLinearVelocity(btVector3(0,0,0));
+            if (!bi.rigidBody->isActive()) {
+                bi.rigidBody->activate(true);
+            }
             mDynamicWorld->addRigidBody(bi.rigidBody,
                                         COLLISION_MASK_ID,
                                         COLLISION_AGAINST_MASK_ID);
+            // clear the cache
+
             bi.bone->setManuallyControlled(true);
         }
         for (btTypedConstraint* c : mConstraints) {
+            c->setEnabled(true);
             mDynamicWorld->addConstraint(c, true);
+
         }
         for (BoneChildOffset& co : mAdditionalOffsets) {
-            if (!co.bone->isManuallyControlled()) {
-                co.bone->setManuallyControlled(true);
-            }
+            co.bone->setManuallyControlled(true);
         }
     } else {
         for (RagdollBoneInfo& bi : mRagdollBones) {
@@ -849,8 +854,13 @@ RagDoll::setEnable(bool enable)
 void
 RagDoll::clear(void)
 {
-    // remove all the constraints and all the rigid bodies from the world
-    ASSERT(mDynamicWorld);
+    // remove all the constraints and all the rigid bodies from the world if
+    // we have world
+    if (mDynamicWorld == 0) {
+        ASSERT(mConstraints.empty());
+        ASSERT(mRagdollBones.empty());
+        return;
+    }
 
     for (btTypedConstraint* c: mConstraints) {
         mDynamicWorld->removeConstraint(c);

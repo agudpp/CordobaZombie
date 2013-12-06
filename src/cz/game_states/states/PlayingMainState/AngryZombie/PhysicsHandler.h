@@ -50,6 +50,10 @@ public:
     performCollisions(float timeFrame);
 
 private:
+    PhysicsHandler(const PhysicsHandler&);
+    PhysicsHandler& operator=(const PhysicsHandler&);
+
+private:
     PhysicObjectVec mObjects;
 };
 

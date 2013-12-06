@@ -32,12 +32,12 @@ WorldObject::update(float timeFrame)
     // check if we are in the floor
     physics::BulletObject& bo = bulletObject();
     const float z = bo.motionState.node()->getPosition().z;
-    if (z < mMaxSize) {
+    if (z != 0.f && z < mMaxSize) {
         // we finish here, increment the counter
         if (mIsGood) {
-            (sGameLogicData->goodBoxes)++;
+            sGameLogicData->goodBoxes += 1;
         } else {
-            (sGameLogicData->badBoxes)++;
+            sGameLogicData->badBoxes += 1;
         }
 
         return false;

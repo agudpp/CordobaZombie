@@ -269,7 +269,7 @@ MainMenuStateTest::update()
 
     int err = mMainState->update(cz::GlobalData::lastTimeFrame);
 
-    if (!err || mInputHelper.isKeyPressed(input::KeyCode::KC_ESCAPE)) {
+    if (!err/* || mInputHelper.isKeyPressed(input::KeyCode::KC_ESCAPE)*/) {
         // we have to exit
         mStopRunning = true;
 

@@ -81,6 +81,13 @@ public:
     unsigned int
     getObjectsCount(void) const;
 
+    // @brief Get the number of good and bad boxes of the current scene
+    //
+    inline unsigned int
+    goodBoxesCount(void) const;
+    inline unsigned int
+    badBoxesCount(void) const;
+
 private:
     // avoid copying
     SceneHandler(const SceneHandler&);
@@ -191,12 +198,41 @@ private:
     void
     buildWorldPhysicsLimits(const Ogre::AxisAlignedBox& bb);
 
+    // @brief Construct world objects depending on the current scene type
+    //
+    void
+    buildStaticWorldObjects(float boxWidth, float space, unsigned int count, float &tarimaZ);
+
 private:
     Data mData;
     PhysicObjectHolder mHolder;
-    PhysicsHandler mPhysicsHandler;
     SceneType mCurrentSceneType;
+    unsigned int mBadBoxes;
+    unsigned int mGoodBoxes;
 };
+
+
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Inline
+//
+
+inline unsigned int
+SceneHandler::goodBoxesCount(void) const
+{
+    return mGoodBoxes;
+}
+inline unsigned int
+SceneHandler::badBoxesCount(void) const
+{
+    return mBadBoxes;
+}
+
+
 
 } /* namespace demo_app */
 #endif /* SCENEHANDLER_H_ */

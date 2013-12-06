@@ -12,6 +12,11 @@
 #include <memory>
 #include <vector>
 
+#include <OgreOverlay.h>
+#include <OgreOverlayContainer.h>
+#include <OgrePanelOverlayElement.h>
+#include <OgreTextAreaOverlayElement.h>
+
 #include <physics/DynamicWorld.h>
 #include <types/StackVector.h>
 
@@ -78,6 +83,38 @@ struct DemoData {
 class MiniDemoApp
 {
     static const unsigned int NUM_PROJECTILES = 25;
+
+    enum State {
+        RUNNING = 0,
+        PAUSE,
+        FINISH_CURRENT_GAME,
+    };
+
+    // Internal class HUD helper
+    //
+    class HUD {
+    public:
+        HUD();
+        ~HUD();
+
+        bool build(void);
+        void destroy(void);
+        void setVisible(bool visible);
+        void setData(const GameLogicData& data);
+    private:
+        enum Texts {
+            TOTAL_GOOD = 0,
+            TOTAL_BAD,
+            GOOD,
+            BAD,
+
+            T_COUNT,
+        };
+
+        Ogre::Overlay* mOverlay;
+        Ogre::TextAreaOverlayElement* mTextAreas[T_COUNT];
+    };
+
 public:
     MiniDemoApp();
     ~MiniDemoApp();
@@ -125,6 +162,22 @@ private:
     Projectile*
     buildPorjectile(const Ogre::Vector3& pos);
 
+
+    // Executing each state
+    //
+    void
+    runningState(void);
+    void
+    pauseState(void);
+    void
+    finishingState(void);
+
+    // Reset the current scene
+    //
+    void
+    resetCurrentScene(void);
+
+
 private:
     physics::DynamicWorld mDynamicWorld;
     DemoData mData;
@@ -135,6 +188,12 @@ private:
     std::vector<std::shared_ptr<Projectile> > mProjectiles;
     StatisticsInformer::Data mInformerData;
     GameLogicData mGameLogicData;
+    GameLogicData mGameLogicDataInternal;
+    State mInternalState;
+    bool mRunning;
+    float mTimeFrame;
+    HUD mHud;
+    Ogre::Overlay* mPauseOverlay;
 };
 
 } /* namespace demo_app */

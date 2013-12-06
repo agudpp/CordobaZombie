@@ -17,6 +17,8 @@
 #include <physics/BulletImporter.h>
 #include <debug/OgreNameGen.h>
 
+#include "WorldObject.h"
+
 
 
 
@@ -147,9 +149,63 @@ SceneHandler::buildWorldPhysicsLimits(const Ogre::AxisAlignedBox& bb)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+void
+SceneHandler::buildStaticWorldObjects(float boxWidth,
+                                      float space,
+                                      unsigned int count,
+                                      float &tarimaZ)
+{
+    // create the "tarima"
+    Ogre::Entity* tarima = mData.sceneManager->createEntity("tarima.mesh");
+    Ogre::Vector3 size = tarima->getBoundingBox().getSize();
+
+    tarimaZ = size.z;
+
+    // we need to check how many tarimas we have to build
+    const float total = count * boxWidth + (count-1) * space;
+    unsigned int tcount = total / size.x;
+    if (tcount * size.x < total) {
+        tcount++;
+    }
+
+    // the boxes will be put in a manner that the center of the size total is the
+    // (0,0,0).
+    //
+    const float tarimasTotal = tcount * size.x;
+    const float step = size.x;
+    const float start = -tarimasTotal / 2.f + step/2.f;
+    for (unsigned int i = 0; i < tcount; ++i) {
+        // create the scene node and the entity
+        Ogre::SceneNode* node = mData.sceneManager->getRootSceneNode()->createChildSceneNode();
+        if (tarima == 0) {
+            tarima = mData.sceneManager->createEntity("tarima.mesh");
+        }
+        node->attachObject(tarima);
+        node->setPosition(start + step*i, 0, size.z/2.f);
+
+        // add the node to be tracked, this will destroy the entity also
+        mHolder.addNode(node);
+        tarima = 0;
+    }
+
+    // now we need to create the collision object
+    PhysicObject* po = new PhysicObject;;
+    physics::BulletObject& bo = po->bulletObject();
+
+    Ogre::AxisAlignedBox bb(Ogre::Vector3(-tarimasTotal/2.f, -size.y/2.f, 0),
+                            Ogre::Vector3(tarimasTotal/2.f, size.y/2.f, size.z));
+    physics::BulletImporter::createBox(bo, bb, 0, false);
+    addBulletObjectToHolder(bo);
+    mData.dynamicWorld->addObject(bo);
+    mHolder.addPhysicObject(po);
+}
+
+///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 SceneHandler::SceneHandler() :
     mCurrentSceneType(SceneType::SIMPLE)
+,   mGoodBoxes(0)
+,   mBadBoxes(0)
 {
 }
 
@@ -158,7 +214,7 @@ SceneHandler::~SceneHandler()
 {
     // this will reset all the current information
     mHolder.clearAll();
-    mPhysicsHandler.clear();
+    mData.physicsHandler->clear();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -180,11 +236,11 @@ SceneHandler::configureCurrentScene(void)
 
     // this will reset all the current information
     mHolder.clearAll();
-    mPhysicsHandler.clear();
+    mData.physicsHandler->clear();
 
     // now we will build everything we need. For now we will create the boxes
     // only
-    PhysicsHandler::PhysicObjectVec& objs = mPhysicsHandler.physicObjectsVec();
+    PhysicsHandler::PhysicObjectVec& objs = mData.physicsHandler->physicObjectsVec();
 
     // construct the world limits
     Ogre::AxisAlignedBox worldLimits(Ogre::Vector3(-9999, -9999, -9999),
@@ -197,31 +253,77 @@ SceneHandler::configureCurrentScene(void)
     unsigned int numBoxesX = 0, numBoxesY = 0;
     switch(mCurrentSceneType) {
     case SceneType::SIMPLE:
-        numBoxesX = 20;
+        numBoxesX = 10;
         numBoxesY = 10;
         break;
     case SceneType::NORMAL:
         numBoxesX = 20;
-        numBoxesY = 25;
+        numBoxesY = 10;
         break;
     case SceneType::COMPLEX:
         numBoxesX = 40;
-        numBoxesY = 40;
+        numBoxesY = 20;
         break;
     }
 
-    Ogre::Vector3 size(20,20,20);
-    float currentZ = 10;
-    for (unsigned int i = 0; i < numBoxesX; ++i) {
-        for (unsigned int j = 0; j < numBoxesY; ++j) {
-            Ogre::Vector3 min(j*size.x+2,0,currentZ);
-            Ogre::Vector3 max((j+1)*size.x,size.y,currentZ + size.z);
+    Ogre::Entity* boxEnt = mData.sceneManager->createEntity("caja.mesh");
+    Ogre::Vector3 size = boxEnt->getBoundingBox().getSize();
 
-            PhysicObject* po = new PhysicObject;;
-            physics::BulletObject& bo = po->bulletObject();
+    // calculate the size of the boxes in the X axis
+    const float space = 2.f;
+    const float total = numBoxesX * size.x + (numBoxesX-1) * space;
+    const float start = - total / 2.f - space;
 
+    // construct the "tarimas"
+    //
+    float currentZ = 20;
+    buildStaticWorldObjects(size.x, space, numBoxesX, currentZ);
+
+    // build all the boxes
+    const Ogre::AxisAlignedBox& bbBox = boxEnt->getBoundingBox();
+    mGoodBoxes = mBadBoxes = 0;
+    const float maxSide = currentZ;
+    for (unsigned int i = 0; i < numBoxesY; ++i) {
+        for (unsigned int j = 0; j < numBoxesX; ++j) {
+            Ogre::Vector3 min(start + (j * size.x) + space, -size.y/2.f, currentZ);
+            Ogre::Vector3 max(start + (j+1) * size.x, size.y / 2.f, currentZ + size.z);
             Ogre::AxisAlignedBox bb(min, max);
-            createBox(bo, bb, 10);
+
+            // get the random material for the box
+            std::stringstream ss;
+            ss << "MiniDemo/Box";
+            unsigned int matID = std::rand() % 5;
+            ss << matID; // we have 4 mats
+
+            // check if the material is good or bad
+            const bool isGood = matID == 4; // the material number 5 is the chosen one
+
+            if (isGood) {
+                ++mGoodBoxes;
+            } else {
+                ++mBadBoxes;
+            }
+
+            PhysicObject* po = new WorldObject(maxSide, isGood);
+            physics::BulletObject& bo = po->bulletObject();
+            physics::BulletImporter::createBox(bo, bbBox, 10, false);
+
+            // create the scene node
+            ASSERT(bo.motionState.node() == 0);
+            ASSERT(bo.entity == 0);
+            Ogre::SceneNode* node = mData.sceneManager->getRootSceneNode()->createChildSceneNode();
+            if (boxEnt == 0) {
+                boxEnt = mData.sceneManager->createEntity("caja.mesh");
+            }
+
+            boxEnt->setMaterialName(ss.str());
+            node->attachObject(boxEnt);
+            node->setPosition(bb.getCenter());
+            bo.setTransform(bb.getCenter(), Ogre::Quaternion::IDENTITY);
+            bo.motionState.setNode(node);
+            bo.entity = boxEnt;
+            boxEnt = 0;
+
             addBulletObjectToHolder(bo);
             mData.dynamicWorld->addObject(bo);
 
@@ -267,7 +369,7 @@ SceneHandler::setSceneType(SceneType t)
 unsigned int
 SceneHandler::getObjectsCount(void) const
 {
-    return mData.physicsHandler->physicObjectsVec().size();
+    return goodBoxesCount() + badBoxesCount() + 2; // +2 = tarimas
 }
 
 
