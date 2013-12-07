@@ -24,6 +24,7 @@
 #include <input/InputKeyboard.h>
 #include <ResourceHandler.h>
 #include <physics/BulletImporter.h>
+#include <cursor/MouseCursor.h>
 
 #include "WorldObject.h"
 
@@ -325,6 +326,7 @@ MiniDemoApp::pauseState(void)
         if (mPauseOverlay) {
             mPauseOverlay->hide();
         }
+        mHud.setVisible(true);
         mInternalState = State::RUNNING;
         return;
     }
@@ -443,6 +445,9 @@ MiniDemoApp::load(void)
     // build the scene
     resetCurrentScene();
 
+    // hide the cursor
+    mData.mouseCursor->setVisible(false);
+
     mRunning = true;
 
     return true;
@@ -498,6 +503,7 @@ MiniDemoApp::update(float timeFrame)
         if (mPauseOverlay) {
             mPauseOverlay->show();
         }
+        mHud.setVisible(false);
     }
 
     return mRunning;

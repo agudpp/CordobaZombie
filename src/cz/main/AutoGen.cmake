@@ -19,6 +19,10 @@ include(${DEV_ROOT_PATH}/cz/game_states/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/cz/global_data/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/cz/helpers/slide_player/AutoGen.cmake)
 
+# This should be removed after this little demo
+include(${DEV_ROOT_PATH}/cz/game_states/states/PlayingMainState/AngryZombie/AutoGen.cmake)
+
+
 # Define global sources here
 set(HDRS ${HDRS}
     ${DEV_ROOT_PATH}/cz/main/GameRunner.h
