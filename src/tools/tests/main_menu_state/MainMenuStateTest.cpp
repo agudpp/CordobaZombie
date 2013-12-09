@@ -152,7 +152,8 @@ MainMenuStateTest::MainMenuStateTest() :
 
     // Set resource Handler for intro state
     char *ENV = 0;
-    ASSERT(core::OSHelper::getEnvVar("CZ01_RC_PATH",ENV));
+    core::OSHelper::getEnvVar("CZ01_RC_PATH",ENV);
+    ASSERT(ENV);
     mRcHandler.setResourceRootPath(std::string(ENV));
     cz::IMainState::setRcHandler(&mRcHandler);
 

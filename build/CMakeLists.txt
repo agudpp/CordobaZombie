@@ -107,6 +107,7 @@ endif()
 
 # include third party libs and includes directories
 include_directories(${THIRD_PARTY_LIBS}/include)
+include_directories(${THIRD_PARTY_LIBS}/include/bullet)
 link_directories(${THIRD_PARTY_LIBS}/lib)
 
 

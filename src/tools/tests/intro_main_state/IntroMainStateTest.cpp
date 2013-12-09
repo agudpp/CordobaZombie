@@ -92,7 +92,8 @@ IntroMainStateTest::IntroMainStateTest() :
 
 	// Set resource Handler for intro state
     char *ENV = 0;
-    ASSERT(core::OSHelper::getEnvVar("CZ01_RC_PATH",ENV));
+    core::OSHelper::getEnvVar("CZ01_RC_PATH",ENV);
+    ASSERT(ENV);
 	mRcHandler.setResourceRootPath(std::string(ENV));
 	cz::IMainState::setRcHandler(&mRcHandler);
 
@@ -101,8 +102,7 @@ IntroMainStateTest::IntroMainStateTest() :
     input::Keyboard::setKeyboard(mKeyboard);
     setUseDefaultInput(false);
 
-//    mIntroMainState = new cz::IntroMainState();
-    return;
+    mIntroMainState = new cz::IntroMainState();
 
     debugGREEN("Ready to init the state\n");
     if (!initializeState()) {
@@ -203,7 +203,6 @@ IntroMainStateTest::loadAditionalData(void)
 void
 IntroMainStateTest::update()
 {
-	return;
 	int err = mIntroMainState->update(cz::GlobalData::lastTimeFrame);
 
 	// update the input system

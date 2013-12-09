@@ -32,3 +32,7 @@ set(SRCS ${SRCS}
 
 # include the MainMenuState
 include(${DEV_ROOT_PATH}/cz/game_states/states/MenuMainState/AutoGen.cmake)
+
+# TODO: remove this after we don't use anymore the minidemo app
+include(${DEV_ROOT_PATH}/cz/game_states/states/PlayingMainState/AngryZombie/AutoGen.cmake)
+

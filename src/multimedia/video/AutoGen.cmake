@@ -25,16 +25,22 @@ set(HDRS
 )
 
 ## Specific libs
+if (NOT OPENAL_LIBS_DEFINED)
+    set(OPENAL_LIBS_DEFINED 1)
+    if (UNIX)
+        set(OPENAL_LIBRARIES openal vorbis vorbisfile)
+    endif(UNIX)
+    if (WIN32)
+        set(OPENAL_LIBRARIES OpenAL32 vorbisfile vorbisenc)
+    endif(WIN32)
+    
+    set(COMMON_LIBRARIES ${COMMON_LIBRARIES} ${OPENAL_LIBRARIES})
+endif()
 
-if (UNIX)
-    set(OPENAL_LIBRARIES openal vorbis vorbisfile)
-endif(UNIX)
-if (WIN32)
-    set(OPENAL_LIBRARIES OpenAL32 vorbisfile vorbisenc)
-endif(WIN32)
-
-set(COMMON_LIBRARIES ${COMMON_LIBRARIES} ${OPENAL_LIBRARIES}
-    avcodec avutil avformat swscale)
+if (NOT FFMPEG_LIBS_DEFINED)
+    set(FFMPEG_LIBS_DEFINED 1)
+    set(COMMON_LIBRARIES ${COMMON_LIBRARIES} avcodec avutil avformat swscale)
+endif()
 
 
 # Static imported libs:
@@ -69,4 +75,5 @@ set(COMMON_LIBRARIES ${COMMON_LIBRARIES} ${OPENAL_LIBRARIES}
 # Flag because UINT64_C macro is defined in standard C header stdint.h, 
 # but only for non-cplusplus compiled code. That was giving problem at
 # VideoPlayer.cpp while including avcodecs headers.
+
 add_definitions(-D__STDC_CONSTANT_MACROS)
