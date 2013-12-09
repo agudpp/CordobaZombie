@@ -24,6 +24,7 @@
 #include <frontend/element/button/FESimpleButton.h>
 #include <effect_handler/EffectHandler.h>
 #include <video/OgreVideoPlayer.h>
+#include <sound/SoundHandler.h>
 
 
 namespace tests {
@@ -64,6 +65,7 @@ private:
     ui::FEManager mFrontEndManager;
     effect::EffectHandler mEffectHandler;
     mm::OgreVideoPlayer mOgreVideoPlayer;
+    mm::SoundHandler& mSoundHandler;
 
 };
 

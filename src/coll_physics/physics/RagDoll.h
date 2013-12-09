@@ -250,6 +250,13 @@ public:
     inline const btRigidBody*
     getRigidBody(BodyPartID bpIndex) const;
 
+    // @brief Dirty a particular body part
+    // @param bpIndex       The body part index.
+    //
+    inline void
+    dirtyBodyPart(BodyPartID bpIndex);
+
+
     // @brief Return the OBB for each body part in form of boxes. Each entry
     //        will contain the world btTransform of the box, and the extents
     //        of the OBB from a given BoneTable.
@@ -312,10 +319,15 @@ private:
     };
 
     struct BoneChildOffset {
+        BonesID boneID;
         Ogre::Bone* bone;
         btVector3 offset;
 
-        BoneChildOffset(Ogre::Bone* b, const btVector3& o) : bone(b), offset(o){}
+        BoneChildOffset(Ogre::Bone* b, const btVector3& o, BonesID bID) :
+            bone(b)
+        ,   offset(o)
+        ,   boneID(bID)
+        {}
         BoneChildOffset() : bone(0) {};
     };
 
@@ -446,6 +458,11 @@ inline const btRigidBody*
 RagDoll::getRigidBody(BodyPartID bpIndex) const
 {
     return mRagdollBones[bpIndex].rigidBody;
+}
+inline void
+RagDoll::dirtyBodyPart(BodyPartID bpIndex)
+{
+    mRagdollBones[bpIndex].motionState.dirty = true;
 }
 
 } /* namespace physics */
