@@ -155,6 +155,10 @@ InfoMainState::update(float timeFrame)
     }
 
     // need to switch to the next slide
+    if (mSlides.empty()) {
+    	// no more slides, return
+    	return false;
+    }
     mNeedToFade = false;
     Ogre::OverlayContainer* cont = mSlides.front();
     cont->hide();

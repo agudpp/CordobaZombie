@@ -68,6 +68,10 @@ StreamWAVSoundBuffer::filler(ALBuffer& buf,
 
 	ALenum alErr = alGetError();
 	if (alErr != AL_NO_ERROR) {
+#ifdef DEBUG
+		// TODO: check that probably there is an alGetStringError or create a static
+		// debug function that maps an alError into a string (do not create
+		// a map each time!)
 		std::map<int, const char*> strErr =
 			{{AL_OUT_OF_MEMORY,"AL_OUT_OF_MEMORY"},
 			 {AL_INVALID_NAME,"AL_INVALID_NAME"},
@@ -75,6 +79,7 @@ StreamWAVSoundBuffer::filler(ALBuffer& buf,
 			 {AL_INVALID_VALUE,"AL_INVALID_VALUE"},
 			 {AL_INVALID_OPERATION,"AL_INVALID_OPERATION"}};
 		debugERROR("OpenAL error: %s\n", strErr[alErr]);
+#endif
 		return -1ll;
 	}
 
@@ -95,6 +100,8 @@ StreamOGGSoundBuffer::filler(ALBuffer& buf,
 	int chunk(size < OGG_BUFF_SIZE ? ((int)size) : OGG_BUFF_SIZE);
 	int read(0);
 
+	ASSERT(alGetError() == AL_NO_ERROR);
+
 	// Read 'size' bytes into pcmData.
 	pcmData.clear();
 	do {
@@ -106,13 +113,13 @@ StreamOGGSoundBuffer::filler(ALBuffer& buf,
 			// Successful read from OGG file.
 			pcmData.resize(pcmData.size() + read);
 			size -= read;
-			chunk = size < OGG_BUFF_SIZE ? ((int)size) : OGG_BUFF_SIZE;
+//			chunk = std::min(size, pcmData.max_size() - pcmData.size());
+			chunk = size < (OGG_BUFF_SIZE-chunk) ? ((int)size) : OGG_BUFF_SIZE-chunk;
 
 		} else if (read == 0 && repeat) {
 			// End of audio data, and must repeat: relocate file get pointer.
 			restart();
 			read = 1;  // We must repeat, continue iteration
-
 		} else if (read == 0) {
 			// End of audio data, but no repeat.
 			*finish = true;
@@ -122,29 +129,42 @@ StreamOGGSoundBuffer::filler(ALBuffer& buf,
 
 	if (read < 0) {
 		// Error fetching audio data from Ogg file.
+#ifdef DEBUG
+		// TODO: check that probably there is an alGetStringError or create a static
+		// debug function that maps an alError into a string (do not create
+		// a map each time!)
+
 		std::map<int, const char*> strErr =
 			{{OV_HOLE, "OV_HOLE"},
 			 {OV_EINVAL, "OV_EINVAL"},
 			 {OV_EBADLINK, "OV_EBADLINK"}};
 		debugERROR("Can't read OGG file. Error: %s\n", strErr[read]);
+#endif
 		return -1ll;
 
 	} else {
 		// Fill OpenAL buffer with fetched audio data.
 		ASSERT(alIsBuffer(buf));
-		ASSERT(pcmData.size() <= SS_SIZE_INT_BUFFERS);
+		ASSERT(pcmData.size() < SS_SIZE_INT_BUFFERS);
 		alBufferData(buf, format, pcmData.begin(), pcmData.size(), freq);
 	}
 
 	ALenum alErr = alGetError();
 	if (alErr != AL_NO_ERROR) {
+#ifdef DEBUG
+		// TODO: check that probably there is an alGetStringError or create a static
+		// debug function that maps an alError into a string (do not create
+		// a map each time!)
 		std::map<int, const char*> strErr =
 			{{AL_OUT_OF_MEMORY,"AL_OUT_OF_MEMORY"},
 			 {AL_INVALID_NAME,"AL_INVALID_NAME"},
 			 {AL_INVALID_ENUM,"AL_INVALID_ENUM"},
 			 {AL_INVALID_VALUE,"AL_INVALID_VALUE"},
 			 {AL_INVALID_OPERATION,"AL_INVALID_OPERATION"}};
-		debugERROR("OpenAL error: %s\n", strErr[alErr]);
+		debugERROR("OpenAL error: %s, with data buf: %d, format: %d, size: %d, "
+				"read: %d, freq: %d\n",
+				strErr[alErr], (int)buff, format, pcmData.size(), read, freq);
+#endif
 		return -1ll;
 	}
 

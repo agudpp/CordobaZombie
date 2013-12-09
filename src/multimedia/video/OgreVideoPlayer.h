@@ -23,8 +23,8 @@ class Video{
 
 public:
 	enum{
-		OK = 0,
-		ERROR
+		C_OK = 0,
+		C_ERROR
 	};
 
 public:
@@ -136,9 +136,9 @@ class OgreVideoPlayer {
 
 public:
 	enum{
-		ERROR = -10,
-		OK = 0,
-		ENDED
+		C_ERROR = -10,
+		C_OK = 0,
+		C_ENDED
 	};
 public:
 
@@ -277,10 +277,10 @@ inline int
 Video::setEnd(double end)
 {
 	if (mStart > end){
-		return ERROR;
+		return C_ERROR;
 	}else{
 		mEnd = end;
-		return OK;
+		return C_OK;
 	}
 }
 
@@ -290,10 +290,10 @@ inline int
 Video::setStart(double start)
 {
 	if (mEnd < start){
-		return ERROR;
+		return C_ERROR;
 	}else{
 		mStart = start;
-		return OK;
+		return C_OK;
 	}
 }
 
@@ -303,7 +303,7 @@ inline int
 Video::getStart(double & start)
 {
 	start = mStart;
-	return OK;
+	return C_OK;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -312,7 +312,7 @@ inline int
 Video::getEnd(double & end)
 {
 	end = mEnd;
-	return OK;
+	return C_OK;
 }
 
 

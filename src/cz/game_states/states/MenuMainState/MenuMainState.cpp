@@ -172,12 +172,12 @@ MenuMainState::readyToGo(void)
 
     // enqueue the video
     if (sVideoPlayer->queue(videoPath.c_str(), videoPath.c_str(), 0, -1)
-            == mm::OgreVideoPlayer::ERROR) {
+            == mm::OgreVideoPlayer::C_ERROR) {
         debugERROR("Can't queue intro video at %s\n", videoPath.c_str());
         return false;
     }
 
-    if (sVideoPlayer->play() != mm::OgreVideoPlayer::OK) {
+    if (sVideoPlayer->play() != mm::OgreVideoPlayer::C_OK) {
         debugERROR("Video player doesn't play for video %s\n", videoPath.c_str());
         return false;
     }

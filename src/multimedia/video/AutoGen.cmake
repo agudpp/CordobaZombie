@@ -26,7 +26,13 @@ set(HDRS
 
 ## Specific libs
 
-set(OPENAL_LIBRARIES openal vorbis vorbisfile)
+if (UNIX)
+    set(OPENAL_LIBRARIES openal vorbis vorbisfile)
+endif(UNIX)
+if (WIN32)
+    set(OPENAL_LIBRARIES OpenAL32 vorbisfile vorbisenc)
+endif(WIN32)
+
 set(COMMON_LIBRARIES ${COMMON_LIBRARIES} ${OPENAL_LIBRARIES}
     avcodec avutil avformat swscale)
 

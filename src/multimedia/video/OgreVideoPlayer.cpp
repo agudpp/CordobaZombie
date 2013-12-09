@@ -160,7 +160,7 @@ OgreVideoScreen::fillBuffer(unsigned char* source,
 
 	}else{
 		debugERROR("Unexpected video format!\n")
-		return ERROR;
+		return C_ERROR;
 	}
 
 	return 0;
@@ -235,8 +235,8 @@ OgreVideoPlayer::queue(const char* path, const char* name,
 	mPlayList.push_back(Video(path, name, start, end));
 	// If playlist was empty then load this video.
 	if(mPlayList.size()==1){
-		if( ERROR == load(0)){
-			return ERROR;
+		if(C_ERROR == load(0)){
+			return C_ERROR;
 		}else{
 			play();
 		}
@@ -261,7 +261,7 @@ int
 OgreVideoPlayer::load(int index){
 
 	if(index >= mPlayList.size()){
-		return ERROR;
+		return C_ERROR;
 	}else{
 		// Get full path to the video
 		Video& video = mPlayList[index];
@@ -285,7 +285,7 @@ OgreVideoPlayer::load(int index){
 				start, end);
 	}
 
-	return OK;
+	return C_OK;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -293,11 +293,11 @@ int
 OgreVideoPlayer::play()
 {
 	if(!mVideoPlayer.is_loaded()){
-		return ERROR;
+		return C_ERROR;
 	}
 	mVideoPlayer.play();
 	mIsPlaying = true;
-	return OK;
+	return C_OK;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -305,7 +305,7 @@ int
 OgreVideoPlayer::stop()
 {
 	mIsPlaying = false;
-	return OK;
+	return C_OK;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -314,7 +314,7 @@ OgreVideoPlayer::update(double tslf)
 {
 	if(!mIsPlaying){
 		//debug("The actual video player is not playing\n");
-		return ERROR;
+		return C_ERROR;
 	}else{
 		ASSERT(mVideoPlayer.is_loaded());
 		double t = 0;
@@ -325,27 +325,27 @@ OgreVideoPlayer::update(double tslf)
 		// negative value for end will play till it finishes.
 		if(end >= 0.0 && t >= end){
 			debug("Video time limit reached\n");
-			if(loadNext() == OK){
+			if(loadNext() == C_OK){
 				play();
 			}else{
 			    mIsPlaying = false;
-				return ENDED;
+				return C_ENDED;
 			}
 		// has to play till the end or the end time limit hasn't been reached
 		}else{
 			if(VideoPlayer::VIDEO_ENDED == mVideoPlayer.update(tslf)){
 				// If the video has ended
 				debug("Video ended (the actual video player says so)\n");
-				if(loadNext() == OK){
+				if(loadNext() == C_OK){
 					play();
 				}else{
 				    mIsPlaying = false;
-					return ENDED;
+					return C_ENDED;
 				}
 			}
 		}
 	}
-	return OK;
+	return C_OK;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -365,17 +365,17 @@ OgreVideoPlayer::loadNext(void)
 			load(0);
 		}else{
 			debug("Load next: no more videos to load\n");
-			return ERROR;
+			return C_ERROR;
 		}
 	}
-	return OK;
+	return C_OK;
 }
 ///////////////////////////////////////////////////////////////////////////////
 
 int
 OgreVideoPlayer::next(void){
 
-	int error = OK;
+	int error = C_OK;
 	bool saverepeatvideo = mRepeatV;
 	bool saverepeatpl = mRepeatP;
 
@@ -383,7 +383,7 @@ OgreVideoPlayer::next(void){
 	setRepeatVideo(false);
 
 	error = loadNext();
-	if (error != ERROR){
+	if (error != C_ERROR){
 		error = play();
 	}
 

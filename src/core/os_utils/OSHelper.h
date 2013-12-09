@@ -130,13 +130,12 @@ inline bool
 extractPath(const std::string& fullpath, std::string& result)
 {
     // Get the path to the resource folder
-    core::size_t lastBar = 0;
-#ifdef _WIN32
-    lastBar = fullpath.rfind('\\')+1;
-#else
-    lastBar = fullpath.rfind('/')+1;
-#endif
-    if (lastBar == std::string::npos) {
+    int lastBar = fullpath.size()-1;
+    while (lastBar >= 0) {
+    	if (fullpath[lastBar] == '\\' || fullpath[lastBar] == '/') break;
+    	--lastBar;
+    }
+    if (lastBar <= 0) {
         return false;
     }
 

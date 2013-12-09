@@ -101,7 +101,8 @@ IntroMainStateTest::IntroMainStateTest() :
     input::Keyboard::setKeyboard(mKeyboard);
     setUseDefaultInput(false);
 
-    mIntroMainState = new cz::IntroMainState();
+//    mIntroMainState = new cz::IntroMainState();
+    return;
 
     debugGREEN("Ready to init the state\n");
     if (!initializeState()) {
@@ -202,7 +203,7 @@ IntroMainStateTest::loadAditionalData(void)
 void
 IntroMainStateTest::update()
 {
-
+	return;
 	int err = mIntroMainState->update(cz::GlobalData::lastTimeFrame);
 
 	// update the input system

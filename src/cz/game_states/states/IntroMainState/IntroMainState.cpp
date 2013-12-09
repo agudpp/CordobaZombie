@@ -79,13 +79,13 @@ IntroMainState::readyToGo(void)
     sVideoPlayer->dequeueAll();
 
     // enqueue the video
-    if (mm::OgreVideoPlayer::ERROR
+    if (mm::OgreVideoPlayer::C_ERROR
         == sVideoPlayer->queue(path.c_str(), path.c_str(), 0, -1)) {
         debugERROR("Can't queue intro video at %s\n", path.c_str());
         return false;
     }
 
-    if (mm::OgreVideoPlayer::OK != sVideoPlayer->play()) {
+    if (mm::OgreVideoPlayer::C_OK != sVideoPlayer->play()) {
         debugERROR("Video player doesn't play :(\n");
         return false;
     }

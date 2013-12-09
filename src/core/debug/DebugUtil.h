@@ -68,26 +68,115 @@
 #include <cstdio>
 #include <cstring>
 
+#include <fstream>
+
+#define DEBUG_FILE_NAME	"debug.txt"
+
+static std::ofstream DEBUG_FILE;
+
+/*#define WIN_DEBUG_MACRO(TYPE, showWindow) {char msg[1024]; std::sprintf(msg, TYPE "[%s,%s, %d]: ", \
+		__FILE__, __FUNCTION__, __LINE__);char buff[512];\
+		std::sprintf(buff, format, ## __VA_ARGS__);\
+		std::strcat(msg, " "); std::strcat(msg, buff);\
+		if (showWindow) MessageBox( NULL, msg, TYPE, MB_OK | MB_ICONERROR | MB_TASKMODAL);\
+		if (!DEBUG_FILE.is_open()) {\
+			DEBUG_FILE.open(DEBUG_FILE_NAME);\
+		}\
+		DEBUG_FILE << msg;\
+		DEBUG_FILE.flush();}
+*/
 // TODO: note that there are not outputs for printf in console for mingw apps since 
 // we are compiling it probably compiled with the -mwindows flag (this disconnect
 // the stdout and stderr from the console). We will need to write the data to some log
 // file
-	#define debug(format,...)
-	#define debugYELLOW(format, ...) 
-	#define debugRED(format, ...)
-	#define debugGREEN(format, ...)
-	#define debugBLUE(format, ...)
-	#define debugOPTIMIZATION(format, ...)
-	#define debugERROR(format, ...) {char msg[1024]; std::sprintf(msg, "DEBUG[%s,%s, %d]: ", \
-						__FILE__, __FUNCTION__, __LINE__);char buff[512];\
-						std::sprintf(buff, format, ## __VA_ARGS__);\
-						std::strcat(msg, " "); std::strcat(msg, buff);\
-						MessageBox( NULL, msg, "ERROR", MB_OK | MB_ICONERROR | MB_TASKMODAL);}
-	#define debugWARNING(format, ...) {char msg[1024]; std::sprintf(msg, "DEBUG[%s,%s, %d]: ", \
-						__FILE__, __FUNCTION__, __LINE__);char buff[512];\
-						std::sprintf(buff, format, ## __VA_ARGS__);\
-						std::strcat(msg, " "); std::strcat(msg, buff);\
-						MessageBox( NULL, msg, "WARNING", MB_OK | MB_ICONERROR | MB_TASKMODAL);}
+	#define debug(format,...) {char msg[1024]; std::sprintf(msg, "debug" "[%s,%s, %d]: ", \
+		__FILE__, __FUNCTION__, __LINE__);char buff[512];\
+		std::sprintf(buff, format, ## __VA_ARGS__);\
+		std::strcat(msg, " "); std::strcat(msg, buff);\
+		bool showWindow = false;\
+		if (showWindow) MessageBox( NULL, msg, "debug", MB_OK | MB_ICONERROR | MB_TASKMODAL);\
+		if (!DEBUG_FILE.is_open()) {\
+			DEBUG_FILE.open(DEBUG_FILE_NAME);\
+		}\
+		DEBUG_FILE << msg;\
+		DEBUG_FILE.flush();}
+	#define debugYELLOW(format, ...) {char msg[1024]; std::sprintf(msg, "YELLOW" "[%s,%s, %d]: ", \
+		__FILE__, __FUNCTION__, __LINE__);char buff[512];\
+		std::sprintf(buff, format, ## __VA_ARGS__);\
+		std::strcat(msg, " "); std::strcat(msg, buff);\
+		bool showWindow = false;\
+		if (showWindow) MessageBox( NULL, msg, "YELLOW", MB_OK | MB_ICONERROR | MB_TASKMODAL);\
+		if (!DEBUG_FILE.is_open()) {\
+			DEBUG_FILE.open(DEBUG_FILE_NAME);\
+		}\
+		DEBUG_FILE << msg;\
+		DEBUG_FILE.flush();}
+	#define debugRED(format, ...)  {char msg[1024]; std::sprintf(msg, "RED" "[%s,%s, %d]: ", \
+		__FILE__, __FUNCTION__, __LINE__);char buff[512];\
+		std::sprintf(buff, format, ## __VA_ARGS__);\
+		std::strcat(msg, " "); std::strcat(msg, buff);\
+		bool showWindow = false;\
+		if (showWindow) MessageBox( NULL, msg, "RED", MB_OK | MB_ICONERROR | MB_TASKMODAL);\
+		if (!DEBUG_FILE.is_open()) {\
+			DEBUG_FILE.open(DEBUG_FILE_NAME);\
+		}\
+		DEBUG_FILE << msg;\
+		DEBUG_FILE.flush();}
+	#define debugGREEN(format, ...)  {char msg[1024]; std::sprintf(msg, "GREEN" "[%s,%s, %d]: ", \
+		__FILE__, __FUNCTION__, __LINE__);char buff[512];\
+		std::sprintf(buff, format, ## __VA_ARGS__);\
+		std::strcat(msg, " "); std::strcat(msg, buff);\
+		bool showWindow = false;\
+		if (showWindow) MessageBox( NULL, msg, "GREEN", MB_OK | MB_ICONERROR | MB_TASKMODAL);\
+		if (!DEBUG_FILE.is_open()) {\
+			DEBUG_FILE.open(DEBUG_FILE_NAME);\
+		}\
+		DEBUG_FILE << msg;\
+		DEBUG_FILE.flush();}
+	#define debugBLUE(format, ...) {char msg[1024]; std::sprintf(msg, "BLUE" "[%s,%s, %d]: ", \
+		__FILE__, __FUNCTION__, __LINE__);char buff[512];\
+		std::sprintf(buff, format, ## __VA_ARGS__);\
+		std::strcat(msg, " "); std::strcat(msg, buff);\
+		bool showWindow = false;\
+		if (showWindow) MessageBox( NULL, msg, "BLUE", MB_OK | MB_ICONERROR | MB_TASKMODAL);\
+		if (!DEBUG_FILE.is_open()) {\
+			DEBUG_FILE.open(DEBUG_FILE_NAME);\
+		}\
+		DEBUG_FILE << msg;\
+		DEBUG_FILE.flush();}
+	#define debugOPTIMIZATION(format, ...)  {char msg[1024]; std::sprintf(msg, "OPTIMIZATION" "[%s,%s, %d]: ", \
+		__FILE__, __FUNCTION__, __LINE__);char buff[512];\
+		std::sprintf(buff, format, ## __VA_ARGS__);\
+		std::strcat(msg, " "); std::strcat(msg, buff);\
+		bool showWindow = false;\
+		if (showWindow) MessageBox( NULL, msg, "OPTIMIZATION", MB_OK | MB_ICONERROR | MB_TASKMODAL);\
+		if (!DEBUG_FILE.is_open()) {\
+			DEBUG_FILE.open(DEBUG_FILE_NAME);\
+		}\
+		DEBUG_FILE << msg;\
+		DEBUG_FILE.flush();}
+	#define debugERROR(format, ...) {char msg[1024]; std::sprintf(msg, "ERROR" "[%s,%s, %d]: ", \
+		__FILE__, __FUNCTION__, __LINE__);char buff[512];\
+		std::sprintf(buff, format, ## __VA_ARGS__);\
+		std::strcat(msg, " "); std::strcat(msg, buff);\
+		bool showWindow = true;\
+		if (showWindow) MessageBox( NULL, msg, "ERROR", MB_OK | MB_ICONERROR | MB_TASKMODAL);\
+		if (!DEBUG_FILE.is_open()) {\
+			DEBUG_FILE.open(DEBUG_FILE_NAME);\
+		}\
+		DEBUG_FILE << msg;\
+		DEBUG_FILE.flush();}
+	#define debugWARNING(format, ...)  {char msg[1024]; std::sprintf(msg, "WARNING" "[%s,%s, %d]: ", \
+		__FILE__, __FUNCTION__, __LINE__);char buff[512];\
+		std::sprintf(buff, format, ## __VA_ARGS__);\
+		std::strcat(msg, " "); std::strcat(msg, buff);\
+		bool showWindow = true;\
+		if (showWindow) MessageBox( NULL, msg, "WARNING", MB_OK | MB_ICONERROR | MB_TASKMODAL);\
+		if (!DEBUG_FILE.is_open()) {\
+			DEBUG_FILE.open(DEBUG_FILE_NAME);\
+		}\
+		DEBUG_FILE << msg;\
+		DEBUG_FILE.flush();}
 	#define testBEGIN(format, ...)
 	#define testSUCCESS(format, ...)
 	#define testFAIL(format, ...)
