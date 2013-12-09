@@ -163,7 +163,7 @@ StreamOGGSoundBuffer::filler(ALBuffer& buf,
 			 {AL_INVALID_OPERATION,"AL_INVALID_OPERATION"}};
 		debugERROR("OpenAL error: %s, with data buf: %d, format: %d, size: %d, "
 				"read: %d, freq: %d\n",
-				strErr[alErr], (int)buff, format, pcmData.size(), read, freq);
+				strErr[alErr], (int)buf, format, pcmData.size(), read, freq);
 #endif
 		return -1ll;
 	}

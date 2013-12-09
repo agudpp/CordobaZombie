@@ -269,7 +269,7 @@ OgreVideoPlayer::load(int index){
 		// Load video player, resize screen and seek for starting point;
 		mVideoPlayer.unload();
 		if(VideoPlayer::VIDEO_OK != mVideoPlayer.load(video.getPath())){
-			return ERROR;
+			return C_ERROR;
 		}
 		unsigned int h = 0, w = 0;
 		mVideoPlayer.getSizes(h,w);
