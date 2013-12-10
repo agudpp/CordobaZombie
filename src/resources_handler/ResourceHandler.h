@@ -9,8 +9,7 @@
 #define RESOURCEHANDLER_H_
 
 #include <vector>
-
-#include <OgreString.h>
+#include <string>
 
 #include "ResourceGroup.h"
 
@@ -43,18 +42,18 @@ public:
     // @param resourcePath      The resulting path of the resource.
     // @return true on success | false otherwise
     static bool
-    getResourcePath(const Ogre::String& resourceGroup,
-                    const Ogre::String& resourceName,
-                    Ogre::String &resourcePath);
+    getResourcePath(const std::string& resourceGroup,
+                    const std::string& resourceName,
+                    std::string& resourcePath);
     static bool
-    getResourcePathSomeGroup(const Ogre::String& resourceName,
-                             Ogre::String &resourcePath);
+    getResourcePathSomeGroup(const std::string& resourceName,
+                             std::string& resourcePath);
 
 
     // @brief Set the path to the resources folder.
-    inline void
-    setResourceRootPath(const Ogre::String &resourcePath);
-    inline const Ogre::String &
+    void
+    setResourceRootPath(const std::string& resourcePath);
+    inline const std::string&
     getResourceRootPath(void) const;
 
 
@@ -65,44 +64,36 @@ public:
     // @param fullPath			The resulting concatenation.
     // @return true on success | false otherwise
     inline bool
-    getResourceFullPath(const Ogre::String &resourceRelPath,
-                        Ogre::String &fullPath) const;
+    getResourceFullPath(const std::string &resourceRelPath,
+                        std::string &fullPath) const;
 
 private:
 
-    Ogre::String mResRootPath;
+    std::string mResRootPath;
 };
 
 
 
 ////////////////////////////////////////////////////////////////////////////////
+// Inline stuff
+//
 
-
-inline void
-ResourceHandler::setResourceRootPath(const Ogre::String &resourcePath)
-{
-	mResRootPath = resourcePath;
-}
 
 ////////////////////////////////////////////////////////////////////////////////
-
-
-inline const Ogre::String &
+inline const std::string &
 ResourceHandler::getResourceRootPath(void) const
 {
-	return mResRootPath;
+    return mResRootPath;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-
-
 inline bool
-ResourceHandler::getResourceFullPath(const Ogre::String &resourceRelPath,
-									 Ogre::String &fullPath) const
+ResourceHandler::getResourceFullPath(const std::string &resourceRelPath,
+                                     std::string &fullPath) const
 {
-	fullPath = mResRootPath;
-	fullPath += resourceRelPath;
-	return true;
+    fullPath = mResRootPath;
+    fullPath += resourceRelPath;
+    return true;
 }
 
 
