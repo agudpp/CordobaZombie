@@ -113,8 +113,7 @@ StreamOGGSoundBuffer::filler(ALBuffer& buf,
 			// Successful read from OGG file.
 			pcmData.resize(pcmData.size() + read);
 			size -= read;
-//			chunk = std::min(size, pcmData.max_size() - pcmData.size());
-			chunk = size < (OGG_BUFF_SIZE-chunk) ? ((int)size) : OGG_BUFF_SIZE-chunk;
+			chunk = size < (OGG_BUFF_SIZE) ? ((int)size) : OGG_BUFF_SIZE;
 
 		} else if (read == 0 && repeat) {
 			// End of audio data, and must repeat: relocate file get pointer.
@@ -145,7 +144,7 @@ StreamOGGSoundBuffer::filler(ALBuffer& buf,
 	} else {
 		// Fill OpenAL buffer with fetched audio data.
 		ASSERT(alIsBuffer(buf));
-		ASSERT(pcmData.size() < SS_SIZE_INT_BUFFERS);
+		ASSERT(pcmData.size() <= SS_SIZE_INT_BUFFERS);
 		alBufferData(buf, format, pcmData.begin(), pcmData.size(), freq);
 	}
 
