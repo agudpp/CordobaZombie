@@ -175,17 +175,20 @@ public:
 								 unsigned char G,
 								 unsigned char B);
 
-	inline int		paint_black_screen(void);
+//	inline int		paint_black_screen(void);
 
-	inline int		paint_white_screen(void);
+//	inline int		paint_white_screen(void);
 
 	/*
 	 * Get height and width of the loaded video.
 	 */
 	inline int		getSizes(unsigned int &h, unsigned int &w);
-//	inline void		set_visible(bool b);
 
-//	inline bool		is_visible(void);
+	/*
+	 * Paint it black.
+	 */
+	int
+	paint_black_screen(void);
 
 protected:
 

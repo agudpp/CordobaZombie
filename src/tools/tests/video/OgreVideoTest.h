@@ -63,7 +63,7 @@ private:
     input::InputHelper			 mInputHelper;
 
     // Particular members
-    mm::OgreVideoPlayer			 *mVPlayer;
+    mm::OgreVideoPlayer			 mVPlayer;
 
 
 };

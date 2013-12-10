@@ -252,7 +252,7 @@ OgreVideoPlayer::dequeueAll(void)
     mIndex = -1;
     mPlayList.clear();
     mVideoPlayer.unload();
-//    mVideoPlayer.paint_black_screen(); ??? it says that was never defined?
+    mVideoPlayer.paint_black_screen();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

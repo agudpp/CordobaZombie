@@ -225,6 +225,8 @@ VideoPlayer::VideoPlayer(VideoBuffer *screen):
 //		return VIDEO_ERROR;
 //	}
 
+	ASSERT(mScreen);
+
     // Register all formats and codecs for video
     av_register_all();
 
@@ -799,7 +801,7 @@ int VideoPlayer::update_video(double tslf){ // FIXME al dope el tslf
 
 	AVPacket * pkt  = vDataQue.front();
 
-	double t = 0;
+	double t = 0.;
 	if(VIDEO_ERROR == get_playing_time(t)){
 		// we don't have the time, then we make sure to present the frame
 		t = SC(double,pkt->pts) * SC(double,vtbasenum);
@@ -829,34 +831,28 @@ int VideoPlayer::update_video(double tslf){ // FIXME al dope el tslf
 				  pFrameRGB->linesize);
 
 		//Actualizar la textura de la pantalla
-//		Ogre::HardwarePixelBufferSharedPtr PixelBuffer =
-//			rtt_texture->getBuffer();
-//
-//		PixelBuffer->lock(Ogre::HardwareBuffer::HBL_DISCARD);
-//
-//		unsigned char * pDest =
-//			static_cast<unsigned char*>(PixelBuffer->getCurrentLock().data);
-
 		unsigned char * img = pFrameRGB->data[0];
 
 		mScreen->fillBuffer(img,
 				VideoBuffer::Format::RGB,
 				pCodecCtx->width*pCodecCtx->height*3);
-
-
-//		#pragma omp parallel for
-//		for (size_t i = 0; i < pCodecCtx->width*pCodecCtx->height*4; i+=4)
-//		{
-//			pDest[i] 		= img[0];
-//			pDest[i + 1] 	= img[0 + 1];
-//			pDest[i + 2]    = img[0 + 2];
-//			img += 3;
-//		}
-
-		//SaveFrame(pFrameRGB, pCodecCtx->width, pCodecCtx->height, 1);
-
-		//PixelBuffer->unlock();
 	}
+
+	return VIDEO_OK;
+}
+
+
+//-----------------------------------------------------------------------------
+
+int
+VideoPlayer::paint_black_screen(void)
+{
+	ASSERT(mScreen);
+	unsigned char img[pCodecCtx->width*pCodecCtx->height*3];
+	memset(img,0,pCodecCtx->width*pCodecCtx->height*3);
+	mScreen->fillBuffer(img,
+					VideoBuffer::Format::RGB,
+					pCodecCtx->width*pCodecCtx->height*3);
 
 	return VIDEO_OK;
 }
@@ -1198,7 +1194,7 @@ int VideoPlayer::get_more_data(void){
 
 			}else{
 
-				debugRED("Not my stream :s\n");
+				//debugRED("Not my stream :s\n");
 				av_free_packet(mPacket);
 				delete mPacket;
 
@@ -1210,51 +1206,29 @@ int VideoPlayer::get_more_data(void){
 }
 
 
-
-
-//int VideoPlayer::set_screen_texture(void){
-//    // Texture for the screen
-//    Ogre::TextureManager::getSingleton().remove("RttTex");
-//	rtt_texture =
-//			Ogre::TextureManager::getSingleton().createManual("RttTex",
-//			Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
-//			Ogre::TEX_TYPE_2D, pCodecCtx->width,
-//			pCodecCtx->height, 0,
-//			Ogre::PF_X8R8G8B8, Ogre::TU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
-//	//set material texture
-//	renderMaterial->getTechnique(0)->getPass(0)->removeAllTextureUnitStates();
-//    renderMaterial->getTechnique(0)->getPass(0)->createTextureUnitState(
-//    		"RttTex");
-//    //set screen material
-//    mMiniScreen->setMaterial("RttMat");
-//
-//    return VIDEO_OK;
-//}
-
-
 //-----------------------------------------------------------------------------
 
 void VideoPlayer::print_video_info(void){
 	// // // // DEBUG INFO
 
-	    cyanPrint("VIDEO DEBUG\n");
-	    lightGreenPrint("Video nb of streams %d\n", pFormatCtx->nb_streams);
-	    if(audioStream != -1){
-			cyanPrint("AUDIO DEBUG\n");
-			const char *format = av_get_sample_fmt_name(aCodecCtx->sample_fmt);
-			if(format){
-				lightGreenPrint("Audio sample format %s\n",format );
-			}
-			lightGreenPrint("Audio nb of channels %d\n",aCodecCtx->channels);
-			lightGreenPrint("Audio nb of bits per sample %d\n",
-					av_get_bytes_per_sample(aCodecCtx->sample_fmt)*8);
-			lightGreenPrint("Audio frequency %dHz\n",aCodecCtx->sample_rate);
-	    }
-	    cyanPrint("OTHER DEBUGS\n");
-	    lightGreenPrint("AVCODEC_MAX_AUDIO_FRAME_SIZE: %d\n",
-	    		AVCODEC_MAX_AUDIO_FRAME_SIZE);
-	    cyanPrint("***********\n");
-	    // // // //
+	cyanPrint("VIDEO DEBUG\n");
+	lightGreenPrint("Video nb of streams %d\n", pFormatCtx->nb_streams);
+	if(audioStream != -1){
+		cyanPrint("AUDIO DEBUG\n");
+		const char *format = av_get_sample_fmt_name(aCodecCtx->sample_fmt);
+		if(format){
+			lightGreenPrint("Audio sample format %s\n",format );
+		}
+		lightGreenPrint("Audio nb of channels %d\n",aCodecCtx->channels);
+		lightGreenPrint("Audio nb of bits per sample %d\n",
+				av_get_bytes_per_sample(aCodecCtx->sample_fmt)*8);
+		lightGreenPrint("Audio frequency %dHz\n",aCodecCtx->sample_rate);
+	}
+	cyanPrint("OTHER DEBUGS\n");
+	lightGreenPrint("AVCODEC_MAX_AUDIO_FRAME_SIZE: %d\n",
+			AVCODEC_MAX_AUDIO_FRAME_SIZE);
+	cyanPrint("***********\n");
+	// // // //
 
 }
 
@@ -1265,50 +1239,6 @@ void VideoPlayer::print_video_info(void){
 /*----------------------------------------------------------------------------*/
 /*----------------------------- EXTRA FUNCTIONS ------------------------------*/
 /*----------------------------------------------------------------------------*/
-
-
-/*
- * Pinta la pantalla de video del color definido por 'R', 'G', 'B'.
- */
-//int VideoPlayer::paint_screen(unsigned char R, unsigned char G, unsigned char B)
-//{
-//
-//	if(!rtt_texture.get()){
-//		return VIDEO_ERROR;
-//	}
-//
-//	//Actualizar la textura de la pantalla
-////	Ogre::HardwarePixelBufferSharedPtr PixelBuffer =
-////		rtt_texture->getBuffer();
-////
-////	PixelBuffer->lock(Ogre::HardwareBuffer::HBL_DISCARD);
-//
-////	unsigned char * pDest =
-////		static_cast<unsigned char*>(PixelBuffer->getCurrentLock().data);
-//
-//	unsigned char * pDest =
-//			(unsigned char *)malloc(sizeof(unsigned char)*width*height*3);
-//
-//	int width = defaultwidth, height = defaultheight;
-//	if(pCodecCtx){
-//		width = pCodecCtx->width;
-//		height = pCodecCtx->height;
-//	}
-//
-//	for (size_t i = 0; i <width*height*3; i+=3)
-//	{
-//		pDest[i] 		= R;
-//		pDest[i + 1] 	= G;
-//		pDest[i + 2]    = B;
-//	}
-//
-//	mScreen->fillBuffer(pDest,0,width*height*3);
-//
-////	PixelBuffer->unlock();
-//
-//	return VIDEO_OK;
-//}
-
 
 
 /*
