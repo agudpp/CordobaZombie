@@ -8,40 +8,14 @@
 
 #include "OgreVideoTest.h"
 
-#include <OgreResourceManager.h>
-#include <OgreFontManager.h>
 #include <vector>
 #include <string>
+
+#include <OgreResourceManager.h>
+#include <OgreFontManager.h>
 #include <Ogre.h>
 
-
-
-
-
-
-/* Multiplatform auxiliary function */
-#if defined(_WIN32) || defined(CYGWIN)
-static inline bool
-fileExists(std::string fname)
-{
-	debugERROR("TODO: change this with the correct module of "
-			"resource handling, issue #173\n");
-	return System::IO::File::Exists(fname);
-}
-#elif defined(linux) || defined(_linux) || defined(__linux) || defined(__linux__)
-#  include <unistd.h>
-static inline bool
-fileExists(std::string fname)
-{
-	debugERROR("TODO: change this with the correct module of "
-			"resource handling, issue #173\n");
-	return !access(fname.c_str(), R_OK);
-}
-#else
-#  error "Unsupported platform. ABORTING COMPILATION."
-#endif
-
-
+#include <os_utils/OSHelper.h>
 
 
 
@@ -96,7 +70,7 @@ const int VIDEO_STATE_LIST_SIZE = 3;
 
 const char* VIDEO_STATE_LIST[VIDEO_STATE_LIST_SIZE] =
 			{
-			"perrosInfectados.ogg",
+			"intro_logo.mp4",
 			"5seg2.ogg",
 			"menu.ogg"
 			};
@@ -134,7 +108,7 @@ getResourcePath( Ogre::String resourceGroup
 		for (it = files->begin() ; it < files->end() ; it++) {
 			/* Compose file absolute path */
 			sNameFullPath.append(it->archive->getName()+"/"+resourceName);
-			if (fileExists(sNameFullPath)) {
+			if (core::OSHelper::fileExists(sNameFullPath.c_str())) {
 				break;
 			} else {
 				sNameFullPath.clear();
@@ -169,7 +143,7 @@ loadVideos(mm::OgreVideoPlayer* ovp)
 			continue;
 		}
 
-		if(mm::OgreVideoPlayer::ERROR ==
+		if(mm::OgreVideoPlayer::C_ERROR ==
 				ovp->queue(videoPath.c_str(), videoPath.c_str(), start, end)
 		  )
 		{
@@ -306,9 +280,14 @@ OgreVideoTest::update()
 	}
 
 	// update the video
+<<<<<<< HEAD
 	if(mm::OgreVideoPlayer::ERROR == mVPlayer.update(mTimeFrame) &&
 			mVPlayer.isPlaying()){
 		debugERROR("Algo anda mal aca\n");
+=======
+	if(mm::OgreVideoPlayer::C_ERROR == mVPlayer->update(mTimeFrame)){
+		debugERROR("O el video esta detenido o algo anda mal aca\n");
+>>>>>>> 4bd494c02cf6dc5ec3d3975d129667c9d6ea5f84
 	}
 }
 

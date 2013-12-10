@@ -44,7 +44,7 @@ typedef int SSsoundCode;
  */
 class SoundFamilyTable
 {
-	typedef std::pair<Ogre::String*, uint> SoundsList;
+	typedef std::pair<Ogre::String*, unsigned int> SoundsList;
 
 public:
 	inline SoundFamilyTable();
@@ -54,7 +54,7 @@ public:
 	 ** @brief
 	 ** Returns number of sound codes stored in this table.
 	 **/
-	inline uint
+	inline unsigned int
 	getNumSounds() const;
 
 	/**
@@ -75,7 +75,7 @@ public:
 	 ** setSounds(N, sounds, 2);
 	 **/
 	void
-	addSounds(SSsoundCode sc, const Ogre::String* sounds, uint size);
+	addSounds(SSsoundCode sc, const Ogre::String* sounds, unsigned int size);
 
 	/**
 	 ** @brief
@@ -121,7 +121,7 @@ public:
 	 ** reference to selected valude otherwise.
 	 **/
 	inline const Ogre::String*
-	getChosenRandomSound(SSsoundCode sc, uint choice) const;
+	getChosenRandomSound(SSsoundCode sc, unsigned int choice) const;
 
 private:
 	std::vector<SoundsList> mList;  // Sounds names lists
@@ -145,7 +145,7 @@ SoundFamilyTable::SoundFamilyTable()
 inline
 SoundFamilyTable::~SoundFamilyTable()
 {
-	for (uint i=0 ; i < mList.size() ; i++) {
+	for (unsigned int i=0 ; i < mList.size() ; i++) {
 		delete[] mList[i].first;
 	}
 	mList.clear();
@@ -153,7 +153,7 @@ SoundFamilyTable::~SoundFamilyTable()
 
 
 ////////////////////////////////////////////////////////////////////////////////
-inline uint SoundFamilyTable::getNumSounds() const { return mList.size(); }
+inline unsigned int SoundFamilyTable::getNumSounds() const { return mList.size(); }
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -188,7 +188,7 @@ SoundFamilyTable::getRandomSound(SSsoundCode sc) const
 
 ////////////////////////////////////////////////////////////////////////////////
 const Ogre::String*
-SoundFamilyTable::getChosenRandomSound(SSsoundCode sc, uint choice) const
+SoundFamilyTable::getChosenRandomSound(SSsoundCode sc, unsigned int choice) const
 {
 	if (mList.size() <= sc || !mList[sc].first || mList[sc].second < choice) {
 		return NULL;

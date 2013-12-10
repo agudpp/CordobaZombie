@@ -28,10 +28,15 @@ set(SRCS ${SRCS}
 include_directories(${THIRD_PARTY_LIBS}/lib)
 
 # Dynamic libraries
-set(COMMON_LIBRARIES ${COMMON_LIBRARIES} openal vorbisfile vorbisenc)
+if (UNIX)
+    set(COMMON_LIBRARIES ${COMMON_LIBRARIES} openal vorbisfile vorbisenc)
+endif(UNIX)
+if (WIN32)
+    set(COMMON_LIBRARIES ${COMMON_LIBRARIES} OpenAL32 vorbisfile vorbisenc)
+endif(WIN32)
 
 # Static libraries
-if(UNIX)
+if(UNIX OR WIN32)
 	# ogg
 	add_library(ogg STATIC IMPORTED)
 	set_property(TARGET ogg PROPERTY  # point imported target to real file
@@ -40,6 +45,6 @@ if(UNIX)
 	add_library(vorbis STATIC IMPORTED)
 	set_property(TARGET vorbis PROPERTY  # point imported target to real file
 	             IMPORTED_LOCATION ${THIRD_PARTY_LIBS}/lib/libvorbis.a)
-endif(UNIX)
+endif(UNIX OR WIN32)
 # TODO here we need to put Windows(TM) specific stuff
 

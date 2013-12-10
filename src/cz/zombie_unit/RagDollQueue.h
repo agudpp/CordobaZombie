@@ -22,7 +22,7 @@ class btDynamicsWorld;
 
 namespace cz {
 
-template<unsigned int NUM_INSTANCES = 10>
+template<unsigned int NUM_INSTANCES = 50>
 class RagDollQueue : public ResourceQueue<NUM_INSTANCES, physics::RagDoll>
 {
 public:

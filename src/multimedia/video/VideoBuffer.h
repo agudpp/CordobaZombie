@@ -20,8 +20,8 @@ public:
 	/*
 	 * Return codes enumeration for this class methods.
 	 */
-	enum Codes{
-		ERROR = -1,
+	enum Codes {
+		C_ERROR = -1,
 	};
 
 	/*

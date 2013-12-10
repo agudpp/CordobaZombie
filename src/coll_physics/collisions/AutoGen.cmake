@@ -15,11 +15,14 @@ set(SRCS ${SRCS}
 	${DEV_ROOT_PATH}/coll_physics/collisions/CollPreciseInfoBuilder.cpp
 )
 
-# Box2D static linkage 
-add_library(Box2D STATIC IMPORTED)
-# point the imported target at the real file
-set_property(TARGET Box2D PROPERTY
-                IMPORTED_LOCATION ${THIRD_PARTY_LIBS}/lib/Box2D.a)
-set(COMMON_LIBRARIES ${COMMON_LIBRARIES} Box2D)
 
+# Box2D static linkage
+if (NOT BOX2D_LIBS_DEFINED)
+    set(BOX2D_LIBS_DEFINED 1) 
+    add_library(Box2D STATIC IMPORTED)
+    # point the imported target at the real file
+    set_property(TARGET Box2D PROPERTY
+                    IMPORTED_LOCATION ${THIRD_PARTY_LIBS}/lib/Box2D.a)
+    set(COMMON_LIBRARIES ${COMMON_LIBRARIES} Box2D)
+endif()
 

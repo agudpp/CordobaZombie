@@ -26,13 +26,13 @@ IMainState::IMainState()
     ASSERT(sOgreInfo.renderWindow);
     ASSERT(sOgreInfo.root);
     ASSERT(sOgreInfo.sceneMngr);
-    debugERROR("We need to uncomment this asserts\n");
-//    ASSERT(sSoundHandler);
+    ASSERT(sSoundHandler);
     ASSERT(sVideoPlayer);
     ASSERT(sRcHandler);
     ASSERT(sCommonHandlers.frontEndManager);
     ASSERT(sCommonHandlers.inputHelper);
     ASSERT(sCommonHandlers.effectHandler);
+    ASSERT(sCommonHandlers.mouseCursor);
 
 }
 

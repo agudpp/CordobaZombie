@@ -26,9 +26,9 @@ namespace {
 // @param file      The file name (not the path)
 // @param p         The path where the file is.
 static bool
-getRsrcFileSections(const Ogre::String &file,
-        core::StackVector<Ogre::String, 512>& sections,
-        const Ogre::String &p = "")
+getRsrcFileSections(const std::string &file,
+        core::StackVector<std::string, 512>& sections,
+        const std::string &p = "")
 {
 	// Load resource paths from config file
 	Ogre::ConfigFile cf;
@@ -41,11 +41,11 @@ getRsrcFileSections(const Ogre::String &file,
 
 	// Go through all sections & settings in the file
 	Ogre::ConfigFile::SectionIterator seci = cf.getSectionIterator();
-	Ogre::String path = p;
+	std::string path = p;
 
 	core::OSHelper::addEndPathVar(path);
 
-	Ogre::String secName;
+	std::string secName;
 	while (seci.hasMoreElements()) {
 		secName = seci.peekNextKey();
 		if(!secName.empty()){
@@ -66,9 +66,9 @@ getRsrcFileSections(const Ogre::String &file,
 // @param file      The file name (not the path)
 // @param p         The path where the file is.
 bool
-ogreLoadRsrcFile(const Ogre::String &file,
-                 core::StackVector<Ogre::String, 512>& sections,
-                 const Ogre::String &p = "")
+ogreLoadRsrcFile(const std::string &file,
+                 core::StackVector<std::string, 512>& sections,
+                 const std::string &p = "")
 {
     // Load resource paths from config file
     Ogre::ConfigFile cf;
@@ -81,11 +81,11 @@ ogreLoadRsrcFile(const Ogre::String &file,
 
     // Go through all sections & settings in the file
     Ogre::ConfigFile::SectionIterator seci = cf.getSectionIterator();
-    Ogre::String path = p;
+    std::string path = p;
 
     core::OSHelper::addEndPathVar(path);
 
-    Ogre::String secName, typeName, archName;
+    std::string secName, typeName, archName;
     while (seci.hasMoreElements()) {
         secName = seci.peekNextKey();
         if(!secName.empty()){
@@ -133,7 +133,7 @@ ResourceHandler::loadResourceGroup(ResourceGroup& rg)
     }
 
     // try to load the resource group ogre file
-    core::StackVector<Ogre::String, 512> sections;
+    core::StackVector<std::string, 512> sections;
     ASSERT(rg.sections().empty() && "TODO: we need to change this probably, check"
         " issue 186 already closed. We don't need it now");
 
@@ -155,7 +155,7 @@ ResourceHandler::loadResourceGroup(ResourceGroup& rg)
     // now we will load all the group targets and sa
     Ogre::ResourceGroupManager &rscMng = Ogre::ResourceGroupManager::getSingleton();
 
-    for (Ogre::String& sec : sections) {
+    for (std::string& sec : sections) {
 
 #ifdef DEBUG
     	if(!rscMng.resourceGroupExists(sec)){
@@ -176,7 +176,7 @@ void
 ResourceHandler::unloadResourceGroup(const ResourceGroup& rg)
 {
 
-    core::StackVector<Ogre::String, 512> sections;
+    core::StackVector<std::string, 512> sections;
     Ogre::ResourceGroupManager &rscMng = Ogre::ResourceGroupManager::getSingleton();
 
 	if(rg.sections().empty()){
@@ -188,7 +188,7 @@ ResourceHandler::unloadResourceGroup(const ResourceGroup& rg)
         lastBar = rg.ogreResourceFile().rfind('/')+1;
 #endif
         ASSERT(lastBar > 1);
-        Ogre::String basePath = rg.ogreResourceFile().substr(0,lastBar);
+        std::string basePath = rg.ogreResourceFile().substr(0,lastBar);
 
         if (!getRsrcFileSections(rg.ogreResourceFile(), sections, basePath)) {
              debugERROR("We couldn't get the sections from %s\n",
@@ -220,9 +220,9 @@ ResourceHandler::unloadResourceGroup(const ResourceGroup& rg)
 
 ////////////////////////////////////////////////////////////////////////////////
 bool
-ResourceHandler::getResourcePath(const Ogre::String& resourceGroup,
-                                 const Ogre::String& resourceName,
-                                 Ogre::String &resourcePath)
+ResourceHandler::getResourcePath(const std::string& resourceGroup,
+                                 const std::string& resourceName,
+                                 std::string &resourcePath)
 {
     resourcePath = "";
 
@@ -264,14 +264,14 @@ ResourceHandler::getResourcePath(const Ogre::String& resourceGroup,
 
 ////////////////////////////////////////////////////////////////////////////////
 bool
-ResourceHandler::getResourcePathSomeGroup(const Ogre::String& resourceName,
-                                          Ogre::String &resourcePath)
+ResourceHandler::getResourcePathSomeGroup(const std::string& resourceName,
+                                          std::string &resourcePath)
 {
     // find the group first
     Ogre::ResourceGroupManager& resGM =
                         Ogre::ResourceGroupManager::getSingleton();
     try {
-        const Ogre::String& group = resGM.findGroupContainingResource(resourceName);
+        const std::string& group = resGM.findGroupContainingResource(resourceName);
         // call the main method
         return getResourcePath(group, resourceName, resourcePath);
     } catch (Ogre::Exception& e) {
@@ -283,6 +283,15 @@ ResourceHandler::getResourcePathSomeGroup(const Ogre::String& resourceName,
     // this never happens
     ASSERT(false);
     return false;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+void
+ResourceHandler::setResourceRootPath(const std::string &resourcePath)
+{
+    mResRootPath = resourcePath;
+    core::OSHelper::addEndPathVar(mResRootPath);
 }
 
 } /* namespace rrh */

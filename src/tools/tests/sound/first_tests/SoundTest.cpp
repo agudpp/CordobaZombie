@@ -467,7 +467,7 @@ SoundTest::testPlaylists(void)
 				"correspondía) los sonidos:\n%s", playlist1.c_str(), fails.c_str());
 		debugGREEN("Sí se pudieron cargar los sonidos:\n");
 		soundsList = mSH.getPlaylistSounds(playlist1);
-		for (uint i=0 ; i < soundsList.size() ; i++) {
+		for (unsigned int i=0 ; i < soundsList.size() ; i++) {
 			debugGREEN(	"%s\n", soundsList[i].c_str());
 		}
 	} else {

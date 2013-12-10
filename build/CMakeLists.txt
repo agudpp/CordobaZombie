@@ -106,18 +106,14 @@ if(NOT THIRD_PARTY_LIBS)
 endif()
 
 # include third party libs and includes directories
-include_directories(${THIRD_PARTY_LIBS}/include
-	${THIRD_PARTY_LIBS}/include/libavutil
-	${THIRD_PARTY_LIBS}/include/libavcodec
-	${THIRD_PARTY_LIBS}/include/libavformat
-	${THIRD_PARTY_LIBS}/include/libswscale
-)
+include_directories(${THIRD_PARTY_LIBS}/include)
+include_directories(${THIRD_PARTY_LIBS}/include/bullet)
 link_directories(${THIRD_PARTY_LIBS}/lib)
 
 
 ## Common flags
 add_definitions(-DDEBUG -g)
-add_definitions(-std=c++11)  # C++11 standard
+add_definitions(-std=gnu++11)  # GNU++11 standard, almost C++11 :)
 set(COMMON_LIBRARIES boost_system)
 if(WIN32)
 # Specific windows flags here

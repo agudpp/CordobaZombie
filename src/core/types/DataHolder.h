@@ -39,6 +39,8 @@ public:
 
 public:
     inline DataHolder() : mDestructorMethod(simpleDeleteMethod) {};
+    inline DataHolder(const DestructorMethod& method) :
+        mDestructorMethod(method) {};
     inline ~DataHolder() {freeAll();};
 
     // @brief Add a new element
@@ -157,6 +159,7 @@ DataHolder<T>::freeAll(void)
 {
     if (!mDestructorMethod) {
         // nothing to do
+        mElements.clear();
         return;
     }
     // else apply the destructor method

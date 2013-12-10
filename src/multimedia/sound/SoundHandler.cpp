@@ -77,7 +77,7 @@ SoundHandler::Playlist::Playlist(const Ogre::String& name,
 {
 	// Initialize play order (if necessary, will be shuffled on play time)
 	mPlayOrder.resize(list.size());
-	for (uint i=0 ; i < list.size() ; i++) { mPlayOrder[i] = i; }
+	for (unsigned int i=0 ; i < list.size() ; i++) { mPlayOrder[i] = i; }
 	// Set internal state according to calling parameters
 	mState |= (repeat ? PLAYLIST_REPEAT : 0)
 			| (randomOrder ? PLAYLIST_RANDOM_ORDER : 0)
@@ -108,12 +108,12 @@ SoundHandler::Playlist::operator=(const Playlist& pl)
 	mName = pl.mName;
 
 	mList.resize(pl.mList.size());
-	for (uint i=0 ; i < pl.mList.size() ; i++) {
+	for (unsigned int i=0 ; i < pl.mList.size() ; i++) {
 		mList[i] = pl.mList[i];
 	}
 
 	mPlayOrder.resize(pl.mPlayOrder.size());
-	for (uint i=0 ; i < pl.mPlayOrder.size() ; i++) {
+	for (unsigned int i=0 ; i < pl.mPlayOrder.size() ; i++) {
 		mPlayOrder[i] = pl.mPlayOrder[i];
 	}
 
@@ -146,9 +146,9 @@ SoundHandler::loadSounds(const std::vector<Ogre::String>& list, SSbuftype bufTyp
 	SSerror err(SSerror::SS_NO_ERROR);
 	Ogre::String fails("");
 
-	for (uint i=0 ; i < list.size() ; i++) {
+	for (unsigned int i=0 ; i < list.size() ; i++) {
 		// Check file's sound format, according to extension.
-		uint pos = list[i].find_last_of('/') + 1;
+		unsigned int pos = list[i].find_last_of('/') + 1;
 		Ogre::String sName = list[i].substr(pos);
 		pos = sName.find_last_of(".") + 1;
 
@@ -189,7 +189,7 @@ Ogre::String
 SoundHandler::unloadSounds(const std::vector<Ogre::String>& list)
 {
 	Ogre::String fails("");
-	for (uint i=0 ; i < list.size() ; i++) {
+	for (unsigned int i=0 ; i < list.size() ; i++) {
 		if (sSoundManager.isActiveEnvSound(list[i]) ||
 			sSoundManager.isActiveAPISound(list[i])) {
 			fails += "File: \"" + list[i] + "\" was in use.\n";
@@ -225,7 +225,7 @@ SoundHandler::update(const float globalTimeFrame)
 	sSoundManager.update(globalTimeFrame, &mFinishedPlaylists, &mPausedPlaylists);
 
 	// Attend playlists which finished a sound.
-	for (uint i=0 ; i < mFinishedPlaylists.size() ; i++) {
+	for (unsigned int i=0 ; i < mFinishedPlaylists.size() ; i++) {
 		if (!dynamic_cast<Playlist *>((Playlist*)mFinishedPlaylists[i])) {
 			// Not one of our sounds
 			continue;
@@ -248,7 +248,7 @@ SoundHandler::update(const float globalTimeFrame)
 	mFinishedPlaylists.clear();
 
 	// Update internal state of paused playlists
-	for (uint i=0 ; i < mPausedPlaylists.size() ; i++) {
+	for (unsigned int i=0 ; i < mPausedPlaylists.size() ; i++) {
 		if (!dynamic_cast<Playlist *>((Playlist*)mPausedPlaylists[i])) {
 			// Not one of our sounds.
 			continue;
@@ -264,7 +264,7 @@ SoundHandler::update(const float globalTimeFrame)
 	mPausedPlaylists.clear();
 
 	// Check for playlists which must start a new sound.
-	for (uint i=0 ; i < mPlaylists.size() ; i++) {
+	for (unsigned int i=0 ; i < mPlaylists.size() ; i++) {
 		pl = mPlaylists[i];
 		if ((pl->mState & PLAYLIST_PAUSED) || !(pl->mState & PLAYLIST_SILENCE))
 			continue;  // Irrelevant for current check.
@@ -294,7 +294,7 @@ SoundHandler::globalPause()
 	sSoundManager.globalPause();
 
 	// Now update playlists internal state.
-	for (uint i = 0 ; i < mPlaylists.size() ; i++) {
+	for (unsigned int i = 0 ; i < mPlaylists.size() ; i++) {
 		Playlist *pl = mPlaylists[i];
 		checkPlaylistState(pl);
 		if (pl->mList.empty()) continue;  // Empty playlist: nothing to do.
@@ -322,7 +322,7 @@ SoundHandler::globalPlay()
 	sSoundManager.globalPlay();
 
 	// Now update playlists internal state.
-	for (uint i = 0 ; i < mPlaylists.size() ; i++) {
+	for (unsigned int i = 0 ; i < mPlaylists.size() ; i++) {
 		Playlist *pl = mPlaylists[i];
 		checkPlaylistState(pl);
 		if (pl->mList.empty()) continue;  // Empty playlist: nothing to do.
@@ -354,7 +354,7 @@ SoundHandler::globalStop()
 	// First let the manager update the sound sources
 	sSoundManager.globalStop();
 	// Now update playlists internal state.
-	for (uint i = 0 ; i < mPlaylists.size() ; i++) {
+	for (unsigned int i = 0 ; i < mPlaylists.size() ; i++) {
 		Playlist *pl = mPlaylists[i];
 		checkPlaylistState(pl);
 		if (pl->mList.empty()) continue;  // Empty playlist: nothing to do.
@@ -379,7 +379,7 @@ SoundHandler::globalRestart()
 	toRestart.reserve(mPlaylists.size());  // Avoid reallocations.
 
 	// First stop currently active playlists.
-	for (uint i = 0 ; i < mPlaylists.size() ; i++) {
+	for (unsigned int i = 0 ; i < mPlaylists.size() ; i++) {
 		Playlist *pl = mPlaylists[i];
 		checkPlaylistState(pl);
 		if (pl->mList.empty()) continue;  // Empty playlist: nothing to do.
@@ -393,7 +393,7 @@ SoundHandler::globalRestart()
 	sSoundManager.globalRestart();
 
 	// Finally restart previously stopped playlists.
-	for (uint i = 0 ; i < toRestart.size() ; i++) {
+	for (unsigned int i = 0 ; i < toRestart.size() ; i++) {
 		startPlaylist(toRestart[i]->mName, toRestart[i]);
 	}
 	toRestart.clear();
@@ -409,7 +409,7 @@ SoundHandler::globalFadeOut(const Ogre::Real& time, const bool pause)
 	// First let the manager update the sound sources.
 	sSoundManager.globalFadeOut(time, pause);
 	// Now update playlists internal state.
-	for (uint i = 0 ; i < mPlaylists.size() ; i++) {
+	for (unsigned int i = 0 ; i < mPlaylists.size() ; i++) {
 		Playlist *pl = mPlaylists[i];
 		checkPlaylistState(pl);
 		if (pl->mList.empty()) continue;  // Empty playlist: nothing to do.
@@ -429,7 +429,7 @@ SoundHandler::globalFadeIn(const Ogre::Real& time)
 	sSoundManager.globalFadeIn(time);
 
 	// Now update playlists internal state.
-	for (uint i = 0 ; i < mPlaylists.size() ; i++) {
+	for (unsigned int i = 0 ; i < mPlaylists.size() ; i++) {
 		Playlist *pl = mPlaylists[i];
 		checkPlaylistState(pl);
 		if (pl->mList.empty()) continue;  // Empty playlist: nothing to do.
@@ -476,7 +476,7 @@ SoundHandler::newPlaylist(const Ogre::String& name,
 	}
 
 	// Check requested sounds are available.
-	for (uint i=0 ; i < soundsList.size() ; i++) {
+	for (unsigned int i=0 ; i < soundsList.size() ; i++) {
 		if (sSoundManager.isSoundLoaded(soundsList[i])) {
 			// Sound OK, register.
 			list.push_back(soundsList[i]);
@@ -502,7 +502,7 @@ void
 SoundHandler::deletePlaylist(const Ogre::String& name)
 {
 	Ogre::String sound("");
-	for (uint i=0 ; i < mPlaylists.size() ; i++) {
+	for (unsigned int i=0 ; i < mPlaylists.size() ; i++) {
 		if (mPlaylists[i]->mName != name)
 			continue;
 		// else: playlist found
@@ -908,7 +908,7 @@ SoundHandler::getPlaylistPlayState(const Ogre::String& name) const
 bool
 SoundHandler::setPlaylistRepeat(const Ogre::String& name, bool repeat)
 {
-	for (uint i=0 ; i < mPlaylists.size() ; i++) {
+	for (unsigned int i=0 ; i < mPlaylists.size() ; i++) {
 		if (mPlaylists[i]->mName == name) {
 			if (repeat) {
 				setPlaylistState(mPlaylists[i], PLAYLIST_REPEAT);
@@ -926,7 +926,7 @@ SoundHandler::setPlaylistRepeat(const Ogre::String& name, bool repeat)
 bool
 SoundHandler::getPlaylistRepeat(const Ogre::String& name, bool* found) const
 {
-	for (uint i=0 ; i < mPlaylists.size() ; i++) {
+	for (unsigned int i=0 ; i < mPlaylists.size() ; i++) {
 		if (mPlaylists[i]->mName == name) {
 			if (found) { *found = true; };
 			return mPlaylists[i]->mState & PLAYLIST_REPEAT;
@@ -941,7 +941,7 @@ SoundHandler::getPlaylistRepeat(const Ogre::String& name, bool* found) const
 bool
 SoundHandler::setPlaylistRandomOrder(const Ogre::String& name, bool random)
 {
-	for (uint i=0 ; i < mPlaylists.size() ; i++) {
+	for (unsigned int i=0 ; i < mPlaylists.size() ; i++) {
 		if (mPlaylists[i]->mName == name) {
 			if (random) {
 				setPlaylistState(mPlaylists[i], PLAYLIST_RANDOM_ORDER);
@@ -959,7 +959,7 @@ SoundHandler::setPlaylistRandomOrder(const Ogre::String& name, bool random)
 bool
 SoundHandler::getPlaylistRandomOrder(const Ogre::String& name, bool* found) const
 {
-	for (uint i=0 ; i < mPlaylists.size() ; i++) {
+	for (unsigned int i=0 ; i < mPlaylists.size() ; i++) {
 		if (mPlaylists[i]->mName == name) {
 			if (found) { *found = true; };
 			return mPlaylists[i]->mState & PLAYLIST_RANDOM_ORDER;
@@ -974,7 +974,7 @@ SoundHandler::getPlaylistRandomOrder(const Ogre::String& name, bool* found) cons
 bool
 SoundHandler::setPlaylistRandomSilence(const Ogre::String& name, bool random)
 {
-	for (uint i=0 ; i < mPlaylists.size() ; i++) {
+	for (unsigned int i=0 ; i < mPlaylists.size() ; i++) {
 		if (mPlaylists[i]->mName == name) {
 			if (random) {
 				setPlaylistState(mPlaylists[i], PLAYLIST_RANDOM_SILENCE);
@@ -992,7 +992,7 @@ SoundHandler::setPlaylistRandomSilence(const Ogre::String& name, bool random)
 bool
 SoundHandler::getPlaylistRandomSilence(const Ogre::String& name, bool* found) const
 {
-	for (uint i=0 ; i < mPlaylists.size() ; i++) {
+	for (unsigned int i=0 ; i < mPlaylists.size() ; i++) {
 		if (mPlaylists[i]->mName == name) {
 			if (found) { *found = true; };
 			return mPlaylists[i]->mState & PLAYLIST_RANDOM_SILENCE;
