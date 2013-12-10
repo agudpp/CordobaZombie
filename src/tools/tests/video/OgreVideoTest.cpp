@@ -70,7 +70,7 @@ const int VIDEO_STATE_LIST_SIZE = 3;
 
 const char* VIDEO_STATE_LIST[VIDEO_STATE_LIST_SIZE] =
 			{
-			"perrosInfectados.ogg",
+			"intro_logo.mp4",
 			"5seg2.ogg",
 			"menu.ogg"
 			};

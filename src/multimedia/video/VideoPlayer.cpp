@@ -308,7 +308,7 @@ int VideoPlayer::load(const char *fileName){
     // Find the first video and the first audio stream
     videoStream = -1;
     audioStream = -1;
-    for(int i=0; i<pFormatCtx->nb_streams && videoStream == -1 && audioStream == -1;
+    for(int i=0; i<pFormatCtx->nb_streams && videoStream == -1 || audioStream == -1;
         i++)
     {
         if(pFormatCtx->streams[i]->codec->codec_type == AVMEDIA_TYPE_VIDEO &&
