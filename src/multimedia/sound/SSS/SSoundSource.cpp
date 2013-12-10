@@ -230,24 +230,22 @@ SSoundSource::update(const Ogre::Vector3& pos)
 		// Queue back, if properly refilled.
 		if (readSize > 0) {
 			alSourceQueueBuffers(mSource, 1, &mIntBuffers[mFirstBuffer]);
-			if (restart) { alSourcePlay(mSource); restart = false; }
 		}
 		// Increment buffer pointer if there were no errors.
 		if (readSize >= 0) {
 			++mFirstBuffer %= SS_NUM_INT_BUFFERS;
 		}
-
-		// this is an problem in windows only. We need to call again the "get
-		// all the buffers we can unqueue, if not we will get an error when trying
-		// to get the free buffers. Note that something is working bad in openal
-		// since if the first call tell us that we have 3 buffers to be unqueue
-		// and then we unqueue only one with alSourceUnqueueBuffers(...) this
-		// somehow its clearing the buffers we can unqueue in the next call...
-		// TODO: note that this way we are losing buffers??? openal sucks?
-#ifdef WIN32
-		alGetSourcei(mSource, AL_BUFFERS_PROCESSED, &processed);
-#endif
 	}
+
+	// check if we need to restart, we will play after queueing the sources since
+	// this cause an error on windows (after playing the source the unqueued
+	// buffers are reseted and we cannot get any empty buffer again (until
+	// openal finish the current one).
+	//
+    if (restart) {
+        alSourcePlay(mSource);
+        restart = false;
+    }
 
 	// Check for errors.
 	alGetSourcei(mSource, AL_SOURCE_STATE, &st);
