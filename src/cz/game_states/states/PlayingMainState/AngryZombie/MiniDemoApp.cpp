@@ -173,7 +173,7 @@ MiniDemoApp::loadFloor(void)
 Projectile*
 MiniDemoApp::buildPorjectile(const Ogre::Vector3& pos)
 {
-    Ogre::Entity* ent = mData.sceneMngr->createEntity("zombieZ.mesh");
+    Ogre::Entity* ent = mData.sceneMngr->createEntity("zombie.mesh");
     Ogre::SceneNode* node = mData.sceneMngr->getRootSceneNode()->createChildSceneNode();
     node->attachObject(ent);
     node->setPosition(pos);
@@ -245,11 +245,20 @@ MiniDemoApp::handlePlayerInput(float frameTime)
             force *= 8700;
             projectile->applyForce(force);
         } else {
-            // we have to fire a box
+            // we have to fire a head
             const Ogre::Vector3 halfSize(2.5,2.5,2.5);
             Ogre::AxisAlignedBox bb(camPos - halfSize, camPos + halfSize);
             PhysicObject* po = new PhysicObject;
-            physics::BulletImporter::createBox(po->bulletObject(), bb, 10);
+            physics::BulletImporter::createBox(po->bulletObject(), bb, 10, false);
+
+            // create the head
+            Ogre::SceneNode* headNode = mData.sceneMngr->getRootSceneNode()->createChildSceneNode();
+            headNode->setPosition(bb.getCenter());
+            Ogre::Entity* headEnt = mData.sceneMngr->createEntity("cabeza.mesh");
+            headNode->attachObject(headEnt);
+            po->bulletObject().motionState.setNode(headNode);
+            po->bulletObject().entity = headEnt;
+
             mSceneHandler.addPhysicObject(po);
             force *= 4700;
             btVector3 btForce(force.x, force.y, force.z);
@@ -393,7 +402,7 @@ MiniDemoApp::getResourceToLoad(rrh::ResourceGroup& resource)
     debugERROR("For now we will load everything to avoid problems, then we will"
         " load the resources correctly here.\n");
     std::string fullPath;
-    mData.rscHandler->getResourceFullPath("./resources.cfg", fullPath);
+    mData.rscHandler->getResourceFullPath("mini_demo/resources.cfg", fullPath);
     resource.setOgreResourceFile(fullPath);
 
     return true;
