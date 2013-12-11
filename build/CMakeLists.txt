@@ -150,6 +150,10 @@ include_directories( ${OIS_INCLUDE_DIRS}
     ${DEV_ROOT_PATH}/engine
 )
 
+# we will include the logger as default since we will almost always will
+# use it
+include(${DEV_ROOT_PATH}/core/logger/AutoGen.cmake)
+
 # Include all the other specific files
 include(${DEV_ROOT_PATH}/../build/ToCompile.cmake)
 
