@@ -21,6 +21,16 @@ namespace cz {
 
 class MainStateMachine
 {
+    // We will define an internal state for the states that will be loaded.
+    // This way we will avoid the big long timeframes between loading
+    // the resources and executing the state.
+    //
+    enum State {
+        MSM_ST_INIT = 0,
+        MSM_ST_LOAD,
+        MSM_ST_RUNNING,
+    };
+
 public:
     // @brief Construct the machine with the associated TransitionTable and
     //        the instance of the resource handle to use
@@ -37,11 +47,6 @@ public:
     //
     void
     reset(void);
-
-    // @brief Execute the last executed state
-    //
-    void
-    executeLastState(void);
 
     // @brief Return the current / last state
     //
@@ -71,19 +76,26 @@ public:
 private:
 
     // @brief Change an state, uninitialize the current if needed an init the
-    //        new one.
+    //        new one (but not load it). This will not change the internal state.
     // @param newState      The new state we will execute
     // @return true on success | false if the old state fails when unloading or
     //                           the new one fails when trying to load.
     bool
     changeState(IMainState* newState);
 
-    // @brief Unload a state (its resources and make all the needed calls)
+    // @brief Uninit the state (its resources and make all the needed calls)
     // @param state      The state we want to unload
     // @return true on success | false if some error occur
     //
     bool
-    unloadState(IMainState* state);
+    uninitState(IMainState* state);
+
+    // @brief Init a new state (its resources and make all the needed calls)
+    // @param state     The state we want to load
+    // @return true on success | false if some error occur
+    //
+    bool
+    initState(IMainState* state);
 
     // @brief Load a new state (its resources and make all the needed calls)
     // @param state     The state we want to load
@@ -99,6 +111,7 @@ private:
     MainStateEvent mLastEvent;
     IMainState* mCurrentState;
     IMainState* mLastState;
+    State mInternalState;
 };
 
 
