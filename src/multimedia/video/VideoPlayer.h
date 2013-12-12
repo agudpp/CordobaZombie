@@ -1,10 +1,23 @@
+/*
+ * Module VideoPlayer
+ * Version 2.0
+ * Wed 11/12/2013
+ * Author: Raul
+ */
+
+////////////////////////////////////////////////////////////////////////////////
+
 #ifndef VIDEO_PLAYER_H
 #define VIDEO_PLAYER_H
+
+
 
 // c++ stdlib includes
 #include <iostream>
 #include <cstdio>
 #include <queue>
+//-----------------------------------------------------------------------------
+
 
 // FFMPEG includes
 extern "C" {
@@ -13,6 +26,8 @@ extern "C" {
 #include <libavutil/avutil.h>
 #include <libswscale/swscale.h>
 }
+//-----------------------------------------------------------------------------
+
 
 // OPEN_AL includes
 #if defined(_WIN32) || defined(CYGWIN)
@@ -25,13 +40,17 @@ extern "C" {
 #else
 #  error "Unsupported platform. ABORTING COMPILATION."
 #endif
+//-----------------------------------------------------------------------------
+
 
 // Project includes
 #include <debug/DebugUtil.h>
 #include "VideoBuffer.h"
+//-----------------------------------------------------------------------------
 
 
 
+////////////////////////////////////////////////////////////////////////////////
 
 namespace mm {
 
@@ -120,11 +139,13 @@ public:
      */
     VideoPlayer(VideoBuffer *screen);
 
+
     /*
      * Video player destroyer
      */
     virtual
     ~VideoPlayer(void);
+
 
     /*
      * Select video 'fileName' to load into the player for decoding.
@@ -132,17 +153,34 @@ public:
     int
     load(const char *fileName);
 
+
+    /*
+     * Unload the video player, clean and free its buffers.
+     */
     int
     unload(void);
 
+
+    /*
+     * Check if there is a video loaded into the video player.
+     */
     inline bool
     is_loaded(void);
 
+
+    /*
+     * Start playing the loaded video.
+     */
     void
     play(void);
 
+
+    /*
+     * Check if the video player is playing something.
+     */
     inline bool
     is_playing(void);
+
 
     /**
      * @VideoPlayer::update
@@ -151,41 +189,61 @@ public:
      * @Return:
      * 		VIDEO_ERROR if the video ends at least one second before its
      * 		supposed to end, meaning that the file is broken. Else VIDEO_OK.
+     * 		TODO: one second is too much REPAIR!!!
      */
     int
     update(double timesincelastframe);
 
+
     /*
-     * Seek to frame at time stamp 'ts' or as near to it as possible.
+     * Seek to frame at time stamp 'ts' or as close to it as possible.
      * @warning: packet queues will be cleared on success.
-     *
      */
     int
     seek_time_stamp(double ts);
 
+
+    /*
+     *
+     */
     inline int
     get_video_length(double & l);
 
+
+    /*
+     *
+     */
     inline int
     get_playing_time_in_secs(double & s);
 
+
+    /*
+     *
+     */
     inline const char *
     get_video_name(void);
 
+
+    /*
+     *
+     */
     int
     paint_screen(unsigned char R, unsigned char G, unsigned char B);
 
+
     /*
-     * Get height and width of the loaded video.
+     * Get height and width of the loaded video in pixels.
      */
     inline int
     getSizes(unsigned int &h, unsigned int &w);
+
 
     /*
      * Paint it black.
      */
     int
     paint_black_screen(void);
+
 
 protected:
 
@@ -221,7 +279,7 @@ protected:
      * 		them.
      */
     int
-    update_video(double tslf);
+    update_video(void);
 
     /*
      * Update the video player audio. It checks if al player needs data in its
@@ -234,7 +292,7 @@ protected:
      * 		then it returns VIDEO_ENDED.
      */
     int
-    update_audio(double tslf);
+    update_audio(void);
 
     /*
      *
@@ -287,30 +345,53 @@ protected:
     int
     preload_audio(void);
 
+
+    /*
+     * From the audio track (can be different from the video time, when
+     * synchronization is not working right).
+     */
     int
     get_playing_time(double & t);
 
+
+    /*
+     *
+     */
     int
     empty_data_queues(void);
 
-    // Useful as debug
+
+public: // Extra methods
+
+    /*
+     * Useful as debug
+     */
     void
     SaveFrame(AVFrame *pFrame, int width, int height, int iFrame);
 
 };
 
+
+///////////////////////////////////////////////////////////////////////////////
+
+
+//-----------------------------------------------------------------------------
 inline bool
 VideoPlayer::is_playing(void)
 {
     return isPlaying;
 }
 
+
+//-----------------------------------------------------------------------------
 inline bool
 VideoPlayer::is_loaded(void)
 {
     return isLoaded;
 }
 
+
+//-----------------------------------------------------------------------------
 inline int
 VideoPlayer::get_video_length(double & l)
 {
@@ -324,6 +405,8 @@ VideoPlayer::get_video_length(double & l)
     }
 }
 
+
+//-----------------------------------------------------------------------------
 inline int
 VideoPlayer::get_playing_time_in_secs(double & s)
 {
@@ -336,6 +419,8 @@ VideoPlayer::get_playing_time_in_secs(double & s)
     }
 }
 
+
+//-----------------------------------------------------------------------------
 //TODO Revisar esta mierda de codigo!!!!
 inline const char *
 VideoPlayer::get_video_name(void)
@@ -349,6 +434,8 @@ VideoPlayer::get_video_name(void)
     }
 }
 
+
+//-----------------------------------------------------------------------------
 inline int
 VideoPlayer::getSizes(unsigned int &h, unsigned int &w)
 {

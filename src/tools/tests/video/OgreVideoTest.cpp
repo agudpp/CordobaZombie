@@ -66,13 +66,14 @@ namespace{
 // For finding videos between the resources
 
 
-const int VIDEO_STATE_LIST_SIZE = 3;
+const int VIDEO_STATE_LIST_SIZE = 4;
 
 const char* VIDEO_STATE_LIST[VIDEO_STATE_LIST_SIZE] =
 			{
 			"intro_logo.mp4",
 			"5seg2.ogg",
-			"menu.ogg"
+			"menu.ogg",
+			"ly2010-hubris.mkv"
 			};
 
 
@@ -280,14 +281,9 @@ OgreVideoTest::update()
 	}
 
 	// update the video
-<<<<<<< HEAD
-	if(mm::OgreVideoPlayer::ERROR == mVPlayer.update(mTimeFrame) &&
-			mVPlayer.isPlaying()){
-		debugERROR("Algo anda mal aca\n");
-=======
-	if(mm::OgreVideoPlayer::C_ERROR == mVPlayer->update(mTimeFrame)){
+	if(mm::OgreVideoPlayer::C_ERROR == mVPlayer.update(mTimeFrame) &&
+        mVPlayer.isPlaying()){
 		debugERROR("O el video esta detenido o algo anda mal aca\n");
->>>>>>> 4bd494c02cf6dc5ec3d3975d129667c9d6ea5f84
 	}
 }
 

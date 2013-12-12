@@ -58,11 +58,6 @@ const double EPS = 10e-12; // For double precision comparisons
  *	12. Reinicializar todas las variables (o al menos todas las necesarias)
  *	cada vez que se haga load, para evitar sorpresas como las que ya tuve :D.
  *
- *	13. Ver que pasa si se termina de reproducir la lista y pongo repeat y pido
- *	seguir reproduciendo.
- *
- *	14. Quitar los parametros tslf de todas los metodos que no los necesitan
- *
  *	15. Limpiar los buffers de sonido para que no haga ruido de basura al
  *	darle play a un nuevo video.
  *
@@ -231,8 +226,8 @@ VideoPlayer::load(const char *fileName)
     // Find the first video and the first audio stream
     videoStream = -1;
     audioStream = -1;
-    for (int i = 0; i < pFormatCtx->nb_streams && videoStream == -1
-        || audioStream == -1; i++) {
+    for (int i = 0; i < pFormatCtx->nb_streams && (videoStream == -1
+        || audioStream == -1); i++) {
         if (pFormatCtx->streams[i]->codec->codec_type == AVMEDIA_TYPE_VIDEO
             && videoStream < 0) {
             videoStream = i;
@@ -672,12 +667,12 @@ VideoPlayer::update(double timesincelastframe)
 
     //if we have audio
     if (audioStream != -1) {
-        audio_ret = update_audio(timesincelastframe);
+        audio_ret = update_audio();
     } else {
         audio_ret = VIDEO_ENDED;
     }
 
-    video_ret = update_video(timesincelastframe);
+    video_ret = update_video();
 
     if (audio_ret == VIDEO_ERROR or video_ret == VIDEO_ERROR) {
         debugERROR("Video error\n");
@@ -686,7 +681,8 @@ VideoPlayer::update(double timesincelastframe)
 
     if ((audioStream == -1 || audio_ret == VIDEO_ENDED) && video_ret
         == VIDEO_ENDED) {
-        ASSERT(vDataQue.empty()); ASSERT(aDataDque.empty()); debugGREEN("Video of length %lf ended at time %lf\n",
+        ASSERT(vDataQue.empty()); ASSERT(aDataDque.empty());
+        debugGREEN("Video of length %lf ended at time %lf\n",
             mVideoLength, mplayingtime);
         isPlaying = false;
         return VIDEO_ENDED;
@@ -708,8 +704,8 @@ VideoPlayer::update(double timesincelastframe)
  * 		VIDEO_ENDED if can't get more packets to decode frames and present them.
  */
 int
-VideoPlayer::update_video(double tslf)
-{ // FIXME al dope el tslf
+VideoPlayer::update_video(void)
+{
 
     if (vDataQue.empty()) {
         //if need data
@@ -769,6 +765,26 @@ VideoPlayer::update_video(double tslf)
 //-----------------------------------------------------------------------------
 
 int
+VideoPlayer::paint_screen(unsigned char R, unsigned char G, unsigned char B)
+{
+    ASSERT(mScreen);
+    unsigned char img[pCodecCtx->width * pCodecCtx->height * 3];
+    for (int i = 0; i + 2 < pCodecCtx->width * pCodecCtx->height * 3; i += 3) {
+        img[i] = R;
+        img[i + 1] = G;
+        img[i + 2] = B;
+    }
+    mScreen->fillBuffer(img,
+                        VideoBuffer::Format::RGB,
+                        pCodecCtx->width * pCodecCtx->height * 3);
+
+    return VIDEO_OK;
+}
+
+
+//-----------------------------------------------------------------------------
+
+int
 VideoPlayer::paint_black_screen(void)
 {
     ASSERT(mScreen);
@@ -784,8 +800,8 @@ VideoPlayer::paint_black_screen(void)
 //-----------------------------------------------------------------------------
 
 int
-VideoPlayer::update_audio(double tslf)
-{ // FIXME tslf esta al dope
+VideoPlayer::update_audio(void)
+{
 
     ALuint buffer = 0;
     ALint val = 0;
