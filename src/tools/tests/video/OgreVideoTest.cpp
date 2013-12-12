@@ -19,8 +19,6 @@
 
 
 
-
-
 /******************************************************************************/
 /**********************    LOCAL HELPER FUNCTIONS    **************************/
 namespace {
@@ -70,10 +68,10 @@ const int VIDEO_STATE_LIST_SIZE = 4;
 
 const char* VIDEO_STATE_LIST[VIDEO_STATE_LIST_SIZE] =
 			{
-			"intro_logo.mp4",
-			"5seg2.ogg",
-			"menu.ogg",
-			"ly2010-hubris.mkv"
+                "intro_video.ogg",
+                "5seg2.ogg",
+                "menu.ogg",
+                "gorillaz.mp4"
 			};
 
 

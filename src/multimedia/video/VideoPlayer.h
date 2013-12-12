@@ -1,6 +1,6 @@
 /*
- * Module VideoPlayer
- * Version 2.0
+ * Module: VideoPlayer
+ * Version: 2.0
  * Wed 11/12/2013
  * Author: Raul
  */
@@ -27,7 +27,6 @@ extern "C" {
 #include <libswscale/swscale.h>
 }
 //-----------------------------------------------------------------------------
-
 
 // OPEN_AL includes
 #if defined(_WIN32) || defined(CYGWIN)
@@ -267,6 +266,7 @@ protected:
     int
     get_more_data(void);
 
+
     /*
      * Update the video (the screen where the video is being played) if
      * its time to do it. Gets packets from the video queue decodes them and
@@ -339,8 +339,8 @@ protected:
     print_video_info(void);
 
     /*
-     * Preload buffer to avoid problems with synchronization. Does the same thing
-     * as audio_update but doesn't start to play the audio.
+     * Preload buffer to avoid problems with synchronization. Does the same
+     * thing as audio_update but doesn't start to play the audio.
      */
     int
     preload_audio(void);

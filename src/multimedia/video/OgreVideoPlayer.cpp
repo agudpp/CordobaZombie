@@ -97,6 +97,17 @@ OgreVideoScreen::OgreVideoScreen(Ogre::Real left,  Ogre::Real top,
 			height, 0,
 			Ogre::PF_X8R8G8B8, Ogre::TU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
 
+    /*
+     * TODO: note that rtttex->getFormat() and rtttex->getDesiredFormat() are
+     * not allways the same (Ogre does what ever he wants :S) so it would be
+     * good to check the getFormat() value and build the fillbuffer method
+     * based on it.
+     *
+     * debugGREEN("format: real -> %i, desired -> %i\n",rtttex->getFormat(),
+     * rtttex->getDesiredFormat());
+     */
+
+
     mRttTexture = rtttex;
     ASSERT(mRttTexture.get());
 

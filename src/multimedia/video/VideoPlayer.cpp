@@ -1,4 +1,14 @@
+/*
+ * Module: VideoPlayer
+ * Version: 2.0
+ * Wed 11/12/2013
+ * Author: Raul
+ */
+
+////////////////////////////////////////////////////////////////////////////////
+
 #include <inttypes.h>
+#include <string.h>
 
 extern "C" {
 #include <libavcodec/avcodec.h>
@@ -10,7 +20,7 @@ extern "C" {
 #include "VideoPlayer.h"
 
 /*
- * TODO: this is a fix to support old versions of ffmpeg. Looks like this macro
+ * NOTE: This is a fix to support old versions of ffmpeg. Looks like this macro
  * was undefined in version 2.1 ...
  */
 #ifndef AVCODEC_MAX_AUDIO_FRAME_SIZE
@@ -64,6 +74,10 @@ const double EPS = 10e-12; // For double precision comparisons
  *	16. Buscar una mejor solucion para no usar viejos audio packets al hacer
  *	get_playing_time luego de un seek. Usar la variable apnvfts es muy McCaco.
  *
+ *	17. Función para crear el alplayer una sola vez, funcion para tomar datos
+ *	de audio packet. Usar estos datos para cargar correctamente el audio player.
+ *	Asegurarse de que no estamos tirando mil threads :S.
+ *
  * TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
  */
 
@@ -106,15 +120,40 @@ const double EPS = 10e-12; // For double precision comparisons
 
 //-----------------------------------------------------------------------------
 VideoPlayer::VideoPlayer(VideoBuffer *screen) :
-    pFormatCtx(0), pCodecCtx(0), aCodecCtx(0), pCodec(0), aCodec(0), pFrame(0),
-        pFrameRGB(0), buffer(0), isPlaying(false), isLoaded(false),
-        pImgConvertCtx(0), dst_pix_fmt(PIX_FMT_BGR24), mScreen(screen),
-        mplayingtime(0.0f), vtbasenum(0), vtbaseden(0), atbasenum(0),
-        atbaseden(0), mVideoLength(0.0f), dev(0), ctx(0), source(0),
-        al_frequency(0), al_format(0), audio_decoded_frame(0),
-        audio_decoding_pkt(0), decoded_frame_data_ptr(0), decoded_data_size(0),
-        decoding_pkt_size(0), decoding_pkt_data(0), synchroPTS(0),
-        buffLenInSec(0), lastPts(0), apnvfts(0)
+    pFormatCtx(0),
+    pCodecCtx(0),
+    aCodecCtx(0),
+    pCodec(0),
+    aCodec(0),
+    pFrame(0),
+    pFrameRGB(0),
+    buffer(0),
+    isPlaying(false),
+    isLoaded(false),
+    pImgConvertCtx(0),
+    dst_pix_fmt(PIX_FMT_BGR24),
+    mScreen(screen),
+    mplayingtime(0.0f),
+    vtbasenum(0),
+    vtbaseden(0),
+    atbasenum(0),
+    atbaseden(0),
+    mVideoLength(0.0f),
+    dev(0),
+    ctx(0),
+    source(0),
+    al_frequency(0),
+    al_format(0),
+    audio_decoded_frame(0),
+    audio_decoding_pkt(0),
+    decoded_frame_data_ptr(0),
+    decoded_data_size(0),
+    decoding_pkt_size(0),
+    decoding_pkt_data(0),
+    synchroPTS(0),
+    buffLenInSec(0),
+    lastPts(0),
+    apnvfts(0)
 {
 
 #if OGRE_ENDIAN == OGRE_ENDIAN_BIG
@@ -165,24 +204,32 @@ VideoPlayer::~VideoPlayer()
         pCodecCtx = 0;
     }
 
-    if (audioStream != -1) {
-        if (audio_decoded_frame) {
-            av_free(audio_decoded_frame);
-            audio_decoded_frame = 0;
-        }
-        if (aCodecCtx) {
-            avcodec_close(aCodecCtx);
-            aCodecCtx = 0;
-        }
 
-        // In case there is a packet in audio_decoding_pkt
-        if (audio_decoding_pkt) {
-            av_free_packet(audio_decoding_pkt);
-            delete audio_decoding_pkt;
-            audio_decoding_pkt = 0;
-        }
-
+    // Free and close audio devices, buffers and packets
+    if (audio_decoded_frame) {
+        av_free(audio_decoded_frame);
+        audio_decoded_frame = 0;
     }
+    if (aCodecCtx) {
+        avcodec_close(aCodecCtx);
+        aCodecCtx = 0;
+    }
+
+    // In case there is a packet in audio_decoding_pkt
+    if (audio_decoding_pkt) {
+        av_free_packet(audio_decoding_pkt);
+        delete audio_decoding_pkt;
+        audio_decoding_pkt = 0;
+    }
+
+    if(dev){
+        alcCloseDevice(dev);
+        alcCloseDevice(dev);
+    }
+    if(ctx){
+        alcDestroyContext(ctx);
+    }
+
 }
 
 //-----------------------------------------------------------------------------
@@ -388,7 +435,7 @@ VideoPlayer::play(void)
                 < AUDIO_QUEUE_MAX_SIZE) {
             }
 
-            mplayingtime = 0;
+            mplayingtime = 0.;
             isPlaying = true;
         }
     } else {
@@ -421,9 +468,6 @@ VideoPlayer::unload(void)
     // destroy contexts and devices from the audio player
     if (audioStream != -1) {
         avcodec_close(aCodecCtx);
-        alcCloseDevice(dev);
-        alcDestroyContext(ctx);
-        alcCloseDevice(dev);
     }
 
     // Close the video file
@@ -513,35 +557,51 @@ int
 VideoPlayer::create_al_audio_player(void)
 {
 
-    al_frequency = aCodecCtx->sample_rate;
-    al_format = AL_FORMAT_STEREO16;
-
-    dev = alcOpenDevice(NULL);
-    if (!dev) {
-        debugERROR("");
-        return VIDEO_ERROR;
+    if (!dev){
+        debugGREEN("New device\n");
+        dev = alcOpenDevice(NULL);
+        if (!dev) {
+            debugERROR("Can't get a device\n");
+            return VIDEO_ERROR;
+        }
     }
 
-    ctx = alcCreateContext(dev, NULL);
-    alcMakeContextCurrent(ctx);
-    if (!ctx) {
-        debugERROR("");
-        return VIDEO_ERROR;
+    if(!ctx){
+        debugGREEN("New context\n");
+        ctx = alcCreateContext(dev, NULL);
+        alcMakeContextCurrent(ctx);
+        if (!ctx) {
+            debugERROR("Can't get a context\n");
+            return VIDEO_ERROR;
+        }
     }
-    alListenerf(AL_GAIN, 1.0f);
 
+    // Generate buffers and source
     alGenBuffers(NUM_BUFFERS, buffers);
-    alGenSources(1, &source);
+
+    if(!source){
+        alGenSources(1, &source);
+    }
     if (alGetError() != AL_NO_ERROR) {
         debugERROR("");
         return VIDEO_ERROR;
     }
-    alSourcef(source, AL_GAIN, 1.0f);
+
+    // silence
+    alListenerf(AL_GAIN, 0.0f);
+    alSourcef(source, AL_GAIN, 0.0f);
+
+    // rewind and clear queue
+    alSourceRewind(source);
+    alSourcei(source, AL_BUFFER, 0);
 
     // Load buffer with silence queue them into the source and wait till
     // it ends playing them.
-    unsigned char *buf;
-    buf = (unsigned char *) calloc(1, BUFFER_SIZE);
+    unsigned char *buf[BUFFER_SIZE];
+    memset(buf, 0, BUFFER_SIZE);
+    al_frequency = aCodecCtx->sample_rate;
+    al_format = AL_FORMAT_STEREO16;
+
     for (int i = 0; i < NUM_BUFFERS; i++) {
         alBufferData(buffers[i], al_format, buf, BUFFER_SIZE, al_frequency);
     }
@@ -551,20 +611,18 @@ VideoPlayer::create_al_audio_player(void)
         debugRED("Algo pasa con el reproductor de openal y no inicia\n");
         return VIDEO_ERROR;
     }
-    int val = 0;
 
     // Reading silenced buffers
+    int val = 0;
     do {
         alGetSourcei(source, AL_BUFFERS_PROCESSED, &val);
     } while (val < NUM_BUFFERS);
 
-    // Free memory
-    free(buf);
 
     //get size of buffers in seconds
-    ALint sizeInBytes;
-    ALint channels;
-    ALint bits;
+    ALint sizeInBytes = 0;
+    ALint channels = 0;
+    ALint bits = 0;
 
     alGetBufferi(buffers[0], AL_SIZE, &sizeInBytes);
     alGetBufferi(buffers[0], AL_CHANNELS, &channels);
@@ -574,10 +632,14 @@ VideoPlayer::create_al_audio_player(void)
         * static_cast<double> (al_frequency));
 
     buffLenInSec = (static_cast<double> (sizeInBytes) * 8.0f) / fxcxb;
-    //debugGREEN("Buffers size in seconds: %lf %lf %lf %lf %lf\n",
-    //static_cast<double>(sizeInBytes), static_cast<double>(channels),
-    //static_cast<double>(bits), static_cast<double>(al_frequency),
-    //buffLenInSec);
+    debugGREEN("Buffers size in seconds: %lf %lf %lf %lf %lf\n",
+    static_cast<double>(sizeInBytes), static_cast<double>(channels),
+    static_cast<double>(bits), static_cast<double>(al_frequency),
+    buffLenInSec);
+
+    // Sound up
+    alListenerf(AL_GAIN, 1.0f);
+    alSourcef(source, AL_GAIN, 1.0f);
 
     return VIDEO_OK;
 }
@@ -693,16 +755,7 @@ VideoPlayer::update(double timesincelastframe)
 
 //-----------------------------------------------------------------------------
 
-/**
- * Update the video texture (the screen where the video is being played) if
- * its time to do it. Gets packets from the video queue decodes them and copies
- * the frame into the video texture.
- *
- * @return
- * 		VIDEO_OK if everything goes right.
- * 		VIDEO_ERROR if something goes wrong.
- * 		VIDEO_ENDED if can't get more packets to decode frames and present them.
- */
+
 int
 VideoPlayer::update_video(void)
 {
@@ -727,7 +780,8 @@ VideoPlayer::update_video(void)
         t = SC(double,pkt->pts) * SC(double,vtbasenum);
     }
 
-    if (SC(double,pkt->pts) * SC(double,vtbasenum) <= t * SC(double,vtbaseden)) { //FIXME#1
+    if (SC(double,pkt->pts) * SC(double,vtbasenum) <=
+        t * SC(double,vtbaseden)) { //FIXME#1
 
         int frameFinished = 0;
         avcodec_decode_video2(pCodecCtx, pFrame, &frameFinished, pkt);
@@ -1076,7 +1130,8 @@ VideoPlayer::get_playing_time(double & t)
     //debugRED("Hz %lf\n",static_cast<double>(aCodecCtx->sample_rate));
     //debugRED("Offset %lf\n",offset);
 
-    ASSERT(fxcxb>0); ASSERT(audio_decoding_pkt);
+    ASSERT(fxcxb>0);
+    ASSERT(audio_decoding_pkt);
     //size in seconds of data loaded from last packet
     double lastpckloadedsize = ((audio_decoding_pkt->size - decoding_pkt_size)
         * 8.0f) / fxcxb;
