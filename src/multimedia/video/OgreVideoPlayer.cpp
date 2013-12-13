@@ -279,6 +279,7 @@ OgreVideoPlayer::load(int index){
 		mIndex = index;
 		// Load video player, resize screen and seek for starting point;
 		mVideoPlayer.unload();
+		debug("Loading video %s\n", video.getName());
 		if(VideoPlayer::VIDEO_OK != mVideoPlayer.load(video.getPath())){
 			return C_ERROR;
 		}
@@ -292,8 +293,8 @@ OgreVideoPlayer::load(int index){
 		}
 		double end = 0;
 		video.getEnd(end);
-		debug("Loading video %s, from second %lf to %lf\n", video.getName(),
-				start, end);
+		debug("%s loaded from second %lf to %lf\n", video.getName(),
+		                        start, end)
 	}
 
 	return C_OK;

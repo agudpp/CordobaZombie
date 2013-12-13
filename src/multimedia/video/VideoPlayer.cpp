@@ -78,6 +78,9 @@ const double EPS = 10e-12; // For double precision comparisons
  *	de audio packet. Usar estos datos para cargar correctamente el audio player.
  *	Asegurarse de que no estamos tirando mil threads :S.
  *
+ *	18. Choose a much better and "scientific" way to decide the max size and
+ *	critical size of the queues length.
+ *
  * TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
  */
 
@@ -153,7 +156,13 @@ VideoPlayer::VideoPlayer(VideoBuffer *screen) :
     synchroPTS(0),
     buffLenInSec(0),
     lastPts(0),
-    apnvfts(0)
+    apnvfts(0),
+    mAVPacketList(std::vector<AVPacket>(VIDEO_QUEUE_DEFAULT_SIZE
+        + AUDIO_QUEUE_DEFAULT_SIZE)),
+    mVDataQueue(std::deque<AVPacket*> (VIDEO_QUEUE_DEFAULT_SIZE)),
+    mADataQueue(std::deque<AVPacket*> (AUDIO_QUEUE_DEFAULT_SIZE)),
+    mNumVPacks(0),
+    mNumAPacks(0)
 {
 
 #if OGRE_ENDIAN == OGRE_ENDIAN_BIG
@@ -168,6 +177,14 @@ VideoPlayer::VideoPlayer(VideoBuffer *screen) :
 #endif
 
     ASSERT(mScreen);
+
+    // Point video and audio data queue to the avpacket list
+    for (int i = 0; i < VIDEO_QUEUE_DEFAULT_SIZE; i++) {
+        mVDataQueue[i] = &mAVPacketList[i];
+    }
+    for (int i = 0; i < AUDIO_QUEUE_DEFAULT_SIZE; i++) {
+        mADataQueue[i] = &mAVPacketList[VIDEO_QUEUE_DEFAULT_SIZE + i];
+    }
 
     // Register all formats and codecs for video
     av_register_all();
@@ -430,9 +447,9 @@ VideoPlayer::play(void)
         } else {
 
             //fetch some packets before start
-            while (get_more_data() != VIDEO_ENDED and vDataQue.size()
-                < VIDEO_QUEUE_MAX_SIZE and aDataDque.size()
-                < AUDIO_QUEUE_MAX_SIZE) {
+            while (get_more_data() != VIDEO_ENDED && mNumVPacks
+                < VIDEO_QUEUE_DEFAULT_SIZE-20 && mNumAPacks
+                < AUDIO_QUEUE_DEFAULT_SIZE-20) {
             }
 
             mplayingtime = 0.;
@@ -535,17 +552,21 @@ VideoPlayer::seek_time_stamp(double ts)
 int
 VideoPlayer::empty_data_queues(void)
 {
-
-    while (!aDataDque.empty()) {
-        av_free_packet(aDataDque.front());
-        delete aDataDque.front();
-        aDataDque.pop_front();
+//TODO watch out for deletes that don't correspond
+    while (mNumAPacks) {
+        av_free_packet(mADataQueue.front());
+        AVPacket* aux = mADataQueue.front(); //TODO check if this is correct
+        mADataQueue.pop_front();
+        mADataQueue.push_back(aux);
+        mNumAPacks--;
     }
 
-    while (!vDataQue.empty()) {
-        av_free_packet(vDataQue.front());
-        delete vDataQue.front();
-        vDataQue.pop();
+    while (mNumVPacks) {
+        av_free_packet(mVDataQueue.front());
+        AVPacket* aux = mVDataQueue.front(); //TODO check if this is correct
+        mVDataQueue.pop_front();
+        mVDataQueue.push_back(aux);
+        mNumVPacks--;
     }
 
     return VIDEO_OK;
@@ -721,9 +742,9 @@ VideoPlayer::update(double timesincelastframe)
 
     mplayingtime += timesincelastframe;
 
-    // if nether of the queues are full we get new packets
-    if (vDataQue.size() < VIDEO_QUEUE_MAX_SIZE and aDataDque.size()
-        < AUDIO_QUEUE_MAX_SIZE) {
+    // if one of the queues is running out of packets
+    if (mNumVPacks <= VIDEO_QUEUE_CRITICAL_SIZE || (mNumAPacks
+        <= AUDIO_QUEUE_CRITICAL_SIZE && audioStream != -1)) {
         get_more_data();
     }
 
@@ -743,9 +764,11 @@ VideoPlayer::update(double timesincelastframe)
 
     if ((audioStream == -1 || audio_ret == VIDEO_ENDED) && video_ret
         == VIDEO_ENDED) {
-        ASSERT(vDataQue.empty()); ASSERT(aDataDque.empty());
+        ASSERT(!mNumAPacks);
+        ASSERT(!mNumVPacks);
         debugGREEN("Video of length %lf ended at time %lf\n",
             mVideoLength, mplayingtime);
+        ASSERT(abs(mVideoLength-mplayingtime)<0.1 && "Ending too soon:S");
         isPlaying = false;
         return VIDEO_ENDED;
     }
@@ -760,19 +783,22 @@ int
 VideoPlayer::update_video(void)
 {
 
-    if (vDataQue.empty()) {
+    if (!mNumVPacks) {
         //if need data
         if (get_more_data() == VIDEO_ENDED) {
-            if (vDataQue.empty()) {
+            if (!mNumVPacks) {
                 // if couldn't get more data
                 return VIDEO_ENDED;
             }
         }
     }
 
-    ASSERT(!vDataQue.empty());
+    ASSERT(mNumVPacks);
 
-    AVPacket * pkt = vDataQue.front();
+    AVPacket * pkt = mVDataQueue.front();
+    ASSERT(pkt);
+    ASSERT(pkt->data);
+//    debugGREEN("Number of video packets: %i, of audio: %i\n", mNumVPacks, mNumAPacks);
 
     double t = 0.;
     if (VIDEO_ERROR == get_playing_time(t)) {
@@ -792,9 +818,10 @@ VideoPlayer::update_video(void)
         }
 
         // Pop the packet and free it
-        vDataQue.pop();
         av_free_packet(pkt);
-        delete pkt;
+        mVDataQueue.pop_front();
+        mVDataQueue.push_back(pkt); // TODO check if this works as it should
+        mNumVPacks--;
 
         //convert frame to rgb image
         sws_scale(pImgConvertCtx,
@@ -944,7 +971,7 @@ VideoPlayer::get_audio_data(uint8_t *strm, int len)
         } else if (d_frame_res == VIDEO_NEED_DATA) {
 
             //need Packets
-            if (get_more_data() == VIDEO_ENDED && aDataDque.size() == 0) {
+            if (get_more_data() == VIDEO_ENDED && mNumAPacks == 0) {
 
                 // fill rest of the buffer with silence
                 memset(strm, 0, len2retrive);
@@ -980,6 +1007,8 @@ VideoPlayer::audio_decode_frame(uint8_t **buffer, int buffer_size)
 
     ASSERT(buffer_size > 0);
 
+    // FIXME: justificar por qué uso un paquete auxiliar y ver si es correcto
+    // hacerlo.
     AVPacket auxpack;
     av_init_packet(&auxpack);
 
@@ -994,7 +1023,8 @@ VideoPlayer::audio_decode_frame(uint8_t **buffer, int buffer_size)
             // Si ya envie toda la data de la ultima frame busco uno nuevo.
             if (decoded_data_size <= 0) {
 
-                ASSERT(audio_decoding_pkt); ASSERT(audio_decoded_frame);
+                ASSERT(audio_decoding_pkt);
+                ASSERT(audio_decoded_frame);
 
                 if (decoding_pkt_size <= 0) {
                     // Get new Packet
@@ -1021,10 +1051,10 @@ VideoPlayer::audio_decode_frame(uint8_t **buffer, int buffer_size)
                     // got frame
                     decoded_data_size
                         = av_samples_get_buffer_size(NULL,
-                                                     aCodecCtx->channels,
-                                                     audio_decoded_frame->nb_samples,
-                                                     aCodecCtx->sample_fmt,
-                                                     1);
+                                             aCodecCtx->channels,
+                                             audio_decoded_frame->nb_samples,
+                                             aCodecCtx->sample_fmt,
+                                             1);
 
                     if (decoded_data_size < 0) {
                         debugERROR("bad size %d\n", decoded_data_size);
@@ -1042,7 +1072,8 @@ VideoPlayer::audio_decode_frame(uint8_t **buffer, int buffer_size)
             //si todavia tengo datos de un frame viejo o acabo de conseguir
             //un nuevo frame entonces los mando.
 
-            ASSERT(decoded_data_size > 0); ASSERT(decoded_frame_data_ptr != 0)
+            ASSERT(decoded_data_size > 0);
+            ASSERT(decoded_frame_data_ptr != 0)
 
             //Apunto buffer al inicio de los datos decodificados
             *buffer = decoded_frame_data_ptr;
@@ -1070,16 +1101,22 @@ VideoPlayer::audio_decode_frame(uint8_t **buffer, int buffer_size)
         // Free old packet before getting new one
         if (audio_decoding_pkt) {
             // FIXME#2
+            ASSERT(audio_decoding_pkt->data);
             av_free_packet(audio_decoding_pkt);
-            delete audio_decoding_pkt;
-            audio_decoding_pkt = 0;
+            audio_decoding_pkt = 0; // being careful
+            ASSERT(!audio_decoding_pkt);
+            mADataQueue.push_back(mADataQueue.front());
+            mADataQueue.pop_front();
+            mNumAPacks--;
         }
 
-        if (aDataDque.size() > 0) {
+        if (mNumAPacks > 0) {
 
             apnvfts = false;
 
-            audio_decoding_pkt = aDataDque.front();
+            audio_decoding_pkt = mADataQueue.front();
+            ASSERT(audio_decoding_pkt && "Aca la cagamos antes");
+            ASSERT(audio_decoding_pkt->data && "Aca la cagamos");
             if (audio_decoding_pkt->pts != AV_NOPTS_VALUE) {
                 synchroPTS = static_cast<double> (audio_decoding_pkt->pts);
                 //debugGREEN("synchroPTS %lf audio... %ld\n", synchroPTS,
@@ -1089,8 +1126,6 @@ VideoPlayer::audio_decode_frame(uint8_t **buffer, int buffer_size)
             decoding_pkt_size = audio_decoding_pkt->size;
             decoding_pkt_data = audio_decoding_pkt->data;
             // take out of the queue
-            aDataDque.pop_front();
-
         } else {
             // can't get packets because queue is empty
             return VIDEO_NEED_DATA;
@@ -1155,51 +1190,83 @@ int
 VideoPlayer::get_more_data(void)
 {
 
-    bool got_audio = aDataDque.size() >= AUDIO_QUEUE_MAX_SIZE;
-    bool got_video = vDataQue.size() >= VIDEO_QUEUE_MAX_SIZE;
+    bool got_audio = (mNumAPacks >= AUDIO_QUEUE_DEFAULT_SIZE-10)
+        || audioStream == -1;
+    bool got_video = mNumVPacks >= VIDEO_QUEUE_DEFAULT_SIZE-10;
 
     while (!got_audio || !got_video) {
 
-        AVPacket *mPacket = new AVPacket;
-        if (!mPacket) {
-            debugERROR("Can't allocate packet.\n");
-            return VIDEO_ERROR;
-        }
-        av_init_packet(mPacket);
+        AVPacket* newPacket = 0;
 
-        if (av_read_frame(pFormatCtx, mPacket) != 0) {
+        //start supposing it's a video packet
+        ASSERT(mNumVPacks <= mVDataQueue.size());
+        if (mNumVPacks >= mVDataQueue.size()) {
+            //debugGREEN("numpacks: %i, queuesize: %i\n",mNumVPacks,mVDataQueue.size());
+            //ASSERT(false && "Resize here");
+            mVDataQueue.resize(mVDataQueue.size() + QUEUE_RESIZE);
+            mAVPacketList.resize(mAVPacketList.size() + QUEUE_RESIZE);
+            for(int i = 0; i < QUEUE_RESIZE; i++){
+                mVDataQueue[i + mVDataQueue.size() - QUEUE_RESIZE] =
+                    & mAVPacketList[i + mAVPacketList.size() - QUEUE_RESIZE];
+            }
+        }
+        newPacket = mVDataQueue[mNumVPacks];
+        av_init_packet(newPacket);
+
+        if (av_read_frame(pFormatCtx, newPacket) != 0) {
             // No chequeo errores aca :s Simplemente supongo que termino de
             // desempaquetar.
             //debugGREEN("Ended unpacking at %lf :D\n", mplayingtime);
-            av_free_packet(mPacket);
-            delete mPacket;
             return VIDEO_ENDED;
 
         } else {
 
-            lastPts = mPacket->pts;
+            ASSERT(newPacket->data);
+            lastPts = newPacket->pts;
 
-            if (mPacket->stream_index == videoStream) {
-
-                vDataQue.push(mPacket);
+            if (newPacket->stream_index == videoStream) {
+                // it was a video packet as supposed :D
                 got_video = true;
-                mPacket = 0;
+                mNumVPacks++;
+                newPacket = 0; // just to be careful
 
-            } else if (mPacket->stream_index == audioStream) {
 
-                aDataDque.push_back(mPacket);
+            } else if (newPacket->stream_index == audioStream) {
+                // it was an audio packet, not what we supposed
+                ASSERT(mNumAPacks <= mADataQueue.size());
+
+                if (mNumAPacks >= mADataQueue.size()) {
+                    mADataQueue.resize(mADataQueue.size() + QUEUE_RESIZE);
+                    mAVPacketList.resize(mAVPacketList.size() + QUEUE_RESIZE);
+                    for(int i = 0; i < QUEUE_RESIZE; i++){
+                        mADataQueue[i + mADataQueue.size() - QUEUE_RESIZE]
+                            = &mAVPacketList[i + mAVPacketList.size()
+                                - QUEUE_RESIZE];
+                    }
+                }
+                // exchange packet ownership between queues (note that bought
+                // have "empty spaces".
+                mVDataQueue[mNumVPacks] = mADataQueue[mNumAPacks];
+                ASSERT(newPacket->data);
+                mADataQueue[mNumAPacks] = newPacket;
+                ASSERT(mADataQueue[mNumAPacks]->data);
                 got_audio = true;
-                mPacket = 0;
+                mNumAPacks++;
+                newPacket = 0; // just to be careful
+
 
             } else {
 
-                //debugRED("Not my stream :s\n");
-                av_free_packet(mPacket);
-                delete mPacket;
+                debugRED("Not my stream :s\n");
+                ASSERT(false);
+                av_free_packet(newPacket);
+                //delete newPacket;
 
             }
         }
     }
+
+//    debugGREEN("video: %i, audio: %i\n",mNumVPacks,mNumAPacks);
 
     return VIDEO_OK;
 }
@@ -1210,15 +1277,21 @@ void
 VideoPlayer::print_video_info(void)
 {
 
-    cyanPrint("VIDEO DEBUG\n"); lightGreenPrint("Video nb of streams %d\n", pFormatCtx->nb_streams);
+    cyanPrint("VIDEO DEBUG\n");
+    lightGreenPrint("Video nb of streams %d\n", pFormatCtx->nb_streams);
     if (audioStream != -1) {
         cyanPrint("AUDIO DEBUG\n");
         const char *format = av_get_sample_fmt_name(aCodecCtx->sample_fmt);
         if (format) {
             lightGreenPrint("Audio sample format %s\n",format );
-        } lightGreenPrint("Audio nb of channels %d\n",aCodecCtx->channels); lightGreenPrint("Audio nb of bits per sample %d\n",
-            av_get_bytes_per_sample(aCodecCtx->sample_fmt)*8); lightGreenPrint("Audio frequency %dHz\n",aCodecCtx->sample_rate);
-    } cyanPrint("OTHER DEBUGS\n"); lightGreenPrint("AVCODEC_MAX_AUDIO_FRAME_SIZE: %d\n",
+        }
+        lightGreenPrint("Audio nb of channels %d\n",aCodecCtx->channels);
+        lightGreenPrint("Audio nb of bits per sample %d\n",
+            av_get_bytes_per_sample(aCodecCtx->sample_fmt)*8);
+        lightGreenPrint("Audio frequency %dHz\n",aCodecCtx->sample_rate);
+    }
+    cyanPrint("OTHER DEBUGS\n");
+    lightGreenPrint("AVCODEC_MAX_AUDIO_FRAME_SIZE: %d\n",
         AVCODEC_MAX_AUDIO_FRAME_SIZE); cyanPrint("***********\n");
 
 }

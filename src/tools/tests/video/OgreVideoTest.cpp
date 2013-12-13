@@ -68,10 +68,10 @@ const int VIDEO_STATE_LIST_SIZE = 4;
 
 const char* VIDEO_STATE_LIST[VIDEO_STATE_LIST_SIZE] =
 			{
+                "gorillaz.mp4",
+			    "5seg2.ogg",
                 "intro_video.ogg",
-                "5seg2.ogg",
-                "menu.ogg",
-                "gorillaz.mp4"
+                "menu.ogg"
 			};
 
 

@@ -61,8 +61,13 @@ private:
     static const int NUM_BUFFERS = 3; //for the openal sound player
     static const int BUFFER_SIZE = 8192; //for the openal sound player
 
-    static const int VIDEO_QUEUE_MAX_SIZE = 50;
-    static const int AUDIO_QUEUE_MAX_SIZE = 50;
+    static const int VIDEO_QUEUE_DEFAULT_SIZE = 50;
+    static const int AUDIO_QUEUE_DEFAULT_SIZE = 50;
+
+    static const int VIDEO_QUEUE_CRITICAL_SIZE = 150;
+    static const int AUDIO_QUEUE_CRITICAL_SIZE = 150;
+
+    static const int QUEUE_RESIZE = 10;
 
     static const int DEFAULT_SCREEN_WIDTH = 1024; //for the screen
     static const int DEFAULT_SCREEN_HEIGHT = 768; //for the screen
@@ -102,8 +107,11 @@ private:
     long int atbasenum;
     long int atbaseden;
     double mVideoLength;
-    std::queue<AVPacket*> vDataQue;
-    std::deque<AVPacket*> aDataDque;
+    std::vector<AVPacket> mAVPacketList;// list with audio/video packets.
+    std::deque<AVPacket*> mVDataQueue;  // queue of ptr's to the video packets.
+    std::deque<AVPacket*> mADataQueue;  // queue of ptr's to the audio packets.
+    int mNumVPacks;
+    int mNumAPacks;
 
     // For alplayer
     ALCdevice *dev;
@@ -255,9 +263,9 @@ protected:
     create_al_audio_player(void);
 
     /*
-     * 	If audio queue size is < AUDIO_QUEUE_MAX_SIZE or video queue size is <
-     * 	VIDEO_QUEUE_MAX_SIZE, it gets at least one audio packet and one video
-     * 	frame unless no more packets can be fetched from the file.
+     * 	If audio queue size is < AUDIO_QUEUE_DEFAULT_SIZE or video queue size
+     * 	is < VIDEO_QUEUE_DEFAULT_SIZE, it gets at least one audio packet and one
+     * 	video frame unless no more packets can be fetched from the file.
      *
      * @return
      * 		On success returns VIDEO_OK. If can't fetch more packets, then it
