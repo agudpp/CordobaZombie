@@ -130,7 +130,7 @@ static int
 loadVideos(mm::OgreVideoPlayer* ovp)
 {
 
-	double end = -1.0;
+	double end = 30.0;
 	double start = 0.0;
 
 	// get next video to play
@@ -151,9 +151,9 @@ loadVideos(mm::OgreVideoPlayer* ovp)
 		}
 
 		// make the next video last more.
-		end += 10.0;
+		//end += 10.0;
 		// make it start a little bit further
-		start += 1.0;
+		//start += 1.0;
 	}
 
 	return 0;

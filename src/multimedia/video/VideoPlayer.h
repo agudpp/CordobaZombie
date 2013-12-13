@@ -64,10 +64,11 @@ private:
     static const int VIDEO_QUEUE_DEFAULT_SIZE = 50;
     static const int AUDIO_QUEUE_DEFAULT_SIZE = 50;
 
-    static const int VIDEO_QUEUE_CRITICAL_SIZE = 150;
-    static const int AUDIO_QUEUE_CRITICAL_SIZE = 150;
+    static const int VIDEO_QUEUE_CRITICAL_HIGH_SIZE = 150;
+    static const int AUDIO_QUEUE_CRITICAL_HIGH_SIZE = 150;
 
-    static const int QUEUE_RESIZE = 10;
+    static const int VIDEO_QUEUE_CRITICAL_LOW_SIZE = 5;
+    static const int AUDIO_QUEUE_CRITICAL_LOW_SIZE = 5;
 
     static const int DEFAULT_SCREEN_WIDTH = 1024; //for the screen
     static const int DEFAULT_SCREEN_HEIGHT = 768; //for the screen
@@ -107,7 +108,6 @@ private:
     long int atbasenum;
     long int atbaseden;
     double mVideoLength;
-    std::vector<AVPacket> mAVPacketList;// list with audio/video packets.
     std::deque<AVPacket*> mVDataQueue;  // queue of ptr's to the video packets.
     std::deque<AVPacket*> mADataQueue;  // queue of ptr's to the audio packets.
     int mNumVPacks;
@@ -272,7 +272,7 @@ protected:
      * 		returns VIDEO_ENDED. On error returns VIDEO_ERROR.
      */
     int
-    get_more_data(void);
+    get_more_data(bool audio, bool video);
 
 
     /*
