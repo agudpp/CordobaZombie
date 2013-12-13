@@ -120,7 +120,7 @@ Logger::log(const char* message, LogMessageStyle style)
     if (mIsFile) {
         *mStream << message;
     } else {
-        *mStream << styleHeader(style) << LOG_MESSAGE_STYLE_NORMAL;
+        *mStream << styleHeader(style) << message << LOG_MESSAGE_STYLE_NORMAL;
     }
 
     // in any case flush the stream

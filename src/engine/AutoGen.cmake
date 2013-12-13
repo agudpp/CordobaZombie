@@ -1,5 +1,6 @@
 include(${DEV_ROOT_PATH}/engine/modules/AutoGen.cmake)
-
+include(${DEV_ROOT_PATH}/core/crash_handler/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/core/logger/AutoGen.cmake)
 
 # Define global sources here
 set(HDRS ${HDRS}

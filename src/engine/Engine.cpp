@@ -22,6 +22,11 @@ namespace engine {
 ////////////////////////////////////////////////////////////////////////////////
 Engine::Engine()
 {
+    // configure the crash reporter
+    if (!mCrashReporter.configureSignals()) {
+        debugERROR("Error configuring the signals for the crash reporter\n");
+    }
+
     // create the loaders
 
     // ogreSystemLoader

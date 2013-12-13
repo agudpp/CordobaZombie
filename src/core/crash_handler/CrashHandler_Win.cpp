@@ -340,7 +340,8 @@ exception_filter(LPEXCEPTION_POINTERS info)
 
     // save the data into the log manager
     //
-    core::LoggerManager::log("\n\n"
+    core::LoggerManager::instance().log(
+        "\n\n"
         "-----------------------------------------------------------------------\n"
         "\t\t\tCRASH DETECTED!\n"
         "-----------------------------------------------------------------------\n",
@@ -348,14 +349,15 @@ exception_filter(LPEXCEPTION_POINTERS info)
 
     // if we have header, print it
     if (strlen(EXCEPTION_HEADER) > 0) {
-        core::LoggerManager::log(EXCEPTION_HEADER,
-                                 core::LogMessageStyle::LOG_MSG_STYLE_RED);
+        core::LoggerManager::instance().log(EXCEPTION_HEADER,
+                                            core::LogMessageStyle::LOG_MSG_STYLE_RED);
         // clear the exception header
         EXCEPTION_HEADER[0] = '\0';
     }
 
     // log the backtrace now
-    core::LoggerManager::log(buffer, core::LogMessageStyle::LOG_MSG_STYLE_RED);
+    core::LoggerManager::instance().log(buffer,
+                                        core::LogMessageStyle::LOG_MSG_STYLE_RED);
 
     exit(1);
 
@@ -428,6 +430,8 @@ CrashHandler::configureSignals(void)
         // reset the EXCEPTION_HEADER
         EXCEPTION_HEADER[0] = '\0';
     }
+
+    return true;
 }
 
 } /* namespace core */

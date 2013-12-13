@@ -12,6 +12,7 @@
 #include <string>
 
 #include <types/StackVector.h>
+#include <crash_handler/CrashHandler.h>
 #include <modules/IModuleLoader.h>
 
 #include "EngineLoader.h"
@@ -148,6 +149,7 @@ public:
     unloadAll(void);
 
 private:
+    core::CrashHandler mCrashReporter;
     EngineLoader mLoader;
     core::StackVector<IModuleLoader*, 10> mLoaders;
     OgreData mOgreData;
