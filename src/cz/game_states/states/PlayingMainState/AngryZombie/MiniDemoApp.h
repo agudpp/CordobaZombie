@@ -194,6 +194,7 @@ private:
     float mTimeFrame;
     HUD mHud;
     Ogre::Overlay* mPauseOverlay;
+    Ogre::Overlay* mHelpOverlay;
 };
 
 } /* namespace demo_app */
