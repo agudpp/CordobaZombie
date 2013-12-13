@@ -798,7 +798,9 @@ VideoPlayer::update(double timesincelastframe)
         ASSERT(!mNumVPacks);
         debugGREEN("Video of length %lf ended at time %lf\n",
             mVideoLength, mplayingtime);
-        ASSERT(abs(mVideoLength-mplayingtime)<0.1 && "Ending too soon:S");
+        if(abs(mVideoLength-mplayingtime)<0.1){
+            debugERROR("Ending too soon:S\n");
+        }
         isPlaying = false;
         return VIDEO_ENDED;
     }
