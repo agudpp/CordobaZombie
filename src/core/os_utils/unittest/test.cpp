@@ -11,7 +11,10 @@
 #include <vector>
 #include <cmath>
 #include <set>
+#include <fstream>
+
 #include <UnitTest++/UnitTest++.h>
+#include <UnitTest++/XmlTestReporter.h>
 
 #include <os_utils/OSHelper.h>
 #include <math/FloatComp.h>
@@ -32,6 +35,16 @@ typedef StackPriorityQueue<int, 512> SPQ512;
 TEST(Check_addEndPathVar)
 {
     std::string path = "p";
+    OSHelper::addEndPathVar(path);
+    CHECK(path.size() == 2);
+    CHECK(path[1] == '\\' || path[1] == '/');
+
+    path = "p/";
+    OSHelper::addEndPathVar(path);
+    CHECK(path.size() == 2);
+    CHECK(path[1] == '\\' || path[1] == '/');
+
+    path = "p\\";
     OSHelper::addEndPathVar(path);
     CHECK(path.size() == 2);
     CHECK(path[1] == '\\' || path[1] == '/');
@@ -117,7 +130,7 @@ TEST(Check_extractPath)
 
 
 int
-main(void)
+main(int c, char* args[])
 {
     return UnitTest::RunAllTests();
 }
