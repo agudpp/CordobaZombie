@@ -137,7 +137,6 @@ StatisticsInformer::update(float frameTime, const Data& data)
     //
     ASSERT(mRenderWindow);
 
-
     const float fps = mRenderWindow->getLastFPS();
 
     if (fps == 0.f) {
@@ -161,7 +160,7 @@ StatisticsInformer::update(float frameTime, const Data& data)
     // Update the average case
     // get the real values for each field
     const float invCallsCount = 1.f/static_cast<float>(mCallsCount);
-    const float callsCount = static_cast<float>(mCallsCount);
+    const float callsCount = static_cast<float>(mCallsCount-1);
     Context& avgCtx = mContexts[Contexts::CTX_AVG];
     avgCtx.fps = (avgCtx.fps * callsCount + fps) * invCallsCount;
     avgCtx.numTris = (avgCtx.numTris * callsCount + triCount) * invCallsCount;

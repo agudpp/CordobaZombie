@@ -20,6 +20,7 @@
 #include <game_states/states/PrePlayIntroMainState/PrePlayIntroMainState.h>
 #include <game_states/states/PlayingMainState/PlayingMainState.h>
 
+
 #include "MainMenuStateTest.h"
 
 // helper stuff
@@ -150,6 +151,9 @@ MainMenuStateTest::MainMenuStateTest() :
     mMouseCursor.setVisible(true);
     mMouseCursor.setWindowDimensions(mWindow->getWidth(), mWindow->getHeight());
 
+    if (!mCrashHandler.configureSignals()) {
+        debugERROR("Error setting the crash handler\n");
+    }
 
     // Set resource Handler for intro state
     char *ENV = 0;
