@@ -116,7 +116,17 @@ add_definitions(-DDEBUG -g)
 add_definitions(-std=gnu++11)  # GNU++11 standard, almost C++11 :)
 set(COMMON_LIBRARIES boost_system)
 if(WIN32)
-# Specific windows flags here
+    # Specific windows flags here
+    
+    # to decrease the size of the binary:
+    # http://www.mingw.org/wiki/Large_executables
+    # note that this should be only in release probably since we are lossing
+    # debugging information
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s -Os -MD")
+#           -s # this remove the debugging information.
+#           -Os # optimize the size of the binary
+#           -MD # make dynamic libs?
+#        )
 endif(WIN32)
 if(UNIX)
 # Specific linux flags here
