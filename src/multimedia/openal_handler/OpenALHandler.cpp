@@ -20,6 +20,12 @@ OpenALHandler::OpenALHandler() :
 ////////////////////////////////////////////////////////////////////////////////
 OpenALHandler::~OpenALHandler()
 {
+    // destroy the context and the device?
+    debugWARNING("Here we need to check if we want to close the device or not, "
+        "because, probably we are using a \"shared\" device and we have not to"
+        " close it.\n");
+    destroyCurrentContext();
+    closeDevice();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

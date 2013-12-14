@@ -13,11 +13,13 @@ namespace engine {
 
 VideoSystemLoader::VideoSystemLoader(mm::OgreVideoPlayer*& videoPlayer,
                                      Ogre::SceneManager*& sceneMngr,
-                                     Ogre::RenderWindow*& renderWindow) :
+                                     Ogre::RenderWindow*& renderWindow,
+                                     mm::OpenALHandler*& openalHandler) :
     IModuleLoader("VideoSystemLoader")
 ,   mVideoPlayer(videoPlayer)
 ,   mSceneManager(sceneMngr)
 ,   mRenderWindow(renderWindow)
+,   mOpenalHandler(openalHandler)
 {
 
 }
@@ -42,7 +44,8 @@ VideoSystemLoader::load(const EngineConfiguration& config)
     // build the instance
     debugERROR("TODO: here we need to build the instance and configure it using "
         "whatever we need from the config (we need to add these information in"
-        " the config file)\n");
+        " the config file)\n"
+        "Use the openal handler here to be set to the OgreVideoPlayer\n");
     mVideoPlayer = new mm::OgreVideoPlayer(-1, 1, 1, -1,
                                            mSceneManager,
                                            mRenderWindow->getHeight(),
@@ -56,7 +59,8 @@ VideoSystemLoader::load(const EngineConfiguration& config)
 bool
 VideoSystemLoader::unload(void)
 {
-    debugERROR("TODO: destroy the instance and uninitialize whatever we need\n");
+    debugERROR("TODO: destroy the instance and uninitialize whatever we need"
+        " (not the opeanl handler)\n");
 
     // after destroying reset the pointer.
     delete mVideoPlayer;

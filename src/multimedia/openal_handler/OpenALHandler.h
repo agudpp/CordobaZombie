@@ -25,7 +25,12 @@ namespace mm {
 class OpenALHandler
 {
 public:
+
     OpenALHandler();
+
+    // @brief When the openal handler is destroyed the context and devices are
+    //        closed and destroyed.
+    //
     ~OpenALHandler();
 
     // @brief Check if we already have some device / context opened / created.
@@ -55,7 +60,7 @@ public:
 
     // @brief Open and construct the openal device.
     // @param deviceID      The device id we want to open. If no name is provided
-    //                      (empty string) then the default devaice will be used.
+    //                      (empty string) then the default device will be used.
     // @return true on success | false otherwise.
     //
     bool

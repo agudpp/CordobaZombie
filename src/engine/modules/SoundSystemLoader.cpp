@@ -11,9 +11,11 @@
 
 namespace engine {
 
-SoundSystemLoader::SoundSystemLoader(mm::SoundHandler*& soundHandler) :
+SoundSystemLoader::SoundSystemLoader(mm::SoundHandler*& soundHandler,
+                                     mm::OpenALHandler*& openalHandler) :
     IModuleLoader("SoundSystemLoader")
 ,   mSoundHandler(soundHandler)
+,   mOpenalHandler(openalHandler)
 {
 }
 
@@ -36,7 +38,9 @@ SoundSystemLoader::load(const EngineConfiguration& config)
     // get the singleton instance for now
     mSoundHandler = &mm::SoundHandler::getInstance();
     debugERROR("TODO: we need to configure the sound system here... reading the"
-        " values in the config structure...\n");
+        " values in the config structure...\n "
+        "We need to set the openalHandler also!\n");
+
 
     return true;
 }
