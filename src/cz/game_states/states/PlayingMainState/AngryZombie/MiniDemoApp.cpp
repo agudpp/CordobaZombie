@@ -411,6 +411,8 @@ MiniDemoApp::setData(const DemoData& data)
 
     PRECONDITION_CHECK;
 
+    mData.informer->setOgreRenderWindow(mData.renderWindow);
+
     Projectile::setDynamicWorld(&mDynamicWorld);
     WorldObject::setGameLogicData(&mGameLogicData);
 }

@@ -65,6 +65,7 @@ namespace demo_app {
 //
 struct DemoData {
     Ogre::SceneManager* sceneMngr;
+    Ogre::RenderWindow* renderWindow;
     Ogre::Camera* camera;
     ui::FEManager* frontEndManager;
     ui::MouseCursor* mouseCursor;
