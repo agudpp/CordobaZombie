@@ -7,11 +7,10 @@
  *      License: GPLv3
  */
 
-#include <cassert>
+#include <QWidget>
 #include <OgreRoot.h>
+#include <debug/DebugUtil.h>
 #include "CbaZombieConfigDialog.h"
-#include <QtWidgets>
-#include "addressbook.h"
 #include "ui_CbaZombieConfigDialog.h"  // UI file with buttons template
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -487,7 +486,8 @@
 ////
 /////////////////////////////////////////////////////////////////////////////////
 
-namespace core {
+namespace engine
+{
 
 CbaZombieConfigDialog::CbaZombieConfigDialog() :
     mTemplateUI(0)
@@ -507,6 +507,15 @@ CbaZombieConfigDialog::~CbaZombieConfigDialog()
     if (mTemplateUI)
         delete mTemplateUI;
 }
+
+
+void
+CbaZombieConfigDialog::systemRecon(Ogre::Root* root)
+{
+//    root->getAvailableRenderers();
+}
+
+
 
 bool
 CbaZombieConfigDialog::showConfigDialog(Ogre::Root* root)
@@ -528,28 +537,20 @@ CbaZombieConfigDialog::showConfigDialog(Ogre::Root* root)
     return true;
 }
 
-bool
-CbaZombieConfigDialog::showConfigDialog(int argc, char** argv)
-{
-    // XXX Create and run Qt application
-    QApplication qapp(argc, argv);
-    AddressBook addressBook;
-    addressBook.show();
-    int fail = qapp.exec();
-    assert(!fail);
-    return true;
-}
 
-bool
-CbaZombieConfigDialog::showConfigDialog(void)
+int
+CbaZombieConfigDialog::show(Ogre::Root* root)
 {
-    int argcDummy;
-    char **argvDummy;
+    int fail(0);
+    int argcDummy(0);
+    char **argvDummy(0);
 
-    // XXX Create and run Qt application
+    ASSERT(root);
+    root->restoreConfig();  // Restore previous Ogre configuration, if any
+
+    // Create and run Qt application
     QApplication qapp(argcDummy, argvDummy);
-
-    // Define memebers if necessary
+    systemRecon(root);
     if (!mTemplateUI) {
         mTemplateUI = new Ui::CbaZombieConfigDialog();
         mWidget = new QWidget();
@@ -560,9 +561,14 @@ CbaZombieConfigDialog::showConfigDialog(void)
     mTemplateUI->setupUi(mWidget);
     mWidget->show();
 
-    int fail = qapp.exec();
-    assert(!fail);
-    return true;
+    fail = qapp.exec();
+    if (!fail) {
+        root->saveConfig();
+        return 0;
+    } else {
+        debugWARNING("Bad Ogre configuration, discarding changes.\n");
+        return fail;
+    }
 }
 
 }

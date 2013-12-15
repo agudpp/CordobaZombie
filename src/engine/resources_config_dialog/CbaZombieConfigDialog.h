@@ -10,17 +10,18 @@
 #define CBAZOMBIECOFIGDIALOG_H_
 
 #include <OgreConfigDialog.h>
-#include <QWidget>
 
+
+// Forward declarations
 namespace Ogre {
     class Root;
 }
-
 namespace Ui {
 	class CbaZombieConfigDialog;
 }
+class QWidget;
 
-namespace core
+namespace engine
 {
 
 class CbaZombieConfigDialog : public Ogre::ConfigDialog
@@ -32,30 +33,31 @@ public:
     /**
      * @brief Display window for choosing system settings
      * @returns true if the user clicked 'Ok', false otherwise
+     * @remarks DEPRECATED, erase
      */
     bool
     showConfigDialog(Ogre::Root* root);
 
     /**
      * @brief Display window for choosing system settings
-     * @returns true if the user clicked 'Ok', false otherwise
+     * @returns 0 on success, !0 on error
      */
-    bool
-    showConfigDialog(int argc, char** argv);
+    int
+    show(Ogre::Root* root);
 
+private:
     /**
-     * @brief Display window for choosing system settings
-     * @returns true if the user clicked 'Ok', false otherwise
+     * @brief Identify the system settings to show in the config dialog
      */
-    bool
-    showConfigDialog(void);
+    void
+    systemRecon(Ogre::Root* root);
 
 private:
     QWidget* mWidget;
     Ui::CbaZombieConfigDialog* mTemplateUI;
 };
 
-}  // namespace core
+}  // namespace engine
 
 
 #endif /* CBAZOMBIECOFIGDIALOG_H_ */
