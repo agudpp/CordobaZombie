@@ -74,7 +74,38 @@ OgreIndepVideoTest::run(void)
     while(error::OK == update(tslf)){
         double t = 0.;
         mVP.get_playing_time_in_secs(t);
-        if( t >= 1.){
+        if( t >= 1. && t < 1.5){
+            mVP.seek_time_stamp(2.);
+        }
+        end = time(0);
+        tslf = difftime(end, start);
+        std::cout << tslf << std::endl;
+        start = end;
+    }
+
+    mVP.unload();
+    load(VIDEO1_PATH);
+    mVP.play();
+    start = time(0);
+    end = time(0);
+    tslf = 0.;
+    while(error::OK == update(tslf)){
+        end = time(0);
+        tslf = difftime(end, start);
+        start = end;
+    }
+
+    mVP.unload();
+    load(VIDEO2_PATH);
+    mVP.play();
+    start = time(0);
+    end = time(0);
+    tslf = 0.;
+    while(error::OK == update(tslf)){
+        double t = 0.;
+        mVP.get_playing_time_in_secs(t);
+//        debugGreen("Time: %lf\n",t);
+        if( t >= 1. && t < 1.5){
             mVP.seek_time_stamp(2.);
         }
         end = time(0);

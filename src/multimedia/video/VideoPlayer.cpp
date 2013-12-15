@@ -166,14 +166,14 @@ VideoPlayer::VideoPlayer(VideoBuffer *screen) :
 {
 
 #if OGRE_ENDIAN == OGRE_ENDIAN_BIG
-    debugRED("OGRE SAYS BIGENDIAN\n");
+    debugGREEN("OGRE SAYS BIGENDIAN\n");
 #else
-    debugRED("OGRE SAYS LITTLENDIAN\n");
+    debugGREEN("OGRE SAYS LITTLENDIAN\n");
 #endif
 #if AV_HAVE_BIGENDIAN
-    debugRED("AV SAYS BIGENDIAN\n");
+    debugGREEN("AV SAYS BIGENDIAN\n");
 #else
-    debugRED("AV SAYS LITTLENDIAN\n");
+    debugGREEN("AV SAYS LITTLENDIAN\n");
 #endif
 
     ASSERT(mScreen);
@@ -390,7 +390,7 @@ VideoPlayer::load(const char *fileName)
 
     isPlaying = false;
     isLoaded = true;
-    mplayingtime = 0;
+    mplayingtime = 0.;
 
     //Set things for audio:
     if (audioStream == -1) {
@@ -526,24 +526,29 @@ int
 VideoPlayer::seek_time_stamp(double ts)
 {
 
+    // Out of range?
     if (ts + EPS < 0 || ts > mVideoLength + EPS) {
         debugERROR("Tried to seek out of range\n");
         return VIDEO_ERROR;
     }
 
+    // Need to seek forward or backward?
     double t = static_cast<double> (lastPts)
         / static_cast<double> (AV_TIME_BASE);
     int flag = ts < t ? AVSEEK_FLAG_BACKWARD : 0;
 
+    // Get the target time
     int stream_index = -1;
     int64_t seek_target = SC(int64_t,(ts*AV_TIME_BASE));
 
+    // Choose an available stream to seek
     if (videoStream >= 0) {
         stream_index = videoStream;
     } else if (audioStream >= 0) {
         stream_index = audioStream;
     }
 
+    // Change target time base if stream_index requires it
     if (stream_index >= 0) {
         seek_target
             = av_rescale_q(seek_target,
@@ -551,10 +556,12 @@ VideoPlayer::seek_time_stamp(double ts)
                            pFormatCtx->streams[stream_index]->time_base);
     }
 
-    //	debugGREEN("Seeking in %s target %ld\n",
-    //					pFormatCtx->filename, seek_target);
+    // Seek now
+    debugGREEN("Seeking for %ld(%lf in seconds) in %s\n", seek_target, ts,
+               pFormatCtx->filename);
     if (av_seek_frame(pFormatCtx, stream_index, seek_target, flag) < 0) {
-        flag = 0 ? AVSEEK_FLAG_BACKWARD : 0;
+        // Didn't finid it forward/backward try the other way
+        flag = !flag ? AVSEEK_FLAG_BACKWARD : 0;
         if (av_seek_frame(pFormatCtx, stream_index, seek_target, flag) < 0) {
             debugERROR("Error while seeking in %s target %ld\n",
                 pFormatCtx->filename, seek_target);
@@ -567,6 +574,14 @@ VideoPlayer::seek_time_stamp(double ts)
 
     //clear queues to prepare for new data
     empty_data_queues();
+
+    if (audio_decoding_pkt) {
+        av_free_packet(audio_decoding_pkt);
+        audio_decoding_pkt = 0;
+    }
+    decoded_data_size = 0;
+    decoding_pkt_data = 0;
+    decoding_pkt_size = 0;
 
     apnvfts = true;
 
@@ -736,7 +751,7 @@ VideoPlayer::preload_audio(void)
                 alGetSourcei(source, AL_SOURCE_STATE, &val);
                 if (val != AL_PLAYING) {
                     // No more info and al_player finished reading his buffers.
-                    debugGREEN("AUDIO SAYS: VIDEO ENDED\n");
+                    debugGREEN("Audio says that the video ended.\n");
                     return VIDEO_ENDED;
                 }
                 // No more useful info coming from get_audio_for_al (only
@@ -799,7 +814,8 @@ VideoPlayer::update(double timesincelastframe)
         debugGREEN("Video of length %lf ended at time %lf\n",
             mVideoLength, mplayingtime);
         if(abs(mVideoLength-mplayingtime)<0.1){
-            debugERROR("Ending too soon:S\n");
+            debugERROR("Ending too soon or too late? ended=%lf, "
+                "should have been=%lf:S\n", mplayingtime, mVideoLength);
         }
         isPlaying = false;
         return VIDEO_ENDED;
