@@ -191,7 +191,7 @@ OgreVideoTest::OgreVideoTest() :
     mALHandler.getDevices(devs);
     ASSERT(devs.size())
     for (int i = 0; i < devs.size(); i++) {
-        debugGREEN("dev: %s from %i devices\n", devs[i].c_str(), devs.size());
+        debugGREEN("dev: %s from %lu devices\n", devs[i].c_str(), devs.size());
     }
     mALHandler.openDevice(devs[0]);
     mALHandler.createContext();
@@ -229,6 +229,9 @@ OgreVideoTest::OgreVideoTest() :
 OgreVideoTest::~OgreVideoTest()
 {
 	// TODO Auto-generated destructor stub
+    mALHandler.destroyCurrentContext();
+    mALHandler.closeDevice();
+
 }
 
 
