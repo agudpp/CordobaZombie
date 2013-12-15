@@ -64,15 +64,12 @@ namespace{
 // For finding videos between the resources
 
 
-const int VIDEO_STATE_LIST_SIZE = 5;
+const int VIDEO_STATE_LIST_SIZE = 2;
 
 const char* VIDEO_STATE_LIST[VIDEO_STATE_LIST_SIZE] =
 			{
                 "intro.ogv",
-                "gorillaz.mp4",
-			    "5seg2.ogg",
-                "intro_video.ogg",
-                "menu.ogg"
+			    "5seg2.ogg"
 			};
 
 
@@ -189,12 +186,13 @@ OgreVideoTest::OgreVideoTest() :
 {
 
     std::vector<std::string> devs;
-    mALHandler.getDevices(devs);
-    ASSERT(devs.size())
-    for (int i = 0; i < devs.size(); i++) {
-        debugGREEN("dev: %s from %lu devices\n", devs[i].c_str(), devs.size());
-    }
-    mALHandler.openDevice(devs[0]);
+//    mALHandler.getDevices(devs);
+//    ASSERT(devs.size())
+//    for (int i = 0; i < devs.size(); i++) {
+//        debugGREEN("dev: %s from %lu devices\n", devs[i].c_str(), devs.size());
+//    }
+//    mALHandler.openDevice(devs[0]);
+    mALHandler.openDevice("");
     mALHandler.createContext();
     mALHandler.makeContextCurrent();
     mALHandler.enableCurrentContextet();

@@ -63,11 +63,11 @@ private:
     static const int NUM_BUFFERS = 3; //for the openal sound player
     static const int BUFFER_SIZE = 8192; //for the openal sound player
 
-    static const int VIDEO_QUEUE_DEFAULT_SIZE = 50;
-    static const int AUDIO_QUEUE_DEFAULT_SIZE = 50;
+    static const int VIDEO_QUEUE_DEFAULT_SIZE = 150;
+    static const int AUDIO_QUEUE_DEFAULT_SIZE = 150;
 
-    static const int VIDEO_QUEUE_CRITICAL_HIGH_SIZE = 150;
-    static const int AUDIO_QUEUE_CRITICAL_HIGH_SIZE = 150;
+    static const int VIDEO_QUEUE_CRITICAL_HIGH_SIZE = 250;
+    static const int AUDIO_QUEUE_CRITICAL_HIGH_SIZE = 250;
 
     static const int VIDEO_QUEUE_CRITICAL_LOW_SIZE = 5;
     static const int AUDIO_QUEUE_CRITICAL_LOW_SIZE = 5;
