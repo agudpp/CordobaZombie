@@ -25,6 +25,7 @@
 #include <effect_handler/EffectHandler.h>
 #include <video/OgreVideoPlayer.h>
 #include <sound/SoundHandler.h>
+#include <crash_handler/CrashHandler.h>
 
 
 namespace tests {
@@ -66,6 +67,7 @@ private:
     effect::EffectHandler mEffectHandler;
     mm::OgreVideoPlayer mOgreVideoPlayer;
     mm::SoundHandler& mSoundHandler;
+    core::CrashHandler mCrashHandler;
 
 };
 

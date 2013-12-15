@@ -11,8 +11,6 @@
 #include <OgreOverlay.h>
 #include <OgreOverlayContainer.h>
 
-#include <frontend/element/button/FESimpleButton.h>
-
 #include "MainMenuSubState.h"
 
 namespace cz {
@@ -24,14 +22,6 @@ public:
     virtual
     ~MainMenuHelpState();
 
-    ////////////////////////////////////////////////////////////////////////////
-    // Signals
-    //
-    // @brief Whenever a button is pressed this method will be called. This is
-    //        the "callback" for the FESimpleButton.
-    //
-    void
-    buttonPressed(ui::FESimpleButton* button, ui::FESimpleButton::Event event);
 
     ////////////////////////////////////////////////////////////////////////////
     //                          Inherited methods                             //
@@ -110,7 +100,6 @@ private:
 private:
     Ogre::Overlay* mOverlay;
     Ogre::OverlayContainer* mInfoImg;
-    ui::FESimpleButton mBackButton;
     MainMenuSubStateEvent mRetEvent;
 };
 

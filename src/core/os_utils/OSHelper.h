@@ -100,9 +100,6 @@ extractFileName(const std::string& path, std::string& filename)
     while (lastBar >= 0 && (path[lastBar] != '\\' && path[lastBar] != '/')) {
         --lastBar;
     }
-    if (lastBar <= 0) {
-        return false;
-    }
 
     filename = path.substr(lastBar + 1, std::string::npos);
     return true;
@@ -115,7 +112,9 @@ extractFileExtension(const std::string& fullName,
 {
     const core::size_t dotPos = fullName.rfind('.');
     if (dotPos == std::string::npos) {
-        return false;
+        name = fullName;
+        ext = "";
+        return true;
     }
     name = fullName.substr(0, dotPos);
     ext = fullName.substr(dotPos+1, fullName.size());
@@ -131,7 +130,8 @@ extractPath(const std::string& fullpath, std::string& result)
         --lastBar;
     }
     if (lastBar <= 0) {
-        return false;
+        result = ""; // empty path?
+        return true;
     }
 
     result = fullpath.substr(0, lastBar+1);
