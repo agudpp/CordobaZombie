@@ -13,6 +13,7 @@ if (NOT VIDEOSYSTEM_DEFINED)
 
     include(${DEV_ROOT_PATH}/io_interfaces/IO_InterfacesAll.cmake)
     include(${DEV_ROOT_PATH}/core/app_tester/AutoGen.cmake)
+    include(${DEV_ROOT_PATH}/multimedia/openal_handler/AutoGen.cmake)
     
     set(SRCS
     	${SRCS}

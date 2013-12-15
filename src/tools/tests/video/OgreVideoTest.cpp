@@ -6,8 +6,6 @@
  *      Author: Raul
  */
 
-#include "OgreVideoTest.h"
-
 #include <vector>
 #include <string>
 
@@ -16,7 +14,9 @@
 #include <Ogre.h>
 
 #include <os_utils/OSHelper.h>
+#include <openal_handler/OpenALHandler.h>
 
+#include "OgreVideoTest.h"
 
 
 /******************************************************************************/
@@ -185,9 +185,23 @@ OgreVideoTest::OgreVideoTest() :
 	core::AppTester(mTimeFrame),
 	mInputHelper(getMouseButtons(),getKeyboardKeys()),
 	mVPlayer(-1,1,1,-1,getSceneManager(),1024,768)
-
 {
-	// Load fonts
+
+    std::vector<std::string> devs;
+    mALHandler.getDevices(devs);
+    ASSERT(devs.size())
+    for (int i = 0; i < devs.size(); i++) {
+        debugGREEN("dev: %s from %i devices\n", devs[i].c_str(), devs.size());
+    }
+    mALHandler.openDevice(devs[0]);
+    mALHandler.createContext();
+    mALHandler.makeContextCurrent();
+    mALHandler.enableCurrentContextet();
+    ASSERT(mALHandler.hasContext() && mALHandler.hasDevice());
+
+    mVPlayer.setALHandler(&mALHandler);
+
+    // Load fonts
 	loadAdditionalData();
 
 

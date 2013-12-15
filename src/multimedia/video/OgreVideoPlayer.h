@@ -242,6 +242,12 @@ public:
     inline void
     setMode(OgreVideoPlayer::mode m);
 
+    /*
+     *
+     */
+    inline void
+    setALHandler(OpenALHandler *oalh);
+
 protected:
 
 	/*
@@ -389,6 +395,14 @@ OgreVideoPlayer::isVisible(void) const
 {
     return mScreen.isVisible();
 }
+
+///////////////////////////////////////////////////////////////////////////////
+inline void
+OgreVideoPlayer::setALHandler(OpenALHandler *oalh)
+{
+    mVideoPlayer.setOpenALHandler(oalh);
+}
+
 
 }
 

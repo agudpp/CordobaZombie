@@ -5,7 +5,7 @@
  * Author: Raul
  */
 
-////////////////////////////////////////////////////////////////////////////////
+//#############################################################################/
 
 #include <inttypes.h>
 #include <string.h>
@@ -17,7 +17,10 @@ extern "C" {
 #include <libswscale/swscale.h>
 }
 
+#include <openal_handler/OpenALHandler.h>
+
 #include "VideoPlayer.h"
+
 
 /*
  * NOTE: This is a fix to support old versions of ffmpeg. Looks like this macro
@@ -29,7 +32,7 @@ extern "C" {
 
 namespace mm {
 
-//-----------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////////
 // DEFINITIONS AND GLOBAL CONSTANTS
 
 #define SC(t,x) static_cast<t>(x)
@@ -37,7 +40,7 @@ namespace mm {
 const double EPS = 10e-12; // For double precision comparisons
 
 
-//-----------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////////
 // DEBUGING COLOR PRINT DEFINITIONS
 #ifdef DEBUG
 #define lightGreenPrint(format, ...) \
@@ -49,7 +52,18 @@ const double EPS = 10e-12; // For double precision comparisons
 #define cyanPrint(format, ...)
 #endif
 
-//-----------------------------------------------------------------------------
+#ifdef VIDEO_PLAYER_DEBUG__
+#define debugVIDEO(format, ...) \
+    {fprintf(stderr, "\33[22;36m[%s, %s, %d]: ", \
+     __FILE__, __FUNCTION__, __LINE__); \
+     fprintf(stderr, format "\33[0m" , ## __VA_ARGS__);}
+
+#else
+#define debugVIDEO(format, ...)
+#endif
+
+
+///////////////////////////////////////////////////////////////////////////////
 /*
  * TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
  *
@@ -123,7 +137,7 @@ const double EPS = 10e-12; // For double precision comparisons
  *
  */
 
-//-----------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////////
 VideoPlayer::VideoPlayer(VideoBuffer *screen) :
     pFormatCtx(0),
     pCodecCtx(0),
@@ -144,8 +158,6 @@ VideoPlayer::VideoPlayer(VideoBuffer *screen) :
     atbasenum(0),
     atbaseden(0),
     mVideoLength(0.0f),
-    dev(0),
-    ctx(0),
     source(0),
     al_frequency(0),
     al_format(0),
@@ -162,7 +174,9 @@ VideoPlayer::VideoPlayer(VideoBuffer *screen) :
     mVDataQueue(std::deque<AVPacket*> (VIDEO_QUEUE_DEFAULT_SIZE)),
     mADataQueue(std::deque<AVPacket*> (AUDIO_QUEUE_DEFAULT_SIZE)),
     mNumVPacks(0),
-    mNumAPacks(0)
+    mNumAPacks(0),
+    mALHandler(0)
+
 {
 
 #if OGRE_ENDIAN == OGRE_ENDIAN_BIG
@@ -194,7 +208,7 @@ VideoPlayer::VideoPlayer(VideoBuffer *screen) :
 
 }
 
-//-----------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////////
 
 VideoPlayer::~VideoPlayer()
 {
@@ -239,13 +253,6 @@ VideoPlayer::~VideoPlayer()
         audio_decoding_pkt = 0;
     }
 
-    if(dev){
-        alcCloseDevice(dev);
-        alcCloseDevice(dev);
-    }
-    if(ctx){
-        alcDestroyContext(ctx);
-    }
 
     // delete AVPackets:
     for(int i = 0; i < mVDataQueue.size();i++){
@@ -258,8 +265,10 @@ VideoPlayer::~VideoPlayer()
 
 
 }
+//#############################################################################
 
-//-----------------------------------------------------------------------------
+//#############################################################################
+///////////////////////////////////////////////////////////////////////////////
 
 int
 VideoPlayer::load(const char *fileName)
@@ -397,7 +406,15 @@ VideoPlayer::load(const char *fileName)
 
         debugGREEN("Didn't find an audio stream. Playing only video.\n");
 
-    } else {
+    } else if(!mALHandler){
+
+        debugWARNING("You are loading a video with sound stream, but you "
+            "haven't set the OpenALHandler for this video player, so "
+            "you won't be able to listen anything.\n");
+        // Make sure we don't play any audio
+        audioStream = -1;
+
+    }else{
         debugGREEN("Audio Stream Number %d\n", audioStream);
 
         // Allocate audio frame
@@ -430,7 +447,7 @@ VideoPlayer::load(const char *fileName)
             debugERROR("Unsupported audio format :s\n");
             return VIDEO_ERROR;
         } else {
-            create_al_audio_player();
+            get_al_audio_player();
         }
 
         ASSERT(mNumAPacks == 0);
@@ -449,7 +466,7 @@ VideoPlayer::load(const char *fileName)
     return VIDEO_OK;
 }
 
-//-----------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////////
 
 void
 VideoPlayer::play(void)
@@ -474,7 +491,7 @@ VideoPlayer::play(void)
     }
 }
 
-//-----------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////////
 
 int
 VideoPlayer::unload(void)
@@ -520,7 +537,7 @@ VideoPlayer::unload(void)
     return VIDEO_OK;
 }
 
-//-----------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////////
 
 int
 VideoPlayer::seek_time_stamp(double ts)
@@ -588,7 +605,7 @@ VideoPlayer::seek_time_stamp(double ts)
     return VIDEO_OK;
 }
 
-//-----------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////////
 
 int
 VideoPlayer::empty_data_queues(void)
@@ -617,29 +634,18 @@ VideoPlayer::empty_data_queues(void)
     return VIDEO_OK;
 }
 
-//-----------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////////
 
 int
-VideoPlayer::create_al_audio_player(void)
+VideoPlayer::get_al_audio_player(void)
 {
 
-    if (!dev){
-        debugGREEN("New device\n");
-        dev = alcOpenDevice(NULL);
-        if (!dev) {
-            debugERROR("Can't get a device\n");
-            return VIDEO_ERROR;
-        }
+    if (!mALHandler->hasDevice()) {
+        ASSERT(false && "No device was set for the OpenALHandler.\n");
     }
 
-    if(!ctx){
-        debugGREEN("New context\n");
-        ctx = alcCreateContext(dev, NULL);
-        alcMakeContextCurrent(ctx);
-        if (!ctx) {
-            debugERROR("Can't get a context\n");
-            return VIDEO_ERROR;
-        }
+    if (!mALHandler->hasContext()) {
+        ASSERT(false && "No context was set for the OpenALHandler.\n");
     }
 
     // Generate buffers and source
@@ -649,7 +655,7 @@ VideoPlayer::create_al_audio_player(void)
         alGenSources(1, &source);
     }
     if (alGetError() != AL_NO_ERROR) {
-        debugERROR("");
+        debugERROR("Problem with me and openal.\n");
         return VIDEO_ERROR;
     }
 
@@ -710,7 +716,7 @@ VideoPlayer::create_al_audio_player(void)
     return VIDEO_OK;
 }
 
-//-----------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////////
 
 int
 VideoPlayer::preload_audio(void)
@@ -751,7 +757,7 @@ VideoPlayer::preload_audio(void)
                 alGetSourcei(source, AL_SOURCE_STATE, &val);
                 if (val != AL_PLAYING) {
                     // No more info and al_player finished reading his buffers.
-                    debugGREEN("Audio says that the video ended.\n");
+                    debugVIDEO("Audio says that the video ended.\n");
                     return VIDEO_ENDED;
                 }
                 // No more useful info coming from get_audio_for_al (only
@@ -772,7 +778,7 @@ VideoPlayer::preload_audio(void)
     return VIDEO_OK;
 }
 
-//-----------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////////
 
 int
 VideoPlayer::update(double timesincelastframe)
@@ -824,7 +830,7 @@ VideoPlayer::update(double timesincelastframe)
     return VIDEO_OK;
 }
 
-//-----------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////////
 
 
 int
@@ -864,7 +870,7 @@ VideoPlayer::update_video(void)
         avcodec_decode_video2(pCodecCtx, pFrame, &frameFinished, pkt);
 
         if (!frameFinished) { //FIXME#3
-            debugRED("Incomplete video frame\n");
+            debugVIDEO("Incomplete video frame\n");
             return VIDEO_OK;
         }
 
@@ -896,7 +902,7 @@ VideoPlayer::update_video(void)
 }
 
 
-//-----------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////////
 
 int
 VideoPlayer::update_audio(void)
@@ -934,7 +940,7 @@ VideoPlayer::update_audio(void)
                 alGetSourcei(source, AL_SOURCE_STATE, &val);
                 if (val != AL_PLAYING) {
                     // No more info and al_player finished reading his buffers.
-                    debugGREEN("AUDIO SAYS: VIDEO ENDED\n");
+                    debugVIDEO("AUDIO SAYS: VIDEO ENDED\n");
                     return VIDEO_ENDED;
                 }
                 // No more useful info coming from get_audio_for_al (only
@@ -955,14 +961,14 @@ VideoPlayer::update_audio(void)
     // In case the player has stopped.
     alGetSourcei(source, AL_SOURCE_STATE, &val);
     if (val != AL_PLAYING) {
-        debugRED("OpenAl player had stopped\n");
+        debugVIDEO("OpenAl player had stopped\n");
         alSourcePlay(source);
     }
 
     return VIDEO_OK;
 }
 
-//-----------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////////
 
 int
 VideoPlayer::get_audio_data(uint8_t *strm, int len)
@@ -1017,7 +1023,7 @@ VideoPlayer::get_audio_data(uint8_t *strm, int len)
     return VIDEO_OK;
 }
 
-//-----------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////////
 
 int
 VideoPlayer::audio_decode_frame(uint8_t **buffer, int buffer_size)
@@ -1157,7 +1163,7 @@ VideoPlayer::audio_decode_frame(uint8_t **buffer, int buffer_size)
     ASSERT(false);
 }
 
-//-----------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////////
 
 int
 VideoPlayer::get_playing_time(double & t)
@@ -1204,7 +1210,7 @@ VideoPlayer::get_playing_time(double & t)
     return VIDEO_OK;
 }
 
-//-----------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////////
 
 int
 VideoPlayer::get_more_data(bool audio, bool video)
@@ -1273,7 +1279,7 @@ VideoPlayer::get_more_data(bool audio, bool video)
 
             } else {
 
-                debugRED("Not my stream :s\n");
+                debugVIDEO("Not my stream :s\n");
                 av_free_packet(newPacket);
 
             }
@@ -1287,7 +1293,7 @@ VideoPlayer::get_more_data(bool audio, bool video)
     return VIDEO_OK;
 }
 
-//-----------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////////
 
 void
 VideoPlayer::print_video_info(void)
@@ -1312,7 +1318,7 @@ VideoPlayer::print_video_info(void)
 
 }
 
-//-----------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////////
 
 int
 VideoPlayer::paint_screen(unsigned char R, unsigned char G, unsigned char B)
@@ -1332,7 +1338,7 @@ VideoPlayer::paint_screen(unsigned char R, unsigned char G, unsigned char B)
 }
 
 
-//-----------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////////
 
 int
 VideoPlayer::paint_black_screen(void)

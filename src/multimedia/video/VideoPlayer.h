@@ -43,6 +43,8 @@ extern "C" {
 
 
 // Project includes
+
+#include <openal_handler/OpenALHandler.h>
 #include <debug/DebugUtil.h>
 #include "VideoBuffer.h"
 //-----------------------------------------------------------------------------
@@ -114,8 +116,7 @@ private:
     int mNumAPacks;
 
     // For alplayer
-    ALCdevice *dev;
-    ALCcontext *ctx;
+    const OpenALHandler *mALHandler;
     ALuint source, buffers[NUM_BUFFERS];
     ALuint al_frequency;
     ALenum al_format;
@@ -252,6 +253,14 @@ public:
     paint_black_screen(void);
 
 
+
+    /*
+     *
+     */
+    inline void
+    setOpenALHandler(const OpenALHandler *oalh);
+
+
 protected:
 
     /*
@@ -260,7 +269,7 @@ protected:
      *
      */
     int
-    create_al_audio_player(void);
+    get_al_audio_player(void);
 
     /*
      * 	If audio queue size is < AUDIO_QUEUE_DEFAULT_SIZE or video queue size
@@ -368,7 +377,6 @@ protected:
     int
     empty_data_queues(void);
 
-
 public: // Extra methods
 
     /*
@@ -456,6 +464,17 @@ VideoPlayer::getSizes(unsigned int &h, unsigned int &w)
         return VIDEO_ERROR;
     }
 }
+
+//-----------------------------------------------------------------------------
+
+inline void
+VideoPlayer::setOpenALHandler(const OpenALHandler *oalh)
+{
+    ASSERT(oalh);
+    mALHandler = oalh;
+}
+
+
 
 } //namespace mm
 
