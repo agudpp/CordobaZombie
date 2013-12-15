@@ -1,16 +1,12 @@
-include(${DEV_ROOT_PATH}/engine/resources_config_dialog/AutoGen.cmake)
-include(${DEV_ROOT_PATH}/core/app_tester/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/core/debug/AutoGen.cmake)
-include(${DEV_ROOT_PATH}/cz/global_data/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/core/os_utils/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/engine/resources_config_dialog/AutoGen.cmake)
 
 # Define global sources here
 set(HDRS ${HDRS}
-	${DEV_ROOT_PATH}/tools/tests/config_dialog/ConfigDialogTest.h
 )
 
 set(SRCS ${SRCS}
-	${DEV_ROOT_PATH}/tools/tests/config_dialog/ConfigDialogTest.cpp
-	${DEV_ROOT_PATH}/tools/tests/config_dialog/main.cpp
 )
 
 ################################################################################

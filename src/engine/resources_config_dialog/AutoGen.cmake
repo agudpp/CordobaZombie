@@ -11,6 +11,7 @@ set(HDRS ${HDRS}
 # Module sources
 set(SRCS ${SRCS}
 	${DEV_ROOT_PATH}/engine/resources_config_dialog/CbaZombieConfigDialog.cpp
+	${DEV_ROOT_PATH}/engine/resources_config_dialog/main.cpp
 )
 
 

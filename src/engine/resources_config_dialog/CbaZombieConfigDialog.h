@@ -9,8 +9,17 @@
 #ifndef CBAZOMBIECOFIGDIALOG_H_
 #define CBAZOMBIECOFIGDIALOG_H_
 
-#include <OgreConfigDialog.h>
-
+#include <string>
+#include <QWidget>
+#if defined(_WIN32) || defined(CYGWIN)
+#  include <OpenAL/al.h>
+#  include <OpenAL/alc.h>
+#elif defined(linux) || defined(_linux) || defined(__linux) || defined(__linux__)
+#  include <AL/al.h>
+#  include <AL/alc.h>
+#else
+#  error "Unsupported platform. ABORTING COMPILATION."
+#endif
 
 // Forward declarations
 namespace Ogre {
@@ -19,45 +28,85 @@ namespace Ogre {
 namespace Ui {
 	class CbaZombieConfigDialog;
 }
-class QWidget;
+
 
 namespace engine
 {
 
-class CbaZombieConfigDialog : public Ogre::ConfigDialog
+class CbaZombieConfigDialog : public QWidget
 {
+
+    Q_OBJECT
+
 public:
-    CbaZombieConfigDialog();
+    CbaZombieConfigDialog(QWidget* parent=0);
     virtual ~CbaZombieConfigDialog();
 
     /**
      * @brief Display window for choosing system settings
      * @returns true if the user clicked 'Ok', false otherwise
-     * @remarks DEPRECATED, erase
+     * TODO ERASE, DEPRECATED.
      */
     bool
     showConfigDialog(Ogre::Root* root);
 
     /**
-     * @brief Display window for choosing system settings
-     * @returns 0 on success, !0 on error
+     * @brief Restore saved engine configuration (aka "system settings") if any
      */
-    int
-    show(Ogre::Root* root);
+    bool
+    restoreConfig();
 
-private:
     /**
-     * @brief Identify the system settings to show in the config dialog
+     * @brief Display window for choosing system settings.
+     */
+    inline void
+    show();
+
+private slots:
+    void setRenderSystem(const std::string& rs);
+    void setDisplayFrequency(int freq);
+    void setAntiAliasing(int aa);
+    void setVerticalSync(int vsync);
+    void setGammaCorrection(bool gc);
+    void setDisplayResolution(const std::pair<int,int>& dr);
+    void setSoundDevice(const std::string& sd);
+
+    /**
+     * @brief Identify the system settings to show in the config dialog.
      */
     void
-    systemRecon(Ogre::Root* root);
+    systemRecon();
+
+    /**
+     * @brief Save current engine configuration (aka "system settings").
+     */
+    bool
+    saveConfig();
 
 private:
-    QWidget* mWidget;
+    // References to engines
+    Ogre::Root* mOgreRoot;
+    ALCdevice*  mOpenALdev;
+    ALCcontext* mOpenALctx;
+    // Configuration members
+    std::string mRenderSystem;
+    int mDisplayFreq;
+    int mAntiAliasing;
+    int mVertSync;
+    bool mGammaCorrection;
+    std::pair<int,int> mDisplayRes;
+    std::string mSoundDevice;
     Ui::CbaZombieConfigDialog* mTemplateUI;
 };
 
+inline void
+CbaZombieConfigDialog::show()
+{
+    QWidget::show();
+}
+
 }  // namespace engine
+
 
 
 #endif /* CBAZOMBIECOFIGDIALOG_H_ */

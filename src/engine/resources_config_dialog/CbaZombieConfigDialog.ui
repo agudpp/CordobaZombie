@@ -114,7 +114,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QComboBox" name="comboBox">
+        <widget class="QComboBox" name="renderSystem">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
            <horstretch>0</horstretch>
@@ -233,7 +233,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QComboBox" name="comboBox_4">
+        <widget class="QComboBox" name="displayFreq">
          <property name="maximumSize">
           <size>
            <width>146</width>
@@ -317,7 +317,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QComboBox" name="comboBox_3">
+        <widget class="QComboBox" name="antiAliasing">
          <property name="maximumSize">
           <size>
            <width>146</width>
@@ -406,7 +406,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QComboBox" name="comboBox_5">
+        <widget class="QComboBox" name="vertSync">
          <property name="maximumSize">
           <size>
            <width>146</width>
@@ -485,7 +485,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QComboBox" name="comboBox_7">
+        <widget class="QComboBox" name="gammaCorrection">
          <property name="maximumSize">
           <size>
            <width>146</width>
@@ -564,7 +564,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QComboBox" name="comboBox_6">
+        <widget class="QComboBox" name="displayRes">
          <property name="maximumSize">
           <size>
            <width>146</width>
@@ -658,7 +658,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QComboBox" name="comboBox_2">
+        <widget class="QComboBox" name="soundDevice">
          <property name="maximumSize">
           <size>
            <width>146</width>
@@ -716,7 +716,7 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_8">
      <item>
-      <widget class="QPushButton" name="shitty_button">
+      <widget class="QPushButton" name="discardChanges">
        <property name="minimumSize">
         <size>
          <width>120</width>
@@ -733,29 +733,29 @@
         <enum>Qt::NoFocus</enum>
        </property>
        <property name="styleSheet">
-        <string notr="true">QPushButton#shitty_button {
-	color:rgb(50,50,50);
-	background:rgb(160,170,40);
+        <string notr="true">QPushButton#discardChanges {
+	color:rgb(30,30,30);
+	background:rgb(150,90,90);
 	border-style:outset;
 	border-width:2px;
 	border-radius:10px;
-	border-color:rgb(180,190,60);
+	border-color:rgb(160,100,100);
 	font:bold 14px;
 	padding:6px;
 }
-QPushButton#shitty_button:pressed {
+QPushButton#discardChanges:pressed {
 	color:rgb(10,10,10);
-	background:rgb(130,140,20);
+	background:rgb(130,80,80);
 	border-style: inset;
 }</string>
        </property>
        <property name="text">
-        <string>Me cago todo</string>
+        <string>Cancel</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="evil_button">
+      <widget class="QPushButton" name="saveConfig">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
          <horstretch>0</horstretch>
@@ -786,24 +786,24 @@ QPushButton#shitty_button:pressed {
         <enum>Qt::NoFocus</enum>
        </property>
        <property name="styleSheet">
-        <string notr="true">QPushButton#evil_button {
-	color:rgb(200,200,200);
-	background:rgb(120,10,0);
+        <string notr="true">QPushButton#saveConfig {
+	color:rgb(30,30,30);
+	background:rgb(50,120,90);
 	border-style:outset;
 	border-width:2px;
 	border-radius:10px;
-	border-color:rgb(170,20,0);
+	border-color:rgb(60,130,100);
 	font:bold 14px;
 	padding:6px;
 }
-QPushButton#evil_button:pressed {
-	color:rgb(220,220,220);
-	background:rgb(90,0,0);
+QPushButton#saveConfig:pressed {
+	color:rgb(10,10,10);
+	background:rgb(40,110,80);
 	border-style: inset;
 }</string>
        </property>
        <property name="text">
-        <string>¡a jugaaaaa!</string>
+        <string>Save config</string>
        </property>
       </widget>
      </item>
@@ -811,7 +811,6 @@ QPushButton#evil_button:pressed {
    </item>
   </layout>
   <zorder>verticalSpacer</zorder>
-  <zorder>horizontalLayoutWidget</zorder>
   <zorder>verticalSpacer_2</zorder>
  </widget>
  <resources/>
