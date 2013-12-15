@@ -19,8 +19,6 @@
 
 
 
-
-
 /******************************************************************************/
 /**********************    LOCAL HELPER FUNCTIONS    **************************/
 namespace {
@@ -45,7 +43,7 @@ static std::vector<input::KeyCode>
 getKeyboardKeys(void)
 {
 	std::vector<input::KeyCode> buttons;
-	buttons.reserve(2);
+	buttons.reserve(8);
 
 	buttons.push_back(input::KeyCode::KC_ESCAPE);
 	buttons.push_back(input::KeyCode::KC_E);
@@ -66,13 +64,14 @@ namespace{
 // For finding videos between the resources
 
 
-const int VIDEO_STATE_LIST_SIZE = 3;
+const int VIDEO_STATE_LIST_SIZE = 4;
 
 const char* VIDEO_STATE_LIST[VIDEO_STATE_LIST_SIZE] =
 			{
-			"intro_logo.mp4",
-			"5seg2.ogg",
-			"menu.ogg"
+                "gorillaz.mp4",
+			    "5seg2.ogg",
+                "intro_video.ogg",
+                "menu.ogg"
 			};
 
 
@@ -131,7 +130,7 @@ static int
 loadVideos(mm::OgreVideoPlayer* ovp)
 {
 
-	double end = -1.0;
+	double end = 30.0;
 	double start = 0.0;
 
 	// get next video to play
@@ -152,9 +151,9 @@ loadVideos(mm::OgreVideoPlayer* ovp)
 		}
 
 		// make the next video last more.
-		end += 10.0;
+		//end += 10.0;
 		// make it start a little bit further
-		start += 1.0;
+		//start += 1.0;
 	}
 
 	return 0;
@@ -185,7 +184,7 @@ namespace tests {
 OgreVideoTest::OgreVideoTest() :
 	core::AppTester(mTimeFrame),
 	mInputHelper(getMouseButtons(),getKeyboardKeys()),
-	mVPlayer(0)
+	mVPlayer(-1,1,1,-1,getSceneManager(),1024,768)
 
 {
 	// Load fonts
@@ -193,13 +192,12 @@ OgreVideoTest::OgreVideoTest() :
 
 
 	// Construct a video player and fill its queue with videos.
-	mVPlayer = new mm::OgreVideoPlayer(-1,1,1,-1,getSceneManager(),1024,768);
-	loadVideos(mVPlayer);
-	mVPlayer->setRepeatPlayList(true);
+	loadVideos(&mVPlayer);
+	mVPlayer.setRepeatPlayList(true);
 
 	// Start playing (when updated)
 	debugERROR("ANTES DE PLAY\n");
-	mVPlayer->play();
+	mVPlayer.play();
 
 	// configure the input
 	input::Mouse::setMouse(mMouse);
@@ -217,7 +215,6 @@ OgreVideoTest::OgreVideoTest() :
 OgreVideoTest::~OgreVideoTest()
 {
 	// TODO Auto-generated destructor stub
-	delete mVPlayer;
 }
 
 
@@ -240,7 +237,6 @@ OgreVideoTest::loadAdditionalData(void)
 void
 OgreVideoTest::update()
 {
-	static int frames = 0;
 
 	// update the input system
 	mInputHelper.update();
@@ -252,37 +248,39 @@ OgreVideoTest::update()
 	}
 
 	if (mInputHelper.isKeyPressed(input::KeyCode::KC_R)){
-		mVPlayer->setRepeatVideo(true);
+		mVPlayer.setRepeatVideo(true);
 		debug("Repeat video --> true\n");
 	}
 
 	if (mInputHelper.isKeyPressed(input::KeyCode::KC_E)){
-		mVPlayer->setRepeatVideo(false);
+		mVPlayer.setRepeatVideo(false);
 		debug("Repeat video --> false\n");
 	}
 
 	if (mInputHelper.isKeyReleased(input::KeyCode::KC_N)){
-		mVPlayer->next();
+		mVPlayer.next();
 		debug("Play next video\n");
 	}
 
 	if (mInputHelper.isKeyPressed(input::KeyCode::KC_S)){
-		mVPlayer->stop();
+		mVPlayer.stop();
 		debug("Stop!\n");
 	}
 
 	if (mInputHelper.isKeyPressed(input::KeyCode::KC_P)){
-		mVPlayer->play();
+		mVPlayer.play();
 		debug("Play!\n");
 	}
 
 	if (mInputHelper.isKeyPressed(input::KeyCode::KC_A)){
 		// TODO hacer mas testing acá
+		mVPlayer.dequeueAll();
 		debug("Run automatic test\n");
 	}
 
 	// update the video
-	if(mm::OgreVideoPlayer::C_ERROR == mVPlayer->update(mTimeFrame)){
+	if(mm::OgreVideoPlayer::C_ERROR == mVPlayer.update(mTimeFrame) &&
+        mVPlayer.isPlaying()){
 		debugERROR("O el video esta detenido o algo anda mal aca\n");
 	}
 }

@@ -97,6 +97,17 @@ OgreVideoScreen::OgreVideoScreen(Ogre::Real left,  Ogre::Real top,
 			height, 0,
 			Ogre::PF_X8R8G8B8, Ogre::TU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
 
+    /*
+     * TODO: note that rtttex->getFormat() and rtttex->getDesiredFormat() are
+     * not allways the same (Ogre does what ever he wants :S) so it would be
+     * good to check the getFormat() value and build the fillbuffer method
+     * based on it.
+     *
+     * debugGREEN("format: real -> %i, desired -> %i\n",rtttex->getFormat(),
+     * rtttex->getDesiredFormat());
+     */
+
+
     mRttTexture = rtttex;
     ASSERT(mRttTexture.get());
 
@@ -252,7 +263,7 @@ OgreVideoPlayer::dequeueAll(void)
     mIndex = -1;
     mPlayList.clear();
     mVideoPlayer.unload();
-//    mVideoPlayer.paint_black_screen(); ??? it says that was never defined?
+    mVideoPlayer.paint_black_screen();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -268,6 +279,7 @@ OgreVideoPlayer::load(int index){
 		mIndex = index;
 		// Load video player, resize screen and seek for starting point;
 		mVideoPlayer.unload();
+		debug("Loading video %s\n", video.getName());
 		if(VideoPlayer::VIDEO_OK != mVideoPlayer.load(video.getPath())){
 			return C_ERROR;
 		}
@@ -283,6 +295,7 @@ OgreVideoPlayer::load(int index){
 		video.getEnd(end);
 //		debug("Loading video %s, from second %lf to %lf\n", video.getName(),
 //				start, end);
+
 	}
 
 	return C_OK;

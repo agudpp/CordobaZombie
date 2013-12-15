@@ -135,6 +135,12 @@ private:
 class OgreVideoPlayer {
 
 public:
+
+	enum mode{
+		QUEUE_MODE = 0,
+		LIST_MODE
+	};
+
 	enum{
 		C_ERROR = -10,
 		C_OK = 0,
@@ -232,6 +238,10 @@ public:
     inline bool
     isVisible(void) const;
 
+    // @set player mode to circular list or queue (queue is default)
+    inline void
+    setMode(OgreVideoPlayer::mode m);
+
 protected:
 
 	/*
@@ -248,6 +258,7 @@ private:
 	bool					mRepeatV;
 	bool					mRepeatP;
 	int						mIndex;  	// Index of the loaded video.
+	int						mMode;
 };
 
 
@@ -338,7 +349,13 @@ OgreVideoScreen::isVisible(void) const
 // OgreVideoPlayer inline methods
 ///////////////////////////////////////////////////////////////////////////////
 
+inline void
+OgreVideoPlayer::setMode(OgreVideoPlayer::mode m)
+{
+	mMode = m;
+}
 
+///////////////////////////////////////////////////////////////////////////////
 
 inline void
 OgreVideoPlayer::setRepeatPlayList(bool rep)
