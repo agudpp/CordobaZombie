@@ -281,8 +281,8 @@ OgreVideoPlayer::load(int index){
 		}
 		double end = 0;
 		video.getEnd(end);
-		debug("Loading video %s, from second %lf to %lf\n", video.getName(),
-				start, end);
+//		debug("Loading video %s, from second %lf to %lf\n", video.getName(),
+//				start, end);
 	}
 
 	return C_OK;
@@ -324,7 +324,7 @@ OgreVideoPlayer::update(double tslf)
 		video.getEnd(end);
 		// negative value for end will play till it finishes.
 		if(end >= 0.0 && t >= end){
-			debug("Video time limit reached\n");
+//			debug("Video time limit reached\n");
 			if(loadNext() == C_OK){
 				play();
 			}else{
@@ -335,7 +335,7 @@ OgreVideoPlayer::update(double tslf)
 		}else{
 			if(VideoPlayer::VIDEO_ENDED == mVideoPlayer.update(tslf)){
 				// If the video has ended
-				debug("Video ended (the actual video player says so)\n");
+//				debug("Video ended (the actual video player says so)\n");
 				if(loadNext() == C_OK){
 					play();
 				}else{
@@ -352,19 +352,19 @@ OgreVideoPlayer::update(double tslf)
 int
 OgreVideoPlayer::loadNext(void)
 {
-	debug("Load next: actual index %i\n", mIndex);
+//	debug("Load next: actual index %i\n", mIndex);
 	if(mRepeatV){
 		load(mIndex);
-		debug("Load next: load index %i\n", mIndex);
+//		debug("Load next: load index %i\n", mIndex);
 	}else if(mIndex < mPlayList.size()-1){
-		debug("Load next: load index %i\n", mIndex+1);
+//		debug("Load next: load index %i\n", mIndex+1);
 		load(mIndex+1);
 	}else{
 		if(mRepeatP){
-			debug("Load next: restart playlist\n");
+//			debug("Load next: restart playlist\n");
 			load(0);
 		}else{
-			debug("Load next: no more videos to load\n");
+//			debug("Load next: no more videos to load\n");
 			return C_ERROR;
 		}
 	}

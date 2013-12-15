@@ -9,6 +9,10 @@ if (NOT VIDEOSYSTEM_DEFINED)
     # VideoPlayer.cpp while including avcodecs headers.
     
     add_definitions(-D__STDC_CONSTANT_MACROS)
+
+
+    include(${DEV_ROOT_PATH}/io_interfaces/IO_InterfacesAll.cmake)
+    include(${DEV_ROOT_PATH}/core/app_tester/AutoGen.cmake)
     
     set(SRCS
     	${SRCS}
