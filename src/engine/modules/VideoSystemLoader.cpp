@@ -50,6 +50,7 @@ VideoSystemLoader::load(const EngineConfiguration& config)
                                            mSceneManager,
                                            mRenderWindow->getHeight(),
                                            mRenderWindow->getWidth());
+    mVideoPlayer->setALHandler(mOpenalHandler);
     mVideoPlayer->setVisible(false);
 
     return true;

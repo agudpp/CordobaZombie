@@ -64,10 +64,11 @@ namespace{
 // For finding videos between the resources
 
 
-const int VIDEO_STATE_LIST_SIZE = 4;
+const int VIDEO_STATE_LIST_SIZE = 5;
 
 const char* VIDEO_STATE_LIST[VIDEO_STATE_LIST_SIZE] =
 			{
+                "intro.ogv",
                 "gorillaz.mp4",
 			    "5seg2.ogg",
                 "intro_video.ogg",

@@ -1066,7 +1066,7 @@ VideoPlayer::audio_decode_frame(uint8_t **buffer, int buffer_size)
                                                      &auxpack);
 
                 if (decode_error < 0) {
-                    debugRED("Error decoding audio frame. "
+                    debugGREEN("Error decoding audio frame. "
                         "Skiping to next frame\n");
                     continue;
                 }
@@ -1344,11 +1344,18 @@ int
 VideoPlayer::paint_black_screen(void)
 {
     ASSERT(mScreen);
-    unsigned char img[pCodecCtx->width * pCodecCtx->height * 3];
-    memset(img, 0, pCodecCtx->width * pCodecCtx->height * 3);
+    int size = 0;
+    if(pCodecCtx){
+        size =  pCodecCtx->width * pCodecCtx->height * 3;
+    }else{
+        size = DEFAULT_SCREEN_HEIGHT*DEFAULT_SCREEN_WIDTH*3;
+    }
+    unsigned char img[size];
+
+    memset(img, 0, size);
     mScreen->fillBuffer(img,
                         VideoBuffer::Format::RGB,
-                        pCodecCtx->width * pCodecCtx->height * 3);
+                        size);
 
     return VIDEO_OK;
 }
