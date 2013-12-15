@@ -19,7 +19,7 @@
 //
 #define CREDITSSTATE_OVERLAY_NAME       "CreditsMenu"
 #define CREDITSSTATE_OVERLAY_IMG_CONT   "MainMenu/CreditsMenu/Credits"
-#define CREDITSSTATE_SLIDE_TIME_SECS    12.f
+#define CREDITSSTATE_SLIDE_TIME_SECS    22.f
 
 namespace cz {
 

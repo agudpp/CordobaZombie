@@ -21,7 +21,7 @@
 #define INFOMAINSTATE_RC_PATH           "2D/sponsors/resources.cfg"
 #define INFOMAINSTATE_OVERLAY_NAME      "InfoMainState"
 #define INFOMAINSTATE_EFFECT_TIME       1.f
-#define INFOMAINSTATE_TIME_SLIDE_SECS   4.f
+#define INFOMAINSTATE_TIME_SLIDE_SECS   6.f
 
 
 namespace cz {
