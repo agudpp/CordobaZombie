@@ -6,9 +6,10 @@
  *      Author: Budde, Carlos Esteban
  */
 
-#include <string>
+
+#include <QString>
+#include <QMessageBox>
 #include <QApplication>
-#include <debug/DebugUtil.h>
 #include <EngineConfiguration.h>
 #include "CbaZombieConfigDialog.h"
 
@@ -18,23 +19,36 @@
 
 int main(int argc, char *argv[])
 {
+    int ok(0);
     QApplication app(argc, argv);
     engine::EngineConfiguration ec;
     engine::CbaZombieConfigDialog configDialog;
 
-    if (argc > 1)
-        // User-passed Engine Configuration file
-        ec.load(argv[1]);
-    else
+    if (argc > 1) {
+        // User specified Engine Configuration file
+        ok = ec.load(argv[1]);
+    } else {
         // Default Engine Configuration file
-        ec.load(EC_DEFAULT_FNAME);
+        QMessageBox::information(0,"Warning",
+                                 QString("Searching for file \"") +
+                                 EC_DEFAULT_FNAME + "\" in current directory.");
+        ok = ec.load(EC_DEFAULT_FNAME);
+    }
+    if (!ok) {
+        QMessageBox::critical(0, "Error","Bad or inexistent "
+                              "engine configuration file, discarding changes.");
+        return 1;
+    }
 
     // Run Qt application
-    configDialog.init(ec);
+    ok = configDialog.init(ec);
+    if (!ok) {
+        QMessageBox::critical(0, "Error","Bad engine configuration , "
+                              "discarding changes.");
+        return 1;
+    }
     configDialog.show();
-    int fail = app.exec();
-    if (fail)
-        debugWARNING("Bad Ogre configuration, discarding changes.\n");
+    ok = !app.exec();
 
-    return fail;
+    return ok;
 }

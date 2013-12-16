@@ -8,9 +8,10 @@
  */
 
 
-#include <QtWidgets/QtWidgets>
-#include <QtWidgets/QComboBox>
-#include <QtWidgets/QPushButton>
+#include <QWidget>
+#include <QComboBox>
+#include <QPushButton>
+#include <QMessageBox>
 
 #include <OgreRoot.h>
 #include <OgreString.h>
@@ -20,10 +21,9 @@
 #include <OgreRenderSystem.h>
 
 #include <cstring>
-#include <debug/DebugUtil.h>
+//#include <debug/DebugUtil.h>
 #include "CbaZombieConfigDialog.h"
 #include "ui_CbaZombieConfigDialog.h"  // UI file with buttons template
-
 
 
 namespace engine
@@ -125,12 +125,14 @@ CbaZombieConfigDialog::init(const EngineConfiguration& engineCfg)
     // Retrieve configuration filenames
     parseOK = engineCfg.getValue(EC_MODULE_OGRE, EC_OGRE_OGRECFG, mOgreCfgFile);
     if (!parseOK) {
-        debugWARNING("Failed to get Ogre configuration filename.\n");
+        QMessageBox::critical(0, "Error",
+                     "Failed to get Ogre configuration filename.");
         return false;
     }
     parseOK = engineCfg.getValue(EC_MODULE_OGRE, EC_OGRE_PLUGINSCFG, mOgrePluginsCfgFile);
     if (!parseOK) {
-        debugWARNING("Failed to get Ogre plugins configuration filename.\n");
+        QMessageBox::critical(0, "Error",
+                     "Failed to get Ogre plugins configuration filename.");
         return false;
     }
 //    parseOK = engineCfg.getValue(EC_MODULE_OPENAL, EC_OPENAL_DEVICECFG, mOpenALCfgFile);
@@ -156,14 +158,17 @@ CbaZombieConfigDialog::restoreOgreConfig()
 
     // Check files exist, and try to make Ogre parse them
     if (mOgreCfgFile.empty() || mOgrePluginsCfgFile.empty()) {
-        debugERROR("Ogre config files have not yet been set.\n");
+        QMessageBox::critical(0, "Error",
+                              "Ogre config files have not yet been set.");
         return false;
     }
     try {
         cfg.load(mOgreCfgFile);
     } catch (Ogre::Exception& e) {
         if (e.getNumber() == Ogre::Exception::ERR_FILE_NOT_FOUND) {
-            debugERROR("Ogre config file \"%s\" not found.\n", mOgreCfgFile.c_str());
+            QMessageBox::critical(0, "Error", QString("Ogre config file \"") +
+                                  mOgreCfgFile.c_str() + "\" not found");
+            return false;
         } else {
             throw(e);
         }
@@ -206,6 +211,7 @@ CbaZombieConfigDialog::reconRendererOptions(Ogre::RenderSystem& render)
               it++) {
         Ogre::ConfigOptionMap::const_iterator field = opts.find(it->first);
         if (field == opts.end()) {
+            QMessageBox::information(0, "TODO!!!", "Disable field in UI");
             debugERROR("TODO: disable field in UI\n");  // TODO
         } else {
             reconRendererOptions(field->second);
@@ -221,7 +227,8 @@ CbaZombieConfigDialog::reconSystemRenderers()
     ASSERT(mOgreRoot);
     Ogre::RenderSystemList rendersList = mOgreRoot->getAvailableRenderers();
     if (rendersList.empty()) {
-        debugWARNING("No available render systems detected.\n");
+        QMessageBox::warning(0, "Warning",
+                             "No available graphics render systems detected");
         return;
     }
     QComboBox* renders = mTemplateUI->renderSystem;
@@ -240,7 +247,8 @@ CbaZombieConfigDialog::reconRendererOptions(const Ogre::ConfigOption& opt)
 {
     auto it = mOgreConfigField.find(opt.name.c_str());
     if (it == mOgreConfigField.end()) {
-        debugERROR("Unrecognized configuration field: \"%s\"\n", opt.name.c_str());
+        QMessageBox::warning(0, "Warning", "Unrecognized configuration field: "
+                             + QString(opt.name.c_str()));
         return;
     }
     switch (it->second)
@@ -286,7 +294,8 @@ CbaZombieConfigDialog::reconRendererOptions(const Ogre::ConfigOption& opt)
     }   break;
 
     default:
-        debugERROR("Unrecognized configuration field: \"%s\"\n", opt.name.c_str());
+        QMessageBox::warning(0, "Warning", "Unrecognized configuration field: "
+                             + QString(opt.name.c_str()));
         break;
     }
 }
@@ -329,7 +338,8 @@ CbaZombieConfigDialog::setRenderSystem(const QString& rs)
     // Get render by name
     Ogre::RenderSystem* render = mOgreRoot->getRenderSystemByName(rs.toStdString());
     if (!render) {
-        debugERROR("Graphics renderer not found (%s)\n", rs.toStdString().c_str());
+        QMessageBox::critical(0, "Warning", "Couldn't open \"" + rs +
+                              "\" graphics render system");
     } else {
         // Set this render system as current
         int index = mTemplateUI->renderSystem->findText(rs, Qt::MatchExactly);

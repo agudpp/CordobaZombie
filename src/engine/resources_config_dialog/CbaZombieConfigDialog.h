@@ -187,32 +187,33 @@ inline void CbaZombieConfigDialog::show() { QWidget::show(); }
 ///////////////////////////////////////////////////////////////////////////////
 inline void
 CbaZombieConfigDialog::setColorDepth(const QString& cdepth)
-{ mColorDepth = cdepth.toInt(); }
+{ ASSERT(cdepth.size()>0); mColorDepth = cdepth.toInt(); }
 
 ///////////////////////////////////////////////////////////////////////////////
 inline void
 CbaZombieConfigDialog::setDisplayFrequency(const QString& freq)
-{ mDisplayFreq = freq.toInt(); }
+{ ASSERT(freq.size()>0); mDisplayFreq = freq.toInt(); }
 
 ///////////////////////////////////////////////////////////////////////////////
 inline void
 CbaZombieConfigDialog::setAntiAliasing(const QString& aa)
-{ mAntiAliasing = aa.toInt(); }
+{ ASSERT(aa.size()>0); mAntiAliasing = aa.toInt(); }
 
 ///////////////////////////////////////////////////////////////////////////////
 inline void
 CbaZombieConfigDialog::setVerticalSync(const QString& vsync)
-{ mVertSync = vsync.toInt(); }
+{ ASSERT(vsync.size()>0); mVertSync = vsync.toInt(); }
 
 ///////////////////////////////////////////////////////////////////////////////
 inline void
 CbaZombieConfigDialog::setGammaCorrection(const QString& gc)
-{ mGammaCorrection = gc.toInt(); }
+{ ASSERT(gc.size()>0); mGammaCorrection = gc.toInt(); }
 
 ///////////////////////////////////////////////////////////////////////////////
 inline void
 CbaZombieConfigDialog::setDisplayResolution(const QString& dr)
 {
+    ASSERT(dr.size()>0);
     QStringList tmp = dr.split("x");  // Expects "640x480" format
     ASSERT(tmp.size()==2);
     mDisplayRes.first  = tmp[0].toInt();
