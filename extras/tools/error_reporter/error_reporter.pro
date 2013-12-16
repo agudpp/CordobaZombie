@@ -1,15 +1,16 @@
-HEADERS   += smtp.h 
+HEADERS   += smtp.h \
+             ErrorReporter.h 
 SOURCES   += smtp.cpp \
+             ErrorReporter.cpp \
              main.cpp
 
 #RESOURCES += securesocketclient.qrc
 
-#FORMS     += certificateinfo.ui \
-#             sslclient.ui \
-#             sslerrors.ui
-#
+FORMS     += errorreporter.ui
 
 QT        += network core gui
+
+QMAKE_CXXFLAGS += -std=gnu++11
 
 # install
 target.path = ./build
