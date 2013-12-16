@@ -5,11 +5,13 @@
 
 # Module headers
 set(HDRS ${HDRS}
+	${DEV_ROOT_PATH}/engine/EngineConfiguration.h
 	${DEV_ROOT_PATH}/engine/resources_config_dialog/CbaZombieConfigDialog.h
 )
 
 # Module sources
 set(SRCS ${SRCS}
+	${DEV_ROOT_PATH}/engine/EngineConfiguration.cpp
 	${DEV_ROOT_PATH}/engine/resources_config_dialog/CbaZombieConfigDialog.cpp
 	${DEV_ROOT_PATH}/engine/resources_config_dialog/main.cpp
 )
