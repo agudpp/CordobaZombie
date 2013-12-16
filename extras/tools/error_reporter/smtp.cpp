@@ -144,7 +144,7 @@ void Smtp::errorReceived(QAbstractSocket::SocketError socketError)
     qDebug() << "error " <<socketError;
 
     // advise about the error
-    emit status(StatusType::STATUS_ERROR, QString("Se produjo algun error en el"
+    emit status(StatusType::STATUS_UPDATE, QString("Se produjo algun error en el"
         " socket: ") + socket->errorString());
 }
  
@@ -212,7 +212,7 @@ void Smtp::readyRead()
         if(!socket->waitForEncrypted(timeout))
         {
             qDebug() << socket->errorString();
-            emit status(StatusType::STATUS_ERROR,
+            emit status(StatusType::STATUS_UPDATE,
                         QString("Timeout error: ") +  socket->errorString());
             state = Close;
         }
@@ -301,7 +301,6 @@ void Smtp::readyRead()
     }
     else if ( state == Close )
     {
-        deleteLater();
         return;
     }
     else

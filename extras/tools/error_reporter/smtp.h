@@ -81,7 +81,7 @@ public slots:
 
 signals:
     void
-    status(StatusType statusType, const QString &msg);
+    status(Smtp::StatusType statusType, const QString &msg);
 
 private:
     int timeout;

@@ -43,6 +43,11 @@ private:
     bool
     getFilesToSend(QStringList& files);
 
+    // @brief Create a folder with the files to be reported
+    //
+    bool
+    createFolderReport(const QStringList& files, QDir& folderCreated);
+
     // @brief Remove files from hd
     //
     void
@@ -57,13 +62,54 @@ private:
     // @brief Show a message box
     //
     void
-    showMessage(const QString& msg, bool error = true);
+    showMessage(const QString& msg, bool error = true) const;
+
+    // @brief Transform the current form into a formated string just to be ready
+    //        to be sent by mail
+    //
+    QString
+    transformFormToString(void) const;
+
+    // @brief Add a message in the status bar
+    //
+    inline void
+    addStatusMsg(const QString& msg);
+
+    // @brief show critical error with some additional information, this method
+    //        should be called when the error reporter will not be able to send
+    //        anything and the tester should proceed manually to report the errors
+    //
+    void
+    showCriticalError(const QString& additionalInfo = "") const;
+
+    // @brief create a backup from the current files into the error_reporter folder
+    //
+    void
+    createReportBackup(void);
+
+    // @brief Save/restore the personal information of saved by this class
+    //
+    void
+    saveCurrentPersonalInfo(void);
+    void
+    restorePersonalInfo(void);
 
 private:
     Ui::ErrorReporter mUI;
     Smtp mSmtp;
     bool mSendOK;
     QStringList mAttachedFiles;
+    QStringList mFilesSent;
 };
+
+
+
+
+
+inline void
+ErrorReporter::addStatusMsg(const QString& msg)
+{
+    mUI.statusEdit->appendPlainText(msg);
+}
 
 #endif /* ERRORREPORTER_H_ */
