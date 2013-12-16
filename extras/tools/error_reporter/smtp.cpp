@@ -38,6 +38,8 @@ Smtp::Smtp(const QString &user,
     this->host = host;
     this->port = port;
     this->timeout = timeout;
+
+    state = Close;
 }
  
 bool
@@ -123,7 +125,7 @@ Smtp::sendMail(const QString &from,
 bool
 Smtp::working(void) const
 {
-    return socket->isOpen();
+    return state != Close;
 }
 
  
@@ -157,6 +159,7 @@ void Smtp::disconnected()
     // advise about the error
     emit status(StatusType::STATUS_DISCONNECTED,
                 QString("Socket desconectado: ") + socket->errorString());
+    state = Close;
 }
  
 void Smtp::connected()
@@ -237,7 +240,6 @@ void Smtp::readyRead()
     else if (state == User && responseLine == "334")
     {
         //Trying User        
-        qDebug() << "Username";
         //GMAIL is using XOAUTH2 protocol, which basically means that password
         // and username has to be sent in base64 coding
         //https://developers.google.com/gmail/xoauth2_protocol
@@ -249,7 +251,6 @@ void Smtp::readyRead()
     else if (state == Pass && responseLine == "334")
     {
         //Trying pass
-        qDebug() << "Pass";
         *mTextStream << QByteArray().append(pass).toBase64() << "\r\n";
         mTextStream->flush();
  
@@ -259,8 +260,9 @@ void Smtp::readyRead()
     {
         // HELO response was okay (well, it has to be)
 
-        //Apperantly for Google it is mandatory to have MAIL FROM and RCPT email formated the following way -> <email@gmail.com>
-        qDebug() << "MAIL FROM:<" << from << ">";
+        // Apperantly for Google it is mandatory to have MAIL FROM and RCPT email
+        // formated the following way -> <email@gmail.com>
+
         emit status(StatusType::STATUS_UPDATE,
                     QString("Preparando mail"));
         *mTextStream << "MAIL FROM:<" << from << ">\r\n";

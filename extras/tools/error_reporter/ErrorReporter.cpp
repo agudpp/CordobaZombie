@@ -28,17 +28,17 @@ ErrorReporter::getFilesToSend(QStringList& aFiles)
     // check if we have the files we need, or get at least all the files with
     // the *.log files for now.
     //
-    addStatusMsg("Obteniendo los archivos de log!\n");
+    addStatusMsg("Obteniendo los archivos de log!");
     QDir currentPath(".");
     QStringList filters;
     filters << "*.log";
     QStringList files = currentPath.entryList(filters);
 
     addStatusMsg("Encontramos: " + QString::number(files.size()) + "\n"
-        "Adjuntando:\n");
+        "Adjuntando:");
 
     for (QString& file : files) {
-        addStatusMsg("\t" + file + "\n");
+        addStatusMsg("\t" + file);
         aFiles << file;
     }
 
@@ -47,9 +47,9 @@ ErrorReporter::getFilesToSend(QStringList& aFiles)
     filters << "*.cfg";
     filters << "*.xml";
     files = currentPath.entryList(filters);
-    addStatusMsg("Buscando archivos de configuracion...\n");
+    addStatusMsg("Buscando archivos de configuracion...");
     for (QString& file : files) {
-        addStatusMsg("\t" + file + "\n");
+        addStatusMsg("\t" + file);
         aFiles << file;
     }
 
@@ -61,9 +61,9 @@ ErrorReporter::getFilesToSend(QStringList& aFiles)
 void
 ErrorReporter::deleteFiles(const QStringList& files)
 {
-    addStatusMsg("Removiendo logs, limpiando un poco:\n");
+    addStatusMsg("Removiendo logs, limpiando un poco:");
     for (const QString& file : files) {
-        addStatusMsg("\tBorrando: " + file + "\n");
+        addStatusMsg("\tBorrando: " + file);
         QFile::remove(file);
     }
 }
@@ -97,7 +97,7 @@ ErrorReporter::createFolderReport(const QStringList& files, QDir& folderCreated)
     // create the new folder for report
     QDir reportFolder("./error_reports");
     if (!reportFolder.exists()) {
-        addStatusMsg("Creando directorio de reporte de errores (error_reports)\n");
+        addStatusMsg("Creando directorio de reporte de errores (error_reports)");
         QDir(".").mkdir("error_reports");
     }
 
@@ -115,7 +115,7 @@ ErrorReporter::createFolderReport(const QStringList& files, QDir& folderCreated)
     QDir folderToSave(reportFolder.path() + "/" + newFolder);
 
     if (!folderToSave.exists()) {
-        addStatusMsg("Error generando el directorio para el reporte :(\n");
+        addStatusMsg("Error generando el directorio para el reporte :(");
         return false;
     }
 
@@ -123,14 +123,14 @@ ErrorReporter::createFolderReport(const QStringList& files, QDir& folderCreated)
     for (const QString& file : files) {
         addStatusMsg("Copiando archivo " + file + " en " + folderToSave.path());
         if (!QFile::copy(file, folderToSave.filePath(file))) {
-            addStatusMsg("Error copiando el ultimo archivo... algo salio mal\n");
+            addStatusMsg("Error copiando el ultimo archivo... algo salio mal");
             return false;
         }
     }
 
     folderCreated = folderToSave;
 
-    addStatusMsg("Todo fue copiado correctamente.\n");
+    addStatusMsg("Todo fue copiado correctamente.");
     return true;
 }
 
@@ -202,7 +202,7 @@ ErrorReporter::saveCurrentPersonalInfo(void)
     tmpdata.open(QIODevice::WriteOnly);
     QString data = "name=" + mUI.nameEdit->text() + "\n" +
         "mail=" + mUI.mailEdit->text() + "\n";
-    tmpdata.write(data.toAscii(), data.size());
+    tmpdata.write(data.toUtf8(), data.size());
     tmpdata.close();
 }
 ////////////////////////////////////////////////////////////////////////////////
@@ -217,12 +217,14 @@ ErrorReporter::restorePersonalInfo(void)
     QString str = tmpdata.readLine(256);
     QStringList aux = str.split('=');
     if (aux.size() == 2) {
-        mUI.nameEdit->setText(aux[1]);
+        QString name = aux[1].trimmed();
+        mUI.nameEdit->setText(name);
     }
     str = tmpdata.readLine(256);
     aux = str.split('=');
     if (aux.size() == 2) {
-        mUI.mailEdit->setText(aux[1]);
+        QString mail = aux[1].trimmed();
+        mUI.mailEdit->setText(mail);
     }
 }
 
@@ -265,6 +267,7 @@ ErrorReporter::reportClicked(bool)
 {
     if (mSmtp.working()) {
         showMessage("Estamos procesando el pedido, aguarde porfavor.", false);
+        return;
     }
 
     mSendOK = false;
@@ -296,7 +299,7 @@ ErrorReporter::attachClicked(bool)
     if (!mAttachedFiles.empty()) {
         // clear the caption of the button
         mUI.attachBtn->setText("Adjuntar archivo");
-        addStatusMsg("Archivo adjuntado " + mAttachedFiles.first() + " no se enviara.\n");
+        addStatusMsg("Archivo adjuntado " + mAttachedFiles.first() + " no se enviara.");
         mAttachedFiles.clear();
         return;
     }
@@ -322,7 +325,7 @@ void
 ErrorReporter::statusHandling(Smtp::StatusType statusType, const QString &msg)
 {
     // we always want to show the status
-    mUI.statusEdit->appendPlainText(msg + "\n");
+    mUI.statusEdit->appendPlainText(msg);
 
     switch (statusType) {
     case Smtp::StatusType::STATUS_DISCONNECTED:
@@ -351,7 +354,7 @@ ErrorReporter::statusHandling(Smtp::StatusType statusType, const QString &msg)
         mSendOK = true;
         // everything was fine! advise the user and delete the log files
         addStatusMsg("Datos enviados con exito! Muchisimas gracias por aportar con el "
-                     "proyecto!\n");
+                     "proyecto!");
         showMessage("Datos enviados con exito! Muchisimas gracias por aportar con el "
                     "proyecto!",
                     false);
