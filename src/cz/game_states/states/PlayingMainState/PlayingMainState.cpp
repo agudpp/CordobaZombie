@@ -72,6 +72,9 @@ PlayingMainState::getResourcesToLoad(ResourceGroupList& resourceList)
 bool
 PlayingMainState::readyToGo(void)
 {
+    // set the resulting event that will always be the same
+    mEventInfo = MainStateEvent::EVENT_DONE;
+
     // load demo app
     return mDemoApp.load();
 }

@@ -173,8 +173,8 @@ MainStateMachine::update(float timeFrame)
             IMainState* nextState = mTransitionTable.getNext(mCurrentState, event);
             if (nextState == 0) {
                 // no more states, probably we finish?
-                debug("No more states found from %d and event %d\n",
-                      mCurrentState->ID(), event);
+                debugERROR("No more states found from %d and event %d\n",
+                           mCurrentState->ID(), event);
                 return false;
             }
 

@@ -64,19 +64,16 @@ MainMenuMainState::buttonPressed(ui::FESimpleButton* button,
 
     // now check which was the button pressed
     if (button == &(mButtons[Buttons::B_PLAY])) {
-        debugGREEN("PLAY GAME PRESSED!\n");
+        mRetVal = MainMenuSubStateEvent::MMSSE_PLAY_GAME;
     } else if (button == &(mButtons[Buttons::B_HELP])) {
-        debugGREEN("HELP PRESSED!\n");
         // we need to emit this event
         mRetVal = MainMenuSubStateEvent::MMSSE_HELP;
     } else if (button == &(mButtons[Buttons::B_CREDITS])) {
-        debugGREEN("CREDITS PRESSED!\n");
         mRetVal = MainMenuSubStateEvent::MMSSE_CREDITS;
     } else if (button == &(mButtons[Buttons::B_HISTORY])) {
-        debugGREEN("HISTORY PRESSED!\n");
         mRetVal = MainMenuSubStateEvent::MMSSE_HISTORY;
     } else if (button == &(mButtons[Buttons::B_EXIT])) {
-        debugGREEN("EXIT PRESSED!\n");
+        mRetVal = MainMenuSubStateEvent::MMSSE_EXIT_GAME;
     } else {
         ASSERT(false && "We are calling this callback from a button that is not "
             "one of the ones we built!!!");
