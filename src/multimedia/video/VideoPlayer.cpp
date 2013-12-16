@@ -453,10 +453,10 @@ VideoPlayer::load(const char *fileName)
         ASSERT(mNumAPacks == 0);
         ASSERT(mNumVPacks == 0);
 
-        if (preload_audio() == VIDEO_ERROR) {
-            debugERROR("Couldn't pre-load audio :s\n");
-            return VIDEO_ERROR;
-        }
+//        if (preload_audio() == VIDEO_ERROR) {
+//            debugERROR("Couldn't pre-load audio :s\n");
+//            return VIDEO_ERROR;
+//        }
 
     }
 

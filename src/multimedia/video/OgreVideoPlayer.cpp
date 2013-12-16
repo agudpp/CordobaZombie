@@ -263,7 +263,7 @@ OgreVideoPlayer::dequeueAll(void)
     mIndex = -1;
     mPlayList.clear();
     mVideoPlayer.unload();
-    mVideoPlayer.paint_black_screen();
+    //mVideoPlayer.paint_black_screen();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -336,25 +336,35 @@ OgreVideoPlayer::update(double tslf)
 		Video& video = mPlayList[mIndex];
 		video.getEnd(end);
 		// negative value for end will play till it finishes.
-		if(end >= 0.0 && t >= end){
-//			debug("Video time limit reached\n");
-			if(loadNext() == C_OK){
-				play();
-			}else{
-			    mIsPlaying = false;
-				return C_ENDED;
-			}
+		if (end >= 0.0 && t >= end) {
+            //			debug("Video time limit reached\n");
+            if (mRepeatV) {
+                mVideoPlayer.seek_time_stamp(0.0);
+                play();
+            } else {
+                if (loadNext() == C_OK) {
+                    play();
+                } else {
+                    mIsPlaying = false;
+                    return C_ENDED;
+                }
+            }
 		// has to play till the end or the end time limit hasn't been reached
 		}else{
 			if(VideoPlayer::VIDEO_ENDED == mVideoPlayer.update(tslf)){
 				// If the video has ended
 //				debug("Video ended (the actual video player says so)\n");
-				if(loadNext() == C_OK){
-					play();
-				}else{
-				    mIsPlaying = false;
-					return C_ENDED;
-				}
+			    if(mRepeatV) {
+			        mVideoPlayer.seek_time_stamp(0.0);
+			        play();
+			    }else{
+                    if(loadNext() == C_OK){
+                        play();
+                    }else{
+                        mIsPlaying = false;
+                        return C_ENDED;
+                    }
+			    }
 			}
 		}
 	}
