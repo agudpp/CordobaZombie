@@ -55,12 +55,6 @@
     #include <logger/LoggerManager.h>
     #include <logger/Logger.h>
 
-
-// common stuff
-//
-#define ASSERT(x)   assert(x);
-#define OGRELOG(x)  std::cerr << "OGRELOG: " << (x) << std::endl;
-
 // WINDOWS STUFF
 //
 /*
@@ -198,6 +192,14 @@
 
 #endif
 */
+
+
+
+// common stuff
+//
+#define ASSERT(x)   {const bool condition = (x); if(!condition){debugERROR("Assert failed " #x "\n"); assert(false);}}
+#define OGRELOG(x)  std::cerr << "OGRELOG: " << (x) << std::endl;
+
 #else
 	#define ASSERT(x)
 	#define OGRELOG(x)
