@@ -39,6 +39,7 @@ FIND_PACKAGE(Qt4 COMPONENTS QtCore QtGui REQUIRED)
 
 # include the directories of Qt
 include_directories(${QT_INCLUDES})
+include(${QT_USE_FILE})
 
 # add the wrappers
 # Generate intermediate <moc>, <ui> and <resources> files

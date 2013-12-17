@@ -386,7 +386,7 @@ CbaZombieConfigDialog::fillUIComboBox(QComboBox* field,
     for (int i=0 ; i < values.size() ; i++)
         field->addItem(values[i].c_str());
     // Try to set "current" text as default, if given.
-    if (strnlen(current,80) > 0) {
+    if (std::strlen(current) > 0) {
         int index = field->findText(current, Qt::MatchExactly);
         if (index >= 0)
             field->setCurrentIndex(index);
