@@ -20,8 +20,9 @@
 #include <vector>
 
 
-#include "AppTester.h"
 #include <debug/DebugUtil.h>
+#include <openal_handler/OpenALHandler.h>
+#include "AppTester.h"
 #include "PrimitiveDrawer.h"
 #include "MouseCursor.h"
 #include "LevelManager.h"
@@ -90,6 +91,7 @@ private:
 	void testEngageEveryone(void);
 
 private:
+	mm::OpenALHandler mOpenAlHandler;
 	LevelManager 				mLevelManager;
 	bool 						mKeyPressed;
 	int							mPlacesCount;

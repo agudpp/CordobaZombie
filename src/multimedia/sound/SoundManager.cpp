@@ -22,6 +22,7 @@
 
 #include <debug/DebugUtil.h>
 #include <os_utils/OSHelper.h>
+#include <openal_handler/OpenALHandler.h>
 
 #include "SoundManager.h"
 #include "SoundEnums.h"
@@ -50,30 +51,35 @@ namespace mm {
 
 
 ////////////////////////////////////////////////////////////////////////////////
-SoundManager::SoundManager() : mCam(0)
+SoundManager::SoundManager() :
+    mCam(0)
+,   mOpenALHandler(0)
 {
-	float ori[6] = {0.0, 0.0, -1.0,	 // 'at' vector (i.e. my nose)
-			 	    0.0, 1.0, 0.0};	 // 'up' vector (i.e. top of head)
-
 	mActiveSounds.reserve(NUM_PARALLEL_SOUNDS);
 
-	/* Create sound context on default sound device. */
-	setSoundDevice(NULL);
+	// we are assuming that we have a context already created.
+	// Since this is a static singleton, we cannot pass the
+	// context to the constructor.
+	// Also, I could check that everytime the SoundManager
+	// or any class in the Sound module use the ALCcontext or the
+	// ALCdevice is always asking to the openal lib to return the
+	// current one.
+	// What we gonna do (to fusion with the module openal_handler) is
+	// just assume that we already has a device and a context present.
+	//
+	// We have to remove this later when this class change to be a normal class
+	// and not a singleton anymore.
+//    ALCcontext* context = alcGetCurrentContext();
+//    ASSERT(context && "We need to have a context already set here.")
+//    ALCdevice* device  = alcGetContextsDevice(context);
+//    ASSERT(device && "We need to have a device already set when calling this");
 
-	/* Initialize listener propperties */
-	alListenerf(AL_GAIN, 1.0f);
-	alListener3f(AL_POSITION, 0.0, 0.0, 0.0);
-	alListener3f(AL_VELOCITY, 0.0, 0.0, 0.0);
-	alListenerfv(AL_ORIENTATION, ori);
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////
 SoundManager::~SoundManager()
 {
-	ALCcontext* context = alcGetCurrentContext();
-	ALCdevice*  device  = alcGetContextsDevice(context);
-
 	/* Stop and erase remaining active sounds */
 	globalStop();
 
@@ -94,11 +100,6 @@ SoundManager::~SoundManager()
 		delete it->second;
 	}
 	mLoadedBuffers.clear();
-
-	/* Destroy OpenAL context */
-	alcMakeContextCurrent(NULL);
-	alcDestroyContext(context);
-	alcCloseDevice(device);
 
 	return;
 }
@@ -217,41 +218,36 @@ SoundManager::playExistentSound(ActiveSound& s, float gain, bool repeat)
 /******************************************************************************/
 /**************************    INITIALIZATION    ******************************/
 
+void
+SoundManager::SoundManager::setOpenALHandler(OpenALHandler* handler)
+{
+    ASSERT(handler);
+    mOpenALHandler = handler;
+
+    ASSERT(mOpenALHandler->hasDevice());
+    ASSERT(mOpenALHandler->hasContext());
+
+    float ori[6] = {0.0, 0.0, -1.0,  // 'at' vector (i.e. my nose)
+                    0.0, 1.0, 0.0};  // 'up' vector (i.e. top of head)
+
+    /* Initialize listener propperties */
+    alListenerf(AL_GAIN, 1.0f);
+    alListener3f(AL_POSITION, 0.0, 0.0, 0.0);
+    alListener3f(AL_VELOCITY, 0.0, 0.0, 0.0);
+    alListenerfv(AL_ORIENTATION, ori);
+
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 std::vector<std::string>
 SoundManager::getAvailableSoundDevices()
 {
-	int pos = 0,
-		MAX_POS = 1<<10;
-	const ALCchar* device  = NULL;
-	const ALCchar* devices = NULL;
-	std::vector<std::string> devsVec;
+    // we will use the openal handler here
+    ASSERT(mOpenALHandler);
+    std::vector<std::string> devices;
+    mOpenALHandler->getDevices(devices);
 
-	if (!alcIsExtensionPresent(NULL, "ALC_ENUMERATION_EXT")) {
-		debug("%s","Can't retrieve sound devices info. "
-				"Missing extension \"ALC_ENUMERATION_EXT\".\n");
-		return devsVec;
-	}
-
-	devices = alcGetString(NULL, ALC_DEVICE_SPECIFIER);
-	// "devices" contains the device names, separated by NULL
-	// and terminated by two consecutive NULLs.
-	pos = 0;
-	do {
-		device = &(devices[pos]);
-		if (*device != '\0') {
-			devsVec.push_back(device);
-			pos += strlen(device)+1;
-		}
-	} while (*device != '\0' && pos < MAX_POS);
-
-	if (pos >= MAX_POS) {
-		debug("%s","Error retrieving sound devices info. List was too long.\n");
-		devsVec.clear();
-	}
-
-	return devsVec;
+    return devices;
 }
 
 
@@ -259,63 +255,10 @@ SoundManager::getAvailableSoundDevices()
 std::string
 SoundManager::getSoundDevice()
 {
-	if (!alcIsExtensionPresent(0, "ALC_ENUMERATION_EXT")) {
-		debug("%s","Can't retrieve sound devices info. "
-				"Missing extension \"ALC_ENUMERATION_EXT\".\n");
-		return std::string("");
-	} else {
-		ALCdevice*  dev = alcGetContextsDevice(alcGetCurrentContext());
-		return alcGetString(dev, ALC_DEVICE_SPECIFIER);
-	}
+    // we will use the openal handler here
+    ASSERT(mOpenALHandler);
+    return mOpenALHandler->deviceName();
 }
-
-
-////////////////////////////////////////////////////////////////////////////////
-SSerror
-SoundManager::setSoundDevice(std::string* devName)
-{
-	ALCcontext* oldContext(0);
-	ALCcontext* newContext(0);
-	ALCdevice* device = devName ? alcOpenDevice(devName->c_str())
-								: alcOpenDevice(0);
-	if (device) {
-		debug("Opened sound device: %s\n",
-				alcGetString(device, ALC_DEVICE_SPECIFIER));
-
-		newContext = alcCreateContext(device, NULL);
-		if(!newContext) {
-			goto fail;
-		}
-
-		oldContext = alcGetCurrentContext();  // Get current context, if any.
-		if (!alcMakeContextCurrent(newContext)) {
-			goto fail;
-		}
-
-		// Cleanup old stuff.
-		if (oldContext) {
-			bool closeDevice = device != alcGetContextsDevice(oldContext);
-			device = alcGetContextsDevice(oldContext);
-			alcDestroyContext(oldContext);
-			if (closeDevice) {
-				alcCloseDevice(device);
-			}
-		}
-		return SSerror::SS_NO_ERROR;
-	}
-	fail:
-		debug("Couldn't use \"%s\" sound device.\n",
-				(devName ? devName->c_str() : "default"));
-		debugERROR("alcGetError returns error_code %d\n", alcGetError(device));
-		if (newContext) {
-			alcDestroyContext(newContext);
-		}
-		if (device) {
-			alcCloseDevice(device);
-		}
-		return SSerror::SS_INTERNAL_ERROR;
-}
-
 
 ////////////////////////////////////////////////////////////////////////////////
 SSerror

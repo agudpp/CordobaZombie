@@ -27,6 +27,7 @@
 #include <input/InputHelper.h>
 #include <cursor/MouseCursor.h>
 #include <sound/SoundHandler.h>
+#include <openal_handler/OpenALHandler.h>
 
 
 namespace tests {
@@ -106,6 +107,7 @@ private:
     ui::MouseCursor mMouseCursor;
 
     // SoundSystem specific members
+    mm::OpenALHandler mOpenALHandler;
     mm::SoundHandler&  mSH;
 };
 

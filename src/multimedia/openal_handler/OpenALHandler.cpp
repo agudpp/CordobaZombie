@@ -12,10 +12,16 @@
 namespace mm {
 
 ////////////////////////////////////////////////////////////////////////////////
-OpenALHandler::OpenALHandler() :
+OpenALHandler::OpenALHandler(bool createDefault) :
     mContext(0)
 ,   mDevice(0)
 {
+    if (createDefault) {
+        debugWARNING("We are creating a default device and context...\n");
+        openDevice();
+        createContext();
+        makeContextCurrent();
+    }
 }
 ////////////////////////////////////////////////////////////////////////////////
 OpenALHandler::~OpenALHandler()
@@ -72,6 +78,20 @@ OpenALHandler::getDevices(std::vector<std::string>& devsVec)
     }
 
     // TODO: check, here devices should be freed?
+}
+
+////////////////////////////////////////////////////////////////////////////////
+std::string
+OpenALHandler::deviceName(void)
+{
+    if (!hasDevice() ||
+        !alcIsExtensionPresent(0, "ALC_ENUMERATION_EXT")) {
+        debugWARNING("%s","Can't retrieve sound devices info. "
+                "Missing extension \"ALC_ENUMERATION_EXT\".\n");
+        return std::string("");
+    } else {
+        return alcGetString(device(), ALC_DEVICE_SPECIFIER);
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////

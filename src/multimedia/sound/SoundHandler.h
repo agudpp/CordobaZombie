@@ -92,6 +92,16 @@ private:
 	~SoundHandler();
 
 public:
+
+	/**
+	 ** @brief Return the instance of the SoundManager associated to this class
+	 **
+	 */
+	inline SoundManager*
+	soundManager(void);
+	inline const SoundManager*
+	soundManager(void) const;
+
 	/** Lists available sound devices. */
 	std::vector<std::string>
 	getAvailableSoundDevices();
@@ -106,22 +116,6 @@ public:
 	 **/
 	std::string
 	getSoundDevice();
-
-	/**
-	 ** @brief
-	 ** Changes current sound device to devName.
-	 **
-	 ** @remarks
-	 ** NULL argument selects default sound device.
-	 ** This destroys current sound context, all playing sounds will be lost.
-	 ** If devName can't be used, nothing is done.
-	 **
-	 ** @return
-	 ** SS_NO_ERROR			Success.
-	 ** SS_INTERNAL_ERROR	Couldn't create context on specified device.
-	 **/
-	SSerror
-	setSoundDevice(std::string* devName);
 
 	/**
 	 ** @brief
@@ -590,6 +584,18 @@ SoundHandler::getInstance()
 }
 
 
+inline SoundManager*
+SoundHandler::soundManager(void)
+{
+    return &sSoundManager;
+}
+inline const SoundManager*
+SoundHandler::soundManager(void) const
+{
+    return &sSoundManager;
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////
 inline SoundHandler::SoundHandler() { /* Nothig to do. */ }
 
@@ -612,15 +618,6 @@ SoundHandler::getSoundDevice()
 {
 	return sSoundManager.getSoundDevice();
 }
-
-
-////////////////////////////////////////////////////////////////////////////////
-inline SSerror
-SoundHandler::setSoundDevice(std::string* devName)
-{
-	return sSoundManager.setSoundDevice(devName);
-}
-
 
 ////////////////////////////////////////////////////////////////////////////////
 inline void

@@ -642,10 +642,12 @@ VideoPlayer::get_al_audio_player(void)
 
     if (!mALHandler->hasDevice()) {
         ASSERT(false && "No device was set for the OpenALHandler.\n");
+        return VIDEO_ERROR;
     }
 
     if (!mALHandler->hasContext()) {
         ASSERT(false && "No context was set for the OpenALHandler.\n");
+        return VIDEO_ERROR;
     }
 
     // Generate buffers and source

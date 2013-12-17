@@ -669,8 +669,11 @@ Test::createCollectable(void)
 /*************************    MAIN FUNCTIONS     ******************************/
 
 
-Test::Test() : mSoundHandler(SoundHandler::getInstance())
+Test::Test() :
+    mOpenAlHandler(true)
+,   mSoundHandler(SoundHandler::getInstance())
 {
+    mSoundHandler.soundManager()->setOpenALHandler(&mOpenAlHandler);
 	Ogre::String fails("");
 	std::vector<Ogre::String> sounds;
 

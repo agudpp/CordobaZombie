@@ -54,6 +54,10 @@ SoundSystemLoader::load(const EngineConfiguration& config)
         mSoundHandler = &mm::SoundHandler::getInstance();
     }
 
+    // set the openal handler
+    ASSERT(mSoundHandler->soundManager());
+    mSoundHandler->soundManager()->setOpenALHandler(mOpenalHandler);
+
     debugERROR("TODO: must load all sound files into the SoundSystem.\n" "Find them in the path constructed in \"soundsRscPath\".\n");
 //    ASSERT(false);
 
