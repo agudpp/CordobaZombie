@@ -73,7 +73,7 @@ CbaZombieConfigDialog::CbaZombieConfigDialog(QWidget* parent) :
     connect(mTemplateUI->renderSystem, SIGNAL(currentIndexChanged(const QString&)),
             this, SLOT(setRenderSystem(const QString&)));
     connect(mTemplateUI->colorDepth, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(setColorDepth(int)));
+            this, SLOT(setColorDepth(const QString &)));
     connect(mTemplateUI->displayFreq, SIGNAL(currentIndexChanged(const QString&)),
             this, SLOT(setDisplayFrequency(const QString &)));
     connect(mTemplateUI->antiAliasing, SIGNAL(currentIndexChanged(const QString&)),
@@ -86,6 +86,10 @@ CbaZombieConfigDialog::CbaZombieConfigDialog(QWidget* parent) :
             this, SLOT(setDisplayResolution(const QString &)));
     connect(mTemplateUI->soundDevice, SIGNAL(currentIndexChanged(const QString&)),
             this, SLOT(setSoundDevice(const QString &)));
+    connect(mTemplateUI->saveAndExit, SIGNAL(clicked()),
+            this, SLOT(saveConfig()));
+    connect(mTemplateUI->discardAndExit, SIGNAL(clicked()),
+            this, SLOT(close()));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -144,7 +148,7 @@ CbaZombieConfigDialog::init(const EngineConfiguration& engineCfg)
     // Parse config files and fill in UI
     reconSystemRenderers();
     parseOK = restoreOgreConfig();
-    parseOK = parseOK && restoreOpenALConfig();
+//    parseOK = parseOK && restoreOpenALConfig();
 
     return parseOK;
 }
@@ -211,10 +215,10 @@ CbaZombieConfigDialog::reconRendererOptions(Ogre::RenderSystem& render)
               it++) {
         Ogre::ConfigOptionMap::const_iterator field = opts.find(it->first);
         if (field == opts.end()) {
-            QMessageBox::information(0, "TODO!!!", "Disable field in UI");
-            debugERROR("TODO: disable field in UI\n");  // TODO
+            printf("      -- Disabling field \"%s\"\n", it->first.c_str());
+            disableRendererOptions(it->first);
         } else {
-            reconRendererOptions(field->second);
+            fillRendererOptions(field->second);
         }
     }
 }
@@ -231,54 +235,52 @@ CbaZombieConfigDialog::reconSystemRenderers()
                              "No available graphics render systems detected");
         return;
     }
-    QComboBox* renders = mTemplateUI->renderSystem;
-    ASSERT(renders);
-    renders->clear();
+    mTemplateUI->renderSystem->clear();
     for (int i=0 ; i < rendersList.size() ; i++) {
         if (rendersList[i])
-            renders->addItem(rendersList[i]->getName().c_str());
+            mTemplateUI->renderSystem->addItem(rendersList[i]->getName().c_str());
     }
 }
 
 
 ///////////////////////////////////////////////////////////////////////////////
 void
-CbaZombieConfigDialog::reconRendererOptions(const Ogre::ConfigOption& opt)
+CbaZombieConfigDialog::fillRendererOptions(const Ogre::ConfigOption& opt)
 {
-    auto it = mOgreConfigField.find(opt.name.c_str());
+    auto it = mOgreConfigField.find(opt.name);
     if (it == mOgreConfigField.end()) {
         QMessageBox::warning(0, "Warning", "Unrecognized configuration field: "
-                             + QString(opt.name.c_str()));
+                             + QString(opt.name.c_str()) + ", at 251");
         return;
     }
     switch (it->second)
     {
     case ConfigField::COLOR_DEPTH:
-        fillUIComboBox(reinterpret_cast<QComboBox*>(mTemplateUI->colorDepth),
+        fillUIComboBox(mTemplateUI->colorDepth,
                        opt.possibleValues,
                        opt.currentValue.c_str());
         break;
 
     case ConfigField::DISPLAY_FREQ:
-        fillUIComboBox(reinterpret_cast<QComboBox*>(mTemplateUI->displayFreq),
+        fillUIComboBox(mTemplateUI->displayFreq,
                        opt.possibleValues,
                        opt.currentValue.c_str());
         break;
 
     case ConfigField::ANTI_ALISAING:
-        fillUIComboBox(reinterpret_cast<QComboBox*>(mTemplateUI->antiAliasing),
+        fillUIComboBox(mTemplateUI->antiAliasing,
                        opt.possibleValues,
                        opt.currentValue.c_str());
         break;
 
     case ConfigField::VERT_SYNC:
-        fillUIComboBox(reinterpret_cast<QComboBox*>(mTemplateUI->vertSync),
+        fillUIComboBox(mTemplateUI->vertSync,
                        opt.possibleValues,
                        opt.currentValue.c_str());
         break;
 
     case ConfigField::GAMMA_CORR:
-        fillUIComboBox(reinterpret_cast<QComboBox*>(mTemplateUI->gammaCorrection),
+        fillUIComboBox(mTemplateUI->gammaCorrection,
                        opt.possibleValues,
                        opt.currentValue.c_str());
         break;
@@ -288,14 +290,58 @@ CbaZombieConfigDialog::reconRendererOptions(const Ogre::ConfigOption& opt)
         Ogre::StringVector resolutions(opt.possibleValues);
         for (int i=0 ; i < opt.possibleValues.size() ; i++)
             Ogre::StringUtil::trim(resolutions[i]);
-        fillUIComboBox(reinterpret_cast<QComboBox*>(mTemplateUI->displayRes),
+        fillUIComboBox(mTemplateUI->displayRes,
                        resolutions,
                        opt.currentValue.c_str());
     }   break;
 
     default:
         QMessageBox::warning(0, "Warning", "Unrecognized configuration field: "
-                             + QString(opt.name.c_str()));
+                             + QString(opt.name.c_str()) + ", at 298");
+        break;
+    }
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+void
+CbaZombieConfigDialog::disableRendererOptions(const std::string& field)
+{
+    auto it = mOgreConfigField.find(field);
+    if (it == mOgreConfigField.end()) {
+        QMessageBox::warning(0, "Warning", "Unrecognized configuration field: "
+                             + QString(field.c_str()) + ", at 311");
+        return;
+    }
+    switch (it->second)
+    {
+    case ConfigField::COLOR_DEPTH:
+        disableUIComboBox(mTemplateUI->colorDepth, "16 bit");
+        break;
+
+    case ConfigField::DISPLAY_FREQ:
+        disableUIComboBox(mTemplateUI->displayFreq, "60 Hz");
+        break;
+
+    case ConfigField::ANTI_ALISAING:
+        disableUIComboBox(mTemplateUI->antiAliasing, "0");
+        break;
+
+    case ConfigField::VERT_SYNC:
+        disableUIComboBox(mTemplateUI->antiAliasing, "0");
+        break;
+
+    case ConfigField::GAMMA_CORR:
+        disableUIComboBox(mTemplateUI->gammaCorrection, "No");
+        break;
+
+    case ConfigField::DISPLAY_RES:
+        disableUIComboBox(mTemplateUI->displayRes);
+        break;
+
+    default:
+        QMessageBox::warning(0, "Warning", "Unrecognized configuration field: "
+                             + QString(field.c_str()) + ", at 342");
         break;
     }
 }
@@ -312,13 +358,26 @@ CbaZombieConfigDialog::fillUIComboBox(QComboBox* field,
     for (int i=0 ; i < values.size() ; i++) {
         field->addItem(values[i].c_str());
     }
+    // Try to set "current" text as default, if given.
     if (strnlen(current,80) > 0) {
         int index = field->findText(current, Qt::MatchExactly);
-        ASSERT(index >= 0);
-        field->setCurrentIndex(index);
+        if (index >= 0)
+            field->setCurrentIndex(index);
     } else {
         field->setCurrentIndex(0);
     }
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+void
+CbaZombieConfigDialog::disableUIComboBox(QComboBox* field,
+                                         const char* fixed)
+{
+    ASSERT(field);
+    field->clear();
+    field->addItem(fixed);
+    field->setEnabled(false);
 }
 
 
@@ -335,6 +394,8 @@ CbaZombieConfigDialog::restoreOpenALConfig()
 void
 CbaZombieConfigDialog::setRenderSystem(const QString& rs)
 {
+    if (rs.size()==0)
+        return;
     // Get render by name
     Ogre::RenderSystem* render = mOgreRoot->getRenderSystemByName(rs.toStdString());
     if (!render) {
@@ -355,7 +416,7 @@ CbaZombieConfigDialog::setRenderSystem(const QString& rs)
 bool
 CbaZombieConfigDialog::saveConfig()
 {
-    debugERROR("TODO");  // TODO
+    debugERROR("TODO\n");  // TODO
     return true;
 }
 

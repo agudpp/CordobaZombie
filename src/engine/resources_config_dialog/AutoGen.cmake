@@ -22,35 +22,45 @@ set(SRCS ${SRCS}
 ################################################################################
 
 # Find includes in corresponding build directories, e.g. for ui_generated.h
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
+SET(CMAKE_INCLUDE_CURRENT_DIR ON)
+INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
 
 # Find required Qt libraries
-if (NOT DEFINED ENV{QT_ROOT_PATH})
-	message( FATAL_ERROR "Environment variable \"QT_ROOT_PATH\" must point "
-                         "to the base directory of Qt5 library, e.g. "
-                         "/home/yourname/Qt5.1.1")
-else()
-	set(QT_ROOT_PATH $ENV{QT_ROOT_PATH})
-endif()
-set(Qt5Widgets_DIR ${QT_ROOT_PATH}/lib/cmake/Qt5Widgets/)
-find_package(Qt5Widgets)
+IF (NOT DEFINED ENV{QT_ROOT_PATH})
+	MESSAGE( FATAL_ERROR "Environment variable \"QT_ROOT_PATH\" must point "
+                         "to the directory containing Qt5 include/ subdir, "
+						 "e.g. /home/yourname/Qt5.1.1/5.1.1/gcc_64/")
+ELSE()
+	SET(QT_ROOT_PATH $ENV{QT_ROOT_PATH})
+endIF(NOT DEFINED ENV{QT_ROOT_PATH})
+IF (NOT EXISTS ${QT_ROOT_PATH}/include/QtWidgets/)
+	MESSAGE( FATAL_ERROR "Environment variable \"QT_ROOT_PATH\" must point "
+                         "to the directory containing Qt5 include/ subdir, "
+						 "e.g. /home/yourname/Qt5.1.1/5.1.1/gcc_64/")
+ENDIF(NOT EXISTS ${QT_ROOT_PATH}/include/QtWidgets/)
+SET(Qt5Widgets_DIR ${QT_ROOT_PATH}/lib/cmake/Qt5Widgets/)
+FIND_PACKAGE(Qt5Widgets)
 
 # Add the include directories for the Qt 5 libraries to the compile lines
-include_directories(${Qt5Widgets_INCLUDE_DIRS})
+INCLUDE_DIRECTORIES(${Qt5Widgets_INCLUDE_DIRS})
 # Use the compile definitions defined in the Qt 5 libraries module
-add_definitions(-g ${Qt5Widgets_DEFINITIONS})
+ADD_DEFINITIONS(-g ${Qt5Widgets_DEFINITIONS})
 
 # Add compiler flags for building executables (-fPIE)
-set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS}
+SET(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS}
 	${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}
 )
 
-# Generate intermediate moc and ui files for every header
-QT5_WRAP_CPP(MOC_WRAPPERS ${DEV_ROOT_PATH}/engine/resources_config_dialog/CbaZombieConfigDialog.h)
-QT5_WRAP_UI(UI_WRAPPERS ${DEV_ROOT_PATH}/engine/resources_config_dialog/CbaZombieConfigDialog.ui)
+# Generate intermediate <moc>, <ui> and <resources> files
+SET(QtApp_MOCS ${DEV_ROOT_PATH}/engine/resources_config_dialog/CbaZombieConfigDialog.h)
+SET(QtApp_UIS  ${DEV_ROOT_PATH}/engine/resources_config_dialog/CbaZombieConfigDialog.ui)
+SET(QtApp_RCCS ${DEV_ROOT_PATH}/engine/resources_config_dialog/CbaZombieConfigDialog.qrc)
+QT5_ADD_RESOURCES(RCCS_WRAPPER ${QtApp_RCCS})
+QT5_WRAP_CPP(MOCS_WRAPPER ${QtApp_MOCS})
+QT5_WRAP_UI(UIS_WRAPPER ${QtApp_UIS})
 
 # Add the extra wrapper files
-set(HDRS ${HDRS} ${MOC_WRAPPERS} ${UI_WRAPPERS})
+SET(HDRS ${HDRS} ${MOCS_WRAPPER} ${UIS_WRAPPER} ${RCSS_WRAPPER})
 
 
 ################################################################################
@@ -58,30 +68,30 @@ set(HDRS ${HDRS} ${MOC_WRAPPERS} ${UI_WRAPPERS})
 ################################################################################
 
 # Third party libraries paths
-if (NOT DEFINED THIRD_PARTY_LIBS)
-	if (NOT DEFINED ENV{CZ01_THIRD_PARTY})
-		message( FATAL_ERROR "Environment variable "
+IF (NOT DEFINED THIRD_PARTY_LIBS)
+	IF (NOT DEFINED ENV{CZ01_THIRD_PARTY})
+		MESSAGE( FATAL_ERROR "Environment variable "
 			"\"CZ01_THIRD_PARTY\" must be set for compilation.")
-	else()
-		set(THIRD_PARTY_LIBS $ENV{CZ01_THIRD_PARTY})
-	endif()
-endif()
-include_directories(
+	ELSE()
+		SET(THIRD_PARTY_LIBS $ENV{CZ01_THIRD_PARTY})
+	ENDIF(NOT DEFINED ENV{CZ01_THIRD_PARTY})
+ENDIF(NOT DEFINED THIRD_PARTY_LIBS)
+INCLUDE_DIRECTORIES(
 	${THIRD_PARTY_LIBS}/include
 	${THIRD_PARTY_LIBS}/lib
 )
 
 # Dynamic libraries
-set(COMMON_LIBRARIES ${COMMON_LIBRARIES}
+SET(COMMON_LIBRARIES ${COMMON_LIBRARIES}
 	${Qt5Widgets_LIBRARIES}  # Qt
 #	tinyxml
 )
 
 # Static libraries
-if(UNIX)
+IF(UNIX)
 #	# tinyxml
 #	add_library(tinyxml STATIC IMPORTED)
 #	set_property(TARGET tinyxml PROPERTY
  #               IMPORTED_LOCATION ${THIRD_PARTY_LIBS}/lib/tinyxml.a)
-endif(UNIX)
+ENDIF(UNIX)
 

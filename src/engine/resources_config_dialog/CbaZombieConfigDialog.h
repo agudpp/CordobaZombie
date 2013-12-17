@@ -123,16 +123,30 @@ private:
      * @brief Identify renderer options for given field, and show them on UI.
      */
     void
-    reconRendererOptions(const Ogre::ConfigOption& field);
+    fillRendererOptions(const Ogre::ConfigOption& opt);
 
     /**
-     * @brief Set passed options for specified QComboBox field
+     * @brief Disable given field from UI.
+     */
+    void
+    disableRendererOptions(const std::string& field);
+
+    /**
+     * @brief Set passed options in UI for specified QComboBox field
      * @remarks Previous content of matching QComboBox gets erased
      */
     void
     fillUIComboBox(QComboBox* field,
                    const Ogre::StringVector& values,
                    const char* current = "");
+
+    /**
+     * @brief Disable from UI specified QComboBox field
+     * @remarks Dsiable yet visible and "fixed" test can be given to show.
+     */
+    void
+    disableUIComboBox(QComboBox* field,
+                      const char* fixed = "");
 
 private slots:
     // @brief Set current ConfigField::RENDER_SYSTEM
@@ -187,43 +201,44 @@ inline void CbaZombieConfigDialog::show() { QWidget::show(); }
 ///////////////////////////////////////////////////////////////////////////////
 inline void
 CbaZombieConfigDialog::setColorDepth(const QString& cdepth)
-{ ASSERT(cdepth.size()>0); mColorDepth = cdepth.toInt(); }
+{ if(cdepth.size()>0) mColorDepth = cdepth.toInt(); }
 
 ///////////////////////////////////////////////////////////////////////////////
 inline void
 CbaZombieConfigDialog::setDisplayFrequency(const QString& freq)
-{ ASSERT(freq.size()>0); mDisplayFreq = freq.toInt(); }
+{ if (freq.size()>0) mDisplayFreq = freq.toInt(); }
 
 ///////////////////////////////////////////////////////////////////////////////
 inline void
 CbaZombieConfigDialog::setAntiAliasing(const QString& aa)
-{ ASSERT(aa.size()>0); mAntiAliasing = aa.toInt(); }
+{ if(aa.size()>0) mAntiAliasing = aa.toInt(); }
 
 ///////////////////////////////////////////////////////////////////////////////
 inline void
 CbaZombieConfigDialog::setVerticalSync(const QString& vsync)
-{ ASSERT(vsync.size()>0); mVertSync = vsync.toInt(); }
+{ if(vsync.size()>0) mVertSync = vsync.toInt(); }
 
 ///////////////////////////////////////////////////////////////////////////////
 inline void
 CbaZombieConfigDialog::setGammaCorrection(const QString& gc)
-{ ASSERT(gc.size()>0); mGammaCorrection = gc.toInt(); }
+{ if(gc.size()>0) mGammaCorrection = gc.toInt(); }
 
 ///////////////////////////////////////////////////////////////////////////////
 inline void
 CbaZombieConfigDialog::setDisplayResolution(const QString& dr)
 {
-    ASSERT(dr.size()>0);
-    QStringList tmp = dr.split("x");  // Expects "640x480" format
-    ASSERT(tmp.size()==2);
-    mDisplayRes.first  = tmp[0].toInt();
-    mDisplayRes.second = tmp[1].toInt();
+    if (dr.size()>0) {
+        QStringList tmp = dr.split("x");  // Expects "640x480" format
+        ASSERT(tmp.size()==2);
+        mDisplayRes.first  = tmp[0].toInt();
+        mDisplayRes.second = tmp[1].toInt();
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 inline void
 CbaZombieConfigDialog::setSoundDevice(const QString& sd)
-{ mSoundDevice = sd.toStdString(); }
+{ if (sd.size()>0) mSoundDevice = sd.toStdString(); }
 
 
 }  // namespace engine

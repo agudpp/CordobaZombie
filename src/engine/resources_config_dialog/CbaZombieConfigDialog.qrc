@@ -1,0 +1,6 @@
+<RCC>
+    <qresource>
+        <file>background.png</file>
+        <file>images/CbaZombieConfigDialog_background.png</file>
+    </qresource>
+</RCC>

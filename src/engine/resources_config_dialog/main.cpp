@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
     // Run Qt application
     ok = configDialog.init(ec);
     if (!ok) {
-        QMessageBox::critical(0, "Error","Bad engine configuration , "
+        QMessageBox::critical(0, "Error","Bad engine configuration, "
                               "discarding changes.");
         return 1;
     }

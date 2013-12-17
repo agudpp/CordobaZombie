@@ -41,7 +41,7 @@
    <bool>false</bool>
   </property>
   <property name="styleSheet">
-   <string notr="true">background-image: url(/home/carlos/Dropbox/cordobazombie0.1/game/test/unittest/engine/CbaZombieConfigDialog_background.png);</string>
+   <string notr="true">background-image: url(qrc:///images/CbaZombieConfigDialog_background.png);</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -133,7 +133,7 @@
        </property>
        <item>
         <property name="text">
-         <string>Software acceleration</string>
+         <string>DirectX</string>
         </property>
        </item>
        <item>
@@ -143,7 +143,7 @@
        </item>
        <item>
         <property name="text">
-         <string>DirectX</string>
+         <string>Software acceleration</string>
         </property>
        </item>
       </widget>
@@ -175,7 +175,7 @@
       <number>3</number>
      </property>
      <item>
-      <widget class="QLabel" name="label_8">
+      <widget class="QLabel" name="label_1">
        <property name="minimumSize">
         <size>
          <width>130</width>
@@ -222,6 +222,16 @@
        <property name="cursor">
         <cursorShape>PointingHandCursor</cursorShape>
        </property>
+       <item>
+        <property name="text">
+         <string>16 bit</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>32 bit</string>
+        </property>
+       </item>
       </widget>
      </item>
     </layout>
@@ -322,17 +332,17 @@
        </property>
        <item>
         <property name="text">
-         <string>50</string>
+         <string>50 Hz</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>60</string>
+         <string>60 Hz</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>75</string>
+         <string>75 Hz</string>
         </property>
        </item>
       </widget>
@@ -788,7 +798,7 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_8">
      <item>
-      <widget class="QPushButton" name="discardChanges">
+      <widget class="QPushButton" name="discardAndExit">
        <property name="minimumSize">
         <size>
          <width>120</width>
@@ -805,19 +815,19 @@
         <enum>Qt::NoFocus</enum>
        </property>
        <property name="styleSheet">
-        <string notr="true">QPushButton#discardChanges {
+        <string notr="true">QPushButton#discardAndExit {
 	color:rgb(30,30,30);
-	background:rgb(150,90,90);
+	background:rgb(190,160,160);
 	border-style:outset;
 	border-width:2px;
 	border-radius:10px;
-	border-color:rgb(160,100,100);
-	font:bold 14px;
+	border-color:rgb(160,130,130);
+	font:14px;
 	padding:6px;
 }
-QPushButton#discardChanges:pressed {
+QPushButton#discardAndExits:pressed {
 	color:rgb(10,10,10);
-	background:rgb(130,80,80);
+	background:rgb(170,140,140);
 	border-style: inset;
 }</string>
        </property>
@@ -827,7 +837,7 @@ QPushButton#discardChanges:pressed {
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="saveConfig">
+      <widget class="QPushButton" name="saveAndExit">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
          <horstretch>0</horstretch>
@@ -849,28 +859,28 @@ QPushButton#discardChanges:pressed {
        <property name="font">
         <font>
          <pointsize>-1</pointsize>
-         <weight>75</weight>
+         <weight>50</weight>
          <italic>false</italic>
-         <bold>true</bold>
+         <bold>false</bold>
         </font>
        </property>
        <property name="focusPolicy">
         <enum>Qt::NoFocus</enum>
        </property>
        <property name="styleSheet">
-        <string notr="true">QPushButton#saveConfig {
+        <string notr="true">QPushButton#saveAndExit {
 	color:rgb(30,30,30);
-	background:rgb(50,120,90);
+	background:rgb(120,160,120);
 	border-style:outset;
 	border-width:2px;
 	border-radius:10px;
-	border-color:rgb(60,130,100);
-	font:bold 14px;
+	border-color:rgb(90,130,90);
+	font:14px;
 	padding:6px;
 }
-QPushButton#saveConfig:pressed {
+QPushButton#saveAndExit:pressed {
 	color:rgb(10,10,10);
-	background:rgb(40,110,80);
+	background:rgb(100,140,100);
 	border-style: inset;
 }</string>
        </property>
