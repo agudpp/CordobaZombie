@@ -46,6 +46,16 @@ public:
     inline Type
     transitionType(void) const;
 
+    // @brief Set the overlay hidded if we do a FADE_OUT when we finish.
+    //        This way we can avoid some rare visual effects.
+    // @param letItHidded       If we want to hide the element at the end of the
+    //                          effect, by default this is false.
+    //
+    inline void
+    setLetItHidded(bool letItHidded);
+    inline bool
+    isLetItHidded(void) const;
+
     ////////////////////////////////////////////////////////////////////////////
     // Inherited methods
     //
@@ -80,6 +90,7 @@ private:
     float mAccumTime;
     Type mType;
     Ogre::TextureUnitState* mTexture;
+    bool mLetItHidded;
 };
 
 
@@ -111,6 +122,17 @@ inline AlphaOverlayEffect::Type
 AlphaOverlayEffect::transitionType(void) const
 {
     return mType;
+}
+
+inline void
+AlphaOverlayEffect::setLetItHidded(bool letItHidded)
+{
+    mLetItHidded = letItHidded;
+}
+inline bool
+AlphaOverlayEffect::isLetItHidded(void) const
+{
+    return mLetItHidded;
 }
 
 

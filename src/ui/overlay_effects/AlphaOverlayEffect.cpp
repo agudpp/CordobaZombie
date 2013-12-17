@@ -19,6 +19,7 @@ AlphaOverlayEffect::AlphaOverlayEffect() :
     mTime(0)
 ,   mAccumTime(0)
 ,   mTexture(0)
+,   mLetItHidded(false)
 {
 }
 
@@ -102,6 +103,11 @@ AlphaOverlayEffect::afterFinish(void)
         // Remove fading and set internal textue to NULL
         mTexture->setAlphaOperation(Ogre::LBX_MODULATE, Ogre::LBS_MANUAL,
                                 Ogre::LBS_TEXTURE, 1.0);
+
+        // check if we have to hide it or not
+        if (mLetItHidded && transitionType() == Type::FADE_OUT) {
+            overlayElement()->hide();
+        }
         mTexture = 0;
     }
 }

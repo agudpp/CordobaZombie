@@ -116,6 +116,7 @@ InfoMainState::readyToGo(void)
     mAccumTime = 0;
     mEffect.setTime(INFOMAINSTATE_EFFECT_TIME);
     mEffect.setTransitionType(ui::AlphaOverlayEffect::Type::FADE_IN);
+    mEffect.setLetItHidded(true);
     sCommonHandlers.effectHandler->add(&mEffect);
     mNeedToFade = false;
 
