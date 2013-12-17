@@ -13,8 +13,8 @@
 
 namespace demo_app {
 
-cz::RagDollQueue<> Projectile::sRagdollQueue;
-cz::BodyPartQueue Projectile::sBodyPartQueue;
+cz::RagDollQueue<>* Projectile::sRagdollQueue;
+cz::BodyPartQueue* Projectile::sBodyPartQueue;
 physics::DynamicWorld* Projectile::sDynamicWorld = 0;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -22,19 +22,22 @@ Projectile::Projectile(Ogre::SceneNode* node, Ogre::Entity* ent)
 {
     ASSERT(node);
     ASSERT(ent);
+    ASSERT(sBodyPartQueue);
+    ASSERT(sRagdollQueue);
+
     static bool build = false;
 
     if (!build) {
         build = true;
         ASSERT(sDynamicWorld);
-        sRagdollQueue.configure(&sDynamicWorld->bulletDynamicWorld(),
+        sRagdollQueue->configure(&sDynamicWorld->bulletDynamicWorld(),
                                 ent->getSkeleton(),
                                 node);
     }
 
     // configure the body
-    mBody.setRagDollQueue(&sRagdollQueue);
-    mBody.setBodyPartQueue(&sBodyPartQueue);
+    mBody.setRagDollQueue(sRagdollQueue);
+    mBody.setBodyPartQueue(sBodyPartQueue);
 
     mBody.setEntity(ent);
     mBody.setSceneNode(node);

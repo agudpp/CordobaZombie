@@ -32,6 +32,11 @@ public:
     static void
     setDynamicWorld(physics::DynamicWorld* dw) {sDynamicWorld = dw;}
 
+    // @brief Set needed queues
+    //
+    static inline void
+    setQueues(cz::RagDollQueue<>* rq, cz::BodyPartQueue* bpq);
+
     // @brief Reset the projectile
     //
     void
@@ -55,11 +60,22 @@ public:
 
 private:
     static physics::DynamicWorld* sDynamicWorld;
-    static cz::RagDollQueue<> sRagdollQueue;
-    static cz::BodyPartQueue sBodyPartQueue;
+    static cz::RagDollQueue<>* sRagdollQueue;
+    static cz::BodyPartQueue* sBodyPartQueue;
 
     cz::ZombieBody mBody;
 };
+
+
+
+
+
+inline void
+Projectile::setQueues(cz::RagDollQueue<>* rq, cz::BodyPartQueue* bpq)
+{
+    sRagdollQueue = rq;
+    sBodyPartQueue = bpq;
+}
 
 } /* namespace demo_app */
 #endif /* PROJECTILE_H_ */

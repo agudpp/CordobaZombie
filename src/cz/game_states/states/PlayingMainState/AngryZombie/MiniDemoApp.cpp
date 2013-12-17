@@ -415,6 +415,7 @@ MiniDemoApp::setData(const DemoData& data)
     mData.informer->setOgreRenderWindow(mData.renderWindow);
 
     Projectile::setDynamicWorld(&mDynamicWorld);
+    Projectile::setQueues(&mRagdollQueue, &mBodyPartQueue);
     WorldObject::setGameLogicData(&mGameLogicData);
 }
 
