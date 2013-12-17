@@ -25,6 +25,40 @@ set(SRCS ${SRCS}
 SET(CMAKE_INCLUDE_CURRENT_DIR ON)
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
 
+# Qt uses the QTDIR environment variable, so we need to change this QT_ROOT_PATH
+# to QTDIR instead, now we will have to set both to the same dir.
+#
+
+# We will do this crap here because we need to release the fucking demo. This
+# should be fixed later and we will use Qt4 everywhere...
+#
+if (WIN32)
+
+# We need QtGui and QtCore for this
+FIND_PACKAGE(Qt4 COMPONENTS QtCore QtGui REQUIRED)
+
+# include the directories of Qt
+include_directories(${QT_INCLUDES})
+
+# add the wrappers
+# Generate intermediate <moc>, <ui> and <resources> files
+SET(QtApp_MOCS ${DEV_ROOT_PATH}/engine/resources_config_dialog/CbaZombieConfigDialog.h)
+SET(QtApp_UIS  ${DEV_ROOT_PATH}/engine/resources_config_dialog/CbaZombieConfigDialog.ui)
+SET(QtApp_RCCS ${DEV_ROOT_PATH}/engine/resources_config_dialog/CbaZombieConfigDialog.qrc)
+QT4_ADD_RESOURCES(RCCS_WRAPPER ${QtApp_RCCS})
+QT4_WRAP_CPP(MOCS_WRAPPER ${QtApp_MOCS})
+QT4_WRAP_UI(UIS_WRAPPER ${QtApp_UIS})
+
+# Add the extra wrapper files
+SET(HDRS ${HDRS} ${MOCS_WRAPPER} ${UIS_WRAPPER} ${RCSS_WRAPPER})
+
+# Dynamic libraries
+SET(COMMON_LIBRARIES ${COMMON_LIBRARIES}
+    ${QT_LIBRARIES}  # Qt
+)
+
+else()
+
 # Find required Qt libraries
 IF (NOT DEFINED ENV{QT_ROOT_PATH})
 	MESSAGE( FATAL_ERROR "Environment variable \"QT_ROOT_PATH\" must point "
@@ -33,6 +67,7 @@ IF (NOT DEFINED ENV{QT_ROOT_PATH})
 ELSE()
 	SET(QT_ROOT_PATH $ENV{QT_ROOT_PATH})
 endIF(NOT DEFINED ENV{QT_ROOT_PATH})
+
 IF (NOT EXISTS ${QT_ROOT_PATH}/include/QtWidgets/)
 	MESSAGE( FATAL_ERROR "Environment variable \"QT_ROOT_PATH\" must point "
                          "to the directory containing Qt5 include/ subdir, "
@@ -94,4 +129,6 @@ IF(UNIX)
 #	set_property(TARGET tinyxml PROPERTY
  #               IMPORTED_LOCATION ${THIRD_PARTY_LIBS}/lib/tinyxml.a)
 ENDIF(UNIX)
+
+endif()
 
