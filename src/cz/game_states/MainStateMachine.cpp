@@ -161,6 +161,7 @@ MainStateMachine::update(float timeFrame)
         // return the current state
         if (!loadState(mCurrentState)) {
             debugERROR("Error loading current state %d\n", mCurrentState->ID());
+            return false;
         }
         // pass to the running state
         mInternalState = State::MSM_ST_RUNNING;
