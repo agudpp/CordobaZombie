@@ -144,8 +144,6 @@ SceneHandler::buildWorldPhysicsLimits(const Ogre::AxisAlignedBox& bb)
     mHolder.addBulletObject(floorObject);
     addBulletObjectToHolder(*floorObject);
 
-    // walls.
-    debugERROR("TODO!!\n");
 }
 
 ///////////////////////////////////////////////////////////////////////////////
