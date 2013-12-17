@@ -138,6 +138,7 @@ ErrorReporter::createFolderReport(const QStringList& files, QDir& folderCreated)
 void
 ErrorReporter::showMessage(const QString& msg, bool error) const
 {
+    error = error;
     QMessageBox msgBox;
     msgBox.setText(msg);
     msgBox.exec();
@@ -231,7 +232,7 @@ ErrorReporter::restorePersonalInfo(void)
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 ErrorReporter::ErrorReporter(QWidget* parent) :
-    QWidget(0)
+    QWidget(parent)
 ,   mSmtp("cbazombie@gmail.com",
           "issueReporter",
           "smtp.gmail.com")
@@ -308,6 +309,12 @@ ErrorReporter::attachClicked(bool)
     QString filename = QFileDialog::getOpenFileName(this,
                                                     tr("Archivo"),
                                                     ".");
+    // if filename is empty we do nothing
+    if (filename.isEmpty()) {
+        // do nothing
+        return;
+    }
+
     QFile file(filename);
     if (file.size() > MAX_FILE_SIZE) {
         showMessage("El archivo es muy grande como para mandarlo.", true);
@@ -358,6 +365,10 @@ ErrorReporter::statusHandling(Smtp::StatusType statusType, const QString &msg)
         showMessage("Datos enviados con exito! Muchisimas gracias por aportar con el "
                     "proyecto!",
                     false);
+
+        // clear the text of the fields
+        mUI.commentsEdit->clear();
+        mUI.stepsEdit->clear();
 
         // removing the files
         QStringList filesToRemove;
