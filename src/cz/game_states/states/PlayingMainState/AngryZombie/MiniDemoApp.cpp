@@ -492,6 +492,7 @@ MiniDemoApp::load(void)
     mData.mouseCursor->setVisible(false);
 
     mRunning = true;
+    mInternalState = RUNNING;
 
     return true;
 }
@@ -518,6 +519,7 @@ MiniDemoApp::unload(void)
     }
 
     mSceneHandler.clearAndFreeAll();
+    mProjectiles.clear();
 
     return true;
 }
