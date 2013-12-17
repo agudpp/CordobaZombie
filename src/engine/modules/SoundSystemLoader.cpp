@@ -55,7 +55,7 @@ SoundSystemLoader::load(const EngineConfiguration& config)
     }
 
     debugERROR("TODO: must load all sound files into the SoundSystem.\n" "Find them in the path constructed in \"soundsRscPath\".\n");
-    ASSERT(false);
+//    ASSERT(false);
 
     return true;
 }

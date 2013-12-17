@@ -61,6 +61,7 @@ Engine::Engine() :
 
     // SoundSystem
     SoundSystemLoader* soundLoader = new SoundSystemLoader(mSoundData.handler,
+                                                           mResourcesData.handler,
                                                            mOpenalHandler);
 
     mLoaders.push_back(soundLoader);

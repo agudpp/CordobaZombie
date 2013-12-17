@@ -117,7 +117,7 @@ OgreSystemLoader::load(const EngineConfiguration& config)
 
 
     // if we are here, then we can safely init the window
-    mRenderWin = mRoot->initialise(true);
+    mRenderWin = mRoot->initialise(true, "CordobaZombie");
 
     // creates a generic sceneManager
     mSceneManager = mRoot->createSceneManager(sceneTypeFromStr(sceneManagerType));
