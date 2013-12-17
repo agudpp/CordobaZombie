@@ -47,7 +47,7 @@ void
 ZombieBody::ExtirpationTable::build(Ogre::Entity* entity)
 {
     ASSERT(entity);
-    debugERROR("Hardcoded values for the body part, we probably can load this "
+    debugWARNING("Hardcoded values for the body part, we probably can load this "
         "from a table or other data structure outside of this class\n");
 
     // we will create the table using the diagram in the DropBox. This will be
@@ -164,7 +164,7 @@ ZombieBody::build(void)
     ASSERT(mNode);
 
     // Build the bone table
-    debugERROR("We are hardcoding the BoneTable.\n");
+    debugWARNING("We are hardcoding the BoneTable.\n");
     mBoneTable.resize(mBoneTable.max_size());
     mBoneTable[physics::BonesID::B_HEAD] = mSkeleton->getBone("B_HEAD");
     mBoneTable[physics::BonesID::B_NECK] = mSkeleton->getBone("B_NECK");

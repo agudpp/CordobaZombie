@@ -65,7 +65,13 @@ public:
     letAvailable(Type* elem)
     {
         ASSERT(elem);
-        debugERROR("Check if elem belongs to this queue\n");
+#ifdef DEBUG
+        {
+            unsigned int i = 0;
+            for (; (i < SIZE) && (&(mElements[i]) != elem); ++i);
+            ASSERT(i < SIZE);
+        }
+#endif
         mQueue.push_back(elem);
     }
 

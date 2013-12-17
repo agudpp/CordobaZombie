@@ -425,8 +425,6 @@ MiniDemoApp::getResourceToLoad(rrh::ResourceGroup& resource)
 {
     PRECONDITION_CHECK;
 
-    debugERROR("For now we will load everything to avoid problems, then we will"
-        " load the resources correctly here.\n");
     std::string fullPath;
     mData.rscHandler->getResourceFullPath("mini_demo/resources.cfg", fullPath);
     resource.setOgreResourceFile(fullPath);
@@ -461,7 +459,7 @@ MiniDemoApp::load(void)
     loadFloor();
 
     // we will load everything here. Parse the SceneHandler and everything else
-    debugERROR("TODO\n");
+
     // reset the informer
     mData.informer->reset();
 
