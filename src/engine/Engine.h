@@ -12,6 +12,7 @@
 #include <string>
 
 #include <types/StackVector.h>
+#include <crash_handler/CrashHandler.h>
 #include <modules/IModuleLoader.h>
 
 #include "EngineLoader.h"
@@ -26,6 +27,7 @@ class Camera;
 }
 
 namespace mm {
+class OpenALHandler;
 class SoundHandler;
 class OgreVideoPlayer;
 }
@@ -68,7 +70,6 @@ public:
     //
     struct SoundData {
         mm::SoundHandler* handler;
-
         SoundData() :
             handler(0)
         {}
@@ -78,7 +79,6 @@ public:
     //
     struct VideoData {
         mm::OgreVideoPlayer* player;
-
         VideoData() :
             player(0)
         {}
@@ -148,6 +148,7 @@ public:
     unloadAll(void);
 
 private:
+    core::CrashHandler mCrashReporter;
     EngineLoader mLoader;
     core::StackVector<IModuleLoader*, 10> mLoaders;
     OgreData mOgreData;
@@ -155,6 +156,7 @@ private:
     VideoData mVideoData;
     ResourcesData mResourcesData;
     InputData mInputData;
+    mm::OpenALHandler* mOpenalHandler;
 };
 
 

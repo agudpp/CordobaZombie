@@ -13,6 +13,7 @@
 #include <input/InputHelper.h>
 #include <app_tester/AppTester.h>
 #include <video/OgreVideoPlayer.h>
+#include <openal_handler/OpenALHandler.h>
 
 
 namespace tests {
@@ -63,7 +64,8 @@ private:
     input::InputHelper			 mInputHelper;
 
     // Particular members
-    mm::OgreVideoPlayer			 *mVPlayer;
+    mm::OgreVideoPlayer			 mVPlayer;
+    mm::OpenALHandler            mALHandler;
 
 
 };

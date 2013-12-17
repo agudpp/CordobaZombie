@@ -12,11 +12,13 @@
 
 namespace engine {
 
-SoundSystemLoader::SoundSystemLoader(mm::SoundHandler*& sh,
-                                         rrh::ResourceHandler*& rh) :
-    IModuleLoader("SoundSystemLoader"),
-    mResourceHandler(rh),
-    mSoundHandler(sh)
+SoundSystemLoader::SoundSystemLoader(mm::SoundHandler*& soundHandler,
+                                     rrh::ResourceHandler*& rh,
+                                     mm::OpenALHandler*& openalHandler) :
+    IModuleLoader("SoundSystemLoader")
+,   mResourceHandler(rh)
+,   mSoundHandler(soundHandler)
+,   mOpenalHandler(openalHandler)
 {
 }
 
@@ -42,13 +44,7 @@ SoundSystemLoader::load(const EngineConfiguration& config)
     // FIXME: HARDCODED VALUES, SHOULD BE READ FROM XML ///////////////////////
     debugERROR("HARDCODED values here, MUST be read from XML.\n");
     // Check MantisBT issue #296 (http://goo.gl/awV5FF)
-    char* envVar = 0; // for now we will use the one used by CZ01_RC_PATH
-    if (!core::OSHelper::getEnvVar("CZ01_RC_PATH", envVar) || envVar == 0) {
-        debugERROR("Error getting the CZ01 resource path CZ01_RC_PATH\n");
-        return false;
-    }
-    soundsRscPath = envVar;
-    core::OSHelper::addEndPathVar(soundsRscPath);
+    soundsRscPath = mResourceHandler->getResourceRootPath();
     ///////////////////////////////////////////////////////////////////////////
 
     // Get the SoundHandler singleton instance

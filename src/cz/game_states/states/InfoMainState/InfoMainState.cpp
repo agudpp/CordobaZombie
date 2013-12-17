@@ -21,7 +21,7 @@
 #define INFOMAINSTATE_RC_PATH           "2D/sponsors/resources.cfg"
 #define INFOMAINSTATE_OVERLAY_NAME      "InfoMainState"
 #define INFOMAINSTATE_EFFECT_TIME       1.f
-#define INFOMAINSTATE_TIME_SLIDE_SECS   4.f
+#define INFOMAINSTATE_TIME_SLIDE_SECS   6.f
 
 
 namespace cz {
@@ -116,6 +116,7 @@ InfoMainState::readyToGo(void)
     mAccumTime = 0;
     mEffect.setTime(INFOMAINSTATE_EFFECT_TIME);
     mEffect.setTransitionType(ui::AlphaOverlayEffect::Type::FADE_IN);
+    mEffect.setLetItHidded(true);
     sCommonHandlers.effectHandler->add(&mEffect);
     mNeedToFade = false;
 
@@ -155,6 +156,10 @@ InfoMainState::update(float timeFrame)
     }
 
     // need to switch to the next slide
+    if (mSlides.empty()) {
+    	// no more slides, return
+    	return false;
+    }
     mNeedToFade = false;
     Ogre::OverlayContainer* cont = mSlides.front();
     cont->hide();
@@ -181,7 +186,10 @@ bool
 InfoMainState::unload(void)
 {
     // we have to destroy all the overlays here
-    Ogre::OverlayManager::getSingleton().destroy(mOverlay);
+    // TODO: issue #224 Ogre::OverlayManager::getSingleton().destroy(mOverlay);
+    mOverlay->hide();
+    mOverlay = 0;
+
     sCommonHandlers.effectHandler->remove(&mEffect);
     return true;
 }

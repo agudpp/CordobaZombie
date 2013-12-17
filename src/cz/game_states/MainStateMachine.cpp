@@ -18,19 +18,19 @@ MainStateMachine::changeState(IMainState* newState)
 
     // if we have a running state we have to uninit it first
     if (mCurrentState) {
-        if (!unloadState(mCurrentState)) {
+        if (!uninitState(mCurrentState)) {
             return false;
         }
     }
     // init the new one
     mLastState = mCurrentState;
     mCurrentState = newState;
-    return loadState(mCurrentState);
+    return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 bool
-MainStateMachine::unloadState(IMainState* state)
+MainStateMachine::uninitState(IMainState* state)
 {
     ASSERT(state);
     if (!state->unload()) {
@@ -54,7 +54,7 @@ MainStateMachine::unloadState(IMainState* state)
 
 ////////////////////////////////////////////////////////////////////////////////
 bool
-MainStateMachine::loadState(IMainState* state)
+MainStateMachine::initState(IMainState* state)
 {
     ASSERT(state);
 
@@ -79,8 +79,16 @@ MainStateMachine::loadState(IMainState* state)
         }
     }
 
-    // everything goes fine, make the last call to load the state, advise the
-    // state that we are ready to go!
+    // everything goes fine
+    return true;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+bool
+MainStateMachine::loadState(IMainState* state)
+{
+    ASSERT(state);
+    // advise the state we are just ready to go
     return state->readyToGo();
 }
 
@@ -91,6 +99,7 @@ MainStateMachine::MainStateMachine(const MainStateTT& tt, rrh::ResourceHandler& 
 ,   mResourceHandler(rh)
 ,   mCurrentState(0)
 ,   mLastState(0)
+,   mInternalState(State::MSM_ST_INIT)
 {
 }
 
@@ -111,7 +120,8 @@ MainStateMachine::start(void)
     mCurrentState = mTransitionTable.mainState();
 
     // load the main state
-    loadState(mCurrentState);
+    initState(mCurrentState);
+    mInternalState = State::MSM_ST_LOAD;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -123,18 +133,10 @@ MainStateMachine::reset(void)
     }
 
     // unload the current state
-    unloadState(mCurrentState);
+    uninitState(mCurrentState);
     mCurrentState = mLastState = 0;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-void
-MainStateMachine::executeLastState(void)
-{
-    if (mLastState) {
-        changeState(mLastState);
-    }
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 bool
@@ -145,25 +147,50 @@ MainStateMachine::update(float timeFrame)
         return false; // nothing to do
     }
 
-    // if we have an state, then we need to execute it
-    if (!mCurrentState->update(timeFrame)) {
-        // we need to change the current state.. Check the event information
-        const MainStateEvent& event = mCurrentState->getEventInformation();
-        IMainState* nextState = mTransitionTable.getNext(mCurrentState, event);
-        if (nextState == 0) {
-            // no more states, probably we finish?
-            debug("No more states found from %d and event %d\n",
-                  mCurrentState->ID(), event);
+    switch (mInternalState) {
+    case State::MSM_ST_INIT:
+        // we need to init the current state
+        if (!initState(mCurrentState)) {
+            debugERROR("Error initing the current state %d\n", mCurrentState->ID());
             return false;
         }
+        // change the state to be in "Load"
+        mInternalState = State::MSM_ST_LOAD;
+        break;
+    case State::MSM_ST_LOAD:
+        // return the current state
+        if (!loadState(mCurrentState)) {
+            debugERROR("Error loading current state %d\n", mCurrentState->ID());
+            return false;
+        }
+        // pass to the running state
+        mInternalState = State::MSM_ST_RUNNING;
+        break;
+    case State::MSM_ST_RUNNING:
+        // update the current state and do the checks
+        if (!mCurrentState->update(timeFrame)) {
+            // we need to change the current state.. Check the event information
+            const MainStateEvent& event = mCurrentState->getEventInformation();
+            IMainState* nextState = mTransitionTable.getNext(mCurrentState, event);
+            if (nextState == 0) {
+                // no more states, probably we finish?
+                debugERROR("No more states found from %d and event %d\n",
+                           mCurrentState->ID(), event);
+                return false;
+            }
 
-        // load the new state
-        if (!changeState(nextState)) {
-            debugERROR("Error changing from state %d to state %d with event %d\n",
-                (int) mCurrentState->ID(), (int) nextState->ID(), event);
-            return false;
+            // load the new state
+            if (!changeState(nextState)) {
+                debugERROR("Error changing from state %d to state %d with event %d\n",
+                    (int) mCurrentState->ID(), (int) nextState->ID(), event);
+                return false;
+            }
+            mLastEvent = event;
+
+            // now we have to init the new state
+            mInternalState = State::MSM_ST_INIT;
         }
-        mLastEvent = event;
+        break;
     }
 
     // else there is nothing to do, and everything goes fine :)

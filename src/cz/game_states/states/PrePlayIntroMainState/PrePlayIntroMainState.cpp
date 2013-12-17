@@ -20,7 +20,7 @@
 #define PREPLAYINTROSTATE_OVERLAY       "PrePlayIntroMainState"
 #define PREPLAYINTROSTATE_SLIDE_CONT    "PrePlayIntroMainState/Info"
 #define PREPLAYINTROSTATE_EFFECT_SECS   1.f
-#define PREPLAYINTROSTATE_SHOWTIME_SECS 5.f
+#define PREPLAYINTROSTATE_SHOWTIME_SECS 8.f
 
 
 namespace cz {
@@ -149,7 +149,9 @@ bool
 PrePlayIntroMainState::unload(void)
 {
     // we have to destroy all the overlays here
-    Ogre::OverlayManager::getSingleton().destroy(mOverlay);
+    // TODO: issue #224 Ogre::OverlayManager::getSingleton().destroy(mOverlay);
+    mOverlay->hide();
+    mOverlay = 0;
     sCommonHandlers.effectHandler->remove(&mEffect);
     return true;
 }

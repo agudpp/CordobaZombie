@@ -48,7 +48,7 @@ class SoundHandler
 	public:
 		Ogre::String 				mName;
 		std::vector<Ogre::String>	mList;      // Sounds names list
-		std::vector<uint>			mPlayOrder; // Sounds playing order
+		std::vector<unsigned int>			mPlayOrder; // Sounds playing order
 		unsigned int				mCurrent;   // Current position in mPlayOrder
 		unsigned int 				mState;     // Repeat/Shuffle/Randomwait
 		float						mSilence;   // Wait time between sounds (sec)
@@ -666,7 +666,7 @@ SoundHandler::addDirectSources(unsigned int N)
 inline bool
 SoundHandler::existsPlaylist(const Ogre::String& name) const
 {
-	for (uint i=0 ; i < mPlaylists.size() ; i++) {
+	for (unsigned int i=0 ; i < mPlaylists.size() ; i++) {
 		if (mPlaylists[i]->mName == name) {
 			return true;
 		}
@@ -688,7 +688,7 @@ SoundHandler::restartPlaylist(const Ogre::String& name, Playlist *pl)
 inline bool
 SoundHandler::renamePlaylist(const Ogre::String& oldName, const Ogre::String& newName)
 {
-	for (uint i=0 ; i < mPlaylists.size() ; i++) {
+	for (unsigned int i=0 ; i < mPlaylists.size() ; i++) {
 		if (mPlaylists[i]->mName == oldName) {
 			mPlaylists[i]->mName = newName;
 			return true;
@@ -703,7 +703,7 @@ inline const std::vector<Ogre::String>
 SoundHandler::getPlaylistSounds(const Ogre::String& name) const
 {
 	const std::vector<Ogre::String> notFound;
-	for (uint i=0 ; i < mPlaylists.size() ; i++) {
+	for (unsigned int i=0 ; i < mPlaylists.size() ; i++) {
 		if (mPlaylists[i]->mName == name) {
 			return mPlaylists[i]->mList;
 		}
@@ -716,7 +716,7 @@ SoundHandler::getPlaylistSounds(const Ogre::String& name) const
 inline const SoundHandler::Playlist*
 SoundHandler::getPlaylist(const Ogre::String& name) const
 {
-	for (uint i=0 ; i < mPlaylists.size() ; i++) {
+	for (unsigned int i=0 ; i < mPlaylists.size() ; i++) {
 		if (mPlaylists[i]->mName == name) {
 			return reinterpret_cast<const Playlist*>(mPlaylists[i]);
 		}
@@ -729,7 +729,7 @@ SoundHandler::getPlaylist(const Ogre::String& name) const
 inline SoundHandler::Playlist*
 SoundHandler::getPlaylist(const Ogre::String& name)
 {
-	for (uint i=0 ; i < mPlaylists.size() ; i++) {
+	for (unsigned int i=0 ; i < mPlaylists.size() ; i++) {
 		if (mPlaylists[i]->mName == name) {
 			return mPlaylists[i];
 		}

@@ -26,6 +26,7 @@ extern "C" {
     int main(int argc, char *argv[])
 #endif
     {
+		MessageBox( NULL, "HOLAAA", ":(", MB_OK | MB_ICONERROR | MB_TASKMODAL);
     	core::AppTester *appTester = new tool::AnimPlayer();
 
 		appTester->loadAditionalData();

@@ -230,13 +230,22 @@ SSoundSource::update(const Ogre::Vector3& pos)
 		// Queue back, if properly refilled.
 		if (readSize > 0) {
 			alSourceQueueBuffers(mSource, 1, &mIntBuffers[mFirstBuffer]);
-			if (restart) { alSourcePlay(mSource); restart = false; }
 		}
 		// Increment buffer pointer if there were no errors.
 		if (readSize >= 0) {
 			++mFirstBuffer %= SS_NUM_INT_BUFFERS;
 		}
 	}
+
+	// check if we need to restart, we will play after queueing the sources since
+	// this cause an error on windows (after playing the source the unqueued
+	// buffers are reseted and we cannot get any empty buffer again (until
+	// openal finish the current one).
+	//
+    if (restart) {
+        alSourcePlay(mSource);
+        restart = false;
+    }
 
 	// Check for errors.
 	alGetSourcei(mSource, AL_SOURCE_STATE, &st);

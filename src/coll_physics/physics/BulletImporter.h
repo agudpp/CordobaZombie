@@ -41,6 +41,11 @@ public:
     createBox(const Ogre::AxisAlignedBox& bb,
               float mass,
               bool createPrimitive = true);
+    static bool
+    createBox(BulletObject& bo,
+              const Ogre::AxisAlignedBox& bb,
+              float mass,
+              bool createPrimitive = true);
 
     // @brief Create a bullet shape of the type box from a given Ogre BB.
     // @param bb        The Ogre bounding box.

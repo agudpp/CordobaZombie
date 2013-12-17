@@ -20,6 +20,9 @@
 
 #include <OgreResourceGroupManager.h>
 
+#include <debug/DebugUtil.h>
+#include <os_utils/OSHelper.h>
+
 #include "SoundManager.h"
 #include "SoundEnums.h"
 #include "SoundBuffer.h"
@@ -28,26 +31,7 @@
 #include "LSS/LSoundSource.h"
 #include "SSS/SSoundSource.h"
 #include "SoundAPI.h"
-#include <debug/DebugUtil.h>
 
-
-/* Multiplatform auxiliary function */
-#if defined(_WIN32) || defined(CYGWIN)
-static inline bool
-fileExists(std::string fname)
-{
-	return System::IO::File::Exists(fname);
-}
-#elif defined(linux) || defined(_linux) || defined(__linux) || defined(__linux__)
-#  include <unistd.h>
-static inline bool
-fileExists(std::string fname)
-{
-	return !access(fname.c_str(), R_OK);
-}
-#else
-#  error "Unsupported platform. ABORTING COMPILATION."
-#endif
 
 #ifndef MAX
 #  define  MAX(a,b)  ((a)>(b)?(a):(b))
@@ -393,7 +377,7 @@ SoundManager::loadSound(const Ogre::String& sName, SSformat format, SSbuftype ty
 		for (it = files->begin() ; it < files->end() ; it++) {
 			// Compose audio file absolute path.
 			sNameFullPath.append(it->archive->getName()+"/"+sName);
-			if (fileExists(sNameFullPath)) {
+			if (core::OSHelper::fileExists(sNameFullPath.c_str())) {
 				debug("\n Loading audio file %s\n", sNameFullPath.c_str());
 				break;
 			} else {
@@ -534,7 +518,7 @@ SoundManager::update(const float globalTimeFrame,
 void
 SoundManager::globalPause()
 {
-	for (uint i=0 ; i < mActiveSounds.size() ; i++) {
+	for (unsigned int i=0 ; i < mActiveSounds.size() ; i++) {
 		// All currently playing sounds get ("globally") paused
 		if (mActiveSounds[i]->mSource->isPlaying()) {
 			mActiveSounds[i]->mSource->pause();
@@ -552,7 +536,7 @@ SoundManager::globalPlay()
 	SSerror err(SSerror::SS_NO_ERROR);
 	Ogre::Vector3 o(0.0f, 0.0f, 0.0f);
 
-	for (uint i=0 ; i < mActiveSounds.size() ; i++) {
+	for (unsigned int i=0 ; i < mActiveSounds.size() ; i++) {
 		// If it had been globally paused
 		if (mActiveSounds[i]->mGlobalState == SSplayback::SS_PAUSED) {
 			err = mActiveSounds[i]->mSource->play(
@@ -573,7 +557,7 @@ SoundManager::globalPlay()
 void
 SoundManager::globalStop()
 {
-	for (uint i=0 ; i < mActiveSounds.size() ; i++) {
+	for (unsigned int i=0 ; i < mActiveSounds.size() ; i++) {
 		mActiveSounds[i]->mSource->stop();
 		// Reset OpenAL source properties
 		alSourcei(mActiveSounds[i]->mSource->mSource, AL_BUFFER, AL_NONE);
@@ -601,7 +585,7 @@ SoundManager::globalRestart()
 	SSerror err(SSerror::SS_NO_ERROR);
 	Ogre::Vector3 o(0.0f,0.0f,0.0f);
 
-	for (uint i=0 ; i < mActiveSounds.size() ; i++) {
+	for (unsigned int i=0 ; i < mActiveSounds.size() ; i++) {
 		err = mActiveSounds[i]->mSource->restart(
 				mActiveSounds[i]->mVolume, o, mActiveSounds[i]->mSource->getRepeat());
 		/* For both environmental and unit sounds we restart playback at the *
@@ -622,7 +606,7 @@ SoundManager::globalRestart()
 void
 SoundManager::globalFadeOut(const Ogre::Real& time, const bool pause)
 {
-	for (uint i=0 ; i < mActiveSounds.size() ; i++) {
+	for (unsigned int i=0 ; i < mActiveSounds.size() ; i++) {
 
 		if ((mActiveSounds[i]->mPlayState &
 				( SSplayback::SS_PLAYING
@@ -656,7 +640,7 @@ SoundManager::globalFadeOut(const Ogre::Real& time, const bool pause)
 void
 SoundManager::globalFadeIn(const Ogre::Real& time)
 {
-	for (uint i=0 ; i < mActiveSounds.size() ; i++) {
+	for (unsigned int i=0 ; i < mActiveSounds.size() ; i++) {
 		if (mActiveSounds[i]->mGlobalState &
 				( SSplayback::SS_PAUSED
 				| SSplayback::SS_FADING_OUT
@@ -683,7 +667,7 @@ bool
 SoundManager::isPlayingEnvSound(const Ogre::String& sName)
 {
 	// Check whether "sName" is a playing environmental sound.
-	for (uint i=0 ; i < mEnvSounds.size() ; i++) {
+	for (unsigned int i=0 ; i < mEnvSounds.size() ; i++) {
 		if (std::get<0>(mEnvSounds[i]) == sName) {
 			return std::get<1>(mEnvSounds[i])->mSource->isPlaying();
 		}
@@ -697,7 +681,7 @@ bool
 SoundManager::isPlayingEnvSound(EnvSoundId id)
 {
 	if (!id) return false;
-	for (uint i=0 ; i < mEnvSounds.size() ; i++) {
+	for (unsigned int i=0 ; i < mEnvSounds.size() ; i++) {
 		if (std::get<2>(mEnvSounds[i]) == id) {
 			return std::get<1>(mEnvSounds[i])->mSource->isPlaying();
 		}
@@ -711,7 +695,7 @@ bool
 SoundManager::isActiveEnvSound(const Ogre::String& sName)
 {
 	// Check whether "sName" is an active environmental sound.
-	for (uint i=0 ; i < mEnvSounds.size() ; i++) {
+	for (unsigned int i=0 ; i < mEnvSounds.size() ; i++) {
 		if (std::get<0>(mEnvSounds[i]) == sName) {
 			ASSERT(std::get<1>(mEnvSounds[i])->mSource->isActive());
 			return true;
@@ -726,7 +710,7 @@ bool
 SoundManager::isActiveEnvSound(EnvSoundId id)
 {
 	if (!id) return false;
-	for (uint i=0 ; i < mEnvSounds.size() ; i++) {
+	for (unsigned int i=0 ; i < mEnvSounds.size() ; i++) {
 		if (std::get<2>(mEnvSounds[i]) == id) {
 			ASSERT(std::get<1>(mEnvSounds[i])->mSource->isActive());
 			return true;
@@ -741,7 +725,7 @@ bool
 SoundManager::getEnvSoundRepeat(const Ogre::String& sName)
 {
 	// If the environmental sound "sName" exists, return its repeat value.
-	for (uint i=0 ; i < mEnvSounds.size() ; i++) {
+	for (unsigned int i=0 ; i < mEnvSounds.size() ; i++) {
 		if (std::get<0>(mEnvSounds[i]) == sName) {
 			return std::get<1>(mEnvSounds[i])->mSource->getRepeat();
 		}
@@ -764,7 +748,7 @@ SoundManager::playEnvSound(const Ogre::String& sName,
 	HashStrBuff::const_iterator it(mLoadedBuffers.end());
 
 	// Check whether "sName" is an active environmental sound.
-	for (uint i=0 ; i < mEnvSounds.size() ; i++) {
+	for (unsigned int i=0 ; i < mEnvSounds.size() ; i++) {
 		if (std::get<0>(mEnvSounds[i]) == sName &&
 			std::get<2>(mEnvSounds[i]) == id) {
 			return playExistentSound(*(std::get<1>(mEnvSounds[i])), gain, repeat);
@@ -831,7 +815,7 @@ SoundManager::playEnvSound(const Ogre::String& sName,
 SSerror
 SoundManager::stopEnvSound(const Ogre::String& sName, EnvSoundId id)
 {
-	uint pos(0);
+	unsigned int pos(0);
 	ActiveSound* as(0);
 
 	// Check whether "sName" is an active environmental sound.
@@ -887,7 +871,7 @@ SoundManager::restartEnvSound(const Ogre::String& sName, EnvSoundId id)
 	ActiveSound* as(0);
 
 	// Check whether "sName" is an active environmental sound.
-	for (uint i=0 ; i < mEnvSounds.size() ; i++) {
+	for (unsigned int i=0 ; i < mEnvSounds.size() ; i++) {
 		if (std::get<0>(mEnvSounds[i]) == sName) {
 			if (id && id != std::get<2>(mEnvSounds[i]))
 				continue;  // Not our sound.
@@ -1009,7 +993,7 @@ SoundManager::fadeInEnvSound(const Ogre::String& sName,
 bool
 SoundManager::isActiveAPISound(const Ogre::String& sName) const
 {
-	for (uint i=0 ; i < mUnitSounds.size() ; i++) {
+	for (unsigned int i=0 ; i < mUnitSounds.size() ; i++) {
 		if (sName == mUnitSounds[i].first->getCurrentSound()) {
 			ASSERT(mUnitSounds[i].second->mSource->isActive());
 			return true;

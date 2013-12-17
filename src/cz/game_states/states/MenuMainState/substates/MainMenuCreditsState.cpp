@@ -19,7 +19,7 @@
 //
 #define CREDITSSTATE_OVERLAY_NAME       "CreditsMenu"
 #define CREDITSSTATE_OVERLAY_IMG_CONT   "MainMenu/CreditsMenu/Credits"
-#define CREDITSSTATE_SLIDE_TIME_SECS    12.f
+#define CREDITSSTATE_SLIDE_TIME_SECS    22.f
 
 namespace cz {
 
@@ -148,11 +148,12 @@ MainMenuCreditsState::unload(void)
 {
     // destroy the containers and overlays
     if (mCreditsCont) {
-        Ogre::OverlayManager::getSingleton().destroyOverlayElement(mCreditsCont);
+//        Ogre::OverlayManager::getSingleton().destroyOverlayElement(mCreditsCont);
         mCreditsCont = 0;
     }
     if (mOverlay) {
-        Ogre::OverlayManager::getSingleton().destroy(mOverlay);
+        // TODO: issue #224 Ogre::OverlayManager::getSingleton().destroy(mOverlay);
+        mOverlay->hide();
         mOverlay = 0;
     }
 

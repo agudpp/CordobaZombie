@@ -23,8 +23,8 @@ class Video{
 
 public:
 	enum{
-		OK = 0,
-		ERROR
+		C_OK = 0,
+		C_ERROR
 	};
 
 public:
@@ -135,10 +135,16 @@ private:
 class OgreVideoPlayer {
 
 public:
+
+	enum mode{
+		QUEUE_MODE = 0,
+		LIST_MODE
+	};
+
 	enum{
-		ERROR = -10,
-		OK = 0,
-		ENDED
+		C_ERROR = -10,
+		C_OK = 0,
+		C_ENDED
 	};
 public:
 
@@ -232,6 +238,16 @@ public:
     inline bool
     isVisible(void) const;
 
+    // @set player mode to circular list or queue (queue is default)
+    inline void
+    setMode(OgreVideoPlayer::mode m);
+
+    /*
+     *
+     */
+    inline void
+    setALHandler(OpenALHandler *oalh);
+
 protected:
 
 	/*
@@ -248,6 +264,7 @@ private:
 	bool					mRepeatV;
 	bool					mRepeatP;
 	int						mIndex;  	// Index of the loaded video.
+	int						mMode;
 };
 
 
@@ -277,10 +294,10 @@ inline int
 Video::setEnd(double end)
 {
 	if (mStart > end){
-		return ERROR;
+		return C_ERROR;
 	}else{
 		mEnd = end;
-		return OK;
+		return C_OK;
 	}
 }
 
@@ -290,10 +307,10 @@ inline int
 Video::setStart(double start)
 {
 	if (mEnd < start){
-		return ERROR;
+		return C_ERROR;
 	}else{
 		mStart = start;
-		return OK;
+		return C_OK;
 	}
 }
 
@@ -303,7 +320,7 @@ inline int
 Video::getStart(double & start)
 {
 	start = mStart;
-	return OK;
+	return C_OK;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -312,7 +329,7 @@ inline int
 Video::getEnd(double & end)
 {
 	end = mEnd;
-	return OK;
+	return C_OK;
 }
 
 
@@ -338,7 +355,13 @@ OgreVideoScreen::isVisible(void) const
 // OgreVideoPlayer inline methods
 ///////////////////////////////////////////////////////////////////////////////
 
+inline void
+OgreVideoPlayer::setMode(OgreVideoPlayer::mode m)
+{
+	mMode = m;
+}
 
+///////////////////////////////////////////////////////////////////////////////
 
 inline void
 OgreVideoPlayer::setRepeatPlayList(bool rep)
@@ -372,6 +395,14 @@ OgreVideoPlayer::isVisible(void) const
 {
     return mScreen.isVisible();
 }
+
+///////////////////////////////////////////////////////////////////////////////
+inline void
+OgreVideoPlayer::setALHandler(OpenALHandler *oalh)
+{
+    mVideoPlayer.setOpenALHandler(oalh);
+}
+
 
 }
 

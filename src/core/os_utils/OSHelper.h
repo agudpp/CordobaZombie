@@ -83,32 +83,25 @@ inline void
 addEndPathVar(std::string& path)
 {
     int last = path.size() - 1;
-#ifdef _WIN32
-    if(last >= 0 && path[last] != '\\') {
+    if(last >= 0 && (path[last] != '\\' && path[last] != '/')) {
+#ifdef WIN32
         path.append("\\");
-    }
 #else
-    if (last >= 0 && path[last] != '/') {
         path.append("/");
-    }
 #endif
+    }
 }
 
 inline bool
 extractFileName(const std::string& path, std::string& filename)
 {
     // Get the path to the resource folder
-    core::size_t lastBar = 0;
-#ifdef _WIN32
-    lastBar = path.rfind('\\')+1;
-#else
-    lastBar = path.rfind('/')+1;
-#endif
-    if (lastBar == std::string::npos) {
-        return false;
+    int lastBar = path.size()-1;
+    while (lastBar >= 0 && (path[lastBar] != '\\' && path[lastBar] != '/')) {
+        --lastBar;
     }
 
-    filename = path.substr(lastBar, std::string::npos);
+    filename = path.substr(lastBar + 1, std::string::npos);
     return true;
 }
 
@@ -119,7 +112,9 @@ extractFileExtension(const std::string& fullName,
 {
     const core::size_t dotPos = fullName.rfind('.');
     if (dotPos == std::string::npos) {
-        return false;
+        name = fullName;
+        ext = "";
+        return true;
     }
     name = fullName.substr(0, dotPos);
     ext = fullName.substr(dotPos+1, fullName.size());
@@ -130,17 +125,16 @@ inline bool
 extractPath(const std::string& fullpath, std::string& result)
 {
     // Get the path to the resource folder
-    core::size_t lastBar = 0;
-#ifdef _WIN32
-    lastBar = fullpath.rfind('\\')+1;
-#else
-    lastBar = fullpath.rfind('/')+1;
-#endif
-    if (lastBar == std::string::npos) {
-        return false;
+    int lastBar = fullpath.size()-1;
+    while (lastBar >= 0 && (fullpath[lastBar] != '\\' && fullpath[lastBar] != '/')) {
+        --lastBar;
+    }
+    if (lastBar <= 0) {
+        result = ""; // empty path?
+        return true;
     }
 
-    result = fullpath.substr(0, lastBar);
+    result = fullpath.substr(0, lastBar+1);
     return true;
 }
 

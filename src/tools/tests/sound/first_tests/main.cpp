@@ -29,6 +29,7 @@ extern "C" {
     int main(int argc, char *argv[])
 #endif
     {
+    	MessageBox( NULL, "AHHH", ":(", MB_OK | MB_ICONERROR | MB_TASKMODAL);
     	core::AppTester *appTester = new tests::SoundTest();
 
 		appTester->loadAditionalData();

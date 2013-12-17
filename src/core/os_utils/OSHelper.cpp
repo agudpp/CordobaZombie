@@ -26,7 +26,7 @@ bool
 getEnvVar(const char* var, char* &val)
 {
     val = std::getenv(var);
-    return val;
+    return val != 0;
 }
 
 

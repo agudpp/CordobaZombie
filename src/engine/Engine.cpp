@@ -10,6 +10,7 @@
 #include <debug/DebugUtil.h>
 #include <modules/InputSystemLoader.h>
 #include <modules/OgreSystemLoader.h>
+#include <modules/OpenALLoader.h>
 #include <modules/ResourcesSystemLoader.h>
 #include <modules/SoundSystemLoader.h>
 #include <modules/VideoSystemLoader.h>
@@ -20,8 +21,14 @@ namespace engine {
 
 
 ////////////////////////////////////////////////////////////////////////////////
-Engine::Engine()
+Engine::Engine() :
+    mOpenalHandler(0)
 {
+    // configure the crash reporter
+    if (!mCrashReporter.configureSignals()) {
+        debugERROR("Error configuring the signals for the crash reporter\n");
+    }
+
     // create the loaders
 
     // ogreSystemLoader
@@ -40,6 +47,11 @@ Engine::Engine()
     mLoaders.push_back(inputLoader);
     mLoader.addModuleLoader(inputLoader);
 
+    // OpenalLoader
+    OpenALLoader* openalLoader = new OpenALLoader(mOpenalHandler);
+    mLoaders.push_back(openalLoader);
+    mLoader.addModuleLoader(openalLoader);
+
     // ResourceSystem
     ResourcesSystemLoader* rscLoader =
         new ResourcesSystemLoader(mResourcesData.handler);
@@ -48,7 +60,8 @@ Engine::Engine()
     mLoader.addModuleLoader(rscLoader);
 
     // SoundSystem
-    SoundSystemLoader* soundLoader = new SoundSystemLoader(mSoundData.handler);
+    SoundSystemLoader* soundLoader = new SoundSystemLoader(mSoundData.handler,
+                                                           mOpenalHandler);
 
     mLoaders.push_back(soundLoader);
     mLoader.addModuleLoader(soundLoader);
@@ -56,7 +69,8 @@ Engine::Engine()
     // VideoSystem
     VideoSystemLoader* videoLoader = new VideoSystemLoader(mVideoData.player,
                                                            mOgreData.sceneMngr,
-                                                           mOgreData.renderWindow);
+                                                           mOgreData.renderWindow,
+                                                           mOpenalHandler);
 
     mLoaders.push_back(videoLoader);
     mLoader.addModuleLoader(videoLoader);

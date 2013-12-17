@@ -66,6 +66,7 @@ IntroMainStateTest::IntroMainStateTest() :
 ,   mInputHelper(getMouseButtons(), getKeyboardKeys())
 ,   mFrontEnd(mInputHelper, mCursor)
 ,   mOgreVideoPlayer(-1, 1, 1, -1, mSceneMgr, mWindow->getHeight(), mWindow->getWidth())
+,   mSoundHandler(mm::SoundHandler::getInstance())
 {
 
 	debug("\n\nTESTING...\n\n");
@@ -83,16 +84,24 @@ IntroMainStateTest::IntroMainStateTest() :
 	// Set state info
 	cz::IMainState::setOgreData(ogreInfo);
 	cz::IMainState::setVideoPlayer(&mOgreVideoPlayer);
+    cz::IMainState::setSoundHandler(&mSoundHandler);
 
 	cz::CommonHandlers handlers;
 	handlers.frontEndManager = &mFrontEnd;
 	handlers.inputHelper = &mInputHelper;
 	handlers.effectHandler = &mEffectHandler;
+	handlers.mouseCursor = &mMouseCursor;
 	cz::IMainState::setCommonHandlers(handlers);
+
+
+    mMouseCursor.setCursor(ui::MouseCursor::Cursor::NORMAL_CURSOR);
+    mMouseCursor.setVisible(true);
+    mMouseCursor.setWindowDimensions(mWindow->getWidth(), mWindow->getHeight());
 
 	// Set resource Handler for intro state
     char *ENV = 0;
-    ASSERT(core::OSHelper::getEnvVar("CZ01_RC_PATH",ENV));
+    core::OSHelper::getEnvVar("CZ01_RC_PATH",ENV);
+    ASSERT(ENV);
 	mRcHandler.setResourceRootPath(std::string(ENV));
 	cz::IMainState::setRcHandler(&mRcHandler);
 
@@ -202,7 +211,6 @@ IntroMainStateTest::loadAditionalData(void)
 void
 IntroMainStateTest::update()
 {
-
 	int err = mIntroMainState->update(cz::GlobalData::lastTimeFrame);
 
 	// update the input system
@@ -224,6 +232,7 @@ IntroMainStateTest::update()
         mOgreVideoPlayer.update(cz::GlobalData::lastTimeFrame);
     }
 
+    mSoundHandler.update(cz::GlobalData::lastTimeFrame);
 }
 
 }

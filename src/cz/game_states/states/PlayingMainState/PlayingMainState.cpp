@@ -29,8 +29,7 @@ PlayingMainState::~PlayingMainState()
 const MainStateID&
 PlayingMainState::ID(void) const
 {
-    debugERROR("TODO\n");
-    static MainStateID id;
+    static MainStateID id = MainStateID::PlayingState;
     return id;
 }
 
@@ -38,7 +37,20 @@ PlayingMainState::ID(void) const
 bool
 PlayingMainState::configureState(const MainStateInformation& info)
 {
-    debugERROR("TODO\n");
+    // configure the mDemoApp
+    demo_app::DemoData data;
+    data.sceneMngr = sOgreInfo.sceneMngr;
+    data.renderWindow = sOgreInfo.renderWindow;
+    data.camera = sOgreInfo.camera;
+    data.frontEndManager = sCommonHandlers.frontEndManager;
+    data.mouseCursor = sCommonHandlers.mouseCursor;
+    data.inputHelper = sCommonHandlers.inputHelper;
+    data.effectHandler = sCommonHandlers.effectHandler;
+    data.rscHandler = sRcHandler;
+    data.soundHandler = sSoundHandler;
+    data.informer = &mInformer;
+    mDemoApp.setData(data);
+
     return true;
 }
 
@@ -46,7 +58,13 @@ PlayingMainState::configureState(const MainStateInformation& info)
 bool
 PlayingMainState::getResourcesToLoad(ResourceGroupList& resourceList)
 {
-    debugERROR("TODO\n");
+    // get the resources needed by the demo app
+    rrh::ResourceGroup rg;
+    if (!mDemoApp.getResourceToLoad(rg)) {
+        debugERROR("Error trying to laod resources for the demo app\n");
+        return false;
+    }
+    resourceList.push_back(rg);
     return true;
 }
 
@@ -54,31 +72,42 @@ PlayingMainState::getResourcesToLoad(ResourceGroupList& resourceList)
 bool
 PlayingMainState::readyToGo(void)
 {
-    debugERROR("TODO\n");
-    return true;
+    // set the resulting event that will always be the same
+    mEventInfo = MainStateEvent::EVENT_DONE;
+
+    // load demo app
+    return mDemoApp.load();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 bool
 PlayingMainState::update(float timeFrame)
 {
-    debugERROR("TODO\n");
-    return true;
+    return mDemoApp.update(timeFrame);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 bool
 PlayingMainState::unload(void)
 {
-    debugERROR("TODO\n");
-    return true;
+    // save the statistics into a file
+    mInformer.dumpInform("performance_stats.log");
+
+    // unload demo app
+    return mDemoApp.unload();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 bool
 PlayingMainState::getResourcesToUnload(ResourceGroupList& resourceList)
 {
-    debugERROR("TODO\n");
+    // get the resources to unload by the demo app
+    rrh::ResourceGroup rg;
+    if (!mDemoApp.getResourceToUnload(rg)) {
+        debugERROR("Error trying to unload resources for the demo app\n");
+        return false;
+    }
+    resourceList.push_back(rg);
     return true;
 }
 

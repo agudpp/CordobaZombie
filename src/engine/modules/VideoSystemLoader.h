@@ -12,6 +12,7 @@
 #include <OgreRenderWindow.h>
 
 #include <video/OgreVideoPlayer.h>
+#include <openal_handler/OpenALHandler.h>
 
 #include "IModuleLoader.h"
 
@@ -23,7 +24,8 @@ public:
     // Pass the reference to the pointer where we will construct the video player
     VideoSystemLoader(mm::OgreVideoPlayer*& videoPlayer,
                       Ogre::SceneManager*& sceneMngr,
-                      Ogre::RenderWindow*& renderWindow);
+                      Ogre::RenderWindow*& renderWindow,
+                      mm::OpenALHandler*& openalHandler);
     virtual
     ~VideoSystemLoader();
 
@@ -48,6 +50,7 @@ private:
     mm::OgreVideoPlayer*& mVideoPlayer;
     Ogre::SceneManager*& mSceneManager;
     Ogre::RenderWindow*& mRenderWindow;
+    mm::OpenALHandler*& mOpenalHandler;
 };
 
 } /* namespace engine */

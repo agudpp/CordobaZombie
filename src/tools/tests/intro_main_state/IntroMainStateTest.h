@@ -21,6 +21,8 @@
 #include <input/InputHelper.h>
 #include <effect_handler/EffectHandler.h>
 #include <video/OgreVideoPlayer.h>
+#include <sound/SoundHandler.h>
+#include <cursor/MouseCursor.h>
 
 
 namespace tests {
@@ -56,6 +58,8 @@ private:
     ui::FEManager           mFrontEnd;
     effect::EffectHandler   mEffectHandler;
     mm::OgreVideoPlayer mOgreVideoPlayer;
+    mm::SoundHandler& mSoundHandler;
+    ui::MouseCursor mMouseCursor;
 
 
 };

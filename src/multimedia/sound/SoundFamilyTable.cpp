@@ -15,7 +15,7 @@ namespace mm {
 
 ////////////////////////////////////////////////////////////////////////////////
 void
-SoundFamilyTable::addSounds(SSsoundCode sc, const Ogre::String* sounds, uint size)
+SoundFamilyTable::addSounds(SSsoundCode sc, const Ogre::String* sounds, unsigned int size)
 {
 	ASSERT(!size || sounds);  // Preconditions
 	if(!size) {
@@ -30,7 +30,7 @@ SoundFamilyTable::addSounds(SSsoundCode sc, const Ogre::String* sounds, uint siz
 	if (mList.size() <= sc || !mList[sc].first) {
 		Ogre::String* newSounds(new Ogre::String[size]);
 		/* Copy arguments. */
-		for (uint i=0 ; i < size ; i++) {
+		for (unsigned int i=0 ; i < size ; i++) {
 			newSounds[i] = sounds[i];
 		}
 		mList.resize(sc+1);
@@ -38,11 +38,11 @@ SoundFamilyTable::addSounds(SSsoundCode sc, const Ogre::String* sounds, uint siz
 
 	/* If sound code "sc" wasn't empty, append new items at end. */
 	} else {
-		uint oldSize = mList[sc].second;
+		unsigned int oldSize = mList[sc].second;
 		Ogre::String* newSounds = (Ogre::String*) realloc (mList[sc].first,
 														   oldSize + size);
 		ASSERT(newSounds);
-		for (uint i=0 ; i < size ; i++) {
+		for (unsigned int i=0 ; i < size ; i++) {
 			newSounds[oldSize+i] = sounds[i];
 		}
 		mList[sc] = std::make_pair(newSounds, oldSize + size);  // mem-leak?
