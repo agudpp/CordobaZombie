@@ -7,6 +7,7 @@
  */
 
 
+#include <cstring>
 #include <QString>
 #include <QMessageBox>
 #include <QApplication>
@@ -15,40 +16,36 @@
 
 // Engine Configuration file default name
 #define  EC_DEFAULT_FNAME  "EngineConfig.xml"
+#define  EC_FNAME_MAX_LEN  256
 
 
 int main(int argc, char *argv[])
 {
     int ok(0);
+    char engineConfigFilename[EC_FNAME_MAX_LEN];
     QApplication app(argc, argv);
-    engine::EngineConfiguration ec;
     engine::CbaZombieConfigDialog configDialog;
 
     if (argc > 1) {
         // User specified Engine Configuration file
-        ok = ec.load(argv[1]);
+        strncpy(engineConfigFilename, argv[1], EC_FNAME_MAX_LEN);
     } else {
         // Default Engine Configuration file
         QMessageBox::information(0,"Warning",
                                  QString("Searching for file \"") +
                                  EC_DEFAULT_FNAME + "\" in current directory.");
-        ok = ec.load(EC_DEFAULT_FNAME);
-    }
-    if (!ok) {
-        QMessageBox::critical(0, "Error","Bad or inexistent "
-                              "engine configuration file, discarding changes.");
-        return 1;
+        strncpy(engineConfigFilename, EC_DEFAULT_FNAME, EC_FNAME_MAX_LEN);
     }
 
     // Run Qt application
-    ok = configDialog.init(ec);
-    if (!ok) {
-        QMessageBox::critical(0, "Error","Bad engine configuration, "
-                              "discarding changes.");
-        return 1;
+    ok = configDialog.init(engineConfigFilename);
+    if (ok) {
+        configDialog.show();
+        ok = !app.exec();
+    } else {
+        QMessageBox::critical(0, "Error","Something went wrong, "
+                              "discarding configuration changes.");
     }
-    configDialog.show();
-    ok = !app.exec();
 
     return ok;
 }

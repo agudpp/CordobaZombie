@@ -19,7 +19,6 @@
 #include <AL/alc.h>
 #include <OgreConfigOptionMap.h>
 
-#include <debug/DebugUtil.h>
 #include <EngineConfiguration.h>
 
 // Forward declarations
@@ -49,32 +48,25 @@ public:
     static const char EC_MODULE_OPENAL[30];
     static const char EC_OPENAL_DEVICECFG[30];
 
-    // Configurable parameters
+    // Configurable parameters (must reflect the slot/ui buttons)
     typedef enum {
-        RENDER_SYSTEM = 0,
-        COLOR_DEPTH,
-        DISPLAY_FREQ,
-        ANTI_ALISAING,
-        VERT_SYNC,
-        GAMMA_CORR,
-        DISPLAY_RES,
-        SOUND_DEV,
+        RENDER_SYSTEM =-1,
+        COLOR_DEPTH   = 0,
+        DISPLAY_FREQ  = 1,
+        ANTI_ALISAING = 2,
+        VERT_SYNC     = 3,
+        GAMMA_CORR    = 4,
+        DISPLAY_RES   = 5,
+        SOUND_DEV     = 6,
+        COUNT
+    } ConfigFieldCode;
 
-        COUNT,
-        INVALID
-    } ConfigField;  // @remarks ConfigField must reflect the slot buttons
+    // ConfigField format: < enabled? , value >
+    typedef std::pair<bool,std::string> ConfigField;
 
 public:
     CbaZombieConfigDialog(QWidget* parent=0);
     virtual ~CbaZombieConfigDialog();
-
-    /**
-     * @brief Display window for choosing system settings
-     * @returns true if the user clicked 'Ok' | false otherwise
-     * TODO ERASE, DEPRECATED.
-     */
-    bool
-    showConfigDialog(Ogre::Root* root);
 
     /**
      * @brief Recognize engine configuration options, and fill UI accordingly.
@@ -82,7 +74,7 @@ public:
      * @returns true if initialization was correct | false otherwise
      */
     bool
-    init(const EngineConfiguration& engineCfg);
+    init(const char *engineConfigFilename);
 
     /**
      * @brief Display UI.
@@ -109,8 +101,9 @@ private:
 
     /**
      * @brief Identify available graphic renderers, and show them on UI.
+     * @returns true if at least one renderer was found | false otherwise
      */
-    void
+    bool
     reconSystemRenderers();
 
     /**
@@ -129,7 +122,7 @@ private:
      * @brief Disable given field from UI.
      */
     void
-    disableRendererOptions(const std::string& field);
+    disableRendererOptions(ConfigFieldCode field);
 
     /**
      * @brief Set passed options in UI for specified QComboBox field
@@ -142,35 +135,36 @@ private:
 
     /**
      * @brief Disable from UI specified QComboBox field
-     * @remarks Dsiable yet visible and "fixed" test can be given to show.
+     * @remarks Disabled yet visible and "fixed" text can be given for showing.
      */
     void
     disableUIComboBox(QComboBox* field,
                       const char* fixed = "");
 
 private slots:
-    // @brief Set current ConfigField::RENDER_SYSTEM
+    // @brief Set current render system name
     void setRenderSystem(const QString& rs);
-    // @brief Set current ConfigField::COLOR_DEPTH
-    inline void setColorDepth(const QString& cdepth);
-    // @brief Set current ConfigField::DISPLAY_FREQ
-    inline void setDisplayFrequency(const QString& freq);
-    // @brief Set current ConfigField::ANTI_ALISAING
-    inline void setAntiAliasing(const QString& aa);
-    // @brief Set current ConfigField::VERT_SYNC
-    inline void setVerticalSync(const QString& vsync);
-    // @brief Set current ConfigField::GAMMA_CORR
-    inline void setGammaCorrection(const QString& gc);
-    // @brief Set current ConfigField::DISPLAY_RES
-    inline void setDisplayResolution(const QString& dr);
-    // @brief Set current ConfigField::SOUND_DEV
+
+    // @brief Set "value" for given ConfigField
+    inline void setOgreConfigOption(ConfigFieldCode code, const QString& value);
+    // @brief Set value for ConfigField::COLOR_DEPTH
+    inline void setColorDepth(const QString&);
+    // @brief Set value for ConfigField::DISPLAY_FREQ
+    inline void setDisplayFrequency(const QString&);
+    // @brief Set value for ConfigField::ANTI_ALISAING
+    inline void setAntiAliasing(const QString&);
+    // @brief Set value for ConfigField::VERT_SYNC
+    inline void setVerticalSync(const QString&);
+    // @brief Set value for ConfigField::GAMMA_CORR
+    inline void setGammaCorrection(const QString&);
+    // @brief Set value for ConfigField::DISPLAY_RES
+    inline void setDisplayResolution(const QString&);
+
+    // @brief Set current sound device name
     inline void setSoundDevice(const QString& sd);
 
-    /**
-     * @brief Save current engine configuration (aka "system settings").
-     */
-    bool
-    saveConfig();
+    // @brief Save current engine configuration (aka "system settings").
+    void saveConfig();
 
 private:
     Ui::CbaZombieConfigDialog* mTemplateUI;
@@ -182,14 +176,8 @@ private:
     std::string mOgrePluginsCfgFile;
     std::string mOpenALCfgFile;
     // Configuration members (must map to ConfigField members)
-    static const std::map<std::string,ConfigField> mOgreConfigField;
-    std::string mRenderSystem;
-    int mColorDepth;
-    int mDisplayFreq;
-    int mAntiAliasing;
-    int mVertSync;
-    bool mGammaCorrection;
-    std::pair<int,int> mDisplayRes;
+    static const std::map<std::string, ConfigFieldCode> sOgreConfigField;
+    std::map<ConfigFieldCode, ConfigField> mOgreConfigFieldValue;
     std::string mSoundDevice;
 };
 
@@ -200,40 +188,68 @@ inline void CbaZombieConfigDialog::show() { QWidget::show(); }
 
 ///////////////////////////////////////////////////////////////////////////////
 inline void
-CbaZombieConfigDialog::setColorDepth(const QString& cdepth)
-{ if(cdepth.size()>0) mColorDepth = cdepth.toInt(); }
-
-///////////////////////////////////////////////////////////////////////////////
-inline void
-CbaZombieConfigDialog::setDisplayFrequency(const QString& freq)
-{ if (freq.size()>0) mDisplayFreq = freq.toInt(); }
-
-///////////////////////////////////////////////////////////////////////////////
-inline void
-CbaZombieConfigDialog::setAntiAliasing(const QString& aa)
-{ if(aa.size()>0) mAntiAliasing = aa.toInt(); }
-
-///////////////////////////////////////////////////////////////////////////////
-inline void
-CbaZombieConfigDialog::setVerticalSync(const QString& vsync)
-{ if(vsync.size()>0) mVertSync = vsync.toInt(); }
-
-///////////////////////////////////////////////////////////////////////////////
-inline void
-CbaZombieConfigDialog::setGammaCorrection(const QString& gc)
-{ if(gc.size()>0) mGammaCorrection = gc.toInt(); }
-
-///////////////////////////////////////////////////////////////////////////////
-inline void
-CbaZombieConfigDialog::setDisplayResolution(const QString& dr)
+CbaZombieConfigDialog::setOgreConfigOption(
+    CbaZombieConfigDialog::ConfigFieldCode code,
+    const QString& value)
 {
-    if (dr.size()>0) {
-        QStringList tmp = dr.split("x");  // Expects "640x480" format
-        ASSERT(tmp.size()==2);
-        mDisplayRes.first  = tmp[0].toInt();
-        mDisplayRes.second = tmp[1].toInt();
-    }
+    if(value.size()>0)
+        mOgreConfigFieldValue[code].second = value.toStdString();
 }
+
+///////////////////////////////////////////////////////////////////////////////
+inline void
+CbaZombieConfigDialog::setColorDepth(const QString& val)
+{
+    if(val.size()>0)
+        mOgreConfigFieldValue[ConfigFieldCode::COLOR_DEPTH].second =
+            val.toStdString();
+}
+
+///////////////////////////////////////////////////////////////////////////////
+inline void
+CbaZombieConfigDialog::setDisplayFrequency(const QString& val)
+{
+    if(val.size()>0)
+        mOgreConfigFieldValue[ConfigFieldCode::DISPLAY_FREQ].second =
+            val.toStdString();
+}
+
+///////////////////////////////////////////////////////////////////////////////
+inline void
+CbaZombieConfigDialog::setAntiAliasing(const QString& val)
+{
+    if(val.size()>0)
+        mOgreConfigFieldValue[ConfigFieldCode::ANTI_ALISAING].second =
+            val.toStdString();
+}
+
+///////////////////////////////////////////////////////////////////////////////
+inline void
+CbaZombieConfigDialog::setVerticalSync(const QString& val)
+{
+    if(val.size()>0)
+        mOgreConfigFieldValue[ConfigFieldCode::VERT_SYNC].second =
+            val.toStdString();
+}
+
+///////////////////////////////////////////////////////////////////////////////
+inline void
+CbaZombieConfigDialog::setGammaCorrection(const QString& val)
+{
+    if(val.size()>0)
+        mOgreConfigFieldValue[ConfigFieldCode::GAMMA_CORR].second =
+            val.toStdString();
+}
+
+///////////////////////////////////////////////////////////////////////////////
+inline void
+CbaZombieConfigDialog::setDisplayResolution(const QString& val)
+{
+    if(val.size()>0)
+        mOgreConfigFieldValue[ConfigFieldCode::DISPLAY_RES].second =
+            val.toStdString();
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////
 inline void

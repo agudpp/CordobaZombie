@@ -21,7 +21,6 @@
 #include <OgreRenderSystem.h>
 
 #include <cstring>
-//#include <debug/DebugUtil.h>
 #include "CbaZombieConfigDialog.h"
 #include "ui_CbaZombieConfigDialog.h"  // UI file with buttons template
 
@@ -37,14 +36,14 @@ const char CbaZombieConfigDialog::EC_MODULE_OPENAL[30]    = "OpenALLoader";
 const char CbaZombieConfigDialog::EC_OPENAL_DEVICECFG[30] = "device";
 
 // Following must reflect ***EXACTLY*** the field names used by Ogre
-const std::map<std::string, CbaZombieConfigDialog::ConfigField>
-CbaZombieConfigDialog::mOgreConfigField = {
-    {"Color Depth", CbaZombieConfigDialog::ConfigField::COLOR_DEPTH},
-    {"Display Frequency", CbaZombieConfigDialog::ConfigField::DISPLAY_FREQ},
-    {"FSAA", CbaZombieConfigDialog::ConfigField::ANTI_ALISAING},
-    {"VSync", CbaZombieConfigDialog::ConfigField::VERT_SYNC},
-    {"sRGB Gamma Conversion", CbaZombieConfigDialog::ConfigField::GAMMA_CORR},
-    {"Video Mode", CbaZombieConfigDialog::ConfigField::DISPLAY_RES},
+const std::map<std::string, CbaZombieConfigDialog::ConfigFieldCode>
+CbaZombieConfigDialog::sOgreConfigField = {
+    {"Color Depth", CbaZombieConfigDialog::ConfigFieldCode::COLOR_DEPTH},
+    {"Display Frequency", CbaZombieConfigDialog::ConfigFieldCode::DISPLAY_FREQ},
+    {"FSAA", CbaZombieConfigDialog::ConfigFieldCode::ANTI_ALISAING},
+    {"VSync", CbaZombieConfigDialog::ConfigFieldCode::VERT_SYNC},
+    {"sRGB Gamma Conversion", CbaZombieConfigDialog::ConfigFieldCode::GAMMA_CORR},
+    {"Video Mode", CbaZombieConfigDialog::ConfigFieldCode::DISPLAY_RES},
 };
 
 
@@ -56,40 +55,59 @@ CbaZombieConfigDialog::CbaZombieConfigDialog(QWidget* parent) :
 ,   mOgreCfgFile("")
 ,   mOgrePluginsCfgFile("")
 ,   mOpenALCfgFile("")
-,   mRenderSystem("")
-,   mColorDepth(0)
-,   mDisplayFreq(0)
-,   mAntiAliasing(0)
-,   mVertSync(0)
-,   mGammaCorrection(false)
-,   mDisplayRes(std::pair<int,int>(0,0))
 ,   mSoundDevice("")
 {
     // Define internal structures
     mOgreRoot = new Ogre::Root();
     mTemplateUI = new Ui::CbaZombieConfigDialog();
+    for (int i = static_cast<int>(ConfigFieldCode::RENDER_SYSTEM+1) ;
+              i < static_cast<int>(ConfigFieldCode::SOUND_DEV) ;
+              i++) {
+        mOgreConfigFieldValue[static_cast<ConfigFieldCode>(i)] =
+            std::make_pair(false,"");
+    }
     // Connect with UI
     mTemplateUI->setupUi(this);
-    connect(mTemplateUI->renderSystem, SIGNAL(currentIndexChanged(const QString&)),
-            this, SLOT(setRenderSystem(const QString&)));
-    connect(mTemplateUI->colorDepth, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(setColorDepth(const QString &)));
-    connect(mTemplateUI->displayFreq, SIGNAL(currentIndexChanged(const QString&)),
-            this, SLOT(setDisplayFrequency(const QString &)));
-    connect(mTemplateUI->antiAliasing, SIGNAL(currentIndexChanged(const QString&)),
-            this, SLOT(setAntiAliasing(const QString &)));
-    connect(mTemplateUI->vertSync, SIGNAL(currentIndexChanged(const QString&)),
-            this, SLOT(setVerticalSync(const QString &)));
-    connect(mTemplateUI->gammaCorrection, SIGNAL(currentIndexChanged(const QString&)),
-            this, SLOT(setGammaCorrection(const QString &)));
-    connect(mTemplateUI->displayRes, SIGNAL(currentIndexChanged(const QString&)),
-            this, SLOT(setDisplayResolution(const QString &)));
-    connect(mTemplateUI->soundDevice, SIGNAL(currentIndexChanged(const QString&)),
-            this, SLOT(setSoundDevice(const QString &)));
-    connect(mTemplateUI->saveAndExit, SIGNAL(clicked()),
-            this, SLOT(saveConfig()));
-    connect(mTemplateUI->discardAndExit, SIGNAL(clicked()),
-            this, SLOT(close()));
+    connect(mTemplateUI->renderSystem,
+            SIGNAL(currentIndexChanged(const QString&)),
+            this,
+            SLOT(setRenderSystem(const QString&)));
+    connect(mTemplateUI->colorDepth,
+            SIGNAL(currentIndexChanged(int)),
+            this,
+            SLOT(setColorDepth(const QString&)));
+    connect(mTemplateUI->displayFreq,
+            SIGNAL(currentIndexChanged(const QString&)),
+            this,
+            SLOT(setDisplayFrequency(const QString&)));
+    connect(mTemplateUI->antiAliasing,
+            SIGNAL(currentIndexChanged(const QString&)),
+            this,
+            SLOT(setAntiAliasing(const QString&)));
+    connect(mTemplateUI->vertSync,
+            SIGNAL(currentIndexChanged(const QString&)),
+            this,
+            SLOT(setVerticalSync(const QString&)));
+    connect(mTemplateUI->gammaCorrection,
+            SIGNAL(currentIndexChanged(const QString&)),
+            this,
+            SLOT(setGammaCorrection(const QString&)));
+    connect(mTemplateUI->displayRes,
+            SIGNAL(currentIndexChanged(const QString&)),
+            this,
+            SLOT(setDisplayResolution(const QString&)));
+    connect(mTemplateUI->soundDevice,
+            SIGNAL(currentIndexChanged(const QString&)),
+            this,
+            SLOT(setSoundDevice(const QString &)));
+    connect(mTemplateUI->saveAndExit,
+            SIGNAL(clicked()),
+            this,
+            SLOT(saveConfig()));
+    connect(mTemplateUI->discardAndExit,
+            SIGNAL(clicked()),
+            this,
+            SLOT(close()));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -102,31 +120,26 @@ CbaZombieConfigDialog::~CbaZombieConfigDialog()
 }
 
 
-
-bool
-CbaZombieConfigDialog::showConfigDialog(Ogre::Root* root)
-{
-//    assert(root);
-//    root->restoreConfig(); // Restore previous configuration, if any
-//
-//    /* TODO: probably we'll need to customize this inherited method,
-//     *        specifically to implement our own "CreateWindow" */
-//    bool isOk = display(); // Show config dialog
-//
-//    if (isOk)
-//        root->saveConfig(); // If chosen parameters are OK, save them
-
-    return true;
-}
-
-
 ///////////////////////////////////////////////////////////////////////////////
 bool
-CbaZombieConfigDialog::init(const EngineConfiguration& engineCfg)
+CbaZombieConfigDialog::init(const char* engineConfigFilename)
 {
-    bool parseOK(false);
+    EngineConfiguration engineCfg;
 
-    // Retrieve configuration filenames
+    if (!engineConfigFilename) {
+        QMessageBox::critical(0, "Error",
+                     "Null engine configuration filename passed.");
+        return false;
+    }
+
+    bool parseOK = engineCfg.load(engineConfigFilename);
+    if (!parseOK) {
+        QMessageBox::critical(0, "Error",
+                     "Failed to load engine configuration file.");
+        return false;
+    }
+
+    // Retrieve Ogre and OpenAL configuration filenames
     parseOK = engineCfg.getValue(EC_MODULE_OGRE, EC_OGRE_OGRECFG, mOgreCfgFile);
     if (!parseOK) {
         QMessageBox::critical(0, "Error",
@@ -139,16 +152,19 @@ CbaZombieConfigDialog::init(const EngineConfiguration& engineCfg)
                      "Failed to get Ogre plugins configuration filename.");
         return false;
     }
-//    parseOK = engineCfg.getValue(EC_MODULE_OPENAL, EC_OPENAL_DEVICECFG, mOpenALCfgFile);
-//    if (!parseOK) {
-//        debugWARNING("Failed to get OpenAL configuration filename.\n");
-//        return false;
-//    }
+    parseOK = engineCfg.getValue(EC_MODULE_OPENAL, EC_OPENAL_DEVICECFG, mOpenALCfgFile);
+    if (!parseOK) {
+        QMessageBox::critical(0, "Error",
+                     "Failed to get OpenAL configuration filename.");
+        return false;
+    }
 
     // Parse config files and fill in UI
-    reconSystemRenderers();
-    parseOK = restoreOgreConfig();
-//    parseOK = parseOK && restoreOpenALConfig();
+    parseOK = reconSystemRenderers();
+    if (parseOK) {
+        parseOK = restoreOgreConfig();
+        parseOK = parseOK && restoreOpenALConfig();
+    }
 
     return parseOK;
 }
@@ -167,7 +183,7 @@ CbaZombieConfigDialog::restoreOgreConfig()
         return false;
     }
     try {
-        cfg.load(mOgreCfgFile);
+        cfg.load(mOgreCfgFile, "\t:=", false);
     } catch (Ogre::Exception& e) {
         if (e.getNumber() == Ogre::Exception::ERR_FILE_NOT_FOUND) {
             QMessageBox::critical(0, "Error", QString("Ogre config file \"") +
@@ -190,15 +206,15 @@ CbaZombieConfigDialog::restoreOgreConfig()
         // Set this render system as current
         int index = mTemplateUI->renderSystem->findText(rs->getName().c_str(),
                                                         Qt::MatchExactly);
-        ASSERT(index>=0);
+        assert(index>=0);
         mTemplateUI->renderSystem->setCurrentIndex(index);
-        // Enable corresponding options
+        // Bring back previously saved render configuration
+        Ogre::ConfigFile::SettingsMultiMap::const_iterator i;
+        for (i = settings.begin(); i != settings.end(); ++i) {
+            rs->setConfigOption(i->first, i->second);
+        }
+        // Enable corresponding options and stop
         reconRendererOptions(*rs);
-
-//        Ogre::ConfigFile::SettingsMultiMap::const_iterator i;
-//        for (i = settings.begin() ; i != settings.end() ; i++) {
-//            reconRendererOptions(*rs, i->first, i->second);
-//        }
         parseOK = true;
     }
 
@@ -207,17 +223,58 @@ CbaZombieConfigDialog::restoreOgreConfig()
 
 
 ///////////////////////////////////////////////////////////////////////////////
+bool
+CbaZombieConfigDialog::restoreOpenALConfig()
+{
+
+    QMessageBox::information(0, "TODO!!!", "restoreOpenALConfig");
+    return true;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+bool
+CbaZombieConfigDialog::reconSystemRenderers()
+{
+    if (!mOgreRoot) {
+        mOgreRoot = new Ogre::Root();  // We shouldn't need to be doing this!
+        if (!mOgreRoot) {
+            QMessageBox::critical(0, "Error", "Internal error: couldn't "
+                                 "create an Ogre::Root element.");
+            return false;
+        }
+    }
+    Ogre::RenderSystemList rendersList = mOgreRoot->getAvailableRenderers();
+    if (rendersList.empty()) {
+        QMessageBox::warning(0, "Warning",
+                             "No available graphics render systems detected");
+        return false;
+    }
+    mTemplateUI->renderSystem->clear();
+    for (int i=0 ; i < rendersList.size() ; i++) {
+        if (rendersList[i])
+            mTemplateUI->renderSystem->addItem(rendersList[i]->getName().c_str());
+    }
+    return true;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
 void
 CbaZombieConfigDialog::reconRendererOptions(Ogre::RenderSystem& render)
 {
     const Ogre::ConfigOptionMap opts = render.getConfigOptions();
-    for (auto it = mOgreConfigField.begin() ; it != mOgreConfigField.end() ;
+    for (auto it = sOgreConfigField.begin() ; it != sOgreConfigField.end() ;
               it++) {
         Ogre::ConfigOptionMap::const_iterator field = opts.find(it->first);
         if (field == opts.end()) {
-            printf("      -- Disabling field \"%s\"\n", it->first.c_str());
-            disableRendererOptions(it->first);
+            // Register as unavailable, and disable in UI
+            mOgreConfigFieldValue[it->second] = std::make_pair(false, "");
+            disableRendererOptions(it->second);
         } else {
+            // Register as available, and load values in UI
+            mOgreConfigFieldValue[it->second] =
+                std::make_pair(true, field->second.currentValue);
             fillRendererOptions(field->second);
         }
     }
@@ -226,78 +283,55 @@ CbaZombieConfigDialog::reconRendererOptions(Ogre::RenderSystem& render)
 
 ///////////////////////////////////////////////////////////////////////////////
 void
-CbaZombieConfigDialog::reconSystemRenderers()
-{
-    ASSERT(mOgreRoot);
-    Ogre::RenderSystemList rendersList = mOgreRoot->getAvailableRenderers();
-    if (rendersList.empty()) {
-        QMessageBox::warning(0, "Warning",
-                             "No available graphics render systems detected");
-        return;
-    }
-    mTemplateUI->renderSystem->clear();
-    for (int i=0 ; i < rendersList.size() ; i++) {
-        if (rendersList[i])
-            mTemplateUI->renderSystem->addItem(rendersList[i]->getName().c_str());
-    }
-}
-
-
-///////////////////////////////////////////////////////////////////////////////
-void
 CbaZombieConfigDialog::fillRendererOptions(const Ogre::ConfigOption& opt)
 {
-    auto it = mOgreConfigField.find(opt.name);
-    if (it == mOgreConfigField.end()) {
+    auto it = sOgreConfigField.find(opt.name);
+    if (it == sOgreConfigField.end()) {
         QMessageBox::warning(0, "Warning", "Unrecognized configuration field: "
-                             + QString(opt.name.c_str()) + ", at 251");
+                             + QString(opt.name.c_str()));
         return;
     }
     switch (it->second)
     {
-    case ConfigField::COLOR_DEPTH:
+    case ConfigFieldCode::COLOR_DEPTH:
         fillUIComboBox(mTemplateUI->colorDepth,
                        opt.possibleValues,
                        opt.currentValue.c_str());
         break;
 
-    case ConfigField::DISPLAY_FREQ:
+    case ConfigFieldCode::DISPLAY_FREQ:
         fillUIComboBox(mTemplateUI->displayFreq,
                        opt.possibleValues,
                        opt.currentValue.c_str());
         break;
 
-    case ConfigField::ANTI_ALISAING:
+    case ConfigFieldCode::ANTI_ALISAING:
         fillUIComboBox(mTemplateUI->antiAliasing,
                        opt.possibleValues,
                        opt.currentValue.c_str());
         break;
 
-    case ConfigField::VERT_SYNC:
+    case ConfigFieldCode::VERT_SYNC:
         fillUIComboBox(mTemplateUI->vertSync,
                        opt.possibleValues,
                        opt.currentValue.c_str());
         break;
 
-    case ConfigField::GAMMA_CORR:
+    case ConfigFieldCode::GAMMA_CORR:
         fillUIComboBox(mTemplateUI->gammaCorrection,
                        opt.possibleValues,
                        opt.currentValue.c_str());
         break;
 
-    case ConfigField::DISPLAY_RES:
-    {   // First we need to format the resolutions, trimming the blanks.
-        Ogre::StringVector resolutions(opt.possibleValues);
-        for (int i=0 ; i < opt.possibleValues.size() ; i++)
-            Ogre::StringUtil::trim(resolutions[i]);
+    case ConfigFieldCode::DISPLAY_RES:
         fillUIComboBox(mTemplateUI->displayRes,
-                       resolutions,
+                       opt.possibleValues,
                        opt.currentValue.c_str());
-    }   break;
+        break;
 
     default:
         QMessageBox::warning(0, "Warning", "Unrecognized configuration field: "
-                             + QString(opt.name.c_str()) + ", at 298");
+                             + QString(opt.name.c_str()));
         break;
     }
 }
@@ -305,43 +339,37 @@ CbaZombieConfigDialog::fillRendererOptions(const Ogre::ConfigOption& opt)
 
 ///////////////////////////////////////////////////////////////////////////////
 void
-CbaZombieConfigDialog::disableRendererOptions(const std::string& field)
+CbaZombieConfigDialog::disableRendererOptions(ConfigFieldCode field)
 {
-    auto it = mOgreConfigField.find(field);
-    if (it == mOgreConfigField.end()) {
-        QMessageBox::warning(0, "Warning", "Unrecognized configuration field: "
-                             + QString(field.c_str()) + ", at 311");
-        return;
-    }
-    switch (it->second)
+    switch (field)
     {
-    case ConfigField::COLOR_DEPTH:
+    case ConfigFieldCode::COLOR_DEPTH:
         disableUIComboBox(mTemplateUI->colorDepth, "16 bit");
         break;
 
-    case ConfigField::DISPLAY_FREQ:
+    case ConfigFieldCode::DISPLAY_FREQ:
         disableUIComboBox(mTemplateUI->displayFreq, "60 Hz");
         break;
 
-    case ConfigField::ANTI_ALISAING:
+    case ConfigFieldCode::ANTI_ALISAING:
         disableUIComboBox(mTemplateUI->antiAliasing, "0");
         break;
 
-    case ConfigField::VERT_SYNC:
+    case ConfigFieldCode::VERT_SYNC:
         disableUIComboBox(mTemplateUI->antiAliasing, "0");
         break;
 
-    case ConfigField::GAMMA_CORR:
+    case ConfigFieldCode::GAMMA_CORR:
         disableUIComboBox(mTemplateUI->gammaCorrection, "No");
         break;
 
-    case ConfigField::DISPLAY_RES:
+    case ConfigFieldCode::DISPLAY_RES:
         disableUIComboBox(mTemplateUI->displayRes);
         break;
 
     default:
         QMessageBox::warning(0, "Warning", "Unrecognized configuration field: "
-                             + QString(field.c_str()) + ", at 342");
+                             + QString(field));
         break;
     }
 }
@@ -353,11 +381,10 @@ CbaZombieConfigDialog::fillUIComboBox(QComboBox* field,
                                       const Ogre::StringVector& values,
                                       const char* current)
 {
-    ASSERT(field);
+    assert(field);
     field->clear();
-    for (int i=0 ; i < values.size() ; i++) {
+    for (int i=0 ; i < values.size() ; i++)
         field->addItem(values[i].c_str());
-    }
     // Try to set "current" text as default, if given.
     if (strnlen(current,80) > 0) {
         int index = field->findText(current, Qt::MatchExactly);
@@ -374,19 +401,10 @@ void
 CbaZombieConfigDialog::disableUIComboBox(QComboBox* field,
                                          const char* fixed)
 {
-    ASSERT(field);
+    assert(field);
     field->clear();
     field->addItem(fixed);
     field->setEnabled(false);
-}
-
-
-///////////////////////////////////////////////////////////////////////////////
-bool
-CbaZombieConfigDialog::restoreOpenALConfig()
-{
-    debugERROR("TODO\n");  // TODO
-    return true;
 }
 
 
@@ -404,7 +422,7 @@ CbaZombieConfigDialog::setRenderSystem(const QString& rs)
     } else {
         // Set this render system as current
         int index = mTemplateUI->renderSystem->findText(rs, Qt::MatchExactly);
-        ASSERT(index>=0);
+        assert(index>=0);
         mTemplateUI->renderSystem->setCurrentIndex(index);
         // Enable corresponding options
         reconRendererOptions(*render);
@@ -413,11 +431,34 @@ CbaZombieConfigDialog::setRenderSystem(const QString& rs)
 
 
 ///////////////////////////////////////////////////////////////////////////////
-bool
+void
 CbaZombieConfigDialog::saveConfig()
 {
-    debugERROR("TODO\n");  // TODO
-    return true;
+    // Check selected graphics renderer is valid
+    Ogre::RenderSystem* rs = mOgreRoot->getRenderSystemByName(
+        mTemplateUI->renderSystem->currentText().toStdString());
+    if (!rs) {
+        QMessageBox::critical(0, "Error", "Bad render system, "
+                              "discarding configuration changes.");
+        close();
+    }
+    // Check all options are valid for selected graphics renderer
+    for (auto it = sOgreConfigField.begin() ; it != sOgreConfigField.end() ;
+               it++) {
+        if (!mOgreConfigFieldValue[it->second].first)
+            continue;  // Field not available for this render system
+        rs->setConfigOption(it->first, mOgreConfigFieldValue[it->second].second);
+    }
+    Ogre::String err = rs->validateConfigOptions();
+    if (!err.empty()) {
+        QMessageBox::critical(0, "Error", "Bad graphics renderer settings, "
+                              "discarding configuration changes.");
+        close();
+    }
+    // Save and exit
+    mOgreRoot->setRenderSystem(rs);
+    mOgreRoot->saveConfig();
+    close();
 }
 
 }
