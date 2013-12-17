@@ -52,7 +52,7 @@ getKeyboardKeys(void)
 
     buttons.push_back(input::KeyCode::KC_ESCAPE);
     buttons.push_back(input::KeyCode::KC_A);
-    buttons.push_back(input::KeyCode::KC_S);
+    buttons.push_back(input::KeyCode::KC_D);
     buttons.push_back(input::KeyCode::KC_LEFT);
     buttons.push_back(input::KeyCode::KC_RIGHT);
     buttons.push_back(input::KeyCode::KC_1);
