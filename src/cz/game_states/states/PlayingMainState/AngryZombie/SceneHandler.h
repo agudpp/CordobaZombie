@@ -88,6 +88,11 @@ public:
     inline unsigned int
     badBoxesCount(void) const;
 
+    // @brief Clear and free all the data
+    //
+    void
+    clearAndFreeAll(void);
+
 private:
     // avoid copying
     SceneHandler(const SceneHandler&);

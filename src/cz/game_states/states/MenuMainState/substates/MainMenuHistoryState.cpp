@@ -241,7 +241,8 @@ bool
 MainMenuHistoryState::unload(void)
 {
     ASSERT(mOverlay);
-    Ogre::OverlayManager::getSingleton().destroy(mOverlay);
+    // TODO: issue #224 Ogre::OverlayManager::getSingleton().destroy(mOverlay);
+    mOverlay->hide();
     mOverlay = 0;
 
     for (ui::FESimpleButton& b : mButtons) {

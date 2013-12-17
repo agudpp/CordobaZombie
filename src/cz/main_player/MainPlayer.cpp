@@ -314,7 +314,9 @@ MainPlayer::~MainPlayer()
     }
 
     if (mCrossOverlay) {
-        Ogre::OverlayManager::getSingleton().destroy(mCrossOverlay);
+        // TODO: issue #224 Ogre::OverlayManager::getSingleton().destroy(mCrossOverlay);
+        mCrossOverlay->hide();
+        mCrossOverlay = 0;
     }
 
     /*

@@ -104,7 +104,8 @@ MiniDemoApp::HUD::destroy(void)
     if (mOverlay == 0) {
         return;
     }
-    Ogre::OverlayManager::getSingleton().destroy(mOverlay);
+    // TODO: issue #224 Ogre::OverlayManager::getSingleton().destroy(mOverlay);
+    mOverlay->hide();
     mOverlay = 0;
     memset(mTextAreas, 0, sizeof(Ogre::TextAreaOverlayElement*) * T_COUNT);
 }
@@ -511,8 +512,12 @@ MiniDemoApp::unload(void)
 
     // destroy pause overlay
     if (mPauseOverlay) {
-        Ogre::OverlayManager::getSingleton().destroy(mPauseOverlay);
+        // TODO: issue #224 Ogre::OverlayManager::getSingleton().destroy(mPauseOverlay);
+        mPauseOverlay->hide();
+        mPauseOverlay = 0;
     }
+
+    mSceneHandler.clearAndFreeAll();
 
     return true;
 }

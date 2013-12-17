@@ -183,12 +183,12 @@ MainMenuMainState::hide(void)
 bool
 MainMenuMainState::unload(void)
 {
-    debugERROR("TODO: Implement this, for now we will return true for test only\n");
     // Here we have to:
     // 1- Destroy the buttons
     // 2- destroy the overlay.
     ASSERT(mOverlay);
-    Ogre::OverlayManager::getSingleton().destroy(mOverlay);
+    // TODO: issue #224 Ogre::OverlayManager::getSingleton().destroy(mOverlay);
+    mOverlay->hide();
     mOverlay = 0;
 
     for (ui::FESimpleButton& b : mButtons) {
@@ -216,7 +216,7 @@ MainMenuMainState::getResourcesToUnload(ResourceGroupList& resourceList)
     // set the resource group
     rrh::ResourceGroup rg;
     rg.setOgreResourceFile(rcsFile);
-    resourceList.push_back(rg);
+//    resourceList.push_back(rg);
 
     return true;
 }

@@ -93,6 +93,13 @@ MainStateTT::build(const MainStateBuilder& builder)
                   MainStateEvent::EVENT_EXIT,
                   mStates[toUInt(MainStateID::MenuState)]);
 
+    addTransition(mStates[toUInt(MainStateID::PlayingState)],
+                  MainStateEvent::EVENT_DONE,
+                  mStates[toUInt(MainStateID::MenuState)]);
+
+    addTransition(mStates[toUInt(MainStateID::PlayingState)],
+                  MainStateEvent::EVENT_EXIT,
+                  mStates[toUInt(MainStateID::MenuState)]);
     return true;
 }
 

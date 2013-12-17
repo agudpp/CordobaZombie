@@ -55,7 +55,6 @@ Projectile::~Projectile()
         manager->destroyEntity(ent);
         manager->destroySceneNode(node);
     }
-    debugYELLOW("!\n");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

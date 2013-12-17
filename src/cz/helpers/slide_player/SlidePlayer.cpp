@@ -140,7 +140,9 @@ SlidePlayer::~SlidePlayer()
     }
     // destroy mConfigOverlay
     if (mConfigOverlay) {
-        om.destroy(mConfigOverlay);
+        // TODO: issue #224 om.destroy(mConfigOverlay);
+        mConfigOverlay->hide();
+        mConfigOverlay = 0;
     }
 
     // remove all its effects
