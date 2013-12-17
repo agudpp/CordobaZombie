@@ -2,6 +2,7 @@
 include(${DEV_ROOT_PATH}/core/debug/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/core/app_tester/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/core/ogre_utils/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/core/crash_handler/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/io_interfaces/IO_InterfacesAll.cmake)
 include(${DEV_ROOT_PATH}/cz/global_data/AutoGen.cmake)
 include(${DEV_ROOT_PATH}/resources_handler/AutoGen.cmake)

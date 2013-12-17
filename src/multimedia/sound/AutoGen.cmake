@@ -1,50 +1,34 @@
 
-# Module headers
-set(HDRS ${HDRS}
-	${DEV_ROOT_PATH}/multimedia/sound/BufferBuilder.h
-	${DEV_ROOT_PATH}/multimedia/sound/SoundAPI.h
-	${DEV_ROOT_PATH}/multimedia/sound/SoundBuffer.h
-	${DEV_ROOT_PATH}/multimedia/sound/SoundEnums.h
-	${DEV_ROOT_PATH}/multimedia/sound/SoundFamilyTable.h
-	${DEV_ROOT_PATH}/multimedia/sound/SoundHandler.h
-	${DEV_ROOT_PATH}/multimedia/sound/SoundManager.h
-	${DEV_ROOT_PATH}/multimedia/sound/SoundSource.h
-	${DEV_ROOT_PATH}/multimedia/sound/LSS/LSoundSource.h
-	${DEV_ROOT_PATH}/multimedia/sound/SSS/SSoundSource.h
-)
+# check if this module was already included
+if (NOT SOUNDSYSTEM_DEFINED)
+    
+    set (SOUNDSYSTEM_DEFINED TRUE)
+    # Module headers
+    set(HDRS ${HDRS}
+    	${DEV_ROOT_PATH}/multimedia/sound/BufferBuilder.h
+    	${DEV_ROOT_PATH}/multimedia/sound/SoundAPI.h
+    	${DEV_ROOT_PATH}/multimedia/sound/SoundBuffer.h
+    	${DEV_ROOT_PATH}/multimedia/sound/SoundEnums.h
+    	${DEV_ROOT_PATH}/multimedia/sound/SoundFamilyTable.h
+    	${DEV_ROOT_PATH}/multimedia/sound/SoundHandler.h
+    	${DEV_ROOT_PATH}/multimedia/sound/SoundManager.h
+    	${DEV_ROOT_PATH}/multimedia/sound/SoundSource.h
+    	${DEV_ROOT_PATH}/multimedia/sound/LSS/LSoundSource.h
+    	${DEV_ROOT_PATH}/multimedia/sound/SSS/SSoundSource.h
+    )
+    
+    # Module sources
+    set(SRCS ${SRCS}
+    	${DEV_ROOT_PATH}/multimedia/sound/BufferBuilder.cpp
+    	${DEV_ROOT_PATH}/multimedia/sound/SoundBuffer.cpp
+    	${DEV_ROOT_PATH}/multimedia/sound/SoundFamilyTable.cpp
+    	${DEV_ROOT_PATH}/multimedia/sound/SoundHandler.cpp
+    	${DEV_ROOT_PATH}/multimedia/sound/SoundManager.cpp
+    	${DEV_ROOT_PATH}/multimedia/sound/LSS/LSoundSource.cpp
+    	${DEV_ROOT_PATH}/multimedia/sound/SSS/SSoundSource.cpp
+    )
+    
+    # include the openal libs
+    include(${DEV_ROOT_PATH}/multimedia/openal_handler/AutoGen.cmake)
 
-# Module sources
-set(SRCS ${SRCS}
-	${DEV_ROOT_PATH}/multimedia/sound/BufferBuilder.cpp
-	${DEV_ROOT_PATH}/multimedia/sound/SoundBuffer.cpp
-	${DEV_ROOT_PATH}/multimedia/sound/SoundFamilyTable.cpp
-	${DEV_ROOT_PATH}/multimedia/sound/SoundHandler.cpp
-	${DEV_ROOT_PATH}/multimedia/sound/SoundManager.cpp
-	${DEV_ROOT_PATH}/multimedia/sound/LSS/LSoundSource.cpp
-	${DEV_ROOT_PATH}/multimedia/sound/SSS/SSoundSource.cpp
-)
-
-# Include third party libraries
-include_directories(${THIRD_PARTY_LIBS}/lib)
-
-# Dynamic libraries
-if (UNIX)
-    set(COMMON_LIBRARIES ${COMMON_LIBRARIES} openal vorbisfile vorbisenc)
-endif(UNIX)
-if (WIN32)
-    set(COMMON_LIBRARIES ${COMMON_LIBRARIES} OpenAL32 vorbisfile vorbisenc)
-endif(WIN32)
-
-# Static libraries
-if(UNIX OR WIN32)
-	# ogg
-	add_library(ogg STATIC IMPORTED)
-	set_property(TARGET ogg PROPERTY  # point imported target to real file
-	             IMPORTED_LOCATION ${THIRD_PARTY_LIBS}/lib/libogg.a)
-	# vorbis (core)
-	add_library(vorbis STATIC IMPORTED)
-	set_property(TARGET vorbis PROPERTY  # point imported target to real file
-	             IMPORTED_LOCATION ${THIRD_PARTY_LIBS}/lib/libvorbis.a)
-endif(UNIX OR WIN32)
-# TODO here we need to put Windows(TM) specific stuff
-
+endif()

@@ -136,11 +136,13 @@ SlidePlayer::~SlidePlayer()
 {
     Ogre::OverlayManager& om = Ogre::OverlayManager::getSingleton();
     if (mHiddenSlide) {
-        om.destroyOverlayElement(mHiddenSlide);
+//        om.destroyOverlayElement(mHiddenSlide);
     }
     // destroy mConfigOverlay
     if (mConfigOverlay) {
-        om.destroy(mConfigOverlay);
+        // TODO: issue #224 om.destroy(mConfigOverlay);
+        mConfigOverlay->hide();
+        mConfigOverlay = 0;
     }
 
     // remove all its effects

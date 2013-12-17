@@ -52,10 +52,11 @@ Projectile::~Projectile()
     if (node) {
         ASSERT(ent);
         Ogre::SceneManager* manager = node->getCreator();
+        node->detachAllObjects();
+        node->removeAndDestroyAllChildren();
         manager->destroyEntity(ent);
         manager->destroySceneNode(node);
     }
-    debugYELLOW("!\n");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -149,7 +149,9 @@ bool
 PrePlayIntroMainState::unload(void)
 {
     // we have to destroy all the overlays here
-    Ogre::OverlayManager::getSingleton().destroy(mOverlay);
+    // TODO: issue #224 Ogre::OverlayManager::getSingleton().destroy(mOverlay);
+    mOverlay->hide();
+    mOverlay = 0;
     sCommonHandlers.effectHandler->remove(&mEffect);
     return true;
 }

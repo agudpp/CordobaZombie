@@ -212,9 +212,7 @@ SceneHandler::SceneHandler() :
 ///////////////////////////////////////////////////////////////////////////////
 SceneHandler::~SceneHandler()
 {
-    // this will reset all the current information
     mHolder.clearAll();
-    mData.physicsHandler->clear();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -370,6 +368,15 @@ unsigned int
 SceneHandler::getObjectsCount(void) const
 {
     return goodBoxesCount() + badBoxesCount() + 2; // +2 = tarimas
+}
+
+///////////////////////////////////////////////////////////////////////////////
+void
+SceneHandler::clearAndFreeAll(void)
+{
+    // this will reset all the current information
+    mHolder.clearAll();
+    mData.physicsHandler->clear();
 }
 
 

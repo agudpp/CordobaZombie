@@ -40,6 +40,7 @@ PlayingMainState::configureState(const MainStateInformation& info)
     // configure the mDemoApp
     demo_app::DemoData data;
     data.sceneMngr = sOgreInfo.sceneMngr;
+    data.renderWindow = sOgreInfo.renderWindow;
     data.camera = sOgreInfo.camera;
     data.frontEndManager = sCommonHandlers.frontEndManager;
     data.mouseCursor = sCommonHandlers.mouseCursor;
@@ -71,6 +72,9 @@ PlayingMainState::getResourcesToLoad(ResourceGroupList& resourceList)
 bool
 PlayingMainState::readyToGo(void)
 {
+    // set the resulting event that will always be the same
+    mEventInfo = MainStateEvent::EVENT_DONE;
+
     // load demo app
     return mDemoApp.load();
 }
@@ -87,8 +91,7 @@ bool
 PlayingMainState::unload(void)
 {
     // save the statistics into a file
-    debugERROR("Set a correct file here\n");
-    mInformer.dumpInform("");
+    mInformer.dumpInform("performance_stats.log");
 
     // unload demo app
     return mDemoApp.unload();

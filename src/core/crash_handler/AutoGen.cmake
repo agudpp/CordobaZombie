@@ -17,7 +17,7 @@ if (NOT CRASH_HANDLER_DEFINED)
         )
         
         # set the libraries
-        set(COMMON_LIBRARIES {COMMON_LIBRARIES} bfd iberty imagehlp intl z)
+        set(COMMON_LIBRARIES ${COMMON_LIBRARIES} bfd iberty imagehlp intl z)
         
     else()
         # linux

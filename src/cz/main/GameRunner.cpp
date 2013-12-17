@@ -52,23 +52,13 @@ getKeyboardKeys(void)
 
     buttons.push_back(input::KeyCode::KC_ESCAPE);
     buttons.push_back(input::KeyCode::KC_A);
-    buttons.push_back(input::KeyCode::KC_S);
     buttons.push_back(input::KeyCode::KC_D);
-    buttons.push_back(input::KeyCode::KC_W);
     buttons.push_back(input::KeyCode::KC_LEFT);
-    buttons.push_back(input::KeyCode::KC_DOWN);
     buttons.push_back(input::KeyCode::KC_RIGHT);
-    buttons.push_back(input::KeyCode::KC_UP);
-    buttons.push_back(input::KeyCode::KC_LSHIFT);
-    buttons.push_back(input::KeyCode::KC_RSHIFT);
-    buttons.push_back(input::KeyCode::KC_0);
     buttons.push_back(input::KeyCode::KC_1);
     buttons.push_back(input::KeyCode::KC_2);
-    buttons.push_back(input::KeyCode::KC_E);
-    buttons.push_back(input::KeyCode::KC_L);
-    buttons.push_back(input::KeyCode::KC_ADD);
-    buttons.push_back(input::KeyCode::KC_MINUS);
-    buttons.push_back(input::KeyCode::KC_SPACE);
+    buttons.push_back(input::KeyCode::KC_3);
+    buttons.push_back(input::KeyCode::KC_Z);
 
     return buttons;
 }

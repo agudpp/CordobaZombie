@@ -27,8 +27,7 @@ ExitMainState::~ExitMainState()
 const MainStateID&
 ExitMainState::ID(void) const
 {
-    debugERROR("TODO\n");
-    static MainStateID id;
+    static MainStateID id = MainStateID::ExitState;
     return id;
 }
 
@@ -36,7 +35,7 @@ ExitMainState::ID(void) const
 bool
 ExitMainState::configureState(const MainStateInformation& info)
 {
-    debugERROR("TODO\n");
+    debugERROR("TODO: fix this, we will do nothing for now\n");
     return true;
 }
 
@@ -44,7 +43,7 @@ ExitMainState::configureState(const MainStateInformation& info)
 bool
 ExitMainState::getResourcesToLoad(ResourceGroupList& resourceList)
 {
-    debugERROR("TODO\n");
+    debugERROR("TODO: fix this, we will do nothing for now\n");
     return true;
 }
 
@@ -52,7 +51,8 @@ ExitMainState::getResourcesToLoad(ResourceGroupList& resourceList)
 bool
 ExitMainState::readyToGo(void)
 {
-    debugERROR("TODO\n");
+    debugERROR("TODO: fix this, we will do nothing for now\n");
+    mEventInfo = MainStateEvent::EVENT_EXIT;
     return true;
 }
 
@@ -60,15 +60,16 @@ ExitMainState::readyToGo(void)
 bool
 ExitMainState::update(float timeFrame)
 {
-    debugERROR("TODO\n");
-    return true;
+    debugERROR("TODO: fix this, we will do nothing for now, we will return"
+        " false for now just to skip this state\n");
+    return false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 bool
 ExitMainState::unload(void)
 {
-    debugERROR("TODO\n");
+    debugERROR("TODO: fix this, we will do nothing for now\n");
     return true;
 }
 
@@ -76,7 +77,7 @@ ExitMainState::unload(void)
 bool
 ExitMainState::getResourcesToUnload(ResourceGroupList& resourceList)
 {
-    debugERROR("TODO\n");
+    debugERROR("TODO: fix this, we will do nothing for now\n");
     return true;
 }
 

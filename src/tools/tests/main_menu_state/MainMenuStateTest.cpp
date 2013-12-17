@@ -20,6 +20,7 @@
 #include <game_states/states/PrePlayIntroMainState/PrePlayIntroMainState.h>
 #include <game_states/states/PlayingMainState/PlayingMainState.h>
 
+
 #include "MainMenuStateTest.h"
 
 // helper stuff
@@ -56,6 +57,7 @@ getKeyboardKeys(void)
     buttons.push_back(input::KeyCode::KC_RIGHT);
     buttons.push_back(input::KeyCode::KC_A);
     buttons.push_back(input::KeyCode::KC_D);
+    buttons.push_back(input::KeyCode::KC_Z);
     buttons.push_back(input::KeyCode::KC_1);
     buttons.push_back(input::KeyCode::KC_2);
     buttons.push_back(input::KeyCode::KC_3);
@@ -149,6 +151,9 @@ MainMenuStateTest::MainMenuStateTest() :
     mMouseCursor.setVisible(true);
     mMouseCursor.setWindowDimensions(mWindow->getWidth(), mWindow->getHeight());
 
+    if (!mCrashHandler.configureSignals()) {
+        debugERROR("Error setting the crash handler\n");
+    }
 
     // Set resource Handler for intro state
     char *ENV = 0;

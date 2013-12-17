@@ -55,6 +55,10 @@ AlphaOverlayEffect::beforeStart(void)
         ASSERT(false);
         break;
     }
+
+    // init the state of the texture
+    mTexture->setAlphaOperation(Ogre::LBX_MODULATE, Ogre::LBS_MANUAL,
+                            Ogre::LBS_TEXTURE, mAccumTime / mTime);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

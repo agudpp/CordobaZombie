@@ -65,6 +65,7 @@ namespace demo_app {
 //
 struct DemoData {
     Ogre::SceneManager* sceneMngr;
+    Ogre::RenderWindow* renderWindow;
     Ogre::Camera* camera;
     ui::FEManager* frontEndManager;
     ui::MouseCursor* mouseCursor;
@@ -194,6 +195,7 @@ private:
     float mTimeFrame;
     HUD mHud;
     Ogre::Overlay* mPauseOverlay;
+    Ogre::Overlay* mHelpOverlay;
 };
 
 } /* namespace demo_app */

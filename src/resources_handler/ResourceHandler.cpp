@@ -181,16 +181,11 @@ ResourceHandler::unloadResourceGroup(const ResourceGroup& rg)
 
 	if(rg.sections().empty()){
         // Get the path to the resource folder
-        size_t lastBar = 0;
-#ifdef _WIN32
-        lastBar = rg.ogreResourceFile().rfind('\\')+1;
-#else
-        lastBar = rg.ogreResourceFile().rfind('/')+1;
-#endif
-        ASSERT(lastBar > 1);
-        std::string basePath = rg.ogreResourceFile().substr(0,lastBar);
+        const std::string& ogreFile = rg.ogreResourceFile();
+        std::string basePath;
+        core::OSHelper::extractPath(ogreFile, basePath);
 
-        if (!getRsrcFileSections(rg.ogreResourceFile(), sections, basePath)) {
+        if (!getRsrcFileSections(ogreFile, sections, basePath)) {
              debugERROR("We couldn't get the sections from %s\n",
                  rg.ogreResourceFile().c_str());
              return;
@@ -200,13 +195,15 @@ ResourceHandler::unloadResourceGroup(const ResourceGroup& rg)
 
         for (auto it = sections.begin(), end = sections.end(); it != end; ++it) {
             rscMng.unloadResourceGroup(*it);
-            rscMng.unloadResourceGroup(*it, false);
+//            rscMng.unloadResourceGroup(*it, true);
+            rscMng.unloadUnreferencedResourcesInGroup(*it, false);
             rscMng.destroyResourceGroup(*it);
         }
     }else{
         for (auto it = rg.sections().begin(), end = rg.sections().end(); it != end; ++it) {
             rscMng.unloadResourceGroup(*it);
-            rscMng.unloadResourceGroup(*it, false);
+//            rscMng.unloadResourceGroup(*it, true);
+            rscMng.unloadUnreferencedResourcesInGroup(*it, false);
             rscMng.destroyResourceGroup(*it);
         }
 

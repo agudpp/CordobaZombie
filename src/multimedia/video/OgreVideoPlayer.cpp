@@ -97,6 +97,17 @@ OgreVideoScreen::OgreVideoScreen(Ogre::Real left,  Ogre::Real top,
 			height, 0,
 			Ogre::PF_X8R8G8B8, Ogre::TU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
 
+    /*
+     * TODO: note that rtttex->getFormat() and rtttex->getDesiredFormat() are
+     * not allways the same (Ogre does what ever he wants :S) so it would be
+     * good to check the getFormat() value and build the fillbuffer method
+     * based on it.
+     *
+     * debugGREEN("format: real -> %i, desired -> %i\n",rtttex->getFormat(),
+     * rtttex->getDesiredFormat());
+     */
+
+
     mRttTexture = rtttex;
     ASSERT(mRttTexture.get());
 
@@ -252,7 +263,7 @@ OgreVideoPlayer::dequeueAll(void)
     mIndex = -1;
     mPlayList.clear();
     mVideoPlayer.unload();
-//    mVideoPlayer.paint_black_screen(); ??? it says that was never defined?
+    //mVideoPlayer.paint_black_screen();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -268,6 +279,7 @@ OgreVideoPlayer::load(int index){
 		mIndex = index;
 		// Load video player, resize screen and seek for starting point;
 		mVideoPlayer.unload();
+		debug("Loading video %s\n", video.getName());
 		if(VideoPlayer::VIDEO_OK != mVideoPlayer.load(video.getPath())){
 			return C_ERROR;
 		}
@@ -281,8 +293,9 @@ OgreVideoPlayer::load(int index){
 		}
 		double end = 0;
 		video.getEnd(end);
-		debug("Loading video %s, from second %lf to %lf\n", video.getName(),
-				start, end);
+//		debug("Loading video %s, from second %lf to %lf\n", video.getName(),
+//				start, end);
+
 	}
 
 	return C_OK;
@@ -323,25 +336,35 @@ OgreVideoPlayer::update(double tslf)
 		Video& video = mPlayList[mIndex];
 		video.getEnd(end);
 		// negative value for end will play till it finishes.
-		if(end >= 0.0 && t >= end){
-			debug("Video time limit reached\n");
-			if(loadNext() == C_OK){
-				play();
-			}else{
-			    mIsPlaying = false;
-				return C_ENDED;
-			}
+		if (end >= 0.0 && t >= end) {
+            //			debug("Video time limit reached\n");
+            if (mRepeatV) {
+                mVideoPlayer.seek_time_stamp(0.0);
+                play();
+            } else {
+                if (loadNext() == C_OK) {
+                    play();
+                } else {
+                    mIsPlaying = false;
+                    return C_ENDED;
+                }
+            }
 		// has to play till the end or the end time limit hasn't been reached
 		}else{
 			if(VideoPlayer::VIDEO_ENDED == mVideoPlayer.update(tslf)){
 				// If the video has ended
-				debug("Video ended (the actual video player says so)\n");
-				if(loadNext() == C_OK){
-					play();
-				}else{
-				    mIsPlaying = false;
-					return C_ENDED;
-				}
+//				debug("Video ended (the actual video player says so)\n");
+			    if(mRepeatV) {
+			        mVideoPlayer.seek_time_stamp(0.0);
+			        play();
+			    }else{
+                    if(loadNext() == C_OK){
+                        play();
+                    }else{
+                        mIsPlaying = false;
+                        return C_ENDED;
+                    }
+			    }
 			}
 		}
 	}
@@ -352,19 +375,19 @@ OgreVideoPlayer::update(double tslf)
 int
 OgreVideoPlayer::loadNext(void)
 {
-	debug("Load next: actual index %i\n", mIndex);
+//	debug("Load next: actual index %i\n", mIndex);
 	if(mRepeatV){
 		load(mIndex);
-		debug("Load next: load index %i\n", mIndex);
+//		debug("Load next: load index %i\n", mIndex);
 	}else if(mIndex < mPlayList.size()-1){
-		debug("Load next: load index %i\n", mIndex+1);
+//		debug("Load next: load index %i\n", mIndex+1);
 		load(mIndex+1);
 	}else{
 		if(mRepeatP){
-			debug("Load next: restart playlist\n");
+//			debug("Load next: restart playlist\n");
 			load(0);
 		}else{
-			debug("Load next: no more videos to load\n");
+//			debug("Load next: no more videos to load\n");
 			return C_ERROR;
 		}
 	}

@@ -104,7 +104,8 @@ MiniDemoApp::HUD::destroy(void)
     if (mOverlay == 0) {
         return;
     }
-    Ogre::OverlayManager::getSingleton().destroy(mOverlay);
+    // TODO: issue #224 Ogre::OverlayManager::getSingleton().destroy(mOverlay);
+    mOverlay->hide();
     mOverlay = 0;
     memset(mTextAreas, 0, sizeof(Ogre::TextAreaOverlayElement*) * T_COUNT);
 }
@@ -322,21 +323,42 @@ MiniDemoApp::runningState(void)
 void
 MiniDemoApp::pauseState(void)
 {
+    ASSERT(mPauseOverlay);
+    ASSERT(mHelpOverlay);
+
     // now we have to check if we will continue or we will go out
     if (mData.inputHelper->isKeyReleased(input::KeyCode::KC_ESCAPE)) {
-        mRunning = false;
-        if (mPauseOverlay) {
+        // if we are showing the help then we return to the pause overlay
+        if (mHelpOverlay->isVisible()) {
+            mHelpOverlay->hide();
+            mPauseOverlay->show();
+        } else {
+            // we are in the pause overlay!
+            mRunning = false;
             mPauseOverlay->hide();
+            mHelpOverlay->hide();
         }
         return;
     }
+
+    // check if we press z then we need to show the help information
+    if (mData.inputHelper->isKeyReleased(input::KeyCode::KC_Z)) {
+        mHelpOverlay->show();
+        mPauseOverlay->hide();
+    }
+
     // if we press the click we will continue
     if (mData.inputHelper->isMouseReleased(input::MouseButtonID::MB_Left)) {
-        if (mPauseOverlay) {
+
+        // if we are showing the help then go back to the pause
+        if (mHelpOverlay->isVisible()) {
+            mHelpOverlay->hide();
+            mPauseOverlay->show();
+        } else {
             mPauseOverlay->hide();
+            mHud.setVisible(true);
+            mInternalState = State::RUNNING;
         }
-        mHud.setVisible(true);
-        mInternalState = State::RUNNING;
         return;
     }
 }
@@ -370,6 +392,7 @@ MiniDemoApp::MiniDemoApp() :
 ,   mInternalState(RUNNING)
 ,   mRunning(true)
 ,   mPauseOverlay(0)
+,   mHelpOverlay(0)
 {
 
 }
@@ -388,6 +411,8 @@ MiniDemoApp::setData(const DemoData& data)
     mData = data;
 
     PRECONDITION_CHECK;
+
+    mData.informer->setOgreRenderWindow(mData.renderWindow);
 
     Projectile::setDynamicWorld(&mDynamicWorld);
     WorldObject::setGameLogicData(&mGameLogicData);
@@ -450,6 +475,15 @@ MiniDemoApp::load(void)
         debugERROR("We couldn't load the overlay MiniDemoPause\n");
         return false;
     }
+    mPauseOverlay->hide();
+
+    // load the help overlay
+    mHelpOverlay = Ogre::OverlayManager::getSingleton().getByName("MiniDemoHelp");
+    if (mHelpOverlay == 0) {
+        debugERROR("We couldn't load the overlay MiniDemoHelp\n");
+        return false;
+    }
+    mHelpOverlay->hide();
 
     // build the scene
     resetCurrentScene();
@@ -458,6 +492,7 @@ MiniDemoApp::load(void)
     mData.mouseCursor->setVisible(false);
 
     mRunning = true;
+    mInternalState = RUNNING;
 
     return true;
 }
@@ -478,8 +513,13 @@ MiniDemoApp::unload(void)
 
     // destroy pause overlay
     if (mPauseOverlay) {
-        Ogre::OverlayManager::getSingleton().destroy(mPauseOverlay);
+        // TODO: issue #224 Ogre::OverlayManager::getSingleton().destroy(mPauseOverlay);
+        mPauseOverlay->hide();
+        mPauseOverlay = 0;
     }
+
+    mSceneHandler.clearAndFreeAll();
+    mProjectiles.clear();
 
     return true;
 }

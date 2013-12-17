@@ -14,6 +14,7 @@
 #include <OgreRenderWindow.h>
 
 #include <sound/SoundHandler.h>
+#include <openal_handler/OpenALHandler.h>
 
 #include "IModuleLoader.h"
 
@@ -23,7 +24,9 @@ class SoundSystemLoader : public IModuleLoader
 {
 public:
     // Pass the pointer we of the manager to be built
-    SoundSystemLoader(mm::SoundHandler*& soundhandler);
+    // and the opeanl context to be used
+    SoundSystemLoader(mm::SoundHandler*& soundhandler,
+                      mm::OpenALHandler*& openalHandler);
     virtual
     ~SoundSystemLoader();
 
@@ -46,6 +49,7 @@ public:
 
 private:
     mm::SoundHandler*& mSoundHandler;
+    mm::OpenALHandler*& mOpenalHandler;
 };
 
 } /* namespace engine */
