@@ -21,8 +21,10 @@ Player::Player() :
 
 Player::~Player()
 {
-    Ogre::SceneNode* rootNode = mCamXNode->getParentSceneNode();
-    rootNode->removeAndDestroyChild(mCamXNode->getName());
+    if (mCamXNode) {
+        Ogre::SceneNode* rootNode = mCamXNode->getParentSceneNode();
+        rootNode->removeAndDestroyChild(mCamXNode->getName());
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////

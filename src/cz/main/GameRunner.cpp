@@ -169,6 +169,14 @@ GameRunner::initMainStateMachine(void)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+void
+GameRunner::uninitAll(void)
+{
+//    mTransitionTable.freeAllStates();
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 GameRunner::GameRunner(engine::Engine& engine) :
     mEngine(engine)
@@ -254,6 +262,10 @@ GameRunner::run(void)
         // calculate the new time frame
         GlobalData::lastTimeFrame = (timer.getMilliseconds() - timeStamp) * 0.001;
     }
+
+    // remove everything
+    //
+    uninitAll();
 
 
     return true;
