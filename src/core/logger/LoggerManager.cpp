@@ -20,7 +20,7 @@ LoggerManager::LoggerManager()
     // will be the cz.log file and linux will be the standard error out).
     //
 #ifdef WIN32
-    static Logger defaultLogger(LogType::LOG_TYPE_STD_FILE);
+    static Logger defaultLogger(LogType::LOG_TYPE_STD_FILE, LogMode::LOG_MODE_APPEND);
 #else
     static Logger defaultLogger(LogType::LOG_TYPE_STD_ERROR);
 #endif

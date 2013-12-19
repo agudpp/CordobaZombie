@@ -87,6 +87,13 @@ private:
     void
     createReportBackup(void);
 
+    // @brief Get the machine information.
+    // @param info      The machine information
+    // @return true on success | false otherwise
+    //
+    bool
+    getMachineInfo(QString& info);
+
     // @brief Save/restore the personal information of saved by this class
     //
     void

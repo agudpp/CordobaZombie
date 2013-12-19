@@ -14,6 +14,7 @@
 #include <QtGui/QFileDialog>
 #include <QDateTime>
 #include <QDebug>
+#include <QProcess>
 
 
 
@@ -76,8 +77,16 @@ ErrorReporter::sendEmail(const QStringList& files)
     const QString to = "cbazombie@gmail.com";
     const QString subject = "Error[" + mUI.errTypesCombo->currentText() + "]";
 
+    // we will try to get the machine information
+    QString machineInfo;
+    getMachineInfo(machineInfo);
+
+    QString dataToSend = transformFormToString();
+    dataToSend.append("\nMachineInformation:\n");
+    dataToSend += machineInfo;
+
     // get the fields
-    if (!mSmtp.sendMail(from, to, subject, transformFormToString(), files)) {
+    if (!mSmtp.sendMail(from, to, subject, dataToSend, files)) {
         showMessage("Se produjo un error al intentar mandar la informacion. Por"
                     " favor dirijase a la pagina www.cordobazombie.com.ar/testing para"
                     " mayor informacion de como reportar los errores. Disculpe las molestias");
@@ -196,6 +205,111 @@ ErrorReporter::createReportBackup(void)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+bool
+ErrorReporter::getMachineInfo(QString& info)
+{
+    // What we gonna do here is create a file with the machine information we
+    // need. Trying different approaches, if non succeed then will have to return
+    // false for now and ask the user to add the machine information in the
+    // comments.
+    // This file will be created only once and will be used all the time we
+    // need to send the information.
+
+    // clear the data
+    info = "";
+
+    // check if the file exists
+    addStatusMsg("Intentando obtener informacion de la maquina.");
+    QFile infoFile("machine_info.info");
+    if (infoFile.open(QIODevice::ReadOnly)) {
+        // we read the file and return
+        info = infoFile.readAll();
+        addStatusMsg("Informacion de la maquina obtenida");
+        return true;
+    }
+
+    // else we need to create the machine information, we will list all the possible
+    // commands we will execute in priority order. Just in case some of them
+    // fails, we will continue with the next one
+    // we will print a little message box to advise the user that this could take
+    // some seconds
+    //
+    showMessage("Estamos por recopilar informacion del hardware de su maquina "
+        "para poder hacer un analisis mas preciso del error.\n"
+        "Esta operacion puede demorar unos segundos, pero solo se hara una unica"
+        " vez (solo en el primer reporte).\n"
+        "Disculpe las molestias.");
+
+    struct Command {
+        QString command;
+        QStringList args;
+        Command(const QString& cmd, const QStringList& arg) : command(cmd), args(arg){}
+    };
+    QList<Command> commands;
+
+#ifdef WIN32
+    // define the commands for windows
+    // dxdiag
+    commands << Command("dxdiag", QStringList() << "/t" << "machine_info.info");
+
+    // sysinfo
+    commands << Command("sysinfo", QStringList() << "\"> machine_info.info\"");
+
+#else
+#error "This feature wasn't implemented yet on linux, basically we need to "\
+    "set the commands correctly and we will be fine"
+#endif
+
+    // now run the commands
+    bool executedOk = false;
+    addStatusMsg("Ejecutando commandos para la obtencion de la informacion");
+    for (QList<Command>::iterator beg = commands.begin(), end = commands.end();
+        beg != end && !executedOk; ++beg) {
+        QProcess proc;
+        addStatusMsg(QString("Probando con: ") + beg->command);
+        proc.start(beg->command, beg->args);
+        if (!proc.waitForStarted()) {
+            // continue with the next command
+            addStatusMsg("No se pudo ejecutar el comando..");
+            continue;
+        }
+        if (!proc.waitForFinished()) {
+            // continue with the next one
+            addStatusMsg("No se pudo ejecutar el commando");
+            continue;
+        }
+
+        addStatusMsg("Commando ejecutado correctamente, almacenando informacion");
+        executedOk = true;
+    }
+
+    if (!executedOk) {
+        addStatusMsg("No pudimos obtener informacion de la maquina.");
+        showMessage("No hemos logrado obtener informacion del sistema. Por favor"
+            " te pedimos que nos suministres la siguiente informacion en el campo"
+            " comentarios:\n"
+            "\t- Procesador de la maquina.\n"
+            "\t- Memoria de ram.\n"
+            "\t- Placa de video (modelo).\n"
+            "\t- Sistema operativo (por ejemplo, Windows 7 64bits Professional.\n"
+            "\nEsa informacion nos es util a la hora de poder determinar con mayor"
+            " presicion en que plataforma y con que hardware se producen los fallos.");
+        info = "";
+    } else {
+        // read the information again
+        infoFile.close();
+        if (infoFile.open(QIODevice::ReadOnly)) {
+            // we read the file and return
+            info = infoFile.readAll();
+            addStatusMsg("Informacion de la maquina obtenida");
+        }
+    }
+
+    // everything fine
+    return true;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 void
 ErrorReporter::saveCurrentPersonalInfo(void)
 {
@@ -239,6 +353,9 @@ ErrorReporter::ErrorReporter(QWidget* parent) :
 ,   mSendOK(false)
 {
     mUI.setupUi(this);
+
+    // set a tool tip information by code to the webpage link
+    mUI.label_7->setToolTip("www.cordobazombie.com.ar/testing");
 
     // connect the signals
     // Smtp
