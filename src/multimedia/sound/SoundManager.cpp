@@ -80,28 +80,7 @@ SoundManager::SoundManager() :
 ////////////////////////////////////////////////////////////////////////////////
 SoundManager::~SoundManager()
 {
-	/* Stop and erase remaining active sounds */
-	globalStop();
-
-	/* Delete sources */
-	for (int i = mAvailableLSS.size()-1 ; i >= 0 ; i--) {
-			delete mAvailableLSS[i];
-	}
-	mAvailableLSS.clear();
-	for (int i = mAvailableSSS.size()-1 ; i >= 0 ; i--) {
-			delete mAvailableSSS[i];
-	}
-	mAvailableSSS.clear();
-
-	/* Free buffers */
-	for (HashStrBuff::iterator it = mLoadedBuffers.begin() ;
-			it != mLoadedBuffers.end() ; it++) {
-		// Can't call clear() method directly because values are pointers.
-		delete it->second;
-	}
-	mLoadedBuffers.clear();
-
-	return;
+    destroyAll();
 }
 
 
@@ -360,6 +339,31 @@ SoundManager::unloadSound(const Ogre::String& sName)
 	return;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+void
+SoundManager::destroyAll(void)
+{
+    /* Stop and erase remaining active sounds */
+    globalStop();
+
+    /* Delete sources */
+    for (int i = mAvailableLSS.size()-1 ; i >= 0 ; i--) {
+            delete mAvailableLSS[i];
+    }
+    mAvailableLSS.clear();
+    for (int i = mAvailableSSS.size()-1 ; i >= 0 ; i--) {
+            delete mAvailableSSS[i];
+    }
+    mAvailableSSS.clear();
+
+    /* Free buffers */
+    for (HashStrBuff::iterator it = mLoadedBuffers.begin() ;
+            it != mLoadedBuffers.end() ; it++) {
+        // Can't call clear() method directly because values are pointers.
+        delete it->second;
+    }
+    mLoadedBuffers.clear();
+}
 
 
 /******************************************************************************/

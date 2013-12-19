@@ -59,6 +59,12 @@ Engine::Engine() :
     mLoaders.push_back(rscLoader);
     mLoader.addModuleLoader(rscLoader);
 
+    // VideoSystem
+    VideoSystemLoader* videoLoader = new VideoSystemLoader(mVideoData.player,
+                                                           mOgreData.sceneMngr,
+                                                           mOgreData.renderWindow,
+                                                           mOpenalHandler);
+
     // SoundSystem
     SoundSystemLoader* soundLoader = new SoundSystemLoader(mSoundData.handler,
                                                            mResourcesData.handler,
@@ -66,12 +72,6 @@ Engine::Engine() :
 
     mLoaders.push_back(soundLoader);
     mLoader.addModuleLoader(soundLoader);
-
-    // VideoSystem
-    VideoSystemLoader* videoLoader = new VideoSystemLoader(mVideoData.player,
-                                                           mOgreData.sceneMngr,
-                                                           mOgreData.renderWindow,
-                                                           mOpenalHandler);
 
     mLoaders.push_back(videoLoader);
     mLoader.addModuleLoader(videoLoader);

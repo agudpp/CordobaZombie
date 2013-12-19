@@ -307,6 +307,17 @@ public:
 	unloadSound(const Ogre::String& sName);
 
 
+    /**
+     ** @brief
+     ** Destroy and uninitialize all the buffers and sources already loaded. This
+     ** method will stop all the current active sounds and will destory everything
+     ** else. Basically, is simulating the "destructor" since is a singleton
+     ** class. This should be fixed when we change this class to not be anymore
+     ** a singleton.
+     **
+     **/
+    void
+    destroyAll(void);
 
 	/*********************************************************************/
 	/****************    GLOBAL PLAYBACK CONTROLS    *********************/

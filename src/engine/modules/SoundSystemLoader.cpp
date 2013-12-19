@@ -73,6 +73,15 @@ SoundSystemLoader::load(const EngineConfiguration& config)
 bool
 SoundSystemLoader::unload(void)
 {
+    if (mSoundHandler == 0) {
+        // nothing to do
+        return true;
+    }
+
+    // stop all the sounds and unload all of them
+    mm::SoundManager* soundMngr = mSoundHandler->soundManager();
+    ASSERT(soundMngr);
+    soundMngr->destroyAll();
 
     mSoundHandler = 0;
     return true;

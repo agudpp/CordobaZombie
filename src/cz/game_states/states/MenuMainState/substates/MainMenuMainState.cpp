@@ -72,7 +72,7 @@ MainMenuMainState::buttonPressed(ui::FESimpleButton* button,
     }
 
     // play a sound for every button press
-    sSoundHandler->soundManager()->playEnvSound("fxM1.ogg");
+    sSoundHandler->soundManager()->playEnvSound("fxM1.ogg", 1.f);
 
     // now check which was the button pressed
     if (button == &(mButtons[Buttons::B_PLAY])) {
@@ -158,6 +158,12 @@ MainMenuMainState::load(void)
                 debugERROR("Error loading sound %s.\n", SOUNDS_NAME[i]);
             }
         }
+    }
+
+    // adding the needed sources
+    if (sSoundHandler->addDirectSources(NUM_SOUNDS) != mm::SSerror::SS_NO_ERROR) {
+        debugERROR("Error creating directSources (%d)\n", NUM_SOUNDS);
+        // this is not critical so we will not abort the execution now.
     }
 
     return true;
