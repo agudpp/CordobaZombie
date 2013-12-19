@@ -7,11 +7,12 @@
  *      License: GPLv3
  */
 
-
 #include <QWidget>
+#include <QPainter>
 #include <QComboBox>
 #include <QPushButton>
 #include <QMessageBox>
+#include <QStyleOption>
 
 #include <OgreRoot.h>
 #include <OgreString.h>
@@ -106,7 +107,11 @@ CbaZombieConfigDialog::CbaZombieConfigDialog(QWidget* parent) :
             SIGNAL(clicked()),
             this,
             SLOT(close()));
+    // Set background image programatically (see MantisBT issue #346)
+    setStyleSheet("QWidget#CbaZombieConfigDialog { background-image: "
+                  "url(./CbaZombieConfigDialog_background.png) }");
 }
+
 
 ///////////////////////////////////////////////////////////////////////////////
 CbaZombieConfigDialog::~CbaZombieConfigDialog()
@@ -437,6 +442,17 @@ CbaZombieConfigDialog::disableUIComboBox(QComboBox* field,
     field->clear();
     field->addItem(fixed);
     field->setEnabled(false);
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+void
+CbaZombieConfigDialog::paintEvent(QPaintEvent *)
+{
+    QStyleOption opt;
+    opt.init(this);
+    QPainter p(this);
+    style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
 }
 
 

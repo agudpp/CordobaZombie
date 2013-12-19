@@ -38,11 +38,13 @@
    <string>CbaZombieConfigDialog</string>
   </property>
   <property name="autoFillBackground">
-   <bool>true</bool>
+   <bool>false</bool>
   </property>
   <property name="styleSheet">
    <string notr="true">QWidget#CbaZombieConfigDialog {
 	background-image: url(:/images/CbaZombieConfigDialog_background.png);
+	background-position: top left;
+	background-repeat: repeat-xy;
 }</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">

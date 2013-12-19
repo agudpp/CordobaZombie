@@ -137,6 +137,13 @@ private:
     disableUIComboBox(QComboBox* field,
                       const char* fixed = "");
 
+    /**
+     * @brief Necessary overriding to show background image
+     * @remarks Needed since we inherit from QWidget
+     */
+    void
+    paintEvent(QPaintEvent *);
+
 private slots:
     // @brief Set current render system name
     void setRenderSystem(const QString& rs);
@@ -163,6 +170,7 @@ private slots:
     void saveConfig();
 
 private:
+    QPaintEvent* background;
     Ogre::Root* mOgreRoot;
     EngineConfiguration mEngineConfig;
     Ui::CbaZombieConfigDialog* mTemplateUI;
