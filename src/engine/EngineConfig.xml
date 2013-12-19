@@ -8,24 +8,16 @@
                             ST_EXTERIOR_REAL_FAR,
                             ST_INTERIOR
     -->
-    <OgreSystemLoader resources="resources.cfg" 
-                      plugins="plugins.cfg" 
-                      ogre="ogre.cfg" 
-                      ogreLogLevel="High" 
-                      sceneManagerType="ST_GENERIC"/> 
-    
-    
+    <OgreSystemLoader resources="resources.cfg" plugins="plugins.cfg" ogre="ogre.cfg" ogreLogLevel="High" sceneManagerType="ST_GENERIC" />
     <!--    InputSystem loader
     -->
     <InputSystemLoader disableInputGrabbing="1" />
-    
     <!-- OpenALLoader will be used to load the openal context using the specified
          device. If no device is specified (empty string) then we will use the
          default one.
      -->
-    <OpenALLoader device="" />
-    
-    <ResourcesSystemLoader rootRscPath="./" />
-    <SoundSystemLoader rootRscPath="sounds/"/>
+    <OpenALLoader device="OpenAL Soft" />
+    <ResourcesSystemLoader rootRscPath="./media" />
+    <SoundSystemLoader rootRscPath="sounds/" />
     <VideoSystemLoader />
 </EngineConfiguration>

@@ -38,10 +38,12 @@
    <string>CbaZombieConfigDialog</string>
   </property>
   <property name="autoFillBackground">
-   <bool>false</bool>
+   <bool>true</bool>
   </property>
   <property name="styleSheet">
-   <string notr="true">background-image: url(qrc:///images/CbaZombieConfigDialog_background.png);</string>
+   <string notr="true">QWidget#CbaZombieConfigDialog {
+	background-image: url(:/images/CbaZombieConfigDialog_background.png);
+}</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -98,7 +100,8 @@
         </font>
        </property>
        <property name="styleSheet">
-        <string notr="true">background: transparent;</string>
+        <string notr="true">color:rgb(40,40,40);
+background: transparent;</string>
        </property>
        <property name="text">
         <string>Rendering system</string>
@@ -129,7 +132,15 @@
         <enum>Qt::NoFocus</enum>
        </property>
        <property name="styleSheet">
-        <string notr="true">color:rgb(0,0,0);background:rgb(170,170,170);font:</string>
+        <string notr="true">QComboBox#renderSystem {
+	border-radius: 3px;
+	padding: 1px 18px 1px 3px;
+	color: rgb(200,200,200);
+	background-color: rgb(70,70,70);
+	list-background-color:red;
+	selection-color: rgb(40,40,40);
+	selection-background-color: rgb(200,200,200);
+}</string>
        </property>
        <item>
         <property name="text">
@@ -195,7 +206,8 @@
         </font>
        </property>
        <property name="styleSheet">
-        <string notr="true">background:transparent;</string>
+        <string notr="true">color:rgb(40,40,40);
+background: transparent;</string>
        </property>
        <property name="text">
         <string>Color depth</string>
@@ -221,6 +233,9 @@
        </property>
        <property name="cursor">
         <cursorShape>PointingHandCursor</cursorShape>
+       </property>
+       <property name="styleSheet">
+        <string notr="true"/>
        </property>
        <item>
         <property name="text">
@@ -291,7 +306,8 @@
         <bool>false</bool>
        </property>
        <property name="styleSheet">
-        <string notr="true">background: transparent;</string>
+        <string notr="true">color:rgb(40,40,40);
+background: transparent;</string>
        </property>
        <property name="frameShape">
         <enum>QFrame::NoFrame</enum>
@@ -390,7 +406,8 @@
         <bool>false</bool>
        </property>
        <property name="styleSheet">
-        <string notr="true">background: transparent;</string>
+        <string notr="true">color:rgb(40,40,40);
+background: transparent;</string>
        </property>
        <property name="text">
         <string>FSAA</string>
@@ -479,7 +496,8 @@
         <bool>false</bool>
        </property>
        <property name="styleSheet">
-        <string notr="true">background: transparent;</string>
+        <string notr="true">color:rgb(40,40,40);
+background: transparent;</string>
        </property>
        <property name="text">
         <string>VSync</string>
@@ -558,7 +576,8 @@
         <bool>false</bool>
        </property>
        <property name="styleSheet">
-        <string notr="true">background: transparent;</string>
+        <string notr="true">color:rgb(40,40,40);
+background: transparent;</string>
        </property>
        <property name="text">
         <string>Gamma correction</string>
@@ -637,7 +656,8 @@
         <bool>false</bool>
        </property>
        <property name="styleSheet">
-        <string notr="true">background: transparent;</string>
+        <string notr="true">color:rgb(40,40,40);
+background: transparent;</string>
        </property>
        <property name="text">
         <string>Resolution</string>
@@ -731,7 +751,8 @@
         <bool>false</bool>
        </property>
        <property name="styleSheet">
-        <string notr="true">background: transparent;</string>
+        <string notr="true">color:rgb(40,40,40);
+background: transparent;</string>
        </property>
        <property name="text">
         <string>Sound device</string>
@@ -825,7 +846,7 @@
 	font:14px;
 	padding:6px;
 }
-QPushButton#discardAndExits:pressed {
+QPushButton#discardAndExit:pressed {
 	color:rgb(10,10,10);
 	background:rgb(170,140,140);
 	border-style: inset;
@@ -896,6 +917,8 @@ QPushButton#saveAndExit:pressed {
   <zorder>verticalSpacer_2</zorder>
   <zorder>verticalSpacer_3</zorder>
  </widget>
- <resources/>
+ <resources>
+  <include location="CbaZombieConfigDialog.qrc"/>
+ </resources>
  <connections/>
 </ui>

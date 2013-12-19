@@ -20,6 +20,9 @@
 #include <OgreConfigOptionMap.h>
 #include <OgreRenderSystem.h>
 
+#include <AL/al.h>
+#include <AL/alc.h>
+
 #include <cstring>
 #include "CbaZombieConfigDialog.h"
 #include "ui_CbaZombieConfigDialog.h"  // UI file with buttons template
@@ -50,11 +53,6 @@ CbaZombieConfigDialog::sOgreConfigField = {
 ///////////////////////////////////////////////////////////////////////////////
 CbaZombieConfigDialog::CbaZombieConfigDialog(QWidget* parent) :
     QWidget(parent)
-,   mOpenALdev(0)
-,   mOpenALctx(0)
-,   mOgreCfgFile("")
-,   mOgrePluginsCfgFile("")
-,   mOpenALCfgFile("")
 ,   mSoundDevice("")
 {
     // Define internal structures
@@ -124,48 +122,25 @@ CbaZombieConfigDialog::~CbaZombieConfigDialog()
 bool
 CbaZombieConfigDialog::init(const char* engineConfigFilename)
 {
-    EngineConfiguration engineCfg;
-
+    bool parseOK(false);
+    // Read EngineConfiguration file
     if (!engineConfigFilename) {
         QMessageBox::critical(0, "Error",
                      "Null engine configuration filename passed.");
         return false;
     }
-
-    bool parseOK = engineCfg.load(engineConfigFilename);
+    parseOK = mEngineConfig.load(engineConfigFilename);
     if (!parseOK) {
         QMessageBox::critical(0, "Error",
                      "Failed to load engine configuration file.");
         return false;
     }
-
-    // Retrieve Ogre and OpenAL configuration filenames
-    parseOK = engineCfg.getValue(EC_MODULE_OGRE, EC_OGRE_OGRECFG, mOgreCfgFile);
-    if (!parseOK) {
-        QMessageBox::critical(0, "Error",
-                     "Failed to get Ogre configuration filename.");
-        return false;
-    }
-    parseOK = engineCfg.getValue(EC_MODULE_OGRE, EC_OGRE_PLUGINSCFG, mOgrePluginsCfgFile);
-    if (!parseOK) {
-        QMessageBox::critical(0, "Error",
-                     "Failed to get Ogre plugins configuration filename.");
-        return false;
-    }
-    parseOK = engineCfg.getValue(EC_MODULE_OPENAL, EC_OPENAL_DEVICECFG, mOpenALCfgFile);
-    if (!parseOK) {
-        QMessageBox::critical(0, "Error",
-                     "Failed to get OpenAL configuration filename.");
-        return false;
-    }
-
     // Parse config files and fill in UI
     parseOK = reconSystemRenderers();
     if (parseOK) {
         parseOK = restoreOgreConfig();
         parseOK = parseOK && restoreOpenALConfig();
     }
-
     return parseOK;
 }
 
@@ -174,20 +149,39 @@ CbaZombieConfigDialog::init(const char* engineConfigFilename)
 bool
 CbaZombieConfigDialog::restoreOgreConfig()
 {
-    Ogre::ConfigFile cfg;
+    bool parseOK(false);
+    std::string ogreCfgFilename;
+    std::string ogrePluginsFilename;
+    Ogre::ConfigFile ogreCfg;
+
+    // Retrieve ogre configuration filenames from EngineConfiguration file
+    parseOK = mEngineConfig.getValue(EC_MODULE_OGRE, EC_OGRE_OGRECFG,
+                                      ogreCfgFilename);
+    if (!parseOK) {
+        QMessageBox::critical(0, "Error",
+                     "Failed to get Ogre configuration filename.");
+        return false;
+    }
+    parseOK = mEngineConfig.getValue(EC_MODULE_OGRE, EC_OGRE_PLUGINSCFG,
+                                      ogrePluginsFilename);
+    if (!parseOK) {
+        QMessageBox::critical(0, "Error",
+                     "Failed to get Ogre plugins configuration filename.");
+        return false;
+    }
 
     // Check files exist, and try to make Ogre parse them
-    if (mOgreCfgFile.empty() || mOgrePluginsCfgFile.empty()) {
+    if (ogreCfgFilename.empty() || ogrePluginsFilename.empty()) {
         QMessageBox::critical(0, "Error",
                               "Ogre config files have not yet been set.");
         return false;
     }
     try {
-        cfg.load(mOgreCfgFile, "\t:=", false);
+        ogreCfg.load(ogreCfgFilename, "\t:=", false);
     } catch (Ogre::Exception& e) {
         if (e.getNumber() == Ogre::Exception::ERR_FILE_NOT_FOUND) {
             QMessageBox::critical(0, "Error", QString("Ogre config file \"") +
-                                  mOgreCfgFile.c_str() + "\" not found");
+                                  ogreCfgFilename.c_str() + "\" not found");
             return false;
         } else {
             throw(e);
@@ -195,8 +189,8 @@ CbaZombieConfigDialog::restoreOgreConfig()
     }
 
     // Try to read parsed info into our structure
-    bool parseOK(false);
-    Ogre::ConfigFile::SectionIterator iSection = cfg.getSectionIterator();
+    parseOK = false;
+    Ogre::ConfigFile::SectionIterator iSection = ogreCfg.getSectionIterator();
     while (iSection.hasMoreElements() && !parseOK) {
         const Ogre::String& renderSystem = iSection.peekNextKey();
         const Ogre::ConfigFile::SettingsMultiMap& settings = *iSection.getNext();
@@ -226,8 +220,46 @@ CbaZombieConfigDialog::restoreOgreConfig()
 bool
 CbaZombieConfigDialog::restoreOpenALConfig()
 {
+    int pos = 0, MAX_POS = 1024;
+    const ALCchar* device  = 0;
+    const ALCchar* devices = 0;
+    Ogre::StringVector devNames;
 
-    QMessageBox::information(0, "TODO!!!", "restoreOpenALConfig");
+    // Make OpenAL identify all available sound devices.
+    if (!alcIsExtensionPresent(NULL, "ALC_ENUMERATION_EXT")) {
+        QMessageBox::critical(0, "Error", "OpenAL can't retrieve sound "
+                             "devices information");
+        return false;
+    }
+    devNames.clear();
+    devNames.reserve(10);
+    devices = alcGetString(NULL, ALC_DEVICE_SPECIFIER);
+    if (devices == 0) {
+        QMessageBox::critical(0, "Error", "OpenAL didn't find any sound device");
+        return false;
+    }
+
+    // Parse OpenAL output: "devices" contains the device names,
+    // separated by NULL and terminated by two consecutive NULLs.
+    pos = 0;
+    do {
+        device = &(devices[pos]);
+        if (*device != '\0') {
+            devNames.push_back(device);
+            pos += strlen(device)+1;
+        }
+    } while (*device != '\0' && pos < MAX_POS);
+
+    if (pos >= MAX_POS) {
+        QMessageBox::information(0, "Warning", "There may be some sound "
+                                 "devices which we could not find.");
+    }
+
+    // Check if there was some previously chosen sound device
+    mEngineConfig.getValue(EC_MODULE_OPENAL, EC_OPENAL_DEVICECFG, mSoundDevice);
+    // Load found values in UI
+    fillUIComboBox(mTemplateUI->soundDevice, devNames, mSoundDevice.c_str());
+
     return true;
 }
 
@@ -356,7 +388,7 @@ CbaZombieConfigDialog::disableRendererOptions(ConfigFieldCode field)
         break;
 
     case ConfigFieldCode::VERT_SYNC:
-        disableUIComboBox(mTemplateUI->antiAliasing, "0");
+        disableUIComboBox(mTemplateUI->vertSync, "No");
         break;
 
     case ConfigFieldCode::GAMMA_CORR:
@@ -434,6 +466,12 @@ CbaZombieConfigDialog::setRenderSystem(const QString& rs)
 void
 CbaZombieConfigDialog::saveConfig()
 {
+    // Register chosen sound device in the engine config file
+    if (!mEngineConfig.setValue(EC_MODULE_OPENAL,
+                                EC_OPENAL_DEVICECFG,
+                                mSoundDevice)) {
+        QMessageBox::critical(0, "Error", "Failed to save sound device change");
+    }
     // Check selected graphics renderer is valid
     Ogre::RenderSystem* rs = mOgreRoot->getRenderSystemByName(
         mTemplateUI->renderSystem->currentText().toStdString());
@@ -449,13 +487,14 @@ CbaZombieConfigDialog::saveConfig()
             continue;  // Field not available for this render system
         rs->setConfigOption(it->first, mOgreConfigFieldValue[it->second].second);
     }
+    rs->setConfigOption("Full Screen", "Yes");  // Force fullscreen mode
     Ogre::String err = rs->validateConfigOptions();
     if (!err.empty()) {
         QMessageBox::critical(0, "Error", "Bad graphics renderer settings, "
                               "discarding configuration changes.");
         close();
     }
-    // Save and exit
+    // Save Ogre configuration and exit
     mOgreRoot->setRenderSystem(rs);
     mOgreRoot->saveConfig();
     close();
