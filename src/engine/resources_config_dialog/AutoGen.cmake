@@ -51,7 +51,7 @@ QT4_WRAP_CPP(MOCS_WRAPPER ${QtApp_MOCS})
 QT4_WRAP_UI(UIS_WRAPPER ${QtApp_UIS})
 
 # Add the extra wrapper files
-SET(HDRS ${HDRS} ${MOCS_WRAPPER} ${UIS_WRAPPER} ${RCSS_WRAPPER})
+SET(HDRS ${HDRS} ${RCSS_WRAPPER} ${MOCS_WRAPPER} ${UIS_WRAPPER})
 
 # Dynamic libraries
 SET(COMMON_LIBRARIES ${COMMON_LIBRARIES}
@@ -120,7 +120,7 @@ INCLUDE_DIRECTORIES(
 # Dynamic libraries
 SET(COMMON_LIBRARIES ${COMMON_LIBRARIES}
 	${Qt5Widgets_LIBRARIES}  # Qt
-#	tinyxml
+	openal
 )
 
 # Static libraries

@@ -11,14 +11,9 @@
 
 #include <map>
 #include <string>
-
 #include <QWidget>
 #include <QString>
-
-#include <AL/al.h>
-#include <AL/alc.h>
 #include <OgreConfigOptionMap.h>
-
 #include <EngineConfiguration.h>
 
 // Forward declarations
@@ -29,6 +24,7 @@ namespace Ogre {
 namespace Ui {
 	class CbaZombieConfigDialog;
 }
+class EngineConfiguration;
 class QComboBox;
 
 
@@ -141,6 +137,13 @@ private:
     disableUIComboBox(QComboBox* field,
                       const char* fixed = "");
 
+    /**
+     * @brief Necessary overriding to show background image
+     * @remarks Needed since we inherit from QWidget
+     */
+    void
+    paintEvent(QPaintEvent *);
+
 private slots:
     // @brief Set current render system name
     void setRenderSystem(const QString& rs);
@@ -167,14 +170,9 @@ private slots:
     void saveConfig();
 
 private:
-    Ui::CbaZombieConfigDialog* mTemplateUI;
-    // Engines references and config filenames
     Ogre::Root* mOgreRoot;
-    ALCdevice*  mOpenALdev;
-    ALCcontext* mOpenALctx;
-    std::string mOgreCfgFile;
-    std::string mOgrePluginsCfgFile;
-    std::string mOpenALCfgFile;
+    EngineConfiguration mEngineConfig;
+    Ui::CbaZombieConfigDialog* mTemplateUI;
     // Configuration members (must map to ConfigField members)
     static const std::map<std::string, ConfigFieldCode> sOgreConfigField;
     std::map<ConfigFieldCode, ConfigField> mOgreConfigFieldValue;
