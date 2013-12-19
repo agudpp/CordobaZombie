@@ -5,13 +5,13 @@
  *      Author: agustin
  */
 
-#include "EngineConfiguration.h"
-
 #include <string.h>
 #include <sstream>
 
 #include <debug/DebugUtil.h>
+
 #include <xml/XMLHelper.h>
+#include "EngineConfiguration.h"
 
 
 // Helper stuff
@@ -50,8 +50,8 @@ setAttrValue(TiXmlElement* xml, const char* childXml,
     return true;
 }
 
-
 }
+
 
 namespace engine {
 
@@ -77,14 +77,15 @@ EngineConfiguration::load(const std::string& path)
     }
 
     if (mDoc.RootElement() == 0 ||
-        strcmp(mDoc.RootElement()->Value(), "EngineConfiguration") != 0){
-        debugERROR("Invalid configuration file\n");
+        strcmp(mDoc.RootElement()->Value(), "EngineConfiguration") != 0) {
+        debugERROR("Error: %s is an invalid configuration file", path.c_str());
         return false;
     }
 
     // file loaded correctly
     return true;
 }
+
 
 ////////////////////////////////////////////////////////////////////////////////
 bool
@@ -95,12 +96,12 @@ EngineConfiguration::getValue(const std::string& moduleName,
     // Get the root element
     const TiXmlElement* root = mDoc.RootElement();
     if (root == 0) {
-        debugERROR("Error getting the root element of the document\n");
+        debugERROR("Error: Could not get the root element of the document\n");
         return false;
     }
     const char* attr = getAttrPtr(root, moduleName.c_str(), key.c_str());
     if (attr == 0) {
-        debugERROR("We couldn't find element %s in module %s\n",
+        debugERROR("Error: Could not find element %s in module %s.\n",
                    key.c_str(), moduleName.c_str());
         return false;
     }
@@ -108,6 +109,9 @@ EngineConfiguration::getValue(const std::string& moduleName,
     val = attr;
     return true;
 }
+
+
+///////////////////////////////////////////////////////////////////////////////
 bool
 EngineConfiguration::getValue(const std::string& moduleName,
                               const std::string& key,
@@ -116,12 +120,12 @@ EngineConfiguration::getValue(const std::string& moduleName,
     // Get the root element
     const TiXmlElement* root = mDoc.RootElement();
     if (root == 0) {
-        debugERROR("Error getting the root element of the document\n");
+        debugERROR("Error: Could not get the root element of the document\n");
         return false;
     }
     const char* attr = getAttrPtr(root, moduleName.c_str(), key.c_str());
     if (attr == 0) {
-        debugERROR("We couldn't find element %s in module %s\n",
+        debugERROR("Error: Could not find element %s in module %s.\n",
                    key.c_str(), moduleName.c_str());
         return false;
     }
@@ -131,6 +135,9 @@ EngineConfiguration::getValue(const std::string& moduleName,
     ss >> val;
     return true;
 }
+
+
+///////////////////////////////////////////////////////////////////////////////
 bool
 EngineConfiguration::getValue(const std::string& moduleName,
                               const std::string& key,
@@ -139,12 +146,12 @@ EngineConfiguration::getValue(const std::string& moduleName,
     // Get the root element
     const TiXmlElement* root = mDoc.RootElement();
     if (root == 0) {
-        debugERROR("Error getting the root element of the document\n");
+        debugERROR("Error: Could not get the root element of the document\n");
         return false;
     }
     const char* attr = getAttrPtr(root, moduleName.c_str(), key.c_str());
     if (attr == 0) {
-        debugERROR("We couldn't find element %s in module %s\n",
+        debugERROR("Error: Could not find element %s in module %s.\n",
                    key.c_str(), moduleName.c_str());
         return false;
     }
@@ -154,6 +161,9 @@ EngineConfiguration::getValue(const std::string& moduleName,
     ss >> val;
     return true;
 }
+
+
+///////////////////////////////////////////////////////////////////////////////
 bool
 EngineConfiguration::getValue(const std::string& moduleName,
                               const std::string& key,
@@ -162,12 +172,12 @@ EngineConfiguration::getValue(const std::string& moduleName,
     // Get the root element
     const TiXmlElement* root = mDoc.RootElement();
     if (root == 0) {
-        debugERROR("Error getting the root element of the document\n");
+        debugERROR("Error: Could not get the root element of the document\n");
         return false;
     }
     const char* attr = getAttrPtr(root, moduleName.c_str(), key.c_str());
     if (attr == 0) {
-        debugERROR("We couldn't find element %s in module %s\n",
+        debugERROR("Error: Could not find element %s in module %s.\n",
                    key.c_str(), moduleName.c_str());
         return false;
     }
@@ -239,6 +249,68 @@ EngineConfiguration::setValue(const std::string& moduleName,
     return setValue(moduleName, key, ss.str());
 }
 
+
+
+///////////////////////////////////////////////////////////////////////////////
+bool
+EngineConfiguration::setValue(const std::string& moduleName,
+                              const std::string& key,
+                              const std::string& val)
+{
+    // Get the root element
+    TiXmlElement* root = mDoc.RootElement();
+    if (root == 0) {
+        debugERROR("Error: Could not get the root element of the document\n");
+        return false;
+    }
+    if(setAttrValue(root, moduleName.c_str(), key.c_str(), val.c_str())) {
+        mDoc.SaveFile();
+        return true;
+    } else {
+        debugERROR("Error: Couldn't find element %s in module %s\n",
+                           key.c_str(), moduleName.c_str());
+        return false;
+    }
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+bool
+EngineConfiguration::setValue(const std::string& moduleName,
+                              const std::string& key,
+                              const unsigned int& val)
+{
+    // NOTE: could be inlined in the header. However: http://goo.gl/YIZjCr
+    std::stringstream ss;
+    ss << val;
+    return setValue(moduleName, key, ss.str());
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+bool
+EngineConfiguration::setValue(const std::string& moduleName,
+                              const std::string& key,
+                              const int& val)
+{
+    // NOTE: could be inlined in the header. However: http://goo.gl/YIZjCr
+    std::stringstream ss;
+    ss << val;
+    return setValue(moduleName, key, ss.str());
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+bool
+EngineConfiguration::setValue(const std::string& moduleName,
+                              const std::string& key,
+                              const float& val)
+{
+    // NOTE: could be inlined in the header. However: http://goo.gl/YIZjCr
+    std::stringstream ss;
+    ss << val;
+    return setValue(moduleName, key, ss.str());
+}
 
 
 } /* namespace engine */

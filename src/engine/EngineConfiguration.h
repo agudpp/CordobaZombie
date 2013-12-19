@@ -10,7 +10,6 @@
 
 
 #include <string>
-
 #include <tinyxml/tinyxml.h>
 
 
@@ -34,7 +33,7 @@ public:
     bool
     load(const std::string& path);
 
-    // @brief Get an specific value from a module name and the key value.
+    // @brief Get a specific value from a module name and the key value.
     // @param moduleName        The module name
     // @param key               The key (ID) of the value we want to get
     // @param val               The associated value we want
@@ -67,6 +66,7 @@ public:
 private:
     TiXmlDocument mDoc;
 };
+
 
 } /* namespace engine */
 #endif /* ENGINECONFIGURATION_H_ */
