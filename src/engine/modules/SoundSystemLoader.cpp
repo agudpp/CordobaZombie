@@ -41,12 +41,6 @@ SoundSystemLoader::load(const EngineConfiguration& config)
         return false;
     }
 
-    // FIXME: HARDCODED VALUES, SHOULD BE READ FROM XML ///////////////////////
-    debugERROR("HARDCODED values here, MUST be read from XML.\n");
-    // Check MantisBT issue #296 (http://goo.gl/awV5FF)
-    soundsRscPath = mResourceHandler->getResourceRootPath();
-    ///////////////////////////////////////////////////////////////////////////
-
     // Get the SoundHandler singleton instance
     if (mSoundHandler) {
         debugWARNING("The sound system had already been built.\n");
@@ -54,7 +48,15 @@ SoundSystemLoader::load(const EngineConfiguration& config)
         mSoundHandler = &mm::SoundHandler::getInstance();
     }
 
-    debugERROR("TODO: must load all sound files into the SoundSystem.\n" "Find them in the path constructed in \"soundsRscPath\".\n");
+    /*
+     * FIXME: I think next debug comment is wrong!
+     * Sounds should be loaded into the SoundSystem only on demand,
+     * else they will occupy system memory unnecesarily
+     * Here we should just register, for Ogre resource manager,
+     * where in the directory structure those sound files can be found.
+     */
+    debugERROR("TODO: must load all sound files into the SoundSystem.\n"
+               "Find them in the path constructed in \"soundsRscPath\".\n");
 //    ASSERT(false);
 
     return true;

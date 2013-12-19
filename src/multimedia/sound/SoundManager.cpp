@@ -50,7 +50,9 @@ namespace mm {
 
 
 ////////////////////////////////////////////////////////////////////////////////
-SoundManager::SoundManager() : mCam(0)
+SoundManager::SoundManager() :
+    mCam(0)
+,   mOpenALcontext(0)
 {
 	float ori[6] = {0.0, 0.0, -1.0,	 // 'at' vector (i.e. my nose)
 			 	    0.0, 1.0, 0.0};	 // 'up' vector (i.e. top of head)
@@ -275,20 +277,19 @@ SSerror
 SoundManager::setSoundDevice(std::string* devName)
 {
 	ALCcontext* oldContext(0);
-	ALCcontext* newContext(0);
 	ALCdevice* device = devName ? alcOpenDevice(devName->c_str())
 								: alcOpenDevice(0);
 	if (device) {
 		debug("Opened sound device: %s\n",
 				alcGetString(device, ALC_DEVICE_SPECIFIER));
 
-		newContext = alcCreateContext(device, NULL);
-		if(!newContext) {
+		mOpenALcontext = alcCreateContext(device, NULL);
+		if(!mOpenALcontext) {
 			goto fail;
 		}
 
 		oldContext = alcGetCurrentContext();  // Get current context, if any.
-		if (!alcMakeContextCurrent(newContext)) {
+		if (!alcMakeContextCurrent(mOpenALcontext)) {
 			goto fail;
 		}
 
@@ -307,8 +308,8 @@ SoundManager::setSoundDevice(std::string* devName)
 		debug("Couldn't use \"%s\" sound device.\n",
 				(devName ? devName->c_str() : "default"));
 		debugERROR("alcGetError returns error_code %d\n", alcGetError(device));
-		if (newContext) {
-			alcDestroyContext(newContext);
+		if (mOpenALcontext) {
+			alcDestroyContext(mOpenALcontext);
 		}
 		if (device) {
 			alcCloseDevice(device);

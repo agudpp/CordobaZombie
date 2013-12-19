@@ -185,6 +185,12 @@ public:
 	setSoundDevice(std::string* devName);
 
 	/**
+	 ** @brief Tells whether OpenAL system is set up correctly
+	 **/
+	inline bool
+	hasOpenALcontext(void);
+
+	/**
 	 ** @brief
 	 ** Set the camera attached to the SoundManager.
 	 **
@@ -793,6 +799,9 @@ private:
 	// Units' Sounds
 	typedef std::pair<SoundAPI*, ActiveSound*> UnitSound;
 
+	// Current OpenAL context
+	ALCcontext* mOpenALcontext;
+
 	// Camera from which position and orientation are obtained for update().
 	const Ogre::Camera* mCam;
 
@@ -852,6 +861,9 @@ SoundManager::getInstance()
 	return instance;
 }
 
+
+////////////////////////////////////////////////////////////////////////////////
+inline bool SoundManager::hasOpenALcontext() { return mOpenALcontext!=0; }
 
 ////////////////////////////////////////////////////////////////////////////////
 inline void SoundManager::setCamera(const Ogre::Camera* cam) { mCam = cam; }

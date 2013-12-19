@@ -10,6 +10,7 @@
 
 #include <frontend/element/button/FESimpleButton.h>
 #include <types/StackVector.h>
+#include <sound/SoundManager.h>
 
 #include "MainMenuSubState.h"
 
@@ -115,6 +116,7 @@ private:
     core::StackVector<ui::FESimpleButton, Buttons::B_COUNT> mButtons;
     Ogre::Overlay* mOverlay;
     MainMenuSubStateEvent mRetVal;
+    mm::SoundManager& mSM;
 
 };
 

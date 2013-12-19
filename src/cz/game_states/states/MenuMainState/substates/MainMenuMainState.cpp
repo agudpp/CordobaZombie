@@ -14,6 +14,7 @@
 #include <ResourceGroup.h>
 #include <game_states/states/MenuMainState/helper/MainMenuHelper.h>
 #include <frontend/FEManager.h>
+#include <openal_handler/OpenALHandler.h>
 
 
 
@@ -31,6 +32,12 @@ static const char* BUTTONS_NAME[] = {
     "MainMenu/Main/Exit",
 };
 
+
+static const char* SOUNDS_NAME[] = {
+    "fxM1.ogg"
+};
+static const int NUM_SOUNDS(1);  /* Must reflect length of above array */
+
 }
 
 
@@ -40,7 +47,19 @@ namespace cz {
 MainMenuMainState::MainMenuMainState() :
     mOverlay(0)
 ,   mRetVal(MainMenuSubStateEvent::MMSSE_CONTINUE)
+,   mSM(mm::SoundManager::getInstance())
 {
+    if (!mSM.hasOpenALcontext()) {
+        debugWARNING("No sound device set???\n");
+    } else {
+        for (int i=0 ; i < NUM_SOUNDS ; i++) {
+            if (!SOUNDS_NAME[i])
+                continue;
+            mm::SSerror err = mSM.loadSound(SOUNDS_NAME[i]);
+            if (err != mm::SSerror::SS_NO_ERROR)
+                debugERROR("Couldn't load sound \"%s\"\n", SOUNDS_NAME[i]);
+        }
+    }
 }
 
 MainMenuMainState::~MainMenuMainState()
@@ -61,6 +80,9 @@ MainMenuMainState::buttonPressed(ui::FESimpleButton* button,
         debugERROR("We are calling this method but we haven't built the buttons yet?\n");
         return;
     }
+    // Play same sound for every button press
+    if (mSM.hasOpenALcontext())
+        mSM.playEnvSound("fxM1.ogg");
 
     // now check which was the button pressed
     if (button == &(mButtons[Buttons::B_PLAY])) {

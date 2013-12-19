@@ -18,6 +18,6 @@
      -->
     <OpenALLoader device="OpenAL Soft" />
     <ResourcesSystemLoader rootRscPath="./media" />
-    <SoundSystemLoader rootRscPath="sounds/" />
+    <SoundSystemLoader rootRscPath="Multimedia/" />
     <VideoSystemLoader />
 </EngineConfiguration>

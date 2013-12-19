@@ -123,6 +123,12 @@ public:
 	SSerror
 	setSoundDevice(std::string* devName);
 
+    /**
+     ** @brief Tells whether OpenAL system is set up correctly
+     **/
+    inline bool
+    hasOpenALcontext(void);
+
 	/**
 	 ** @brief
 	 ** Set the camera attached to the SoundManager.
@@ -619,6 +625,14 @@ inline SSerror
 SoundHandler::setSoundDevice(std::string* devName)
 {
 	return sSoundManager.setSoundDevice(devName);
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+inline bool
+SoundHandler::hasOpenALcontext()
+{
+    return sSoundManager.hasOpenALcontext();
 }
 
 
