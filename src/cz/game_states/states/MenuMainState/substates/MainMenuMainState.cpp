@@ -232,6 +232,14 @@ MainMenuMainState::unload(void)
     // TODO: remove the bind?
     mButtons.clear();
 
+    // unload the sounds here
+    for (unsigned int i = 0; i < NUM_SOUNDS; ++i) {
+        if (SOUNDS_NAME[i] != 0) {
+            sSoundHandler->soundManager()->unloadSound(SOUNDS_NAME[i]);
+        }
+    }
+
+
     return true;
 }
 

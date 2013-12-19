@@ -455,6 +455,9 @@ MiniDemoApp::load(void)
     sceneData.sceneManager = mData.sceneMngr;
     mSceneHandler.setData(sceneData);
 
+    // configure the clipping distance of the camera (near only)
+    mData.camera->setNearClipDistance(5);
+
     // configure the floor to be used
     loadFloor();
 
