@@ -31,9 +31,13 @@ int main(int argc, char *argv[])
         strncpy(engineConfigFilename, argv[1], EC_FNAME_MAX_LEN);
     } else {
         // Default Engine Configuration file
-        QMessageBox::information(0,"Warning",
-                                 QString("Searching for file \"") +
-                                 EC_DEFAULT_FNAME + "\" in current directory.");
+        // I will comment this just to avoid user confusions. You can change this
+        // in the future or add a console debug (logger) or any other kind of
+        // logging.
+        //
+//        QMessageBox::information(0,"Warning",
+//                                 QString("Searching for file \"") +
+//                                 EC_DEFAULT_FNAME + "\" in current directory.");
         strncpy(engineConfigFilename, EC_DEFAULT_FNAME, EC_FNAME_MAX_LEN);
     }
 

@@ -1,6 +1,5 @@
 <RCC>
-    <qresource>
-        <file>background.png</file>
-        <file>images/CbaZombieConfigDialog_background.png</file>
+    <qresource prefix="/images">
+        <file alias="CbaZombieConfigDialog_background.png">./images/CbaZombieConfigDialog_background.png</file>
     </qresource>
 </RCC>
