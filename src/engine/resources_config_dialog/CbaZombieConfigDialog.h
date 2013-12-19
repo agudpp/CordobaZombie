@@ -170,7 +170,6 @@ private slots:
     void saveConfig();
 
 private:
-    QPaintEvent* background;
     Ogre::Root* mOgreRoot;
     EngineConfiguration mEngineConfig;
     Ui::CbaZombieConfigDialog* mTemplateUI;
