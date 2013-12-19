@@ -14,6 +14,8 @@
 #include <ResourceGroup.h>
 #include <game_states/states/MenuMainState/helper/MainMenuHelper.h>
 #include <frontend/FEManager.h>
+#include <sound/SoundHandler.h>
+#include <sound/SoundManager.h>
 
 
 
@@ -30,6 +32,13 @@ static const char* BUTTONS_NAME[] = {
     "MainMenu/Main/History",
     "MainMenu/Main/Exit",
 };
+
+// define the sounds
+static const char* SOUNDS_NAME[] = {
+    "fxM1.ogg"
+};
+
+static const unsigned int NUM_SOUNDS = sizeof(SOUNDS_NAME) / sizeof(*SOUNDS_NAME);
 
 }
 
@@ -61,6 +70,9 @@ MainMenuMainState::buttonPressed(ui::FESimpleButton* button,
         debugERROR("We are calling this method but we haven't built the buttons yet?\n");
         return;
     }
+
+    // play a sound for every button press
+    sSoundHandler->soundManager()->playEnvSound("fxM1.ogg");
 
     // now check which was the button pressed
     if (button == &(mButtons[Buttons::B_PLAY])) {
@@ -131,6 +143,21 @@ MainMenuMainState::load(void)
                       this,
                       std::placeholders::_1,
                       std::placeholders::_2));
+    }
+
+    // we will load the sounds here
+    //
+    ASSERT(sSoundHandler);
+    ASSERT(sSoundHandler->soundManager());
+    mm::SoundManager* soundMngr = sSoundHandler->soundManager();
+    for (unsigned int i = 0; i < NUM_SOUNDS; ++i) {
+        if (SOUNDS_NAME[i]) {
+            mm::SSerror err = soundMngr->loadSound(SOUNDS_NAME[i]);
+            // this we will let it pass, as not critical for now.
+            if (err != mm::SSerror::SS_NO_ERROR) {
+                debugERROR("Error loading sound %s.\n", SOUNDS_NAME[i]);
+            }
+        }
     }
 
     return true;

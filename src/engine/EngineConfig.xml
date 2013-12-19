@@ -26,6 +26,6 @@
     <OpenALLoader device="" />
     
     <ResourcesSystemLoader rootRscPath="./" />
-    <SoundSystemLoader rootRscPath="sounds/"/>
+    <SoundSystemLoader rootRscPath="multimedia/sonido/"/>
     <VideoSystemLoader />
 </EngineConfiguration>

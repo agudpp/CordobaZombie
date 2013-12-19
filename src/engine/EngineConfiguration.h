@@ -49,6 +49,21 @@ public:
     bool
     getValue(const std::string& moduleName, const std::string& key, float& val) const;
 
+    // @brief Set the value of the specified <module,key> pair.
+    // @param moduleName        The module name
+    // @param key               The key (ID) of the value we want to get
+    // @param val               The value we will set
+    // @return true if the <module,key> pair exists | false otherwise
+    //
+    bool
+    setValue(const std::string& moduleName, const std::string& key, const std::string& val);
+    bool
+    setValue(const std::string& moduleName, const std::string& key, const unsigned int& val);
+    bool
+    setValue(const std::string& moduleName, const std::string& key, const int& val);
+    bool
+    setValue(const std::string& moduleName, const std::string& key, const float& val);
+
 private:
     TiXmlDocument mDoc;
 };

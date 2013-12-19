@@ -31,6 +31,26 @@ getAttrPtr(const TiXmlElement* xml, const char* childXml, const char* attrName)
     }
     return child->Attribute(attrName);
 }
+
+// @brief Sets "attrValue" as value of the attribute "attrName"
+// @returns true if the attribute exists and was written | false otherwise
+//
+bool
+setAttrValue(TiXmlElement* xml, const char* childXml,
+           const char* attrName, const char* attrValue)
+{
+    if (0 == xml)
+        return false;
+    TiXmlElement* child = xml->FirstChildElement(childXml);
+    if (0 == child)
+        return false;
+    if (0 == child->Attribute(attrName))
+        return false;
+    child->SetAttribute(attrName, attrValue);
+    return true;
+}
+
+
 }
 
 namespace engine {
@@ -157,6 +177,68 @@ EngineConfiguration::getValue(const std::string& moduleName,
     ss >> val;
     return true;
 }
+
+///////////////////////////////////////////////////////////////////////////////
+bool
+EngineConfiguration::setValue(const std::string& moduleName,
+                              const std::string& key,
+                              const std::string& val)
+{
+    // Get the root element
+    TiXmlElement* root = mDoc.RootElement();
+    if (root == 0) {
+        debugERROR("Error: Could not get the root element of the document\n");
+        return false;
+    }
+    if(setAttrValue(root, moduleName.c_str(), key.c_str(), val.c_str())) {
+        mDoc.SaveFile();
+        return true;
+    } else {
+        debugERROR("Error: Couldn't find element %s in module %s\n",
+                   key.c_str(), moduleName.c_str());
+        return false;
+    }
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+bool
+EngineConfiguration::setValue(const std::string& moduleName,
+                              const std::string& key,
+                              const unsigned int& val)
+{
+    // NOTE: could be inlined in the header. However: http://goo.gl/YIZjCr
+    std::stringstream ss;
+    ss << val;
+    return setValue(moduleName, key, ss.str());
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+bool
+EngineConfiguration::setValue(const std::string& moduleName,
+                              const std::string& key,
+                              const int& val)
+{
+    // NOTE: could be inlined in the header. However: http://goo.gl/YIZjCr
+    std::stringstream ss;
+    ss << val;
+    return setValue(moduleName, key, ss.str());
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+bool
+EngineConfiguration::setValue(const std::string& moduleName,
+                              const std::string& key,
+                              const float& val)
+{
+    // NOTE: could be inlined in the header. However: http://goo.gl/YIZjCr
+    std::stringstream ss;
+    ss << val;
+    return setValue(moduleName, key, ss.str());
+}
+
 
 
 } /* namespace engine */

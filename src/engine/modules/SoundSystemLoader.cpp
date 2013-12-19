@@ -41,10 +41,18 @@ SoundSystemLoader::load(const EngineConfiguration& config)
         return false;
     }
 
-    // FIXME: HARDCODED VALUES, SHOULD BE READ FROM XML ///////////////////////
-    debugERROR("HARDCODED values here, MUST be read from XML.\n");
     // Check MantisBT issue #296 (http://goo.gl/awV5FF)
-    soundsRscPath = mResourceHandler->getResourceRootPath();
+    std::string fullPath;
+    core::OSHelper::addEndPathVar(soundsRscPath);
+    soundsRscPath.append("resources.cfg");
+    mResourceHandler->getResourceFullPath(soundsRscPath, fullPath);
+    rrh::ResourceGroup rg;
+    rg.setOgreResourceFile(fullPath);
+    if (!mResourceHandler->loadResourceGroup(rg)) {
+        debugERROR("We are not being able to load the folder with the sounds %s\n",
+                   fullPath.c_str());
+        // this is not critical so we will not kill ourself here.
+    }
     ///////////////////////////////////////////////////////////////////////////
 
     // Get the SoundHandler singleton instance
@@ -58,9 +66,6 @@ SoundSystemLoader::load(const EngineConfiguration& config)
     ASSERT(mSoundHandler->soundManager());
     mSoundHandler->soundManager()->setOpenALHandler(mOpenalHandler);
 
-    debugERROR("TODO: must load all sound files into the SoundSystem.\n" "Find them in the path constructed in \"soundsRscPath\".\n");
-//    ASSERT(false);
-
     return true;
 }
 
@@ -68,7 +73,6 @@ SoundSystemLoader::load(const EngineConfiguration& config)
 bool
 SoundSystemLoader::unload(void)
 {
-    debugERROR("Check if we have to do something here... since it is a singleton " "we cannot free its memory\n");
 
     mSoundHandler = 0;
     return true;
