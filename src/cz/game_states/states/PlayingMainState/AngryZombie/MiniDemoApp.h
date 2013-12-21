@@ -19,6 +19,8 @@
 
 #include <physics/DynamicWorld.h>
 #include <types/StackVector.h>
+#include <zombie_unit/RagDollQueue.h>
+#include <zombie_unit/BodyPartQueue.h>
 
 #include "StatisticsInformer.h"
 #include "Player.h"
@@ -196,6 +198,8 @@ private:
     HUD mHud;
     Ogre::Overlay* mPauseOverlay;
     Ogre::Overlay* mHelpOverlay;
+    cz::RagDollQueue<> mRagdollQueue;
+    cz::BodyPartQueue mBodyPartQueue;
 };
 
 } /* namespace demo_app */

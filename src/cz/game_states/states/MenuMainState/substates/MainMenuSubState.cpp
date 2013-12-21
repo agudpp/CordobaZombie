@@ -37,8 +37,7 @@ MainMenuSubState::convertToAbsolute(Ogre::String& relPath) const
 ////////////////////////////////////////////////////////////////////////////////
 MainMenuSubState::MainMenuSubState()
 {
-    debugERROR("We need to uncomment this asserts\n");
-//    ASSERT(sSoundManager != 0);
+    ASSERT(sSoundHandler != 0);
     ASSERT(sCommonHandlers.frontEndManager);
 }
 

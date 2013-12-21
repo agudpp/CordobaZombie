@@ -63,6 +63,13 @@ OpenALLoader::load(const EngineConfiguration& config)
         debugERROR("Error creating the context... we cannot do anything else..\n");
         return false;
     }
+
+    // make the current context current :p
+    if (!mOpenalHandler->makeContextCurrent()) {
+        debugERROR("Error setting the context as current\n");
+        return false;
+    }
+
     return true;
 }
 

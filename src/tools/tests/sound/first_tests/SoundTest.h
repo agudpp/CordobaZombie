@@ -26,6 +26,7 @@
 #include <utils/OrbitCamera.h>
 #include <input/InputHelper.h>
 #include <sound/SoundHandler.h>
+#include <openal_handler/OpenALHandler.h>
 
 
 namespace tests {
@@ -107,6 +108,7 @@ private:
     input::InputHelper mInputHelper;
 
     // SoundSystem specific members
+    mm::OpenALHandler mOpenALHandler;
     mm::SoundHandler&  mSH;
 };
 

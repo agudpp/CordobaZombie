@@ -55,7 +55,8 @@ SET(HDRS ${HDRS} ${RCSS_WRAPPER} ${MOCS_WRAPPER} ${UIS_WRAPPER})
 
 # Dynamic libraries
 SET(COMMON_LIBRARIES ${COMMON_LIBRARIES}
-    ${QT_LIBRARIES}  # Qt
+    ${QT_LIBRARIES}     # Qt
+    OpenAL32            # OpenAL for windows
 )
 
 else()

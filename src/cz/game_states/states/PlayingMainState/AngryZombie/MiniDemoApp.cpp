@@ -415,6 +415,7 @@ MiniDemoApp::setData(const DemoData& data)
     mData.informer->setOgreRenderWindow(mData.renderWindow);
 
     Projectile::setDynamicWorld(&mDynamicWorld);
+    Projectile::setQueues(&mRagdollQueue, &mBodyPartQueue);
     WorldObject::setGameLogicData(&mGameLogicData);
 }
 
@@ -424,8 +425,6 @@ MiniDemoApp::getResourceToLoad(rrh::ResourceGroup& resource)
 {
     PRECONDITION_CHECK;
 
-    debugERROR("For now we will load everything to avoid problems, then we will"
-        " load the resources correctly here.\n");
     std::string fullPath;
     mData.rscHandler->getResourceFullPath("mini_demo/resources.cfg", fullPath);
     resource.setOgreResourceFile(fullPath);
@@ -456,11 +455,14 @@ MiniDemoApp::load(void)
     sceneData.sceneManager = mData.sceneMngr;
     mSceneHandler.setData(sceneData);
 
+    // configure the clipping distance of the camera (near only)
+    mData.camera->setNearClipDistance(5);
+
     // configure the floor to be used
     loadFloor();
 
     // we will load everything here. Parse the SceneHandler and everything else
-    debugERROR("TODO\n");
+
     // reset the informer
     mData.informer->reset();
 

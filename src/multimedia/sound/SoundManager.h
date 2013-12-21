@@ -55,6 +55,7 @@ class SoundBuffer;
 class LSoundSource;
 class SSoundSource;
 class SoundAPI;
+class OpenALHandler;
 
 
 class SoundManager
@@ -150,6 +151,19 @@ private:
 	/*********************************************************************/
 	/**********************    INITIALIZATION    *************************/
 public:
+
+	/**
+     ** @brief
+     ** Set the OpenALHandler to be used by this instance
+     **
+     ** @param
+     ** The handler pointer to be used. Note that we need this handler over all
+     ** the life time of this instance, so you cannot destory it before this
+     ** class.
+     **/
+    void
+    setOpenALHandler(OpenALHandler* handler);
+
 	/**
 	 ** @brief
 	 ** Lists available sound devices
@@ -168,21 +182,7 @@ public:
 	std::string
 	getSoundDevice();
 
-	/**
-	 ** @brief
-	 ** Changes current sound device to devName.
-	 **
-	 ** @remarks
-	 ** NULL argument selects default sound device.
-	 ** This destroys current sound context, all playing sounds will be lost.
-	 ** If devName can't be used, nothing is done.
-	 **
-	 ** @return
-	 ** SS_NO_ERROR			Success.
-	 ** SS_INTERNAL_ERROR	Couldn't create context on specified device.
-	 **/
-	SSerror
-	setSoundDevice(std::string* devName);
+
 
 	/**
 	 ** @brief Tells whether OpenAL system is set up correctly
@@ -313,6 +313,17 @@ public:
 	unloadSound(const Ogre::String& sName);
 
 
+    /**
+     ** @brief
+     ** Destroy and uninitialize all the buffers and sources already loaded. This
+     ** method will stop all the current active sounds and will destory everything
+     ** else. Basically, is simulating the "destructor" since is a singleton
+     ** class. This should be fixed when we change this class to not be anymore
+     ** a singleton.
+     **
+     **/
+    void
+    destroyAll(void);
 
 	/*********************************************************************/
 	/****************    GLOBAL PLAYBACK CONTROLS    *********************/
@@ -825,6 +836,9 @@ private:
 
 	// Pointers to the active units sounds.
 	std::vector<UnitSound> mUnitSounds;
+
+	// The OpenALHandler to be used
+	OpenALHandler* mOpenALHandler;
 };
 
 
@@ -854,13 +868,12 @@ inline SoundManager::ActiveSound::~ActiveSound()
 
 
 ////////////////////////////////////////////////////////////////////////////////
-SoundManager&
+inline SoundManager&
 SoundManager::getInstance()
 {
 	static SoundManager instance;
 	return instance;
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////
 inline bool SoundManager::hasOpenALcontext() { return mOpenALcontext!=0; }

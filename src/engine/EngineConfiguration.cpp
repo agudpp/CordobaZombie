@@ -8,7 +8,7 @@
 #include <string.h>
 #include <sstream>
 
-#include <QMessageBox>
+#include <debug/DebugUtil.h>
 
 #include <xml/XMLHelper.h>
 #include "EngineConfiguration.h"
@@ -72,16 +72,13 @@ EngineConfiguration::load(const std::string& path)
     mDoc.Clear();
     mDoc.ClearError();
     if (!mDoc.LoadFile(path.c_str())) {
-        QMessageBox::critical(0, "Error", "Failed loading file " +
-                              QString(path.c_str()));
         debugERROR("Error loading file %s\n", path.c_str());
         return false;
     }
 
     if (mDoc.RootElement() == 0 ||
         strcmp(mDoc.RootElement()->Value(), "EngineConfiguration") != 0) {
-        QMessageBox::critical(0, "Error", QString(path.c_str()) +
-                              "is an invalid configuration file");
+        debugERROR("Error: %s is an invalid configuration file", path.c_str());
         return false;
     }
 
@@ -99,15 +96,13 @@ EngineConfiguration::getValue(const std::string& moduleName,
     // Get the root element
     const TiXmlElement* root = mDoc.RootElement();
     if (root == 0) {
-        QMessageBox::critical(0, "Error", "Could not get the root element "
-                              "of the document\n");
+        debugERROR("Error: Could not get the root element of the document\n");
         return false;
     }
     const char* attr = getAttrPtr(root, moduleName.c_str(), key.c_str());
     if (attr == 0) {
-        QMessageBox::critical(0, "Error", "Could not find element " +
-                              QString(key.c_str()) + " in module " +
-                              QString(moduleName.c_str()));
+        debugERROR("Error: Could not find element %s in module %s.\n",
+                   key.c_str(), moduleName.c_str());
         return false;
     }
 
@@ -125,15 +120,13 @@ EngineConfiguration::getValue(const std::string& moduleName,
     // Get the root element
     const TiXmlElement* root = mDoc.RootElement();
     if (root == 0) {
-        QMessageBox::critical(0, "Error", "Could not get the root element "
-                              "of the document\n");
+        debugERROR("Error: Could not get the root element of the document\n");
         return false;
     }
     const char* attr = getAttrPtr(root, moduleName.c_str(), key.c_str());
     if (attr == 0) {
-        QMessageBox::critical(0, "Error", "Could not find element " +
-                              QString(key.c_str()) + " in module " +
-                              QString(moduleName.c_str()));
+        debugERROR("Error: Could not find element %s in module %s.\n",
+                   key.c_str(), moduleName.c_str());
         return false;
     }
 
@@ -153,15 +146,13 @@ EngineConfiguration::getValue(const std::string& moduleName,
     // Get the root element
     const TiXmlElement* root = mDoc.RootElement();
     if (root == 0) {
-        QMessageBox::critical(0, "Error", "Could not get the root element "
-                              "of the document\n");
+        debugERROR("Error: Could not get the root element of the document\n");
         return false;
     }
     const char* attr = getAttrPtr(root, moduleName.c_str(), key.c_str());
     if (attr == 0) {
-        QMessageBox::critical(0, "Error", "Could not find element " +
-                              QString(key.c_str()) + " in module " +
-                              QString(moduleName.c_str()));
+        debugERROR("Error: Could not find element %s in module %s.\n",
+                   key.c_str(), moduleName.c_str());
         return false;
     }
 
@@ -181,15 +172,13 @@ EngineConfiguration::getValue(const std::string& moduleName,
     // Get the root element
     const TiXmlElement* root = mDoc.RootElement();
     if (root == 0) {
-        QMessageBox::critical(0, "Error", "Could not get the root element "
-                              "of the document\n");
+        debugERROR("Error: Could not get the root element of the document\n");
         return false;
     }
     const char* attr = getAttrPtr(root, moduleName.c_str(), key.c_str());
     if (attr == 0) {
-        QMessageBox::critical(0, "Error", "Could not find element " +
-                              QString(key.c_str()) + " in module " +
-                              QString(moduleName.c_str()));
+        debugERROR("Error: Could not find element %s in module %s.\n",
+                   key.c_str(), moduleName.c_str());
         return false;
     }
 
@@ -198,7 +187,6 @@ EngineConfiguration::getValue(const std::string& moduleName,
     ss >> val;
     return true;
 }
-
 
 ///////////////////////////////////////////////////////////////////////////////
 bool
@@ -209,17 +197,15 @@ EngineConfiguration::setValue(const std::string& moduleName,
     // Get the root element
     TiXmlElement* root = mDoc.RootElement();
     if (root == 0) {
-        QMessageBox::critical(0, "Error", "Could not get the root element "
-                              "of the document\n");
+        debugERROR("Error: Could not get the root element of the document\n");
         return false;
     }
     if(setAttrValue(root, moduleName.c_str(), key.c_str(), val.c_str())) {
         mDoc.SaveFile();
         return true;
     } else {
-        QMessageBox::critical(0, "Error", "Could not find element " +
-                              QString(key.c_str()) + " in module " +
-                              QString(moduleName.c_str()));
+        debugERROR("Error: Couldn't find element %s in module %s\n",
+                   key.c_str(), moduleName.c_str());
         return false;
     }
 }
@@ -262,6 +248,7 @@ EngineConfiguration::setValue(const std::string& moduleName,
     ss << val;
     return setValue(moduleName, key, ss.str());
 }
+
 
 
 } /* namespace engine */

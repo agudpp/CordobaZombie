@@ -41,6 +41,20 @@ SoundSystemLoader::load(const EngineConfiguration& config)
         return false;
     }
 
+    // Check MantisBT issue #296 (http://goo.gl/awV5FF)
+    std::string fullPath;
+    core::OSHelper::addEndPathVar(soundsRscPath);
+    soundsRscPath.append("resources.cfg");
+    mResourceHandler->getResourceFullPath(soundsRscPath, fullPath);
+    rrh::ResourceGroup rg;
+    rg.setOgreResourceFile(fullPath);
+    if (!mResourceHandler->loadResourceGroup(rg)) {
+        debugERROR("We are not being able to load the folder with the sounds %s\n",
+                   fullPath.c_str());
+        // this is not critical so we will not kill ourself here.
+    }
+    ///////////////////////////////////////////////////////////////////////////
+
     // Get the SoundHandler singleton instance
     if (mSoundHandler) {
         debugWARNING("The sound system had already been built.\n");
@@ -48,16 +62,9 @@ SoundSystemLoader::load(const EngineConfiguration& config)
         mSoundHandler = &mm::SoundHandler::getInstance();
     }
 
-    /*
-     * FIXME: I think next debug comment is wrong!
-     * Sounds should be loaded into the SoundSystem only on demand,
-     * else they will occupy system memory unnecesarily
-     * Here we should just register, for Ogre resource manager,
-     * where in the directory structure those sound files can be found.
-     */
-    debugERROR("TODO: must load all sound files into the SoundSystem.\n"
-               "Find them in the path constructed in \"soundsRscPath\".\n");
-//    ASSERT(false);
+    // set the openal handler
+    ASSERT(mSoundHandler->soundManager());
+    mSoundHandler->soundManager()->setOpenALHandler(mOpenalHandler);
 
     return true;
 }
@@ -66,7 +73,15 @@ SoundSystemLoader::load(const EngineConfiguration& config)
 bool
 SoundSystemLoader::unload(void)
 {
-    debugERROR("Check if we have to do something here... since it is a singleton " "we cannot free its memory\n");
+    if (mSoundHandler == 0) {
+        // nothing to do
+        return true;
+    }
+
+    // stop all the sounds and unload all of them
+    mm::SoundManager* soundMngr = mSoundHandler->soundManager();
+    ASSERT(soundMngr);
+    soundMngr->destroyAll();
 
     mSoundHandler = 0;
     return true;

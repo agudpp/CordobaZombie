@@ -57,6 +57,11 @@ private:
     bool
     initMainStateMachine(void);
 
+    // @brief Unload everything in the correct order.
+    //
+    void
+    uninitAll(void);
+
 private:
     engine::Engine& mEngine;
     // General handlers / helpers / managers

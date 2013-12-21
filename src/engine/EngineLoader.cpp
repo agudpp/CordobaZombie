@@ -76,8 +76,10 @@ EngineLoader::unload(void)
         debugERROR("We have no loaders to unload anything\n");
         return false;
     }
-
-    for (IModuleLoader* l : mLoaders) {
+    // we will destroy them in the reverse of build order.
+    //
+    for (int i = mLoaders.size() - 1; i >= 0; --i) {
+        IModuleLoader* l = mLoaders[i];
         if (!l->unload()) {
             debugERROR("Error unloading loader %s\n", l->name().c_str());
             return false;

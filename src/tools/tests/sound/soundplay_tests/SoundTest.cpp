@@ -149,8 +149,12 @@ SoundTest::SoundTest() :
     mEntity(0),
     mOrbitCamera(mCamera, mSceneMgr, mTimeFrame),
     mInputHelper(getMouseButtons(), getKeyboardKeys()),
+    mOpenALHandler(true),
 	mSH(mm::SoundHandler::getInstance())
 {
+    // configure the sound manager
+    mSH.soundManager()->setOpenALHandler(&mOpenALHandler);
+
 	// Sound system setup auxiliary variables
 	Ogre::String fails("");
 	std::vector<Ogre::String> sounds;

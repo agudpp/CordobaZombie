@@ -260,7 +260,10 @@ MainMenuHistoryState::unload(void)
 bool
 MainMenuHistoryState::getResourcesToUnload(ResourceGroupList& resourceList)
 {
-    debugERROR("TODO: Implement this, for now we will return true for test only\n");
+    if (!getResourcesToLoad(resourceList)) {
+        debugERROR("Calling from here!\n");
+        return false;
+    }
     return true;
 }
 

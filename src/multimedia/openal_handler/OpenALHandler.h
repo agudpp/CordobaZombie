@@ -26,7 +26,12 @@ class OpenALHandler
 {
 public:
 
-    OpenALHandler();
+    // @brief we will support the creation of the default device
+    //        to support backward compatibility. This createDefault
+    //        probably will be never used in a release version since
+    //        we need to create a device depending on the configuration.
+    //
+    OpenALHandler(bool createDefault = false);
 
     // @brief When the openal handler is destroyed the context and devices are
     //        closed and destroyed.
@@ -57,6 +62,13 @@ public:
     //
     void
     getDevices(std::vector<std::string>& devices);
+
+    // @brief Get the current device name, or empty string if we have not or
+    //        some error occurs.
+    // @return the current device name
+    //
+    std::string
+    deviceName(void);
 
     // @brief Open and construct the openal device.
     // @param deviceID      The device id we want to open. If no name is provided

@@ -16,8 +16,8 @@
          device. If no device is specified (empty string) then we will use the
          default one.
      -->
-    <OpenALLoader device="OpenAL Soft" />
+    <OpenALLoader device="" />
+    <SoundSystemLoader rootRscPath="multimedia/sonido/"/>
     <ResourcesSystemLoader rootRscPath="./media" />
-    <SoundSystemLoader rootRscPath="Multimedia/" />
     <VideoSystemLoader />
 </EngineConfiguration>

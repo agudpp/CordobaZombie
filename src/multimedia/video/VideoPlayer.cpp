@@ -516,6 +516,32 @@ VideoPlayer::unload(void)
 
     // Clean audio buffers:
 
+    // remove the source first
+    if (alGetError() != AL_NO_ERROR) {
+        debugERROR("We already have an error when trying to delete"
+            " the video openal stuff?\n");
+    }
+
+    // delete the sources
+    if (alIsSource(source)) {
+        alDeleteSources(1, &source);
+        source = 0;
+    }
+
+    // delete the allocated buffers, checking one by one
+    for (unsigned int i = 0; i < NUM_BUFFERS; ++i) {
+        if (alIsBuffer(buffers[i])) {
+            // delete this one
+            alDeleteBuffers(1, &(buffers[i]));
+        }
+    }
+
+    if (alGetError() != AL_NO_ERROR) {
+        debugERROR("Some error occur when deleting the openal sources or buffers "
+            "in the video player\n");
+    }
+
+
     // In case we where decoding something.
     if (audio_decoding_pkt) {
         av_free_packet(audio_decoding_pkt);
@@ -642,10 +668,12 @@ VideoPlayer::get_al_audio_player(void)
 
     if (!mALHandler->hasDevice()) {
         ASSERT(false && "No device was set for the OpenALHandler.\n");
+        return VIDEO_ERROR;
     }
 
     if (!mALHandler->hasContext()) {
         ASSERT(false && "No context was set for the OpenALHandler.\n");
+        return VIDEO_ERROR;
     }
 
     // Generate buffers and source

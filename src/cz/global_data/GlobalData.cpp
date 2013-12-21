@@ -9,6 +9,7 @@
 
 #include <debug/DebugUtil.h>
 #include <os_utils/OSHelper.h>
+#include <ResourceHandler.h>
 
 namespace cz {
 
@@ -24,17 +25,11 @@ float GlobalData::lastTimeFrame = 0.f;
 bool
 GlobalData::getRootResourcesPath(std::string& path)
 {
-    // TODO: here we should return the resourceHandler->getRootPath();
-    char* envVar = 0;
-    // for now we will use the one used by CZ = CZ01_RC_PATH
-    if (!core::OSHelper::getEnvVar("CZ01_RC_PATH", envVar) ||
-        envVar == 0) {
-        debugERROR("Error getting the CZ01 resource path CZ01_RC_PATH\n");
+    if (!rscHandler) {
+        debugERROR("No ResourceHandler set!\n");
         return false;
     }
-    // get the resource path
-    path = envVar;
-    core::OSHelper::addEndPathVar(path);
+    path = rscHandler->getResourceRootPath();
     return true;
 }
 
