@@ -119,6 +119,13 @@ public:
 
 	/**
 	 ** @brief
+	 ** Tells whether the OpenAL system is set up correctly
+	 **/
+	inline bool
+	hasOpenALcontext();
+
+	/**
+	 ** @brief
 	 ** Set the camera attached to the SoundManager.
 	 **
 	 ** @remarks

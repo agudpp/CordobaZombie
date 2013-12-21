@@ -68,7 +68,7 @@ IF (NOT DEFINED ENV{QT_ROOT_PATH})
 						 "e.g. /home/yourname/Qt5.1.1/5.1.1/gcc_64/")
 ELSE()
 	SET(QT_ROOT_PATH $ENV{QT_ROOT_PATH})
-endIF(NOT DEFINED ENV{QT_ROOT_PATH})
+ENDIF(NOT DEFINED ENV{QT_ROOT_PATH})
 
 IF (NOT EXISTS ${QT_ROOT_PATH}/include/QtWidgets/)
 	MESSAGE( FATAL_ERROR "Environment variable \"QT_ROOT_PATH\" must point "
@@ -129,7 +129,7 @@ IF(UNIX)
 #	# tinyxml
 #	add_library(tinyxml STATIC IMPORTED)
 #	set_property(TARGET tinyxml PROPERTY
- #               IMPORTED_LOCATION ${THIRD_PARTY_LIBS}/lib/tinyxml.a)
+#               IMPORTED_LOCATION ${THIRD_PARTY_LIBS}/lib/tinyxml.a)
 ENDIF(UNIX)
 
 endif()

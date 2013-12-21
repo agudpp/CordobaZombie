@@ -38,13 +38,13 @@
    <string>CbaZombieConfigDialog</string>
   </property>
   <property name="autoFillBackground">
-   <bool>false</bool>
+   <bool>true</bool>
   </property>
   <property name="styleSheet">
    <string notr="true">QWidget#CbaZombieConfigDialog {
-	background-image: url(:/images/CbaZombieConfigDialog_background.png);
-	background-position: top left;
-	background-repeat: repeat-xy;
+    background-image: url(:/images/CbaZombieConfigDialog_background.png);
+    background-position: top left;
+    background-repeat: repeat-xy;
 }</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
@@ -135,13 +135,13 @@ background: transparent;</string>
        </property>
        <property name="styleSheet">
         <string notr="true">QComboBox#renderSystem {
-	border-radius: 3px;
-	padding: 1px 18px 1px 3px;
-	color: rgb(200,200,200);
-	background-color: rgb(70,70,70);
-	list-background-color:red;
-	selection-color: rgb(40,40,40);
-	selection-background-color: rgb(200,200,200);
+    border-radius: 3px;
+    padding: 1px 18px 1px 3px;
+    color: rgb(200,200,200);
+    background-color: rgb(70,70,70);
+    list-background-color:red;
+    selection-color: rgb(40,40,40);
+    selection-background-color: rgb(200,200,200);
 }</string>
        </property>
        <item>
@@ -839,19 +839,19 @@ background: transparent;</string>
        </property>
        <property name="styleSheet">
         <string notr="true">QPushButton#discardAndExit {
-	color:rgb(30,30,30);
-	background:rgb(190,160,160);
-	border-style:outset;
-	border-width:2px;
-	border-radius:10px;
-	border-color:rgb(160,130,130);
-	font:14px;
-	padding:6px;
+    color:rgb(30,30,30);
+    background:rgb(190,160,160);
+    border-style:outset;
+    border-width:2px;
+    border-radius:10px;
+    border-color:rgb(160,130,130);
+    font:14px;
+    padding:6px;
 }
 QPushButton#discardAndExit:pressed {
-	color:rgb(10,10,10);
-	background:rgb(170,140,140);
-	border-style: inset;
+    color:rgb(10,10,10);
+    background:rgb(170,140,140);
+    border-style: inset;
 }</string>
        </property>
        <property name="text">
@@ -892,19 +892,19 @@ QPushButton#discardAndExit:pressed {
        </property>
        <property name="styleSheet">
         <string notr="true">QPushButton#saveAndExit {
-	color:rgb(30,30,30);
-	background:rgb(120,160,120);
-	border-style:outset;
-	border-width:2px;
-	border-radius:10px;
-	border-color:rgb(90,130,90);
-	font:14px;
-	padding:6px;
+    color:rgb(30,30,30);
+    background:rgb(120,160,120);
+    border-style:outset;
+    border-width:2px;
+    border-radius:10px;
+    border-color:rgb(90,130,90);
+    font:14px;
+    padding:6px;
 }
 QPushButton#saveAndExit:pressed {
-	color:rgb(10,10,10);
-	background:rgb(100,140,100);
-	border-style: inset;
+    color:rgb(10,10,10);
+    background:rgb(100,140,100);
+    border-style: inset;
 }</string>
        </property>
        <property name="text">

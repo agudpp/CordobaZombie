@@ -109,8 +109,8 @@ CbaZombieConfigDialog::CbaZombieConfigDialog(QWidget* parent) :
             SLOT(close()));
 
     // Set background image programatically (see MantisBT issue #346)
-    setStyleSheet(" background-image: "
-                  "url(images/CbaZombieConfigDialog_background.png);");
+    setStyleSheet("QWidget#CbaZombieConfigDialog { background-image: "
+                  "url(./CbaZombieConfigDialog_background.png); }");
 }
 
 
