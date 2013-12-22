@@ -110,6 +110,7 @@ CbaZombieConfigDialog::CbaZombieConfigDialog(QWidget* parent) :
 
     // Set background image programatically (see MantisBT issue #346)
     setStyleSheet("QWidget#CbaZombieConfigDialog { background-image: "
+//                  "url(:/images/CbaZombieConfigDialog_background.png); }");
                   "url(./CbaZombieConfigDialog_background.png); }");
 }
 
@@ -431,6 +432,7 @@ CbaZombieConfigDialog::fillUIComboBox(QComboBox* field,
     } else {
         field->setCurrentIndex(0);
     }
+    field->setEnabled(true);
 }
 
 
@@ -443,6 +445,31 @@ CbaZombieConfigDialog::disableUIComboBox(QComboBox* field,
     field->clear();
     field->addItem(fixed);
     field->setEnabled(false);
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+void
+CbaZombieConfigDialog::refreshFrequencyValues(const QString& newRes)
+{
+    // Inform the renderer of the new resolution chosen
+    Ogre::RenderSystem* rs = mOgreRoot->getRenderSystemByName(
+        mTemplateUI->renderSystem->currentText().toStdString());
+    if (!rs)
+        return;  // Bad render system, nothing can be done
+    rs->setConfigOption("Video Mode", newRes.toStdString());
+    // Check which frequencies are available
+    Ogre::ConfigOptionMap opts = rs->getConfigOptions();
+    auto freq = opts.find("Display Frequency");
+    if (freq == opts.end()) {
+        // Field not found??? Disable in UI
+        ConfigFieldCode code = sOgreConfigField.at(freq->first);
+        mOgreConfigFieldValue[code] = std::make_pair(false, "");
+        disableRendererOptions(code);
+    } else {
+        // Refresh UI with available frequencies for this resolution
+        fillRendererOptions(freq->second);
+    }
 }
 
 

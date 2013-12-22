@@ -38,7 +38,7 @@
    <string>CbaZombieConfigDialog</string>
   </property>
   <property name="autoFillBackground">
-   <bool>true</bool>
+   <bool>false</bool>
   </property>
   <property name="styleSheet">
    <string notr="true">QWidget#CbaZombieConfigDialog {
@@ -116,15 +116,21 @@ background: transparent;</string>
      <item>
       <widget class="QComboBox" name="renderSystem">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
+       <property name="minimumSize">
+        <size>
+         <width>150</width>
+         <height>25</height>
+        </size>
+       </property>
        <property name="maximumSize">
         <size>
-         <width>146</width>
-         <height>16777215</height>
+         <width>150</width>
+         <height>25</height>
         </size>
        </property>
        <property name="cursor">
@@ -135,8 +141,13 @@ background: transparent;</string>
        </property>
        <property name="styleSheet">
         <string notr="true">QComboBox#renderSystem {
+	font-weight: bold;
+	margin: 1px;
+	border: 0px solid black;
+	border-bottom-width: 2px;
+	border-bottom-color: rgb(60,60,60);
     border-radius: 3px;
-    padding: 1px 18px 1px 3px;
+    padding: 2px 2px 1px 5px;
     color: rgb(200,200,200);
     background-color: rgb(70,70,70);
     list-background-color:red;
@@ -235,6 +246,9 @@ background: transparent;</string>
        </property>
        <property name="cursor">
         <cursorShape>PointingHandCursor</cursorShape>
+       </property>
+       <property name="focusPolicy">
+        <enum>Qt::NoFocus</enum>
        </property>
        <property name="styleSheet">
         <string notr="true"/>

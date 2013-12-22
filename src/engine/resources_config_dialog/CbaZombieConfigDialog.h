@@ -138,6 +138,13 @@ private:
                       const char* fixed = "");
 
     /**
+     * @brief Display proper frequency values for newly chosen resolution
+     * @param Newly chosen display resolution
+     */
+    void
+    refreshFrequencyValues(const QString& newRes);
+
+    /**
      * @brief Necessary overriding to show background image
      * @remarks Needed since we inherit from QWidget
      */
@@ -243,9 +250,12 @@ CbaZombieConfigDialog::setGammaCorrection(const QString& val)
 inline void
 CbaZombieConfigDialog::setDisplayResolution(const QString& val)
 {
-    if(val.size()>0)
+    if(val.size()>0) {
         mOgreConfigFieldValue[ConfigFieldCode::DISPLAY_RES].second =
             val.toStdString();
+        if (mOgreConfigFieldValue[ConfigFieldCode::DISPLAY_FREQ].first)
+            refreshFrequencyValues(val);  // Since these depend on resolution
+    }
 }
 
 

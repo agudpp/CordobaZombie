@@ -7,7 +7,6 @@
 set(HDRS ${HDRS}
 	${DEV_ROOT_PATH}/engine/EngineConfiguration.h
 	${DEV_ROOT_PATH}/engine/resources_config_dialog/CbaZombieConfigDialog.h
-	${DEV_ROOT_PATH}/engine/resources_config_dialog/CbaZombieConfigDialog.qrc
 )
 
 # Module sources
@@ -44,6 +43,7 @@ ENDIF(NOT EXISTS ${QTDIR}/include/QtCore/)
 FIND_PACKAGE(Qt4 COMPONENTS QtCore QtGui REQUIRED)
 
 # Include the corresponding Qt headers directories
+INCLUDE(${CMAKE_ROOT}/Modules/FindQt4.cmake)
 INCLUDE_DIRECTORIES(${QT_INCLUDES})
 INCLUDE(${QT_USE_FILE})
 
