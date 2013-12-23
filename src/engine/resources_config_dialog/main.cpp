@@ -30,11 +30,10 @@ int main(int argc, char *argv[])
         // User specified Engine Configuration file
         strncpy(engineConfigFilename, argv[1], EC_FNAME_MAX_LEN);
     } else {
-        // Default Engine Configuration file
-        // I will comment this just to avoid user confusions. You can change this
-        // in the future or add a console debug (logger) or any other kind of
-        // logging.
-        //
+        /* I will comment this out just to avoid user confusions.
+         * You can change it in the future or add a console debug (logger)
+         * or any other kind of logging. */
+//        // Default Engine Configuration file
 //        QMessageBox::information(0,"Warning",
 //                                 QString("Searching for file \"") +
 //                                 EC_DEFAULT_FNAME + "\" in current directory.");

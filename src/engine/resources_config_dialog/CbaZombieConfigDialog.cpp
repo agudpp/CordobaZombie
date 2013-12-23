@@ -72,7 +72,7 @@ CbaZombieConfigDialog::CbaZombieConfigDialog(QWidget* parent) :
             this,
             SLOT(setRenderSystem(const QString&)));
     connect(mTemplateUI->colorDepth,
-            SIGNAL(currentIndexChanged(int)),
+            SIGNAL(currentIndexChanged(const QString&)),
             this,
             SLOT(setColorDepth(const QString&)));
     connect(mTemplateUI->displayFreq,
@@ -107,11 +107,6 @@ CbaZombieConfigDialog::CbaZombieConfigDialog(QWidget* parent) :
             SIGNAL(clicked()),
             this,
             SLOT(close()));
-
-    // Set background image programatically (see MantisBT issue #346)
-    setStyleSheet("QWidget#CbaZombieConfigDialog { background-image: "
-//                  "url(:/images/CbaZombieConfigDialog_background.png); }");
-                  "url(./CbaZombieConfigDialog_background.png); }");
 }
 
 

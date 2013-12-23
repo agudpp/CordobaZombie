@@ -42,7 +42,7 @@
   </property>
   <property name="styleSheet">
    <string notr="true">QWidget#CbaZombieConfigDialog {
-    background-image: url(:/images/CbaZombieConfigDialog_background.png);
+    background-image: url(:/background);
     background-position: top left;
     background-repeat: repeat-xy;
 }</string>
@@ -150,7 +150,6 @@ background: transparent;</string>
     padding: 2px 2px 1px 5px;
     color: rgb(200,200,200);
     background-color: rgb(70,70,70);
-    list-background-color:red;
     selection-color: rgb(40,40,40);
     selection-background-color: rgb(200,200,200);
 }</string>
@@ -929,9 +928,6 @@ QPushButton#saveAndExit:pressed {
     </layout>
    </item>
   </layout>
-  <zorder>verticalSpacer</zorder>
-  <zorder>verticalSpacer_2</zorder>
-  <zorder>verticalSpacer_3</zorder>
  </widget>
  <resources>
   <include location="CbaZombieConfigDialog.qrc"/>
