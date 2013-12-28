@@ -286,6 +286,7 @@ SoundManager::loadSound(const Ogre::String& sName, SSformat format, SSbuftype ty
 	}
 
 	// First find audio file absolute path.
+	// TODO: use our own ResourcesManager
 	Ogre::ResourceGroupManager& resGM = Ogre::ResourceGroupManager::getSingleton();
 	Ogre::FileInfoListPtr files = resGM.findResourceFileInfo(
 			SOUNDS_RESOURCE_GROUP_NAME, sName);
