@@ -208,6 +208,7 @@ SSoundSource::update(const Ogre::Vector3& pos)
 		restart = true;
 	} else if (st == AL_STOPPED) {
 		// Playback finished.
+	    ASSERT(alGetError() == AL_NO_ERROR);
 		result = SSplayback::SS_FINISHED;
 		goto finish;
 	}
@@ -286,10 +287,50 @@ SSoundSource::update(const Ogre::Vector3& pos)
 
 //  success
 	finish:
+        switch (alGetError())
+        {
+        case AL_NO_ERROR:
+            break;
+        case AL_INVALID_NAME:
+            debugRED("AL_INVALID_NAME\n");
+            break;
+        case AL_INVALID_OPERATION:
+            debugRED("AL_INVALID_OPERATION\n");
+            break;
+        case AL_INVALID_VALUE:
+            debugRED("AL_INVALID_VALUE\n");
+            break;
+        case AL_OUT_OF_MEMORY:
+            debugRED("AL_OUT_OF_MEMORY\n");
+            break;
+        default:
+            debugRED("Another OpenAL error\n");
+            break;
+        }
 		while (processed-- > 0) {
 			// Playing finished, but there are still buffers to unqueue.
 			alSourceUnqueueBuffers(mSource, 1, &mIntBuffers[mFirstBuffer]);
 			++mFirstBuffer %= SS_NUM_INT_BUFFERS;
+		}
+		switch (alGetError())
+		{
+        case AL_NO_ERROR:
+            break;
+        case AL_INVALID_NAME:
+            debugRED("AL_INVALID_NAME\n");
+            break;
+        case AL_INVALID_OPERATION:
+            debugRED("AL_INVALID_OPERATION\n");
+            break;
+        case AL_INVALID_VALUE:
+            debugRED("AL_INVALID_VALUE\n");
+            break;
+        case AL_OUT_OF_MEMORY:
+            debugRED("AL_OUT_OF_MEMORY\n");
+            break;
+        default:
+            debugRED("Another OpenAL error\n");
+            break;
 		}
 		ASSERT(alGetError() == AL_NO_ERROR);
 		return result;
