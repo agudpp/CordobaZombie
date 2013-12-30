@@ -41,18 +41,20 @@ class SoundHandler
 				 bool  repeat=true,
 				 bool  randomOrder=false,
 				 bool  randomSilence=false,
-				 float silence=0.0f);
+				 float silence=0.0f,
+				 float gain=DEFAULT_ENV_GAIN);
 		Playlist(const Playlist& pl);
 		Playlist& operator=(const Playlist& pl);
 		~Playlist(void);
 	public:
 		Ogre::String 				mName;
 		std::vector<Ogre::String>	mList;      // Sounds names list
-		std::vector<unsigned int>			mPlayOrder; // Sounds playing order
+		std::vector<unsigned int>   mPlayOrder; // Sounds playing order
 		unsigned int				mCurrent;   // Current position in mPlayOrder
-		unsigned int 				mState;     // Repeat/Shuffle/Randomwait
-		float						mSilence;   // Wait time between sounds (sec)
-		float						mTimeSinceFinish;
+		unsigned int 			    mState;     // Repeat/Shuffle/Randomwait
+		float                       mSilence;   // Wait time between sounds (sec)
+		float                       mTimeSinceFinish;
+		float                       mGain;
 	};
 
 public:
@@ -372,6 +374,7 @@ public:
 	 **
 	 ** @param
 	 ** name: name of the playlist, mandatory if @arg "pl" is NULL
+     ** gain: playback volume in [ 0.0 , 1.0 ] scale
 	 **   pl: optional, provide the Playlist pointer to save on search time.
 	 **
 	 ** @return
@@ -381,7 +384,9 @@ public:
 	 ** SS_INTERNAL_ERROR	  Unspecified error.
 	 **/
 	SSerror
-	startPlaylist(const Ogre::String& name, Playlist *pl = 0);
+	startPlaylist(const Ogre::String& name,
+	              const Ogre::Real& gain = DEFAULT_ENV_GAIN,
+	              Playlist *pl = 0);
 
 	/**
 	 ** @brief
@@ -692,7 +697,7 @@ inline SSerror
 SoundHandler::restartPlaylist(const Ogre::String& name, Playlist *pl)
 {
 	stopPlaylist(name, pl);
-	return startPlaylist(name, pl);
+	return startPlaylist(name, (pl ? pl->mGain : DEFAULT_ENV_GAIN), pl);
 }
 
 

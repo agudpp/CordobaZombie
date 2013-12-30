@@ -57,7 +57,8 @@ SoundHandler::Playlist::Playlist(const Ogre::String& name) :
 	mCurrent(0),
 	mState(PLAYLIST_STOPPED | PLAYLIST_REPEAT),
 	mSilence(0.0f),
-	mTimeSinceFinish(0.0f)
+	mTimeSinceFinish(0.0f),
+	mGain(DEFAULT_ENV_GAIN)
 {}
 
 
@@ -67,13 +68,15 @@ SoundHandler::Playlist::Playlist(const Ogre::String& name,
 								 bool  repeat,
 								 bool  randomOrder,
 								 bool  randomSilence,
-								 float silence) :
+								 float silence,
+								 float gain) :
 	mName(name),
 	mList(list),
 	mCurrent(0u),
 	mState(PLAYLIST_STOPPED),
 	mSilence(silence),
-	mTimeSinceFinish(0.0f)
+	mTimeSinceFinish(0.0f),
+	mGain(gain)
 {
 	// Initialize play order (if necessary, will be shuffled on play time)
 	mPlayOrder.resize(list.size());
@@ -275,7 +278,7 @@ SoundHandler::update(const float globalTimeFrame)
 			// Mimic we're stopped, so we can invoke "startPlaylist"
 			setPlaylistState(pl, PLAYLIST_STOPPED);
 			unsetPlaylistState(pl, PLAYLIST_SILENCE);
-			err = startPlaylist(pl->mName, pl);
+			err = startPlaylist(pl->mName, pl->mGain, pl);
 			if (err != SSerror::SS_NO_ERROR) {
 				debugERROR("Playlist \"%s\" failed after silence: %s.\n",
 						pl->mName.c_str(), SSenumStr(err));
@@ -394,7 +397,7 @@ SoundHandler::globalRestart()
 
 	// Finally restart previously stopped playlists.
 	for (unsigned int i = 0 ; i < toRestart.size() ; i++) {
-		startPlaylist(toRestart[i]->mName, toRestart[i]);
+		startPlaylist(toRestart[i]->mName, toRestart[i]->mGain, toRestart[i]);
 	}
 	toRestart.clear();
 
@@ -528,7 +531,9 @@ SoundHandler::deletePlaylist(const Ogre::String& name)
 
 ////////////////////////////////////////////////////////////////////////////////
 SSerror
-SoundHandler::startPlaylist(const Ogre::String& name, Playlist *plp)
+SoundHandler::startPlaylist(const Ogre::String& name,
+                            const Ogre::Real& gain,
+                            Playlist *plp)
 {
 	SSerror err(SSerror::SS_NO_ERROR);
 	Playlist *pl = plp ? plp : getPlaylist(name);
@@ -575,7 +580,7 @@ SoundHandler::startPlaylist(const Ogre::String& name, Playlist *plp)
 	}
 	// Start current sound as a (registered) Environmental Sound.
 	err = sSoundManager.playEnvSound(pl->mList[pl->mPlayOrder[pl->mCurrent]],
-									 DEFAULT_ENV_GAIN,
+									 gain,
 									 false,  // NEVER repeat individual sounds
 									 (void *)pl);
 
@@ -821,7 +826,7 @@ SoundHandler::fadeInPlaylist(const Ogre::String& name,
 
 	} else if (pl->mState & PLAYLIST_STOPPED) {
 		// Playlist is not active: we must start it first.
-		err = startPlaylist(name, pl);
+		err = startPlaylist(name, 0.0f, pl);
 		if (err != SSerror::SS_NO_ERROR) {
 			debugERROR("Couldn't start playlist \"%s\" fade-in: %s.\n",
 						pl->mName.c_str(), SSenumStr(err));
