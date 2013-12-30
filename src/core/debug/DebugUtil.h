@@ -63,85 +63,85 @@
 
 #include <cstdio>
 
-	#define debug(format,...) {char msg[1024]; std::sprintf(msg, format, ## __VA_ARGS__);\
+	#define debug(format,...) {char _msg_dbg_[1024]; std::sprintf(_msg_dbg_, format, ## __VA_ARGS__);\
         core::LoggerManager::instance().log("debug",\
                                             __FILE__,\
                                             __FUNCTION__,\
                                             __LINE__, \
-                                            msg, \
+                                            _msg_dbg_, \
                                             core::LogMessageStyle::LOG_MSG_STYLE_NONE);}
 
-	#define debugYELLOW(format, ...) {char msg[1024]; std::sprintf(msg, format, ## __VA_ARGS__);\
+	#define debugYELLOW(format, ...) {char _msg_dbg_[1024]; std::sprintf(_msg_dbg_, format, ## __VA_ARGS__);\
         core::LoggerManager::instance().log("DEBUG_YELLOW",\
                                             __FILE__,\
                                             __FUNCTION__,\
                                             __LINE__, \
-                                            msg, \
+                                            _msg_dbg_, \
                                             core::LogMessageStyle::LOG_MSG_STYLE_YELLOW);}
-	#define debugRED(format, ...)  {char msg[1024]; std::sprintf(msg, format, ## __VA_ARGS__);\
+	#define debugRED(format, ...)  {char _msg_dbg_[1024]; std::sprintf(_msg_dbg_, format, ## __VA_ARGS__);\
         core::LoggerManager::instance().log("DEBUG_RED",\
                                             __FILE__,\
                                             __FUNCTION__,\
                                             __LINE__, \
-                                            msg, \
+                                            _msg_dbg_, \
                                             core::LogMessageStyle::LOG_MSG_STYLE_RED);}
-	#define debugGREEN(format, ...)  {char msg[1024]; std::sprintf(msg, format, ## __VA_ARGS__);\
+	#define debugGREEN(format, ...)  {char _msg_dbg_[1024]; std::sprintf(_msg_dbg_, format, ## __VA_ARGS__);\
         core::LoggerManager::instance().log("DEBUG_GREEN",\
                                             __FILE__,\
                                             __FUNCTION__,\
                                             __LINE__, \
-                                            msg, \
+                                            _msg_dbg_, \
                                             core::LogMessageStyle::LOG_MSG_STYLE_GREEN);}
-	#define debugBLUE(format, ...) {char msg[1024]; std::sprintf(msg, format, ## __VA_ARGS__);\
+	#define debugBLUE(format, ...) {char _msg_dbg_[1024]; std::sprintf(_msg_dbg_, format, ## __VA_ARGS__);\
         core::LoggerManager::instance().log("DEBUG_BLUE",\
                                             __FILE__,\
                                             __FUNCTION__,\
                                             __LINE__, \
-                                            msg, \
+                                            _msg_dbg_, \
                                             core::LogMessageStyle::LOG_MSG_STYLE_BLUE);}
-	#define debugOPTIMIZATION(format, ...) {char msg[1024]; std::sprintf(msg, format, ## __VA_ARGS__);\
+	#define debugOPTIMIZATION(format, ...) {char _msg_dbg_[1024]; std::sprintf(_msg_dbg_, format, ## __VA_ARGS__);\
         core::LoggerManager::instance().log("DEBUG_OPTIMIZATION",\
                                             __FILE__,\
                                             __FUNCTION__,\
                                             __LINE__, \
-                                            msg, \
+                                            _msg_dbg_, \
                                             core::LogMessageStyle::LOG_MSG_STYLE_INVERT_BLUE);}
-	#define debugERROR(format, ...) {char msg[1024]; std::sprintf(msg, format, ## __VA_ARGS__);\
+	#define debugERROR(format, ...) {char _msg_dbg_[1024]; std::sprintf(_msg_dbg_, format, ## __VA_ARGS__);\
         core::LoggerManager::instance().log("ERROR",\
                                             __FILE__,\
                                             __FUNCTION__,\
                                             __LINE__, \
-                                            msg, \
+                                            _msg_dbg_, \
                                             core::LogMessageStyle::LOG_MSG_STYLE_INVERT_RED);}
-	#define debugWARNING(format, ...) {char msg[1024]; std::sprintf(msg, format, ## __VA_ARGS__);\
+	#define debugWARNING(format, ...) {char _msg_dbg_[1024]; std::sprintf(_msg_dbg_, format, ## __VA_ARGS__);\
         core::LoggerManager::instance().log("WARNING",\
                                             __FILE__,\
                                             __FUNCTION__,\
                                             __LINE__, \
-                                            msg, \
+                                            _msg_dbg_, \
                                             core::LogMessageStyle::LOG_MSG_STYLE_UNDERLINE_RED);}
 
-	#define testBEGIN(format, ...) {char msg[1024]; std::sprintf(msg, format, ## __VA_ARGS__);\
+	#define testBEGIN(format, ...) {char _msg_dbg_[1024]; std::sprintf(_msg_dbg_, format, ## __VA_ARGS__);\
         core::LoggerManager::instance().log("TEST_BEGIN",\
                                             __FILE__,\
                                             __FUNCTION__,\
                                             __LINE__, \
-                                            msg, \
+                                            _msg_dbg_, \
                                             core::LogMessageStyle::LOG_MSG_STYLE_YELLOW);}
-	#define testSUCCESS(format, ...) {char msg[1024]; std::sprintf(msg, format, ## __VA_ARGS__);\
+	#define testSUCCESS(format, ...) {char _msg_dbg_[1024]; std::sprintf(_msg_dbg_, format, ## __VA_ARGS__);\
         core::LoggerManager::instance().log("TEST_SUCCESS",\
                                             __FILE__,\
                                             __FUNCTION__,\
                                             __LINE__, \
-                                            msg, \
+                                            _msg_dbg_, \
                                             core::LogMessageStyle::LOG_MSG_STYLE_GREEN);}
 
-	#define testFAIL(format, ...) {char msg[1024]; std::sprintf(msg, format, ## __VA_ARGS__);\
+	#define testFAIL(format, ...) {char _msg_dbg_[1024]; std::sprintf(_msg_dbg_, format, ## __VA_ARGS__);\
         core::LoggerManager::instance().log("TEST_FAIL",\
                                             __FILE__,\
                                             __FUNCTION__,\
                                             __LINE__, \
-                                            msg, \
+                                            _msg_dbg_, \
                                             core::LogMessageStyle::LOG_MSG_STYLE_RED);}
 /*
 #else

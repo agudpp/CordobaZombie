@@ -29,6 +29,18 @@ InputHelper::~InputHelper()
 }
 
 void
+InputHelper::setInputConfig(const std::vector<input::MouseButtonID>& mouseButtons,
+                            const std::vector<input::KeyCode>& keyboardKeys)
+{
+    mMouseTracker.setNumKeysToTrack(static_cast<unsigned int>(
+            *std::max_element(mouseButtons.begin(), mouseButtons.end())));
+    mKeyboardTracker.setNumKeysToTrack(static_cast<unsigned int>(
+        *std::max_element(keyboardKeys.begin(), keyboardKeys.end())));
+    mMouseIDs = mouseButtons;
+    mKeyIDs = keyboardKeys;
+}
+
+void
 InputHelper::update(void)
 {
     // capture mouse and keyaboard

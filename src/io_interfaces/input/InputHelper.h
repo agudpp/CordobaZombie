@@ -27,7 +27,16 @@ public:
     //
     InputHelper(const std::vector<input::MouseButtonID>& mouseButtons,
                 const std::vector<input::KeyCode>& keyboardKeys);
+    InputHelper(){};
     ~InputHelper();
+
+    // @brief Be able to set the keys we will use in runtime
+    // @param mouseButtons      The list of mouse buttons ids we want to track
+    // @param keyboardKeys      The list of keyboard keys we will track
+    //
+    void
+    setInputConfig(const std::vector<input::MouseButtonID>& mouseButtons,
+                   const std::vector<input::KeyCode>& keyboardKeys);
 
     // @brief Update this class to check all the keyboards and mouse button
     //        that are pressed and released.

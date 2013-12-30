@@ -1,9 +1,7 @@
 
 #include "OgreWidget.h"
 
-#ifdef Q_WS_X11
-  #include <QtGui/QX11Info>
-#endif
+#include <qt_tools/qt_debug/QtDebug.h>
 
 OgreWidget::OgreWidget(QWidget *parent)
        : QWidget(parent)
@@ -13,6 +11,7 @@ OgreWidget::OgreWidget(QWidget *parent)
        , mViewport(0)
        , mCamera(0)
        , mInitialised(false)
+,   mTimeStamp(0)
 {
     setAttribute(Qt::WA_OpaquePaintEvent);
     setAttribute(Qt::WA_PaintOnScreen);
@@ -56,8 +55,12 @@ void OgreWidget::paintEvent(QPaintEvent* e)
         return;
    }
 
+   const float currentTime = mTimer.getMilliseconds();
+   mGlobalTimeFrame = (mTimer.getMilliseconds() - mTimeStamp) * 0.001;
+   mTimeStamp = currentTime;
+
     if (mRenderWindow && mInitialised) {
-        mAnimState->addTime(mRenderWindow->getBestFPS()/10000);
+        mAnimState->addTime(mGlobalTimeFrame);
         mRoot->_fireFrameStarted();
         mRoot->_fireFrameRenderingQueued();
         mRenderWindow->update();
@@ -178,6 +181,10 @@ void OgreWidget::initOgreSystem()
      mInitialised = true;
 
      startTimer(5);
+
+     QTDEBUG_CRITICAL("Critical sample\n");
+     QTDEBUG_WARNING("Warning sample: " << 3 << "\n");
+     QTDEBUG_DEBUG("Debug normal\n" << 2 << 3 << "\n");
 }
 
 void OgreWidget::timerEvent(QTimerEvent *evt)

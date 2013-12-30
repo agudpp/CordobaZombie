@@ -29,6 +29,18 @@ public:
     {
     }
 
+    KeyTracker()
+    {
+    }
+
+    // @brief Set the size of the keys to be used
+    inline void
+    setNumKeysToTrack(unsigned int numKeys)
+    {
+        mCurrentKeys.resize(numKeys, false);
+        mLastKeys.resize(numKeys, false);
+    }
+
     // check if the key is currently pressed
     //
     inline bool isKeyPressed(ID_TYPE key) const

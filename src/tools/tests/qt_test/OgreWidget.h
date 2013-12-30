@@ -24,6 +24,9 @@ class OgreWidget : public QWidget
       bool initialised;
       Ogre::AnimationState* mAnimState;
       bool mInitialised;
+      Ogre::Timer mTimer;
+      float mTimeStamp;
+      float mGlobalTimeFrame;
 
     public:
       OgreWidget(QWidget *parent=0);

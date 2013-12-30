@@ -1,4 +1,8 @@
+# Dependencies with our modules
 include(${DEV_ROOT_PATH}/tools/qt_tools/qt_debug/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/resources_handler/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/io_interfaces/IO_InterfacesAll.cmake)
+
 
 ################################################################################
 ##                            Files to include                                ##
@@ -6,20 +10,14 @@ include(${DEV_ROOT_PATH}/tools/qt_tools/qt_debug/AutoGen.cmake)
 
 # Module headers
 set(HDRS ${HDRS}
-    ${DEV_ROOT_PATH}/tools/tests/qt_test/OgreWidget.h
-#    ${DEV_ROOT_PATH}/tools/tests/qt_test/QOgreWidget.hpp
-#    ${DEV_ROOT_PATH}/tools/tests/qt_test/QtOgreApplication.hpp
-
+    ${DEV_ROOT_PATH}/tools/qt_tools/ogre_widget/OgreWidget.h
+    ${DEV_ROOT_PATH}/tools/qt_tools/ogre_widget/QtOgreAppBase.h
 )
 
 # Module sources
 set(SRCS ${SRCS}
-    ${DEV_ROOT_PATH}/tools/tests/qt_test/OgreWidget.cpp
-    ${DEV_ROOT_PATH}/tools/tests/qt_test/main.cpp
-
-#    ${DEV_ROOT_PATH}/tools/tests/qt_test/QOgreWidget.cpp
-#    ${DEV_ROOT_PATH}/tools/tests/qt_test/QtOgreApplication.cpp
-#    ${DEV_ROOT_PATH}/tools/tests/qt_test/most_basic_main.cpp
+    ${DEV_ROOT_PATH}/tools/qt_tools/ogre_widget/OgreWidget.cpp
+    ${DEV_ROOT_PATH}/tools/qt_tools/ogre_widget/QtOgreAppBase.cpp
 )
 
 
@@ -46,7 +44,7 @@ IF (NOT EXISTS ${QTDIR}/include/QtCore/)
 ENDIF(NOT EXISTS ${QTDIR}/include/QtCore/)
 
 # Declare the Qt packages we need
-FIND_PACKAGE(Qt4 COMPONENTS QtCore QtGui QtOpenGL REQUIRED)
+FIND_PACKAGE(Qt4 COMPONENTS QtCore QtGui REQUIRED)
 
 # Include the corresponding Qt headers directories
 INCLUDE(${CMAKE_ROOT}/Modules/FindQt4.cmake)
@@ -60,9 +58,12 @@ ADD_DEFINITIONS(-g ${QT_DEFINITIONS})
 SET(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} ${QT_EXECUTABLE_COMPILE_FLAGS})
 
 # Generate intermediate <moc>, <ui> and <resources> files for our build
-SET(QtApp_MOCS ${DEV_ROOT_PATH}/tools/tests/qt_test/OgreWidget.h)
-SET(QtApp_UIS ${DEV_ROOT_PATH}/tools/tests/qt_test/mainWindow.ui)
-SET(QtApp_RCCS )
+SET(QtApp_MOCS ${QtApp_MOCS} 
+               ${DEV_ROOT_PATH}/tools/qt_tools/ogre_widget/OgreWidget.h
+               ${DEV_ROOT_PATH}/tools/qt_tools/ogre_widget/QtOgreAppBase.h)
+SET(QtApp_UIS ${QtApp_UIS})
+SET(QtApp_RCCS ${QtApp_RCCS})
+
 QT4_ADD_RESOURCES(RCCS_WRAPPER ${QtApp_RCCS})
 QT4_WRAP_CPP(MOCS_WRAPPER ${QtApp_MOCS} )
 QT4_WRAP_UI(UIS_WRAPPER ${QtApp_UIS} )
@@ -94,21 +95,12 @@ INCLUDE_DIRECTORIES(
 IF(WIN32)
 	SET(COMMON_LIBRARIES ${COMMON_LIBRARIES}
 	    ${QT_LIBRARIES}     # Qt
-	    OpenAL32            # OpenAL for windows
 	)
 ELSEIF(UNIX)
 	SET(COMMON_LIBRARIES ${COMMON_LIBRARIES}
 		${QT_LIBRARIES}  # Qt
-		openal
 	)
 ENDIF()
 
-# Static libraries
-IF(UNIX)
-#	# tinyxml
-#	add_library(tinyxml STATIC IMPORTED)
-#	set_property(TARGET tinyxml PROPERTY
-#               IMPORTED_LOCATION ${THIRD_PARTY_LIBS}/lib/tinyxml.a)
-ENDIF(UNIX)
 
 

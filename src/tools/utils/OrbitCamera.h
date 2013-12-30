@@ -31,7 +31,8 @@ public:
 public:
     OrbitCamera(Ogre::Camera* camera,
                 Ogre::SceneManager* manager,
-                float& globalTimeFrame);
+                float& globalTimeFrame,
+                bool showText = true);
     ~OrbitCamera();
 
     /**
@@ -44,6 +45,10 @@ public:
 
     inline void
     rotateCamera(const Ogre::Radian yaw, const Ogre::Radian pitch);
+    inline void
+    setYawAngle(const Ogre::Degree angle);
+    inline void
+    setPitchAngle(const Ogre::Degree angle);
     inline void
     setZoom(const Ogre::Real zoom);
     inline Ogre::Real
@@ -68,7 +73,7 @@ private:
     Ogre::Real mStartDistance;
     Ogre::Real mCamVelocityFactor;
     float& mGlobalTimeFrame;
-    core::OgreText mText;
+    core::OgreText* mText;
 };
 
 
@@ -91,6 +96,39 @@ OrbitCamera::rotateCamera(const Ogre::Radian yaw, const Ogre::Radian pitch)
     case CameraType::Orbit:
         mCamXNode->roll(yaw, Ogre::Node::TS_WORLD);
         mCamYNode->pitch(pitch);
+        break;
+    default:
+        ASSERT(false);
+    }
+}
+
+inline void
+OrbitCamera::setYawAngle(const Ogre::Degree angle)
+{
+    switch (mCamType) {
+    case CameraType::FreeFly:
+        break;
+    case CameraType::Orbit:
+    {
+        Ogre::Quaternion rot(angle, Ogre::Vector3::UNIT_X);
+        mCamYNode->setOrientation(rot);
+    }
+        break;
+    default:
+        ASSERT(false);
+    }
+}
+inline void
+OrbitCamera::setPitchAngle(const Ogre::Degree angle)
+{
+    switch (mCamType) {
+    case CameraType::FreeFly:
+        break;
+    case CameraType::Orbit:
+    {
+        Ogre::Quaternion rot(angle, Ogre::Vector3::UNIT_Y);
+        mCamXNode->setOrientation(rot);
+    }
         break;
     default:
         ASSERT(false);

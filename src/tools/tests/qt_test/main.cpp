@@ -5,11 +5,15 @@
 #include <QtGui>
 #include <QVBoxLayout>
 
+#include "ui_mainWindow.h"
+
 int main(int argc, char* argv[])
 {
    QApplication app(argc, argv);
 
    QWidget window;
+   Ui::Form ui;
+   ui.setupUi(&window);
 
    window.resize(800, 600);
    window.setWindowTitle(
@@ -17,10 +21,11 @@ int main(int argc, char* argv[])
 
    OgreWidget* ogreWidget = new OgreWidget;
 
-   QVBoxLayout* layout = new QVBoxLayout;
-   layout->addWidget(ogreWidget);
-
-   window.setLayout(layout);
+   ui.verticalLayout->addWidget(ogreWidget);
+//   QVBoxLayout* layout = new QVBoxLayout;
+//   layout->addWidget(ogreWidget);
+//
+//   window.setLayout(layout);
    window.show();
 
    return app.exec();
