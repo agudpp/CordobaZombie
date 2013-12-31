@@ -238,11 +238,7 @@ SSoundSource::update(const Ogre::Vector3& pos)
 		}
 	}
 
-	// check if we need to restart, we will play after queueing the sources since
-	// this cause an error on windows (after playing the source the unqueued
-	// buffers are reseted and we cannot get any empty buffer again (until
-	// openal finish the current one).
-	//
+	// Check if we need to restart (after queueing due to Windows issue)
     if (restart) {
         alSourcePlay(mSource);
         restart = false;

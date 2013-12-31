@@ -445,22 +445,24 @@ VideoPlayer::load(const char *fileName)
         atbaseden = pFormatCtx->streams[audioStream]->time_base.den;
 
         if (aCodecCtx->sample_fmt != AV_SAMPLE_FMT_S16) {
+#ifdef DEBUG
             std::map <short,const char*> audioFormat = {
-                    {AV_SAMPLE_FMT_DBL, "AV_SAMPLE_FMT_DBL"},
+                    {AV_SAMPLE_FMT_DBL , "AV_SAMPLE_FMT_DBL" },
                     {AV_SAMPLE_FMT_DBLP, "AV_SAMPLE_FMT_DBLP"},
-                    {AV_SAMPLE_FMT_FLT, "AV_SAMPLE_FMT_FLT"},
+                    {AV_SAMPLE_FMT_FLT , "AV_SAMPLE_FMT_FLT" },
                     {AV_SAMPLE_FMT_FLTP, "AV_SAMPLE_FMT_FLTP"},
-                    {AV_SAMPLE_FMT_NB, "AV_SAMPLE_FMT_NB"},
+                    {AV_SAMPLE_FMT_NB  , "AV_SAMPLE_FMT_NB"  },
                     {AV_SAMPLE_FMT_NONE, "AV_SAMPLE_FMT_NONE"},
-                    {AV_SAMPLE_FMT_S16, "AV_SAMPLE_FMT_S16"},
+                    {AV_SAMPLE_FMT_S16 , "AV_SAMPLE_FMT_S16" },
                     {AV_SAMPLE_FMT_S16P, "AV_SAMPLE_FMT_S16P"},
-                    {AV_SAMPLE_FMT_S32, "AV_SAMPLE_FMT_S32"},
+                    {AV_SAMPLE_FMT_S32 , "AV_SAMPLE_FMT_S32" },
                     {AV_SAMPLE_FMT_S32P, "AV_SAMPLE_FMT_S32P"},
-                    {AV_SAMPLE_FMT_U8, "AV_SAMPLE_FMT_U8"},
-                    {AV_SAMPLE_FMT_U8P, "AV_SAMPLE_FMT_U8P"}
+                    {AV_SAMPLE_FMT_U8  , "AV_SAMPLE_FMT_U8"  },
+                    {AV_SAMPLE_FMT_U8P ,  "AV_SAMPLE_FMT_U8P"}
             };
             debugERROR("VideoPlayer: unsupported audio format (%s)\n",
                        audioFormat[aCodecCtx->sample_fmt]);
+#endif
             debugBLUE("TODO: support more audio formats, "
                       "e.g. float (FLT) and float planar (FLTP)\n");
             return VIDEO_ERROR;

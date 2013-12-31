@@ -39,6 +39,7 @@ extern "C" {
             std::cerr << "La app no termino bien :(" << std::endl;
 #endif
         }
+		delete appTester;
 
         return 0;
     }

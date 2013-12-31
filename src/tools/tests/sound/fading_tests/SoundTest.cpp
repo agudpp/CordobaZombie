@@ -41,13 +41,15 @@ namespace {
 //
 #define  NUM_SFILES      7
 #define  START_PLSOUNDS  2
-const char *audioFile[NUM_SFILES] =
-    { "fxA20.ogg", "Siren.ogg", "fxM2.ogg", // playlist 0 sound 0
-        "fxZ7.ogg", // playlist 0 sound 1
-        "fxZ9.ogg", // playlist 1 sound 0
-        "fxZ6.ogg", // playlist 1 sound 1
-        "fxZ5.ogg" // playlist 1 sound 2
-    };
+const char *audioFile[NUM_SFILES] = {
+    "fxA20.ogg",
+    "Siren.ogg",
+    "fxM2.ogg", // playlist 0 sound 0
+    "fxZ7.ogg", // playlist 0 sound 1
+    "fxZ9.ogg", // playlist 1 sound 0
+    "fxZ6.ogg", // playlist 1 sound 1
+    "fxZ5.ogg"  // playlist 1 sound 2
+};
 
 // Punctual (e.g. not environmental) sound playback
 //
@@ -56,9 +58,13 @@ mm::SoundAPI* sirenSoundAPI(0);
 
 // Playlists
 //
-#define  NUM_PLAYLISTS  3
-const Ogre::String playlist[NUM_PLAYLISTS] =
-    { Ogre::String("lista1"), Ogre::String("lista2"), Ogre::String("dummy") };
+#define  NUM_PLAYLISTS  4
+const Ogre::String playlist[NUM_PLAYLISTS] = {
+    "lista1",
+    "lista2",
+    "dummy",
+    "water"
+};
 
 // Audio fading (in-out) times
 //
@@ -118,16 +124,20 @@ getKeyboardKeys(void)
 
 }
 
+
 /******************************************************************************/
 /***********************    CLASS IMPLEMENTATION    ***************************/
 namespace tests {
 
 ///////////////////////////////////////////////////////////////////////////////
 SoundTest::SoundTest() :
-    core::AppTester(mTimeFrame), mNode(0), mEntity(0), mOrbitCamera(mCamera,
-                                                                    mSceneMgr,
-                                                                    mTimeFrame), mInputHelper(getMouseButtons(),
-                                                                                              getKeyboardKeys()), mOpenALHandler(true), mSH(mm::SoundHandler::getInstance())
+    core::AppTester(mTimeFrame)
+,   mNode(0)
+,   mEntity(0)
+,   mOrbitCamera(mCamera, mSceneMgr, mTimeFrame)
+,   mInputHelper(getMouseButtons(), getKeyboardKeys())
+,   mOpenALHandler(true)
+,   mSH(mm::SoundHandler::getInstance())
 {
     // configure the sound manager
     mSH.soundManager()->setOpenALHandler(&mOpenALHandler);
@@ -206,11 +216,14 @@ SoundTest::SoundTest() :
     return;
 }
 
+
 ///////////////////////////////////////////////////////////////////////////////
 SoundTest::~SoundTest()
 {
-    // Auto-generated destructor stub
+    // Just kill the SoundHandler, the OpenALHandler takes care of itself
+    mSH.shutDown();
 }
+
 
 ///////////////////////////////////////////////////////////////////////////////
 void
@@ -250,6 +263,7 @@ SoundTest::loadAditionalData(void)
     return;
 }
 
+
 ///////////////////////////////////////////////////////////////////////////////
 void
 SoundTest::update()
@@ -273,6 +287,7 @@ SoundTest::update()
     // update the keyboard-triggered sound events
     handleSoundInput();
 }
+
 
 ///////////////////////////////////////////////////////////////////////////////
 bool
@@ -375,7 +390,7 @@ SoundTest::initSoundsPlayback(void)
     //
 // FIXME Decomment following code after solving MantisBT issue #355
 //	testBEGIN("Iniciando reproducción de playlists.\n");
-//	for (int i=0 ; i < NUM_PLAYLISTS ; i++) {
+//	for (int i=0 ; i < NUM_PLAYLISTS-1 ; i++) {
 //		err = mSH.startPlaylist(playlist[i]);
 //		if (err != mm::SSerror::SS_NO_ERROR) {
 //			testFAIL("Falló la reproducción del playlist[%d]. Error: %s\n",
@@ -387,23 +402,37 @@ SoundTest::initSoundsPlayback(void)
 //	}
 //	testSUCCESS("Reproducción iniciada.\n");
 
+    // Delete playlist  ///////////////////////////////////////////////////////
+    //
+// FIXME Decomment following code after solving MantisBT issue #355
+//    testBEGIN("Destruyendo playlists.\n");
+//    if (mSH.getPlaylistPlayState(playlist[2]) != mm::SSplayback::SS_FINISHED) {
+//        testFAIL("Falló.\n");
+//        return false;
+//    }
+//    mSH.deletePlaylist(playlist[2]);
+//    if (mSH.existsPlaylist(playlist[2])) {
+//        testFAIL("Falló.\n");
+//        return false;
+//    }
+//    testSUCCESS("Playlist \"%s\" destruida.\n", playlist[2].c_str());
+
     // Embed loose environmental sound into playlist   ////////////////////////
     // (this is the correct way of playing env sounds)
     //
     testBEGIN("Iniciando el sonido ambiente \"%s\" dentro de un playlist.\n",
               audioFile[0]);
-    if (mSH.getPlaylistPlayState(playlist[2]) != mm::SSplayback::SS_FINISHED)
-        mSH.stopPlaylist(playlist[2]);
-    mSH.deletePlaylist(playlist[2]);
     soundsList.clear();
-    soundsList.push_back(audioFile[0]);
-    fails = mSH.newPlaylist(playlist[2], soundsList);
+//    soundsList.push_back(audioFile[0]);
+//    soundsList.push_back("fxA20.ogg");
+    soundsList.push_back("Siren.wav");
+    fails = mSH.newPlaylist(playlist[3], soundsList);
     if (!fails.empty()) {
         testFAIL("Falló la creación del nuevo playlist.\n");
         return false;
     }
-    ASSERT(mSH.existsPlaylist(playlist[2]));
-    err = mSH.startPlaylist(playlist[2], 0.5);
+    ASSERT(mSH.existsPlaylist(playlist[3]));
+    err = mSH.startPlaylist(playlist[3], 0.5);
     if (err == mm::SSerror::SS_NO_ERROR) {
         testSUCCESS("Playlist \"%s\" creado e iniciado con éxito.\n",
                     playlist[2].c_str());
@@ -415,6 +444,7 @@ SoundTest::initSoundsPlayback(void)
 
     return true;
 }
+
 
 ///////////////////////////////////////////////////////////////////////////////
 void
@@ -490,6 +520,7 @@ SoundTest::handleCameraInput()
     return;
 }
 
+
 ///////////////////////////////////////////////////////////////////////////////
 void
 SoundTest::handleSoundInput(void)
@@ -562,176 +593,6 @@ SoundTest::handleSoundInput(void)
     return;
 }
 
-//
-// TODO: merge with upper function ("handleSoundInput") and erase
-//
-////
-//// Keyboard & mouse input handling
-////
-//static void
-//handleInput(void)
-//{
-//	static SoundManager& sMgr(SoundManager::getInstance());
-//	static bool mousePressed(false);
-//	static bool keyPressed(false);
-//	static std::vector<SSplayback> state(4, SSplayback::SS_PLAYING);
-//
-//
-//	// MOUSE
-//
-//	const OIS::MouseState& lMouseState = GLOBAL_MOUSE->getMouseState();
-//	mMouseCursor.updatePosition(lMouseState.X.abs, lMouseState.Y.abs);
-//
-//	if(GLOBAL_MOUSE->getMouseState().buttonDown(OIS::MB_Left)){
-//		if (!mousePressed) {
-//			mousePressed = true;
-//			Ogre::Vector3 v;
-//
-//			// check if we are getting a player
-//			static CollisionResult cr;
-//			static PlayerUnit *pu = 0;
-//
-//			// first check if we have a player selected
-//			if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_LSHIFT)){
-//				if(pu){
-//					pu->objectUnselected();
-//					pu = 0;
-//				}
-//				goto exit_mouse_input;
-//			}
-//			// else...
-//
-//			mLevelManager.getRaycastManger()->getPoint(mMouseCursor.getXRelativePos(),
-//					mMouseCursor.getYRelativePos(), v);
-//			mLevelManager.getCollisionManager()->getCollisionObjects(
-//					sm::Point(v.x, v.z), COL_FLAG_UNIT_PLAYER ,cr);
-//
-//			if(!cr.empty()){
-//				// get the player
-//				pu = static_cast<PlayerUnit *>(cr.front()->userDefined);
-//				pu->objectSelected();
-//			} else {
-//				if(pu){
-//					pu->plantBomb(mBomb, sm::Vector2(v.x,v.z));
-//				}
-//			}
-//		}
-//	} else {
-//		if (mousePressed) {
-//			mousePressed = false;
-//		}
-//	}
-//	exit_mouse_input:
-//
-//
-//	// KEYBOARD
-//
-//	// Test collect object
-//	if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_C)){
-//		if (!keyPressed) {
-//			keyPressed = true;
-//			testCollectObject();
-//		}
-//
-//	// Zombies creation
-//	} else if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_G)){
-//		if (!keyPressed) {
-//			keyPressed = true;
-//			testStart();
-//		}
-//
-//	// Zombies attack mode
-//	} else if(GLOBAL_KEYBOARD->isKeyDown(OIS::KC_E)){
-//		if (!keyPressed) {
-//			keyPressed = true;
-//			testEngageEveryone();
-//		}
-//
-//	// Toogle play/pause of all sounds.
-//	} else if (GLOBAL_KEYBOARD->isKeyDown(OIS::KC_NUMPAD0)) {
-//		if (!keyPressed) {
-//			keyPressed = true;
-//			if (state[0] == SSplayback::SS_PLAYING) {
-//				mSoundHandler.globalPause();
-//				state[0] = SSplayback::SS_PAUSED;
-//				debugBLUE("Global sounds PAUSED.%s", "\n");
-//			} else {
-//				mSoundHandler.globalPlay();
-//				state[0] = SSplayback::SS_PLAYING;
-//				debugBLUE("Global sounds PLAY.%s", "\n");
-//			}
-//		}
-//
-//	// Toogle play/pause of units sounds.
-//	} else if (GLOBAL_KEYBOARD->isKeyDown(OIS::KC_NUMPAD1)) {
-//		if (!keyPressed) {
-//			keyPressed = true;
-//			if (state[1] == SSplayback::SS_PLAYING) {
-//				pauseUnitsSounds();
-//				state[1] = SSplayback::SS_PAUSED;
-//				debugBLUE("Units' sounds PAUSED.%s", "\n");
-//			} else {
-//				playUnitsSounds();
-//				state[1] = SSplayback::SS_PLAYING;
-//				debugBLUE("Units' sounds PLAY.%s", "\n");
-//			}
-//		}
-//
-//	// Toogle play/pause of environmental music.
-//	} else if (GLOBAL_KEYBOARD->isKeyDown(OIS::KC_NUMPAD2)) {
-//		if (!keyPressed) {
-//			keyPressed = true;
-//			if (state[2] == SSplayback::SS_PLAYING) {
-//				pauseEnvSounds();
-//				state[2] = SSplayback::SS_PAUSED;
-//				debugBLUE("Environmental music PAUSED.%s", "\n");
-//			} else {
-//				playEnvSounds();
-//				state[2] = SSplayback::SS_PLAYING;
-//				debugBLUE("Environmental music PLAY.%s", "\n");
-//			}
-//		}
-//
-//	// Restart all sounds.
-//	} else if (GLOBAL_KEYBOARD->isKeyDown(OIS::KC_SPACE)) {
-//		if (!keyPressed) {
-//			keyPressed = true;
-//			mSoundHandler.globalRestart();
-//			debugBLUE("Global sounds RESTARTED.%s", "\n");
-//		}
-//
-//	// Stop all sounds.
-//	} else if (GLOBAL_KEYBOARD->isKeyDown(OIS::KC_NUMPADENTER)) {
-//		if (!keyPressed) {
-//			keyPressed = true;
-//			mSoundHandler.globalStop();
-//			debugBLUE("Global sounds STOPPED.%s", "\n");
-//		}
-//
-//	// Toogle fade in/out of all sounds.
-//	} else if (GLOBAL_KEYBOARD->isKeyDown(OIS::KC_NUMPAD3)) {
-//		if (!keyPressed) {
-//			keyPressed = true;
-//			if (state[3] != SSplayback::SS_FADING_OUT_AND_PAUSE) {
-//				mSoundHandler.globalFadeOut(FADE_TIME);
-//				state[3] = SSplayback::SS_FADING_OUT_AND_PAUSE;
-//				debugBLUE("Global sounds FADING OUT (%.2f seconds)\n", FADE_TIME);
-//			} else {
-//				mSoundHandler.globalFadeIn(FADE_TIME);
-//				state[3] = SSplayback::SS_FADING_IN;
-//				debugBLUE("Global sounds FADING IN (%.2f seconds)\n", FADE_TIME);
-//			}
-//		}
-//
-//	// No relevant key press.
-//	} else {
-//		if (keyPressed) {
-//			keyPressed = false;
-//		}
-//	}
-//
-//	return;
-//}
 
 ///////////////////////////////////////////////////////////////////////////////
 void
@@ -745,23 +606,25 @@ SoundTest::printDevices(void)
     std::cout << "Using sound device:" << mSH.getSoundDevice() << std::endl;
 }
 
+
 ///////////////////////////////////////////////////////////////////////////////
 bool
 SoundTest::loadFloor(void)
 {
     Ogre::Plane p(0.0f, 0.0f, 1.0f, 1.0f); // normal:(0,0,1) ; distance:1
-    Ogre::MeshManager::getSingleton().createPlane("FloorPlane",
-                                                  Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
-                                                  p,
-                                                  200000,
-                                                  200000,
-                                                  20,
-                                                  20,
-                                                  true,
-                                                  1,
-                                                  9000,
-                                                  9000,
-                                                  Ogre::Vector3::UNIT_Y);
+    Ogre::MeshManager::getSingleton().createPlane(
+        "FloorPlane",
+        Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
+        p,
+        200000,
+        200000,
+        20,
+        20,
+        true,
+        1,
+        9000,
+        9000,
+        Ogre::Vector3::UNIT_Y);
 
     // Create entity for the floor
     Ogre::Entity *ent = mSceneMgr->createEntity("floor", "FloorPlane");

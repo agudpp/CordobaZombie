@@ -9,6 +9,7 @@
 
 #include <debug/DebugUtil.h>
 
+
 namespace mm {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -23,16 +24,18 @@ OpenALHandler::OpenALHandler(bool createDefault) :
         makeContextCurrent();
     }
 }
+
+
 ////////////////////////////////////////////////////////////////////////////////
 OpenALHandler::~OpenALHandler()
 {
-    // destroy the context and the device?
-    debugWARNING("Here we need to check if we want to close the device or not, "
-        "because, probably we are using a \"shared\" device and we have not to"
-        " close it.\n");
+    // Destroy context and device, and pray to Cthulhu nothing breaks
+    debugWARNING("Closing OpenAL device. If this OpenALHandler was shared "
+        "by many, then we're in deep shit.\n");
     destroyCurrentContext();
     closeDevice();
 }
+
 
 ////////////////////////////////////////////////////////////////////////////////
 void
@@ -80,6 +83,7 @@ OpenALHandler::getDevices(std::vector<std::string>& devsVec)
     // TODO: check, here devices should be freed?
 }
 
+
 ////////////////////////////////////////////////////////////////////////////////
 std::string
 OpenALHandler::deviceName(void)
@@ -93,6 +97,7 @@ OpenALHandler::deviceName(void)
         return alcGetString(device(), ALC_DEVICE_SPECIFIER);
     }
 }
+
 
 ////////////////////////////////////////////////////////////////////////////////
 bool

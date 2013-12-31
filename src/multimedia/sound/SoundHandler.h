@@ -613,7 +613,14 @@ inline SoundHandler::SoundHandler() { /* Nothig to do. */ }
 
 
 ////////////////////////////////////////////////////////////////////////////////
-inline SoundHandler::~SoundHandler() { shutDown(); }
+inline SoundHandler::~SoundHandler()
+{
+    if (mPlaylists.size() > 0 && hasOpenALcontext()) {
+        // They forgot to shut us down?
+        debugWARNING("Destroying SoundHandler, shutDown() forced.\n");
+        shutDown();
+    }
+}
 
 
 ////////////////////////////////////////////////////////////////////////////////

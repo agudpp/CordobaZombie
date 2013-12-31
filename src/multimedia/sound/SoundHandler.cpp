@@ -90,13 +90,14 @@ SoundHandler::Playlist::Playlist(const Ogre::String& name,
 
 ////////////////////////////////////////////////////////////////////////////////
 SoundHandler::Playlist::Playlist(const Playlist& pl) :
-		mName(pl.mName),
-		mList(pl.mList),
-		mPlayOrder(pl.mPlayOrder),
-		mCurrent(pl.mCurrent),
-		mState(pl.mState),
-		mSilence(pl.mSilence),
-		mTimeSinceFinish(0.0f)
+		mName(pl.mName)
+,		mList(pl.mList)
+,		mPlayOrder(pl.mPlayOrder)
+,		mCurrent(pl.mCurrent)
+,		mState(pl.mState)
+,		mSilence(pl.mSilence)
+,		mTimeSinceFinish(0.0f)
+,       mGain(pl.mGain)
 {
 	// Default cpytor suffices.
 }
@@ -126,6 +127,7 @@ SoundHandler::Playlist::operator=(const Playlist& pl)
 	mState   = pl.mState;
 	mSilence = pl.mSilence;
 	mTimeSinceFinish = pl.mTimeSinceFinish;
+	mGain = pl.mGain;
 
 	return *this;
 }
@@ -208,7 +210,7 @@ SoundHandler::unloadSounds(const std::vector<Ogre::String>& list)
 void
 SoundHandler::shutDown(void)
 {
-	globalStop();
+	sSoundManager.destroyAll();
 	for (int i=0 ; i < mPlaylists.size() ; i++) {
 		deletePlaylist(mPlaylists[i]->mName);
 	}
