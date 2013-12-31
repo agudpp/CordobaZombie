@@ -408,7 +408,13 @@ SoundManager::update(const float globalTimeFrame,
 		as = std::get<1>(mEnvSounds[i]);
 		st = as->mSource->update();
 
-		if (st == SSplayback::SS_FINISHED) {
+		if (as->mSource->getRepeat() && st == SSplayback::SS_FINISHED) {
+	        // Stopped for lack of buffers? Restart quickly!
+		    as->mSource->play(0, as->mVolume,
+		                      Ogre::Vector3(0.0f,0.0f,0.0f),
+		                      as->mSource->getRepeat());
+
+	    } else if (st == SSplayback::SS_FINISHED) {
 			if (0 != finished) {
 				// Register ID of sound termination in "finished" vector.
 				finished->push_back((void*)std::get<2>(mEnvSounds[i]));
@@ -446,7 +452,13 @@ SoundManager::update(const float globalTimeFrame,
 		as = mUnitSounds[i].second;
 		st = as->mSource->update(mUnitSounds[i].first->getPosition());
 
-		if (st == SSplayback::SS_FINISHED) {
+        if (as->mSource->getRepeat() && st == SSplayback::SS_FINISHED) {
+            // Stopped for lack of buffers? Restart quickly!
+            as->mSource->play(0, as->mVolume,
+                              mUnitSounds[i].first->getPosition(),
+                              as->mSource->getRepeat());
+
+        } else if (st == SSplayback::SS_FINISHED) {
 			// Buffer was automatically detached from source.
 			// Erase UnitSound and recycle SoundSource.
 			stopSound(*mUnitSounds[i].first);

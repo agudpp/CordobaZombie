@@ -303,7 +303,6 @@ SoundTest::initSoundsPlayback(void)
     std::vector<Ogre::String> soundsList;
 
     // Play environmental water sound  ////////////////////////////////////////
-    // FIXME: direct access to SoundManager, DON'T DO THIS OUTSIDE TESTERS!
     //
     testBEGIN("Iniciando reproducción del sonido ambiente fxA20.ogg\n");
     err = mm::SoundManager::getInstance().playEnvSound("fxA20.ogg",
@@ -321,7 +320,7 @@ SoundTest::initSoundsPlayback(void)
     }
 
     // Setup punctual sound  //////////////////////////////////////////////////
-    // FIXME: direct manipulation of SoundAPI, DON'T DO THIS OUTSIDE TESTERS!
+    // FIXME: direct use of SoundAPI, DON'T DO THIS OUTSIDE DEBUG TESTS!
     //
     testBEGIN("Creando SoundAPI puntual (externa a todo player)\n");
     ASSERT(!sirenSphere);
@@ -340,15 +339,14 @@ SoundTest::initSoundsPlayback(void)
 
     // Play punctual sound, using his (detached) SoundAPI  ////////////////////
     //
-// FIXME Decomment following code after solving MantisBT issue #355
-//	testBEGIN("Iniciando reproducción del sonido puntual %s.\n", audioFile[1]);
-//	err = sirenSoundAPI->play(audioFile[1], true, DEFAULT_UNIT_GAIN);
-//	if (err == mm::SSerror::SS_NO_ERROR) {
-//		testSUCCESS("Reproducción iniciada.%s", "\n");
-//	} else {
-//		testFAIL("Falló.\n");
-//		return false;
-//	}
+	testBEGIN("Iniciando reproducción del sonido puntual %s.\n", audioFile[1]);
+	err = sirenSoundAPI->play(audioFile[1], true, DEFAULT_UNIT_GAIN);
+	if (err == mm::SSerror::SS_NO_ERROR) {
+		testSUCCESS("Reproducción iniciada.%s", "\n");
+	} else {
+		testFAIL("Falló.\n");
+		return false;
+	}
 
     // Create three different playlists  //////////////////////////////////////
     //
@@ -388,44 +386,45 @@ SoundTest::initSoundsPlayback(void)
 
     // Start playlists playback  //////////////////////////////////////////////
     //
-// FIXME Decomment following code after solving MantisBT issue #355
-//	testBEGIN("Iniciando reproducción de playlists.\n");
-//	for (int i=0 ; i < NUM_PLAYLISTS-1 ; i++) {
-//		err = mSH.startPlaylist(playlist[i]);
-//		if (err != mm::SSerror::SS_NO_ERROR) {
-//			testFAIL("Falló la reproducción del playlist[%d]. Error: %s\n",
-//					i, SSenumStr(err));
-//			return false;
-//		} else {
-//			ASSERT(mSH.existsPlaylist(playlist[i]));
-//		}
-//	}
-//	testSUCCESS("Reproducción iniciada.\n");
+	testBEGIN("Iniciando reproducción de playlists.\n");
+	for (int i=0 ; i < NUM_PLAYLISTS-1 ; i++) {
+		err = mSH.startPlaylist(playlist[i]);
+		if (err != mm::SSerror::SS_NO_ERROR) {
+			testFAIL("Falló la reproducción del playlist[%d]. Error: %s\n",
+					i, SSenumStr(err));
+			return false;
+		} else {
+			ASSERT(mSH.existsPlaylist(playlist[i]));
+		}
+	}
+	testSUCCESS("Reproducción iniciada.\n");
 
     // Delete playlist  ///////////////////////////////////////////////////////
     //
-// FIXME Decomment following code after solving MantisBT issue #355
-//    testBEGIN("Destruyendo playlists.\n");
-//    if (mSH.getPlaylistPlayState(playlist[2]) != mm::SSplayback::SS_FINISHED) {
-//        testFAIL("Falló.\n");
-//        return false;
-//    }
-//    mSH.deletePlaylist(playlist[2]);
-//    if (mSH.existsPlaylist(playlist[2])) {
-//        testFAIL("Falló.\n");
-//        return false;
-//    }
-//    testSUCCESS("Playlist \"%s\" destruida.\n", playlist[2].c_str());
+    testBEGIN("Destruyendo playlists.\n");
+    if (mSH.getPlaylistPlayState(playlist[2]) != mm::SSplayback::SS_FINISHED) {
+        testFAIL("Falló.\n");
+        return false;
+    }
+    mSH.deletePlaylist(playlist[2]);
+    if (mSH.existsPlaylist(playlist[2])) {
+        testFAIL("Falló.\n");
+        return false;
+    }
+    testSUCCESS("Playlist \"%s\" destruida.\n", playlist[2].c_str());
 
     // Embed loose environmental sound into playlist   ////////////////////////
-    // (this is the correct way of playing env sounds)
+    //
+    // NOTE:
+    //   This is the correct way of playing lists of environmental sounds.
+    //   However, for single looping sounds (like this continuous water sound)
+    //   better results are obtained using the SoundManager directly, e.g.
+    //   mm::SoundManager::getInstance().playEnvSound(soundName, gain, true);
     //
     testBEGIN("Iniciando el sonido ambiente \"%s\" dentro de un playlist.\n",
               audioFile[0]);
     soundsList.clear();
-//    soundsList.push_back(audioFile[0]);
-//    soundsList.push_back("fxA20.ogg");
-    soundsList.push_back("Siren.wav");
+    soundsList.push_back(audioFile[0]);
     fails = mSH.newPlaylist(playlist[3], soundsList);
     if (!fails.empty()) {
         testFAIL("Falló la creación del nuevo playlist.\n");

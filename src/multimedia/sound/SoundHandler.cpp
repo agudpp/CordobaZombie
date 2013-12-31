@@ -589,6 +589,7 @@ SoundHandler::startPlaylist(const Ogre::String& name,
 	if (err == SSerror::SS_NO_ERROR) {
 		// Success
 		pl->mTimeSinceFinish = 0.0f;
+		pl->mGain = gain;
 		setPlaylistState(pl, PLAYLIST_PLAYING);
 		unsetPlaylistState(pl, PLAYLIST_PAUSED
 							 | PLAYLIST_STOPPED
