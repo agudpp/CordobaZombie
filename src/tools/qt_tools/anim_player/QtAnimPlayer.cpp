@@ -13,55 +13,13 @@
 #include <input/InputHelper.h>
 #include <input/InputMouse.h>
 
+#include <os_utils/OSHelper.h>
+
 
 
 // Help stuff
-// helper stuff
 //
 namespace {
-
-// Construct the mouse input keys we will use
-//
-static std::vector<input::MouseButtonID>
-getMouseButtons(void)
-{
-    std::vector<input::MouseButtonID> buttons;
-    buttons.reserve(10); // just in case :p
-
-    buttons.push_back(input::MouseButtonID::MB_Left);
-    buttons.push_back(input::MouseButtonID::MB_Right);
-
-    return buttons;
-}
-
-
-// Construct the keyboard keys we will use
-//
-static std::vector<input::KeyCode>
-getKeyboardKeys(void)
-{
-    std::vector<input::KeyCode> buttons;
-    buttons.reserve(18); // just in case :p
-
-    buttons.push_back(input::KeyCode::KC_ESCAPE);
-    buttons.push_back(input::KeyCode::KC_A);
-    buttons.push_back(input::KeyCode::KC_S);
-    buttons.push_back(input::KeyCode::KC_D);
-    buttons.push_back(input::KeyCode::KC_W);
-    buttons.push_back(input::KeyCode::KC_LEFT);
-    buttons.push_back(input::KeyCode::KC_DOWN);
-    buttons.push_back(input::KeyCode::KC_RIGHT);
-    buttons.push_back(input::KeyCode::KC_SPACE);
-    buttons.push_back(input::KeyCode::KC_UP);
-    buttons.push_back(input::KeyCode::KC_1);
-    buttons.push_back(input::KeyCode::KC_2);
-    buttons.push_back(input::KeyCode::KC_E);
-    buttons.push_back(input::KeyCode::KC_L);
-    buttons.push_back(input::KeyCode::KC_ADD);
-    buttons.push_back(input::KeyCode::KC_MINUS);
-
-    return buttons;
-}
 
 }
 
@@ -113,7 +71,7 @@ void
 QtAnimPlayer::frameUpdate(float fp)
 {
 
-    handleCameraInput();
+//    handleCameraInput();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -126,6 +84,22 @@ QtAnimPlayer::systemsReady(void)
     ASSERT(ogreWidget()->ogreData().viewport);
     ASSERT(ogreWidget()->ogreData().renderWindow);
 
+    // load the GlobalResources.cfg file
+    char* envPath = 0;
+    if (!core::OSHelper::getEnvVar("CZ01_RC_PATH", envPath)) {
+        QTDEBUG_WARNING("You haven't set the environment variable CZ01_RC_PATH. This"
+            " can cause some problems or errors during the execution of the tool\n");
+    } else {
+        std::string path = envPath;
+        core::OSHelper::addEndPathVar(path);
+        path.append("GlobalResources.cfg");
+        if (!loadResourceFile(QString(path.c_str()))) {
+            QTDEBUG_WARNING("We couldn't load the GlobalResources.cfg file from " <<
+                            path << " this can cause some problems during the "
+                                "execution of this app.\n");
+        }
+    }
+
 
     OgreWidget::OgreData& data = ogreWidget()->ogreData();
     mOrbitCamera = new OrbitCamera(data.camera,
@@ -136,12 +110,54 @@ QtAnimPlayer::systemsReady(void)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+void
+QtAnimPlayer::keyPressEvent(QKeyEvent* event)
+{
+    // we will move the camera and the sliders too using ASDW
+    switch (event->key()) {
+    case Qt::Key::Key_A:
+        ui.xRotSlider->setValue(ui.xRotSlider->value() + 1);
+        break;
+    case Qt::Key::Key_S:
+        ui.yRotSlider->setValue(ui.yRotSlider->value() + 1);
+        break;
+    case Qt::Key::Key_D:
+        ui.xRotSlider->setValue(ui.xRotSlider->value() - 1);
+        break;
+    case Qt::Key::Key_W:
+        ui.yRotSlider->setValue(ui.yRotSlider->value() - 1);
+        break;
+    }
+    event->accept();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void
+QtAnimPlayer::keyReleaseEvent(QKeyEvent* event)
+{
+
+    event->ignore();
+}
+////////////////////////////////////////////////////////////////////////////////
+void
+QtAnimPlayer::mousePressEvent(QMouseEvent* event)
+{
+    event->ignore();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void
+QtAnimPlayer::mouseReleaseEvent(QMouseEvent* event)
+{
+    event->ignore();
+}
+
+////////////////////////////////////////////////////////////////////////////////
 QtAnimPlayer::QtAnimPlayer(rrh::ResourceHandler* rh,
-                           bool useInputHelper,
                            const std::string& plugins,
                            const std::string& ogre,
                            const std::string& resource) :
-    QtOgreAppBase(rh, useInputHelper, plugins, ogre, resource)
+    QtOgreAppBase(rh, plugins, ogre, resource)
 ,   mLastPathLoaded(".")
 ,   mNode(0)
 ,   mEntity(0)
@@ -149,16 +165,16 @@ QtAnimPlayer::QtAnimPlayer(rrh::ResourceHandler* rh,
 {
     ui.setupUi(this);
 
-    // configure the input for this app
-    ogreWidget()->setInputConfig(getMouseButtons(), getKeyboardKeys());
-
     // connect signals and slots
     connect(ui.loadBtn, SIGNAL(clicked(bool)), this, SLOT(onLoadClicked(bool)));
     connect(ui.xRotSlider, SIGNAL(valueChanged(int)), this, SLOT(xRotSliderChanged(int)));
     connect(ui.yRotSlider, SIGNAL(valueChanged(int)), this, SLOT(yRotSliderChanged(int)));
 
     // add the ogre widget to the layout
-    ui.verticalLayout->addWidget(ogreWidget());
+    QWidget* ogrew = ogreWidget();
+    ogrew->setSizePolicy(QSizePolicy::Policy::Expanding,
+                         QSizePolicy::Policy::Expanding);
+    ui.horizontalLayout->addWidget(ogreWidget());
 
 }
 
@@ -172,8 +188,6 @@ QtAnimPlayer::handleCameraInput()
     }
 
     ASSERT(ogreWidget());
-    OgreWidget::InputData& data = ogreWidget()->inputData();
-    ASSERT(data.OISMouse);
 
     ///////////////////////////////////////////////////////////////////////////
     // CAMERA
@@ -187,7 +201,7 @@ QtAnimPlayer::handleCameraInput()
     // without using translation, this is because we want to move always
     // in the same axis whatever be the direction of the camera.
 
-
+/*
     // MOUSE
     const OIS::MouseState& lMouseState = data.OISMouse->getMouseState();
 
@@ -241,7 +255,7 @@ QtAnimPlayer::handleCameraInput()
         mOrbitCamera->setCameraType(OrbitCamera::CameraType::FreeFly);
     } else if (data.inputHelper.isKeyPressed(input::KeyCode::KC_2)) {
         mOrbitCamera->setCameraType(OrbitCamera::CameraType::Orbit);
-    }
+    }*/
 
 }
 

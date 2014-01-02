@@ -9,6 +9,7 @@
 #include <qt_tools/ogre_widget/OgreWidget.h>
 #include <qt_tools/ogre_widget/QtOgreAppBase.h>
 
+
 #include "QtAnimPlayer.h"
 
 int
@@ -21,8 +22,7 @@ main(int argc, char* argv[])
    // TODO: configure the handler here
 
    // create the QtOgreAppBase
-   tool::QtOgreAppBase* ogreApp = new tool::QtAnimPlayer(&resourceHandler,
-                                                         true);
+   tool::QtOgreAppBase* ogreApp = new tool::QtAnimPlayer(&resourceHandler);
 
    // we could load the ogre widget right, now load the current app
    if (!ogreApp->loadApp()) {

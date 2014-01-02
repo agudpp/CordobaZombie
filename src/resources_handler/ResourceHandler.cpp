@@ -50,10 +50,8 @@ getRsrcFileSections(const std::string &file,
 		secName = seci.peekNextKey();
 		if(!secName.empty()){
 			sections.push_back(secName);
-			seci.getNext();
-		}else{
-			seci.getNext();
 		}
+		seci.moveNext();
 	}
 
 	return true;
@@ -72,6 +70,7 @@ ogreLoadRsrcFile(const std::string &file,
 {
     // Load resource paths from config file
     Ogre::ConfigFile cf;
+    debugBLUE("file: %s\n", file.c_str());
     try {
         cf.load(file);
     } catch (...) {
@@ -82,7 +81,6 @@ ogreLoadRsrcFile(const std::string &file,
     // Go through all sections & settings in the file
     Ogre::ConfigFile::SectionIterator seci = cf.getSectionIterator();
     std::string path = p;
-
     core::OSHelper::addEndPathVar(path);
 
     std::string secName, typeName, archName;
@@ -98,10 +96,8 @@ ogreLoadRsrcFile(const std::string &file,
 				Ogre::ResourceGroupManager::getSingleton().addResourceLocation(
 						archName, typeName, secName);
 			}
-        }else{
-        	seci.getNext();
         }
-
+        seci.moveNext();
     }
     Ogre::ResourceGroupManager::getSingleton().initialiseAllResourceGroups();
     return true;
@@ -154,13 +150,13 @@ ResourceHandler::loadResourceGroup(ResourceGroup& rg)
 
     // now we will load all the group targets and sa
     Ogre::ResourceGroupManager &rscMng = Ogre::ResourceGroupManager::getSingleton();
-
     for (std::string& sec : sections) {
 
 #ifdef DEBUG
-    	if(!rscMng.resourceGroupExists(sec)){
-    		debugERROR("Can't find section named %s\n", sec.c_str());
-    	}
+        if (!rscMng.resourceGroupExists(sec)) {
+            debugERROR("Can't find section named %s\n", sec.c_str());
+            continue;
+        }
 #endif
 
     	rscMng.initialiseResourceGroup(sec);

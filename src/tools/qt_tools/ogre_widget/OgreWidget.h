@@ -17,7 +17,6 @@
 #include <OIS.h>
 
 #include <ResourceHandler.h>
-#include <input/InputHelper.h>
 
 
 namespace tool {
@@ -45,24 +44,10 @@ public:
         {}
     };
 
-    struct InputData {
-        input::InputHelper inputHelper;
-
-        OIS::InputManager *OISInputManager;
-        OIS::Keyboard *OISKeyboard;
-        OIS::Mouse *OISMouse;
-
-        InputData() :
-            OISInputManager(0)
-        ,   OISKeyboard(0)
-        ,   OISMouse(0)
-        {}
-    };
 
 public:
     OgreWidget(QWidget *parent = 0,
-               rrh::ResourceHandler* rh = 0,
-               bool useInputHelper = true);
+               rrh::ResourceHandler* rh = 0);
     ~OgreWidget();
 
     // @brief Set the ResourceHandler to be used
@@ -89,24 +74,12 @@ public:
                 const std::string& ogre = "ogre.cfg",
                 const std::string& resource = "resources.cfg");
 
-    // @brief Set the keys we will use if we are using the input helper.
-    // @param mouseButtons      The list of mouse buttons ids we want to track
-    // @param keyboardKeys      The list of keyboard keys we will track
-    //
-    void
-    setInputConfig(const std::vector<input::MouseButtonID>& mouseButtons,
-                   const std::vector<input::KeyCode>& keyboardKeys);
-
     // @brief Get all the different ogre | input data.
     //
     inline OgreData&
     ogreData(void);
     inline const OgreData&
     ogreData(void) const;
-    inline InputData&
-    inputData(void);
-    inline const InputData&
-    inputData(void) const;
 
 
 signals:
@@ -150,8 +123,6 @@ private:
 
     // our stuff
     rrh::ResourceHandler* mResourceHandler;
-    InputData mInputdata;
-    bool mUseInputHelper;
 };
 
 
@@ -175,16 +146,6 @@ inline const OgreWidget::OgreData&
 OgreWidget::ogreData(void) const
 {
     return mOgreData;
-}
-inline OgreWidget::InputData&
-OgreWidget::inputData(void)
-{
-    return mInputdata;
-}
-inline const OgreWidget::InputData&
-OgreWidget::inputData(void) const
-{
-    return mInputdata;
 }
 
 }

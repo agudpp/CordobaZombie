@@ -28,7 +28,6 @@ class QtAnimPlayer : public QtOgreAppBase
     Q_OBJECT
 public:
     QtAnimPlayer(rrh::ResourceHandler* rh = 0,
-                 bool useInputHelper = true,
                  const std::string& plugins = "plugins.cfg",
                  const std::string& ogre = "ogre.cfg",
                  const std::string& resource = "resources.cfg");
@@ -57,6 +56,22 @@ protected slots:
     //
     virtual void
     systemsReady(void);
+
+protected:
+
+    // QWidget events.
+    //
+
+    // @brief For keypressing | mouse events
+    //
+    virtual void
+    keyPressEvent(QKeyEvent* event);
+    virtual void
+    keyReleaseEvent(QKeyEvent* event);
+    virtual void
+    mousePressEvent(QMouseEvent* event);
+    virtual void
+    mouseReleaseEvent(QMouseEvent* event);
 
 private:
 

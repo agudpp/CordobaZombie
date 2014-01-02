@@ -1,23 +1,30 @@
-
-# dependencies
+# include here all the project modules dependencies
+#
 include(${DEV_ROOT_PATH}/core/debug/AutoGen.cmake)
 
 
 # This are the variables we can use / set in almost all the QtTools that we will
-# develope
-## SET(QtApp_MOCS ${QtApp_MOCS} )   # this will be all the .h files 
-## SET(QtApp_UIS ${QtApp_UIS})      # here we will put all the ui files we use
-## SET(QtApp_RCCS ${QtApp_RCCS})    # all the resources files we use
-
-# Define the mocs and everything else
+# develop.
+# Here we will put all the mocs or qt headers files (.h with qt stuff only) of our 
+# Qt tool
 #
 SET(QtApp_MOCS ${QtApp_MOCS} 
                ${DEV_ROOT_PATH}/tools/qt_tools/anim_player/QtAnimPlayer.h)
+
+# All the .ui files of our tool
+#
 SET(QtApp_UIS ${QtApp_UIS}
               ${DEV_ROOT_PATH}/tools/qt_tools/anim_player/AnimPlayer.ui)
+
+# All the .qrc files of our tool (resource files, probably none)
+#
 SET(QtApp_RCCS ${QtApp_RCCS})
 
-# Define global sources here
+
+
+# Define global sources and headers here (.h, .cpp files) here. Note that we are
+# probably redefining all the headers here but is necessary.
+#
 set(HDRS ${HDRS}
     ${DEV_ROOT_PATH}/tools/qt_tools/anim_player/QtAnimPlayer.h
     ${DEV_ROOT_PATH}/tools/utils/OrbitCamera.h
@@ -31,5 +38,5 @@ set(SRCS ${SRCS}
 
 # At the end we need to include the main OgreWidget module that contains
 # all the logic for the OgreWidget
+# This should be here at the end.
 include (${DEV_ROOT_PATH}/tools/qt_tools/ogre_widget/AutoGen.cmake)
-

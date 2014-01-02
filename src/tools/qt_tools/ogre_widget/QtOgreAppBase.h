@@ -25,11 +25,9 @@ public:
     // @brief Load the OgreWidget window and create it, using this base class
     //        as the parent one.
     // @param rh                The resource handler instance to be used
-    // @param useInputHelper    If we want to use the input helper or not.
     // @param *configFiles      The config files for ogre
     //
     QtOgreAppBase(rrh::ResourceHandler* rh = 0,
-                  bool useInputHelper = true,
                   const std::string& plugins = "plugins.cfg",
                   const std::string& ogre = "ogre.cfg",
                   const std::string& resource = "resources.cfg");
@@ -50,6 +48,22 @@ public:
     virtual bool
     loadApp(void) {return true;}
 
+    // Loading resources functions helpers
+    //
+
+    // @brief Add a resource location from a filepath
+    // @param filepath      The path of the resource file
+    //
+    void
+    loadLocationFromFile(const QString& filepath);
+
+    // @brief Add a resource file using our ResourceHandler system.
+    // @param cfg       The file to be loaded (.cfg)
+    // @return true on success | false otherwise
+    //
+    bool
+    loadResourceFile(const QString& cfg);
+
 protected slots:
 
     // @brief The child class should implement this if we want to receive this
@@ -66,15 +80,10 @@ protected slots:
     systemsReady(void){};
 
 protected:
-    // @brief Add a resource location from a filepath
-    // @param filepath      The path of the resource file
-    //
-    void
-    loadLocationFromFile(const QString& filepath);
-
-protected:
     OgreWidget* mOgreWidget;
     QSet<QString> mLocations;
+    rrh::ResourceHandler* mResourceHandler;
+
 };
 
 }

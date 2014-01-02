@@ -9,14 +9,12 @@ namespace tool {
 
 ////////////////////////////////////////////////////////////////////////////////
 OgreWidget::OgreWidget(QWidget *parent,
-                       rrh::ResourceHandler* rh,
-                       bool useInputHelper) :
+                       rrh::ResourceHandler* rh) :
     QWidget(parent)
 ,   mInitialised(false)
 ,   mTimeStamp(0)
 ,   mBackgroundColor(0,0,0)
 ,   mResourceHandler(rh)
-,   mUseInputHelper(useInputHelper)
 {
     setAttribute(Qt::WA_OpaquePaintEvent);
     setAttribute(Qt::WA_PaintOnScreen);
@@ -71,11 +69,6 @@ OgreWidget::paintEvent(QPaintEvent* e)
     mOgreData.frameTime = (mTimer.getMilliseconds() - mTimeStamp) * 0.001;
     mTimeStamp = currentTime;
 
-    // capture if we need
-    if (mUseInputHelper) {
-        mInputdata.inputHelper.update();
-    }
-
     // emit the signal of frame update
     emit frameUpdate(mOgreData.frameTime);
 
@@ -105,14 +98,6 @@ OgreWidget::resizeEvent(QResizeEvent* e)
 
             Real aspectRatio = Real(newSize.width()) / Real(newSize.height());
             mOgreData.camera->setAspectRatio(aspectRatio);
-        }
-
-        // reset the input helper information for the mouse
-        if (mUseInputHelper && mInputdata.OISMouse) {
-            const OIS::MouseState &mouseState = mInputdata.OISMouse->getMouseState();
-            mouseState.width = newSize.width();
-            mouseState.height = newSize.height();
-
         }
     }
 }
@@ -205,81 +190,15 @@ OgreWidget::initSystems(const std::string& plugins,
         mOgreData.viewport->setBackgroundColour(ogreColour);
     }
     mOgreData.camera->setAspectRatio(Ogre::Real(width()) / Ogre::Real(height()));
-
-    // create input system if we need
-    mUseInputHelper = false;
-    if (mUseInputHelper) {
-        // override OIS construction to avoid grabbing mouse
-        OIS::ParamList pl;
-        core::size_t windowHnd = 0;
-        std::ostringstream windowHndStr;
-
-        windowHndStr << widgetHandle.c_str();
-        pl.insert(std::make_pair(std::string("WINDOW"), windowHndStr.str()));
-
-        const bool disableInputGrabbing = true;
-        if (disableInputGrabbing) {
-    #if defined OIS_WIN32_PLATFORM
-            pl.insert(std::make_pair(std::string("w32_mouse"), std::string("DISCL_FOREGROUND" )));
-            pl.insert(std::make_pair(std::string("w32_mouse"), std::string("DISCL_EXCLUSIVE")));
-            pl.insert(std::make_pair(std::string("w32_keyboard"), std::string("DISCL_FOREGROUND")));
-            pl.insert(std::make_pair(std::string("w32_keyboard"), std::string("DISCL_NONEXCLUSIVE")));
-    #elif defined OIS_LINUX_PLATFORM
-            pl.insert(
-                std::make_pair(std::string("x11_mouse_grab"),
-                    std::string("false")));
-            pl.insert(
-                std::make_pair(std::string("x11_mouse_hide"),
-                    std::string("true")));
-            pl.insert(
-                std::make_pair(std::string("x11_keyboard_grab"),
-                    std::string("false")));
-            pl.insert(
-                std::make_pair(std::string("XAutoRepeatOn"), std::string("true")));
-    #endif
-            // end override OIS construction to avoid grabbing mouse
-        }
-        mInputdata.OISInputManager = OIS::InputManager::createInputSystem(pl);
-
-        // creates the mouse and keyboard objects (we will use unbuffered input
-        // system, the second parameter set this)
-        mInputdata.OISKeyboard = static_cast<OIS::Keyboard*>(
-            mInputdata.OISInputManager->createInputObject(OIS::OISKeyboard, false));
-
-        mInputdata.OISMouse = static_cast<OIS::Mouse*>(
-            mInputdata.OISInputManager->createInputObject(OIS::OISMouse, false));
-
-        ASSERT(mInputdata.OISMouse && mInputdata.OISKeyboard);
-
-        // config the mouse to the screen size
-        const OIS::MouseState &mouseState = mInputdata.OISMouse->getMouseState();
-        mouseState.width = width();
-        mouseState.height = height();
-
-        // configure the global mouse and keyboard
-        input::Mouse::setMouse(mInputdata.OISMouse);
-        input::Keyboard::setKeyboard(mInputdata.OISKeyboard);
-    }
-
     mInitialised = true;
 
     startTimer(5);
 
     emit systemsReady();
+
+    return true;
 }
 
-void
-OgreWidget::setInputConfig(const std::vector<input::MouseButtonID>& mouseButtons,
-                           const std::vector<input::KeyCode>& keyboardKeys)
-{
-    if (!mUseInputHelper) {
-        QTDEBUG_WARNING("We are not using the Input helper module, but we are "
-            "trying to configure it?! something is not right\n");
-        return;
-    }
-
-    mInputdata.inputHelper.setInputConfig(mouseButtons, keyboardKeys);
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 void
