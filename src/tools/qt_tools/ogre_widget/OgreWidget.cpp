@@ -58,7 +58,7 @@ OgreWidget::paintEngine() const
 void
 OgreWidget::paintEvent(QPaintEvent* e)
 {
-    if (!mOgreData.root) {
+    if (!mInitialised) {
         if (!initSystems()) {
             QTDEBUG_CRITICAL("Error initializing the systems\n");
         }
@@ -155,6 +155,7 @@ OgreWidget::initSystems(const std::string& plugins,
     mOgreData.root->setRenderSystem(rs);
     mOgreData.root->initialise(false);
 
+
     // Load resource paths from config file
     if (!mResourceHandler) {
         QTDEBUG_WARNING("No ResourceHandler was set to load resources!\n");
@@ -166,6 +167,7 @@ OgreWidget::initSystems(const std::string& plugins,
             QTDEBUG_WARNING("Error loading resource file " << resource);
         }
     }
+
 
     mOgreData.sceneManager = mOgreData.root->createSceneManager(Ogre::ST_GENERIC);
 
@@ -183,6 +185,7 @@ OgreWidget::initSystems(const std::string& plugins,
                                               height(),
                                               false,
                                               &viewConfig);
+
 
     Ogre::ResourceGroupManager::getSingleton().initialiseAllResourceGroups();
     mOgreData.renderWindow->setVisible(true);
@@ -204,6 +207,7 @@ OgreWidget::initSystems(const std::string& plugins,
     mOgreData.camera->setAspectRatio(Ogre::Real(width()) / Ogre::Real(height()));
 
     // create input system if we need
+    mUseInputHelper = false;
     if (mUseInputHelper) {
         // override OIS construction to avoid grabbing mouse
         OIS::ParamList pl;
