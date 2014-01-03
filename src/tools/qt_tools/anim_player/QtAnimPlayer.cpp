@@ -173,7 +173,7 @@ QtAnimPlayer::systemsReady(void)
                                    data.sceneManager,
                                    data.frameTime,
                                    false);
-    mOrbitCamera->setInitialZoomDist(10.f);
+    mOrbitCamera->setZoomDist(50.f);
 
     // create the axis to be shown in the scene
     m3DAxis = core::PrimitiveDrawer::instance().create3DAxis(Ogre::Vector3::ZERO, 15);
@@ -393,7 +393,7 @@ QtAnimPlayer::zoomIncClickedChanged(bool)
         return;
     }
     const float currentZoom = mOrbitCamera->zoom();
-    mOrbitCamera->setZoom(currentZoom + 5.f);
+    mOrbitCamera->setZoomDist(currentZoom + 5.f);
 }
 void
 QtAnimPlayer::zoomDecClickedChanged(bool)
@@ -402,7 +402,7 @@ QtAnimPlayer::zoomDecClickedChanged(bool)
         return;
     }
     const float currentZoom = mOrbitCamera->zoom();
-    mOrbitCamera->setZoom(currentZoom - 5.f);
+    mOrbitCamera->setZoomDist(currentZoom - 5.f);
 }
 
 void

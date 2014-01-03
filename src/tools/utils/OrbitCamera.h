@@ -60,7 +60,7 @@ public:
 
     // set the zoom initial distance
     void
-    setInitialZoomDist(float dist);
+    setZoomDist(float dist);
 
     // get the position of the camera
     inline const Ogre::Vector3&
