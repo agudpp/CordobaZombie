@@ -8,6 +8,8 @@
 #ifndef QTANIMPLAYER_H_
 #define QTANIMPLAYER_H_
 
+#include <QtGui/QCheckBox>
+#include <QtGui/QLabel>
 
 #include <OgreSceneManager.h>
 #include <OgreSceneNode.h>
@@ -18,6 +20,7 @@
 #include <qt_tools/qt_debug/QtDebug.h>
 #include <qt_tools/ogre_widget/OgreWidget.h>
 #include <qt_tools/ogre_widget/QtOgreAppBase.h>
+#include <debug/PrimitiveDrawer.h>
 
 #include "ui_AnimPlayer.h"
 
@@ -38,9 +41,17 @@ public slots:
     void
     onLoadClicked(bool);
     void
+    onLoadResourceClicked(bool);
+    void
     yRotSliderChanged(int val);
     void
     xRotSliderChanged(int val);
+    void
+    zoomIncClickedChanged(bool);
+    void
+    zoomDecClickedChanged(bool);
+    void
+    velControllerSliderChanged(int val);
 
 protected slots:
 
@@ -72,8 +83,21 @@ protected:
     mousePressEvent(QMouseEvent* event);
     virtual void
     mouseReleaseEvent(QMouseEvent* event);
+    virtual void
+    mouseMoveEvent(QMouseEvent* event);
 
 private:
+
+    // @brief Load all the animations from a given entity
+    // @param entity    The entity we want to load all the animations
+    //
+    void
+    loadAnimations(Ogre::Entity* entity);
+
+    // @brief Destroy all the current loaded animations
+    //
+    void
+    destroyAnimationStuff(void);
 
     // @brief Load an entity from a file. We assume the resource location
     //        is already loaded.
@@ -81,10 +105,28 @@ private:
     bool
     loadMesh(const QString& meshName);
 
-    // @brief Handle the camera input
+
+private:
+
+    // Internal structure to hold the animation information
     //
-    void
-    handleCameraInput(void);
+    struct AnimInfo {
+        Ogre::AnimationState* animState;
+        QLabel* label;
+        QCheckBox* button;
+
+        AnimInfo() :
+            animState(0)
+        ,   label(0)
+        ,   button(0)
+        {}
+
+        ~AnimInfo()
+        {
+            delete button;
+            delete label;
+        }
+    };
 
 private:
     Ui::AnimPlayer ui;
@@ -94,6 +136,11 @@ private:
     Ogre::Entity* mEntity;
 
     OrbitCamera* mOrbitCamera;
+    core::Primitive* m3DAxis;
+
+    QPoint mLastMousePoint;
+    float mAnimVel;
+    std::vector<AnimInfo*> mAnimInfo;
 };
 
 }

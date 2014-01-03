@@ -68,10 +68,77 @@ QtAnimPlayer::loadMesh(const QString& meshName)
 
 ////////////////////////////////////////////////////////////////////////////////
 void
+QtAnimPlayer::loadAnimations(Ogre::Entity* entity)
+{
+    if (!entity) {
+        QTDEBUG_CRITICAL("entity is null! This is an error, we cannot load animations\n");
+        return;
+    }
+
+    // destroy all the current animations
+    destroyAnimationStuff();
+
+    // now load the entity animations
+    Ogre::AnimationStateSet* anims = entity->getAllAnimationStates();
+    if (anims == 0 || !anims->getAnimationStateIterator().hasMoreElements()) {
+        // no animations found for this entity
+        QMessageBox::information(this,
+                                 tr("Animations"),
+                                 "La entity " + QString(entity->getName().c_str()) +
+                                    " no contiene animaciones");
+        return;
+    }
+
+    // now load all the animations
+    Ogre::AnimationStateIterator it = anims->getAnimationStateIterator();
+    unsigned int widgetId = 1;
+    while (it.hasMoreElements()) {
+        Ogre::AnimationState* anim = it.getNext();
+        if (anim) {
+            AnimInfo* ai = new AnimInfo;
+            ai->animState = anim;
+            ai->label = new QLabel(anim->getAnimationName().c_str(), this);
+            ai->button = new QCheckBox(this);
+            ai->button->setChecked(false);
+
+            // add this two elements into the layout
+            ui.animFormLayout->setWidget(widgetId, QFormLayout::LabelRole, ai->label);
+            ui.animFormLayout->setWidget(widgetId, QFormLayout::FieldRole, ai->button);
+            widgetId++;
+            mAnimInfo.push_back(ai);
+        }
+
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void
+QtAnimPlayer::destroyAnimationStuff(void)
+{
+    for (AnimInfo* ai : mAnimInfo) {
+        delete ai;
+    }
+    mAnimInfo.clear();
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+void
 QtAnimPlayer::frameUpdate(float fp)
 {
-
-//    handleCameraInput();
+    for (AnimInfo* ai : mAnimInfo) {
+        if (ai->button->isChecked()) {
+            if (!ai->animState->getEnabled()) {
+                ai->animState->setEnabled(true);
+                ai->animState->setLoop(true);
+            }
+            ai->animState->addTime(fp * mAnimVel);
+        } else {
+            if (ai->animState->getEnabled()) {
+                ai->animState->setEnabled(false);
+            }
+        }
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -106,7 +173,10 @@ QtAnimPlayer::systemsReady(void)
                                    data.sceneManager,
                                    data.frameTime,
                                    false);
+    mOrbitCamera->setInitialZoomDist(10.f);
 
+    // create the axis to be shown in the scene
+    m3DAxis = core::PrimitiveDrawer::instance().create3DAxis(Ogre::Vector3::ZERO, 15);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -127,6 +197,13 @@ QtAnimPlayer::keyPressEvent(QKeyEvent* event)
     case Qt::Key::Key_W:
         ui.yRotSlider->setValue(ui.yRotSlider->value() - 1);
         break;
+    // zoom
+    case Qt::Key::Key_Plus:
+        zoomDecClickedChanged(true);
+        break;
+    case Qt::Key::Key_Minus:
+        zoomIncClickedChanged(true);
+        break;
     }
     event->accept();
 }
@@ -135,13 +212,13 @@ QtAnimPlayer::keyPressEvent(QKeyEvent* event)
 void
 QtAnimPlayer::keyReleaseEvent(QKeyEvent* event)
 {
-
     event->ignore();
 }
 ////////////////////////////////////////////////////////////////////////////////
 void
 QtAnimPlayer::mousePressEvent(QMouseEvent* event)
 {
+    mLastMousePoint = event->globalPos();
     event->ignore();
 }
 
@@ -150,6 +227,32 @@ void
 QtAnimPlayer::mouseReleaseEvent(QMouseEvent* event)
 {
     event->ignore();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void
+QtAnimPlayer::mouseMoveEvent(QMouseEvent* event)
+{
+    if (!(event->buttons() & Qt::MouseButton::LeftButton)) {
+        return;
+    }
+    // Note that this is not the right option, we need to implement this in the
+    // OgreWidget since we only want to move the camera when moving the mouse
+    // inside of that widget. To do that we can emmit an event with the mouse
+    // information and catch that signal here. Instead of moving the camera
+    // whenever we move the mouse in ALL the widget!.
+    //
+
+    const QPoint& globalPos = event->globalPos();
+    // then move the camera depending where it was moved
+    const float relX = mLastMousePoint.x() - globalPos.x();
+    const float relY = mLastMousePoint.y() - globalPos.y();
+    mLastMousePoint = globalPos;
+
+    const float factor = -0.01 * 1.5f;
+    ui.xRotSlider->setValue(ui.xRotSlider->value() + relX);
+    ui.yRotSlider->setValue(ui.yRotSlider->value() + relY);
+    event->accept();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -162,13 +265,21 @@ QtAnimPlayer::QtAnimPlayer(rrh::ResourceHandler* rh,
 ,   mNode(0)
 ,   mEntity(0)
 ,   mOrbitCamera(0)
+,   m3DAxis(0)
 {
     ui.setupUi(this);
 
     // connect signals and slots
     connect(ui.loadBtn, SIGNAL(clicked(bool)), this, SLOT(onLoadClicked(bool)));
+    connect(ui.rscLoadBtn, SIGNAL(clicked(bool)), this, SLOT(onLoadResourceClicked(bool)));
     connect(ui.xRotSlider, SIGNAL(valueChanged(int)), this, SLOT(xRotSliderChanged(int)));
     connect(ui.yRotSlider, SIGNAL(valueChanged(int)), this, SLOT(yRotSliderChanged(int)));
+    connect(ui.incZoomBtn, SIGNAL(clicked(bool)), this, SLOT(zoomIncClickedChanged(bool)));
+    connect(ui.decZoomBtn, SIGNAL(clicked(bool)), this, SLOT(zoomDecClickedChanged(bool)));
+    connect(ui.velControllerSlider, SIGNAL(valueChanged(int)), this, SLOT(velControllerSliderChanged(int)));
+
+    // init the velocity of the animation
+    velControllerSliderChanged(ui.velControllerSlider->value());
 
     // add the ogre widget to the layout
     QWidget* ogrew = ogreWidget();
@@ -178,86 +289,6 @@ QtAnimPlayer::QtAnimPlayer(rrh::ResourceHandler* rh,
 
 }
 
-////////////////////////////////////////////////////////////////////////////////
-void
-QtAnimPlayer::handleCameraInput()
-{
-    if (!mOrbitCamera) {
-        // nothing to do
-        return;
-    }
-
-    ASSERT(ogreWidget());
-
-    ///////////////////////////////////////////////////////////////////////////
-    // CAMERA
-    //  float lCoeff = 200.0f * Common::GlobalObjects::lastTimeFrame;
-    Ogre::Vector3 mTranslationVec = Ogre::Vector3::ZERO;
-    Ogre::Real zoom = mOrbitCamera->zoom();
-
-    // HERE WE DEFINE THE KEYS USED TO MOVE THE CAMERA, WE WILL USE THE
-    // ARROWS TO MOVE THE CAMERA
-    // NOTE: we are getting the cameraPosition and modifying the position
-    // without using translation, this is because we want to move always
-    // in the same axis whatever be the direction of the camera.
-
-/*
-    // MOUSE
-    const OIS::MouseState& lMouseState = data.OISMouse->getMouseState();
-
-    if(data.inputHelper.isKeyPressed(input::KeyCode::KC_LEFT) ||
-        data.inputHelper.isKeyPressed(input::KeyCode::KC_A)) {
-        mTranslationVec.x -= 1.0f;
-    }
-    if(data.inputHelper.isKeyPressed(input::KeyCode::KC_RIGHT) ||
-        data.inputHelper.isKeyPressed(input::KeyCode::KC_D)) {
-        mTranslationVec.x += 1.0f;
-    }
-    if(data.inputHelper.isKeyPressed(input::KeyCode::KC_UP) ||
-        data.inputHelper.isKeyPressed(input::KeyCode::KC_W)) {
-        mTranslationVec.z -= 1.0f;
-    }
-    if(data.inputHelper.isKeyPressed(input::KeyCode::KC_DOWN) ||
-        data.inputHelper.isKeyPressed(input::KeyCode::KC_S)) {
-        mTranslationVec.z += 1.0f;
-    }
-
-    if(mTranslationVec != Ogre::Vector3::ZERO) {
-        mOrbitCamera->moveCamera(mTranslationVec);
-    }
-    if(zoom != mOrbitCamera->zoom()) {
-        mOrbitCamera->setZoom(zoom);
-    }
-
-    const float lMouseZ = input::Mouse::relZ();
-    float scrollZoom = mOrbitCamera->zoom();
-    if (lMouseZ > 0.0f) {
-        scrollZoom += 5.f;
-    } else if (lMouseZ < 0.0f) {
-        scrollZoom -= 5.f;
-    }
-    if(scrollZoom != mOrbitCamera->zoom()) {
-        mOrbitCamera->setZoom(scrollZoom);
-    }
-
-    // check tracking camera
-    static int lastX = 0, lastY = 0;
-    const float lMouseX = float(input::Mouse::relX());
-    const float lMouseY = float(input::Mouse::relY());
-    if (data.inputHelper.isMousePressed(input::MouseButtonID::MB_Right)) {
-        const float factor = -0.01 * 1.5f;
-        mOrbitCamera->rotateCamera(Ogre::Radian(lMouseX * factor),
-                                    Ogre::Radian(lMouseY * factor));
-    }
-
-    // check for the type of camera we want to use
-    if (data.inputHelper.isKeyPressed(input::KeyCode::KC_1)) {
-        mOrbitCamera->setCameraType(OrbitCamera::CameraType::FreeFly);
-    } else if (data.inputHelper.isKeyPressed(input::KeyCode::KC_2)) {
-        mOrbitCamera->setCameraType(OrbitCamera::CameraType::Orbit);
-    }*/
-
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 QtAnimPlayer::~QtAnimPlayer()
@@ -296,6 +327,42 @@ QtAnimPlayer::onLoadClicked(bool)
                         " couldn't be loaded.\n");
         return;
     }
+    if (mEntity) {
+        destroyAnimationStuff();
+        loadAnimations(mEntity);
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void
+QtAnimPlayer::onLoadResourceClicked(bool)
+{
+    // try to load the .mesh file
+    QFileDialog dialog(this);
+    dialog.setFileMode(QFileDialog::FileMode::AnyFile);
+    dialog.setDirectory(mLastPathLoaded);
+    dialog.setFilter(tr("Resources files (*.cfg)"));
+
+    if (!dialog.exec()) {
+        return;
+    }
+    const QStringList paths = dialog.selectedFiles();
+    // we will only want the first
+    if (paths.isEmpty()) {
+        return;
+    }
+
+    const QString rscPath = paths.first();
+
+    QFileInfo finfo(rscPath);
+    if (finfo.isDir()) {
+        // we need to add the location only
+        loadLocationFromPath(rscPath);
+    } else {
+        // else is a cfg file
+        loadResourceFile(rscPath);
+    }
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -318,4 +385,35 @@ QtAnimPlayer::xRotSliderChanged(int val)
     Ogre::Degree degree(val);
     mOrbitCamera->setPitchAngle(degree);
 }
+
+void
+QtAnimPlayer::zoomIncClickedChanged(bool)
+{
+    if (!mOrbitCamera) {
+        return;
+    }
+    const float currentZoom = mOrbitCamera->zoom();
+    mOrbitCamera->setZoom(currentZoom + 5.f);
+}
+void
+QtAnimPlayer::zoomDecClickedChanged(bool)
+{
+    if (!mOrbitCamera) {
+        return;
+    }
+    const float currentZoom = mOrbitCamera->zoom();
+    mOrbitCamera->setZoom(currentZoom - 5.f);
+}
+
+void
+QtAnimPlayer::velControllerSliderChanged(int val)
+{
+    mAnimVel = static_cast<float>(val) /
+        static_cast<float>(ui.velControllerSlider->maximum());
+
+    // animVel will be between [0,1]. So we can change this and setting
+    // the value between [0,2].
+    mAnimVel *= 2.f;
+}
+
 }

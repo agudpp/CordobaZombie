@@ -70,7 +70,6 @@ ogreLoadRsrcFile(const std::string &file,
 {
     // Load resource paths from config file
     Ogre::ConfigFile cf;
-    debugBLUE("file: %s\n", file.c_str());
     try {
         cf.load(file);
     } catch (...) {

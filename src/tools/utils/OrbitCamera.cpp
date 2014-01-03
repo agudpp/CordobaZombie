@@ -111,4 +111,16 @@ OrbitCamera::moveCamera(const Ogre::Vector3 &dir)
     mFreeNode->setPosition(mNextPosition);
 }
 
+////////////////////////////////////////////////////////////////////////////////
+void
+OrbitCamera::setInitialZoomDist(float dist)
+{
+    mZoomNode->setPosition(0.f, 0.f, dist);
+    mZoomNode->lookAt(mCamXNode->getPosition(), Ogre::Node::TS_WORLD);
+
+    const Ogre::Vector3 distVec = mCamXNode->getPosition() - mZoomNode->getPosition();
+    mStartDistance = distVec.length();
+    mZoom = 50.f;
+}
+
 } /* namespace tool */

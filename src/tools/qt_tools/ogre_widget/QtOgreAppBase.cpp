@@ -36,15 +36,12 @@ QtOgreAppBase::~QtOgreAppBase()
 {
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////
 void
-QtOgreAppBase::loadLocationFromFile(const QString& filepath)
+QtOgreAppBase::loadLocationFromPath(const QString& path)
 {
     Ogre::ResourceGroupManager& rmngr = Ogre::ResourceGroupManager::getSingleton();
 
-    QFileInfo finfo(filepath);
-    const QString path = finfo.path();
     if (mLocations.contains(path)) {
         // do nothing
         return;
@@ -61,6 +58,17 @@ QtOgreAppBase::loadLocationFromFile(const QString& filepath)
                          path.toStdString() << " exception: " <<
                          e.what() << "\n");
     }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void
+QtOgreAppBase::loadLocationFromFile(const QString& filepath)
+{
+    Ogre::ResourceGroupManager& rmngr = Ogre::ResourceGroupManager::getSingleton();
+
+    QFileInfo finfo(filepath);
+    const QString path = finfo.path();
+    loadLocationFromPath(path);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

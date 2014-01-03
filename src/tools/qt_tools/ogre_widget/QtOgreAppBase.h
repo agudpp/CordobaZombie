@@ -51,6 +51,12 @@ public:
     // Loading resources functions helpers
     //
 
+    // @brief Add a path into the resource system
+    // @param path          The path to be added
+    //
+    void
+    loadLocationFromPath(const QString& path);
+
     // @brief Add a resource location from a filepath
     // @param filepath      The path of the resource file
     //

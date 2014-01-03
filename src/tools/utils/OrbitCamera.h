@@ -58,6 +58,10 @@ public:
     void
     moveCamera(const Ogre::Vector3 &dir);
 
+    // set the zoom initial distance
+    void
+    setInitialZoomDist(float dist);
+
     // get the position of the camera
     inline const Ogre::Vector3&
     getCameraPosition(void) const;
