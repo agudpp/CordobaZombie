@@ -47,10 +47,14 @@
 #endif
 
 
+// Forward declarations
+namespace rrh {
+class ResourceHandler;
+}
+
 namespace mm {
 
-
-/* FWD declaration, to avoid circular dependencies. */
+// Forward declarations
 class SoundBuffer;
 class LSoundSource;
 class SSoundSource;
@@ -267,6 +271,7 @@ public:
 	 ** Loads audio file "sName" for playback.
 	 **
 	 ** @param
+	 **     rh: reference to the resource handler with access to the file
 	 **  sName: name of the audio file (realtive path, i.e., filename only)
 	 ** format: file's audio compression format (WAV, OGG, MP3)
 	 **   type: buffer's type (streaming vs mem.loaded)
@@ -286,12 +291,14 @@ public:
 	 ** SS_NO_BUFFER		Audio file "sName" had already been loaded.
 	 ** SS_NO_MEMORY		Not enough memory to work with. Go buy some.
 	 ** SS_INVALID_FILE		Unsupported/erroneous file audio format
-	 ** SS_FILE_NOT_FOUND	Inexistent audio file.
+	 ** SS_FILE_NOT_FOUND	Audio file not found. Is it listed as resource?
 	 ** SS_INTERNAL_ERROR	Something went wrong. Does an OpenAL context exist?
 	 **/
 	SSerror
-	loadSound(const Ogre::String& sName, SSformat format=SSformat::SS_NOTHING,
-				SSbuftype type=SSbuftype::SS_BUF_LOADED);
+	loadSound(rrh::ResourceHandler& rh,
+	          const Ogre::String& sName,
+	          SSformat format = SSformat::SS_NOTHING,
+	          SSbuftype type = SSbuftype::SS_BUF_LOADED);
 
 	/**
 	 ** @brief
@@ -302,12 +309,12 @@ public:
 
 	/**
 	 ** @brief
-	 ** Unloads the audio buffer named "sName" from memory.
+	 ** Unloads the audio buffer named "sName" from (the SoundSystem) memory.
 	 ** If no such buffer exists, nothing is done.
 	 **
 	 ** @remarks
 	 ** Doesn't check if the sound is being used by some source.
-	 ** May cause inconsistencies if user doesn't do that check beforehand.
+	 ** May cause inconsistencies if user doesn't check that beforehand.
 	 **/
 	void
 	unloadSound(const Ogre::String& sName);

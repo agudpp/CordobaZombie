@@ -29,6 +29,11 @@
 #include "SoundSource.h"
 
 
+// Forward declarations
+namespace rrh {
+class ResourceHandler;
+}
+
 namespace mm {
 
 class SoundHandler
@@ -142,24 +147,29 @@ public:
 	/*****************    SOUNDS LOADING/UNLOADING    ********************/
 public:
 	/**
-	 ** @brief
-	 ** Loads a list of sound files, to be played with streaming mechanisms.
+	 ** @brief Loads a list of sound files, to be played in streaming fashion
 	 **
+	 ** @param rh   Reference to the resource handler with access to the files
+	 ** @param list Names of the sound files to load
+     **
+     ** @return
+     ** List of files which failed to load, with respective error message.
+     ** File names are separated with UNIX newline characters (viz. '\n')
+     **
 	 ** @remarks
 	 ** Filenames are expected to contain the sound format extension
 	 ** (e.g., *.mp3, *.wav, *.ogg, etc.)
-	 **
-	 ** @return
-	 ** List of files which failed to load, with respective error message.
-	 ** File names are separated with UNIX newline characters (viz. '\n')
 	 **/
 	Ogre::String
-	loadStreamSounds(const std::vector<Ogre::String>& list);
+	loadStreamSounds(rrh::ResourceHandler& rh,
+	                 const std::vector<Ogre::String>& list);
 
 	/**
-	 ** @brief
-	 ** Loads a list of sound files, to be played directly from memory.
+	 ** @brief Loads a list of sound files, to be played directly from memory
 	 **
+     ** @param rh   Reference to the resource handler with access to the files
+     ** @param list Names of the sound files to load
+     **
 	 ** @remarks
 	 ** Filenames are expected to contain the sound format extension
 	 ** (e.g., *.mp3, *.wav, *.ogg, etc.)
@@ -169,7 +179,8 @@ public:
 	 ** File names are separated with UNIX newline characters (viz. '\n')
 	 **/
 	Ogre::String
-	loadDirectSounds(const std::vector<Ogre::String>& list);
+	loadDirectSounds(rrh::ResourceHandler& rh,
+                     const std::vector<Ogre::String>& list);
 
 	/**
 	 ** @brief
@@ -554,7 +565,9 @@ public:
 	/********************    AUXILIARY FUNCTIONS    **********************/
 private:
 	Ogre::String
-	loadSounds(const std::vector<Ogre::String>&, SSbuftype);
+	loadSounds(rrh::ResourceHandler& rh,
+	           const std::vector<Ogre::String>&,
+	           SSbuftype);
 
 	const Playlist*
 	getPlaylist(const Ogre::String& name) const;
@@ -656,17 +669,19 @@ SoundHandler::setCamera(const Ogre::Camera* cam)
 
 ////////////////////////////////////////////////////////////////////////////////
 inline Ogre::String
-SoundHandler::loadStreamSounds(const std::vector<Ogre::String>& list)
+SoundHandler::loadStreamSounds(rrh::ResourceHandler& rh,
+                               const std::vector<Ogre::String>& list)
 {
-	return loadSounds(list, SSbuftype::SS_BUF_STREAM_OGG);
+	return loadSounds(rh, list, SSbuftype::SS_BUF_STREAM_OGG);
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////
 inline Ogre::String
-SoundHandler::loadDirectSounds(const std::vector<Ogre::String>& list)
+SoundHandler::loadDirectSounds(rrh::ResourceHandler& rh,
+                               const std::vector<Ogre::String>& list)
 {
-	return loadSounds(list, SSbuftype::SS_BUF_LOADED);
+	return loadSounds(rh, list, SSbuftype::SS_BUF_LOADED);
 }
 
 

@@ -19,6 +19,9 @@ class ResourceHandler
 {
 public:
     ResourceHandler();
+    // @brief Construct, and set "resourcePath" as path to the resources dir
+    //
+    ResourceHandler(const std::string& resourcePath);
     ~ResourceHandler();
 
     // @brief Add a resource group to be loaded.

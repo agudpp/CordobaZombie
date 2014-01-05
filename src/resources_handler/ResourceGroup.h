@@ -29,7 +29,10 @@ class ResourceGroup
 public:
     typedef std::set<std::string> SectionList;
 public:
-    ResourceGroup() {};
+    ResourceGroup();
+    // @brief Construct, and set "filePath" as the .cfg OgreResource file
+    //        to be used
+    ResourceGroup(const std::string& filePath);
     ~ResourceGroup() {};
 
     // @brief Get the id of this resource
@@ -43,7 +46,6 @@ public:
     // @brief Set the file path to the resource group or name of the resource
     //        path.
     // @param filePath      The .cfg OgreResource file to be used
-    // @return true on success | false otherwise
     //
     inline void
     setOgreResourceFile(const std::string& filePath);
@@ -81,17 +83,32 @@ private:
 // Inline methods
 //
 
+inline
+ResourceGroup::ResourceGroup() :
+    _resourceIndex(INVALID_INDEX)
+{
+    // Default constructor suffices
+}
+
+inline
+ResourceGroup::ResourceGroup(const std::string& filePath) :
+    _resourceIndex(INVALID_INDEX)
+{
+    setOgreResourceFile(filePath);
+}
 
 inline ResourceGroupID
 ResourceGroup::ID(void) const
 {
     return _resourceIndex;
 }
+
 inline void
 ResourceGroup::setOgreResourceFile(const std::string& filePath)
 {
     mFilePath = filePath;
 }
+
 inline const std::string&
 ResourceGroup::ogreResourceFile(void) const
 {
@@ -103,6 +120,7 @@ ResourceGroup::addSection(const std::string& section)
 {
     mSections.insert(section);
 }
+
 inline const ResourceGroup::SectionList&
 ResourceGroup::sections(void) const
 {

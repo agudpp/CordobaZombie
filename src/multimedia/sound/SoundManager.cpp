@@ -23,6 +23,8 @@
 #include <debug/DebugUtil.h>
 #include <os_utils/OSHelper.h>
 #include <openal_handler/OpenALHandler.h>
+#include <ResourceGroup.h>
+#include <ResourceHandler.h>
 
 #include "SoundManager.h"
 #include "SoundEnums.h"
@@ -53,6 +55,7 @@ namespace mm {
 ////////////////////////////////////////////////////////////////////////////////
 SoundManager::SoundManager() :
     mCam(0)
+,   mOpenALcontext(0)
 ,   mOpenALHandler(0)
 {
 	mActiveSounds.reserve(NUM_PARALLEL_SOUNDS);
@@ -272,47 +275,29 @@ SoundManager::removeSoundSources(unsigned int numSources)
 
 ////////////////////////////////////////////////////////////////////////////////
 SSerror
-SoundManager::loadSound(const Ogre::String& sName, SSformat format, SSbuftype type)
+SoundManager::loadSound(rrh::ResourceHandler& rh,
+                        const Ogre::String& sName,
+                        SSformat format,
+                        SSbuftype type)
 {
 	std::string sNameFullPath;
 	SSerror err = SSerror::SS_NO_ERROR;
 	SoundBuffer* buffer(0);
 
-	// Check if buffer had already been loaded.
+	// Has the sound been loaded already?
 	if (isSoundLoaded(sName)) {
-		debugWARNING("Sound \"%s\" had already been loaded in the system.",
-						sName.c_str());
+		debugWARNING("Sound \"%s\" has already been loaded.\n", sName.c_str());
 		return SSerror::SS_NO_BUFFER;
 	}
 
-	// First find audio file absolute path.
-	// TODO: use our own ResourcesManager
-	Ogre::ResourceGroupManager& resGM = Ogre::ResourceGroupManager::getSingleton();
-	Ogre::FileInfoListPtr files = resGM.findResourceFileInfo(
-			SOUNDS_RESOURCE_GROUP_NAME, sName);
-
-	if (files.isNull()) {
-		debug("%s","Recurso no encontrado.\n");
-		return SSerror::SS_FILE_NOT_FOUND;
-
-	} else {
-		Ogre::FileInfoList::iterator it;
-		for (it = files->begin() ; it < files->end() ; it++) {
-			// Compose audio file absolute path.
-			sNameFullPath.append(it->archive->getName()+"/"+sName);
-			if (core::OSHelper::fileExists(sNameFullPath.c_str())) {
-				debug("\n Loading audio file %s\n", sNameFullPath.c_str());
-				break;
-			} else {
-				sNameFullPath.clear();
-			}
-		}
-		// Found?
-		if (it == files->end() || sNameFullPath.size() <= 0) {
-			debug("%s","Recurso no encontrado.\n");
-			return SSerror::SS_FILE_NOT_FOUND;
-		}
-	}
+    // Compose audio file absolute path
+    bool found = rh.getResourcePath(SOUNDS_RESOURCE_GROUP_NAME,
+                                    sName,
+                                    sNameFullPath);
+    if (!found) {
+        debugWARNING("Sound file \"%s\" could not be found.\n", sName.c_str());
+        return SSerror::SS_FILE_NOT_FOUND;
+    }
 
 	// Try to load audio file into buffer
 	err = BufferBuilder::bufferFromFile(sNameFullPath, &buffer, format, type);

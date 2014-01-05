@@ -116,7 +116,12 @@ namespace rrh {
 ResourceHandler::ResourceHandler():
 		mResRootPath("")
 {
+    // Default constructor suffices
+}
 
+ResourceHandler::ResourceHandler(const std::string& resourcePath)
+{
+    setResourceRootPath(resourcePath);
 }
 
 ResourceHandler::~ResourceHandler()
