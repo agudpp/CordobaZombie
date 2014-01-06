@@ -54,30 +54,28 @@ QtOverlayViewer::getOvleraysLoaded(std::vector<Ogre::Overlay*>& overlays)
 void
 QtOverlayViewer::destroyOverlayData(const std::set<Ogre::Overlay*>& except)
 {
-    std::vector<OverlayData*> toDestroy;
+    std::vector<OverlayWidgetItem*> toDestroy;
     auto exceptEnd = except.end();
 
-    for (OverlayData* od : mOverlayData) {
-        if (except.find(od->overlay) != exceptEnd) {
-            // do nothing with this, continue
+    for (OverlayWidgetItem* ow : mOverlayWidgets) {
+        Ogre::Overlay* ov = ow->overlay();
+        if (except.find(ov) != exceptEnd) {
+            // we don't have to destroy this one
             continue;
         }
 
-        // we need to remove this one
-        toDestroy.push_back(od);
-        for (OverlayElementData* oed : od->elements) {
-            delete oed->checkbox;
-            delete oed->label;
-            delete oed;
-        }
-        delete od->checkbox;
-        delete od->label;
-        delete od->layout;
-        delete od;
+        // we have to destroy this one
+        delete ow;
+        toDestroy.push_back(ow);
+
+        // destroy from the map also
+        auto mapElem = mOverlayMap.find(ov);
+        mOverlayMap.erase(ov);
     }
-    for (OverlayData* o : toDestroy) {
+
+    for (OverlayWidgetItem* o : toDestroy) {
         // destroy this element
-        mOverlayData.erase(std::find(mOverlayData.begin(), mOverlayData.end(), o));
+        mOverlayWidgets.erase(std::find(mOverlayWidgets.begin(), mOverlayWidgets.end(), o));
     }
 }
 
@@ -89,13 +87,13 @@ QtOverlayViewer::updateAllOverlays(void)
     std::vector<Ogre::Overlay*> overlays;
     getOvleraysLoaded(overlays);
 
-    // now get all the overlays we currently have.
+    // check which are the widgets we need to create
     std::set<Ogre::Overlay*> currentOverlays;
     std::set<Ogre::Overlay*> toLoad;
     std::set<Ogre::Overlay*> ogreOverlays(overlays.begin(), overlays.end());
 
-    for (OverlayData* od : mOverlayData) {
-        currentOverlays.insert(od->overlay);
+    for (OverlayWidgetItem* ow : mOverlayWidgets) {
+        currentOverlays.insert(ow->overlay());
     }
 
     // remove all the current overlays widgets except for the ones we have now
@@ -104,49 +102,31 @@ QtOverlayViewer::updateAllOverlays(void)
     // now we have to get all the overlays we have to load that are
     // ogreOverlays - currentOverlays
     std::set_difference(ogreOverlays.begin(), ogreOverlays.end(),
-                        currentOverlays.begin(), currentOverlays.end(),
-                        std::inserter(toLoad, toLoad.end()));
+                     currentOverlays.begin(), currentOverlays.end(),
+                     std::inserter(toLoad, toLoad.end()));
 
     if (toLoad.empty()) {
         // nothing to do
         return;
     }
 
-    // else we need to create all the overlays to be shown in the scroll area
-    mOverlayData.reserve(toLoad.size());
+    for (Ogre::Overlay* o : toLoad) {
+        OverlayWidgetItem* item = new OverlayWidgetItem(o, this);
+        item->build();
+        mScrollAreaLayout->addWidget(item);
 
-    for (Ogre::Overlay* ov : toLoad) {
-        OverlayData* ovd = new OverlayData;
-        ovd->label = new QLabel(ov->getName().c_str(), this);
-        ovd->checkbox = new QCheckBox(this);
-        ovd->checkbox->setChecked(ov->isVisible());
-        ovd->layout = new QHBoxLayout(0);
-        ovd->overlay = ov;
+        // track it
+        mOverlayWidgets.push_back(item);
 
-        // create the overlay and add them
-        ovd->layout->addWidget(ovd->label);
-        ovd->layout->addWidget(ovd->checkbox);
-
-        // connect the signal to show / hide elements
-        connect(ovd->checkbox, SIGNAL(stateChanged(int)),
-                this, SLOT(onOverlayCheckBoxChanged(int)));
-
-        // now we have to create the child elements here
-        // TODO:
-
-        // now add the elements to the scroll area
-        mScrollAreaLayout->addLayout(ovd->layout);
-
-        // add to the current data
-        mOverlayData.push_back(ovd);
-
-        ovd->layout->addStretch(1);
+        // add the item to the map
+        mOverlayMap.insert(std::make_pair(o, item));
     }
 
     // set the layout to the scroll area
     if (ui.overlayScrollArea->widget() != mScrollWidget) {
         ui.overlayScrollArea->setWidget(mScrollWidget);
     }
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -180,19 +160,6 @@ QtOverlayViewer::onLoadRscClicked(bool)
     updateAllOverlays();
 }
 
-////////////////////////////////////////////////////////////////////////////////
-void
-QtOverlayViewer::onOverlayCheckBoxChanged(int state)
-{
-    // we will iterate over all the overlays and detect its state
-    for (OverlayData* od : mOverlayData) {
-        if (od->checkbox->isChecked()) {
-            od->overlay->show();
-        } else {
-            od->overlay->hide();
-        }
-    }
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 void

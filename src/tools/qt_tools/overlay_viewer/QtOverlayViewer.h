@@ -9,6 +9,7 @@
 #define QtOverlayViewer_H_
 
 #include <set>
+#include <map>
 
 #include <QtGui/QCheckBox>
 #include <QtGui/QLabel>
@@ -24,6 +25,8 @@
 #include <qt_tools/ogre_widget/QtOgreAppBase.h>
 #include <debug/PrimitiveDrawer.h>
 #include <cursor/MouseCursor.h>
+
+#include "OverlayWidgetItem.h"
 
 #include "ui_OverlayViewer.h"
 
@@ -47,8 +50,6 @@ protected slots:
     //
     void
     onLoadRscClicked(bool);
-    void
-    onOverlayCheckBoxChanged(int);
 
 
     // inherited slots
@@ -109,25 +110,6 @@ protected:
 
 private:
 
-    // Helper structures
-    //
-    struct OverlayElementData {
-        Ogre::OverlayElement* element;
-        QLabel* label;
-        QCheckBox* checkbox;
-
-        OverlayElementData() : element(0), label(0), checkbox(0) {}
-    };
-    struct OverlayData {
-        Ogre::Overlay* overlay;
-        QLabel* label;
-        QCheckBox* checkbox;
-        std::list<OverlayElementData*> elements;
-        QHBoxLayout* layout;
-
-        OverlayData() : overlay(0), label(0), checkbox(0), layout(0) {}
-    };
-
     // Helper methods
     //
 
@@ -153,7 +135,8 @@ private:
     Ui::OverlayViewer ui;
     QString mLastPathLoaded;
 
-    std::vector<OverlayData*> mOverlayData;
+    std::map<Ogre::Overlay*, OverlayWidgetItem*> mOverlayMap;
+    std::vector<OverlayWidgetItem*> mOverlayWidgets;
     QWidget* mScrollWidget;
     QVBoxLayout* mScrollAreaLayout;
     ui::MouseCursor mCursor;

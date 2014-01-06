@@ -9,12 +9,18 @@ include(${DEV_ROOT_PATH}/core/debug/AutoGen.cmake)
 # Qt tool
 #
 SET(QtApp_MOCS ${QtApp_MOCS} 
-               ${DEV_ROOT_PATH}/tools/qt_tools/overlay_viewer/QtOverlayViewer.h)
+               ${DEV_ROOT_PATH}/tools/qt_tools/overlay_viewer/QtOverlayViewer.h
+               ${DEV_ROOT_PATH}/tools/qt_tools/overlay_viewer/OverlayWidgetItem.h
+               ${DEV_ROOT_PATH}/tools/qt_tools/overlay_viewer/OverlayContainerItem.h
+               )
 
 # All the .ui files of our tool
 #
 SET(QtApp_UIS ${QtApp_UIS}
-              ${DEV_ROOT_PATH}/tools/qt_tools/overlay_viewer/OverlayViewer.ui)
+              ${DEV_ROOT_PATH}/tools/qt_tools/overlay_viewer/OverlayViewer.ui
+              ${DEV_ROOT_PATH}/tools/qt_tools/overlay_viewer/OverlayItem.ui
+              ${DEV_ROOT_PATH}/tools/qt_tools/overlay_viewer/OverlayContainerItem.ui
+              )
 
 # All the .qrc files of our tool (resource files, probably none)
 #
@@ -27,10 +33,14 @@ SET(QtApp_RCCS ${QtApp_RCCS})
 #
 set(HDRS ${HDRS}
     ${DEV_ROOT_PATH}/tools/qt_tools/overlay_viewer/QtOverlayViewer.h
+    ${DEV_ROOT_PATH}/tools/qt_tools/overlay_viewer/OverlayWidgetItem.h
+    ${DEV_ROOT_PATH}/tools/qt_tools/overlay_viewer/OverlayContainerItem.h
 )
 
 set(SRCS ${SRCS}
     ${DEV_ROOT_PATH}/tools/qt_tools/overlay_viewer/QtOverlayViewer.cpp
+    ${DEV_ROOT_PATH}/tools/qt_tools/overlay_viewer/OverlayWidgetItem.cpp
+    ${DEV_ROOT_PATH}/tools/qt_tools/overlay_viewer/OverlayContainerItem.cpp
     ${DEV_ROOT_PATH}/tools/qt_tools/overlay_viewer/main.cpp
 )
 
