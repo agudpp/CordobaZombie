@@ -11,7 +11,6 @@
 #define VIDEO_PLAYER_H
 
 
-
 // c++ stdlib includes
 #include <iostream>
 #include <cstdio>
@@ -69,8 +68,8 @@ private:
     static const int VIDEO_QUEUE_CRITICAL_HIGH_SIZE = 250;
     static const int AUDIO_QUEUE_CRITICAL_HIGH_SIZE = 250;
 
-    static const int VIDEO_QUEUE_CRITICAL_LOW_SIZE = 5;
-    static const int AUDIO_QUEUE_CRITICAL_LOW_SIZE = 5;
+    static const int VIDEO_QUEUE_CRITICAL_LOW_SIZE = 10;
+    static const int AUDIO_QUEUE_CRITICAL_LOW_SIZE = 30;
 
     static const int DEFAULT_SCREEN_WIDTH = 1024; //for the screen
     static const int DEFAULT_SCREEN_HEIGHT = 768; //for the screen

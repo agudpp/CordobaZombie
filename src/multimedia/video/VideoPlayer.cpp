@@ -138,6 +138,10 @@ const double EPS = 10e-12; // For double precision comparisons
  *
  */
 
+static int runoutvideo = 0;
+static int runoutaudio = 0;
+
+
 ///////////////////////////////////////////////////////////////////////////////
 VideoPlayer::VideoPlayer(VideoBuffer *screen) :
     pFormatCtx(0),
@@ -480,7 +484,6 @@ VideoPlayer::load(const char *fileName)
 
     }
 
-
     //print_video_info();
 
     return VIDEO_OK;
@@ -497,10 +500,15 @@ VideoPlayer::play(void)
                 "playing\n");
         } else {
 
+            bool needaudio = mNumVPacks < 0;
+            bool needvideo = mNumAPacks < 0 &&
+                audioStream != -1;
             //fetch some packets before start
-            while (get_more_data(true, true) != VIDEO_ENDED && (mNumVPacks
-                < VIDEO_QUEUE_CRITICAL_LOW_SIZE || (mNumAPacks
-                < AUDIO_QUEUE_CRITICAL_LOW_SIZE && audioStream != -1))) {
+            while ((needaudio || needvideo) && get_more_data(needaudio,
+                                                             needvideo)) {
+                needaudio = mNumVPacks < VIDEO_QUEUE_CRITICAL_LOW_SIZE;
+                needvideo = mNumAPacks < AUDIO_QUEUE_CRITICAL_LOW_SIZE
+                    && audioStream != -1;
             }
 
             mplayingtime = 0.;
@@ -579,6 +587,9 @@ VideoPlayer::unload(void)
     // Close the video file
     avformat_close_input(&pFormatCtx);
     isLoaded = false;
+
+    // Number of time we run out of audio and video respectably in our queues
+    debugGREEN("roa<%i> rov<%i>\n", runoutaudio, runoutvideo);
 
     return VIDEO_OK;
 }
@@ -842,9 +853,11 @@ VideoPlayer::update(double timesincelastframe)
     mplayingtime += timesincelastframe;
 
     // if one of the queues is running out of packets
-    if (mNumVPacks <= VIDEO_QUEUE_CRITICAL_LOW_SIZE || (mNumAPacks
-        <= AUDIO_QUEUE_CRITICAL_LOW_SIZE && audioStream != -1)) {
-        get_more_data(true, true);
+    bool needaudio = mNumAPacks <= 0 && audioStream
+        != -1;
+    bool needvideo = mNumVPacks <= 0;
+    if (needaudio || needvideo) {
+        get_more_data(needaudio, needvideo);
     }
 
     //if we have audio
@@ -1271,6 +1284,10 @@ int
 VideoPlayer::get_more_data(bool audio, bool video)
 {
 
+    //debugRED("v<%i,%i> a<%i,%i>\n", video, mNumVPacks, audio, mNumAPacks );
+    if(audio) runoutaudio++;
+    if(video) runoutvideo++;
+
     bool got_audio = !audio || audioStream == -1;
     bool got_video = !video;
 
@@ -1283,6 +1300,8 @@ VideoPlayer::get_more_data(bool audio, bool video)
         ASSERT(mNumVPacks <= mVDataQueue.size());
         if (mNumVPacks >= mVDataQueue.size()) {
             // if the queue is full we need a new packet
+            debugWARNING("Video queue was full v<%i> a<%i>\n", mNumVPacks,
+                       mNumAPacks);
             newPacket = new AVPacket;
             alloced = true;
             debugERROR("HORRIBLE\n");
@@ -1306,15 +1325,17 @@ VideoPlayer::get_more_data(bool audio, bool video)
                     mVDataQueue.push_back(newPacket);
                 }
                 newPacket = 0; // just to be careful
-                got_video = true;
                 mNumVPacks++;
+                got_video = mNumVPacks >= VIDEO_QUEUE_CRITICAL_LOW_SIZE;
 
             } else if (newPacket->stream_index == audioStream) {
                 // it was an audio packet, not what we supposed
-                //                debugGREEN("%i --- %i\n",mNumAPacks, SC(int,mADataQueue.size()));
+                // debugGREEN("%i --- %i\n",mNumAPacks, SC(int,mADataQueue.size()));
                 ASSERT(mNumAPacks <= SC(int,mADataQueue.size()));
                 // exchange packets between queues
                 if (mNumAPacks >= mADataQueue.size()) {
+                    debugWARNING("Audio queue was full v<%i> a<%i>\n",
+                                 mNumVPacks, mNumAPacks);
                     mADataQueue.push_back(newPacket);
                     if (!alloced) {
                         mVDataQueue[mNumVPacks] = new AVPacket;
@@ -1333,8 +1354,8 @@ VideoPlayer::get_more_data(bool audio, bool video)
                 }
 
                 newPacket = 0;
-                got_audio = true;
                 mNumAPacks++;
+                got_audio = mNumAPacks >= AUDIO_QUEUE_CRITICAL_LOW_SIZE;
 
             } else {
 

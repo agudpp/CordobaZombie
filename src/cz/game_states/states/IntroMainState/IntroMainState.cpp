@@ -22,6 +22,7 @@ namespace cz {
 
 
 const char* IntroMainState::INTRO_VIDEO_NAME = "intro.ogv";
+            //"paa.mp4";//"manu.mp4";
 const char* IntroMainState::INTRO_RC_PATH =
 		"multimedia/video/resources.cfg";
 
