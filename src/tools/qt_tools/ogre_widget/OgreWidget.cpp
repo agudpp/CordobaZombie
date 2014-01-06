@@ -154,7 +154,7 @@ OgreWidget::initSystems(const std::string& plugins,
         return false;
     }
 
-    mOgreData.root = new Ogre::Root(plugins, ogre, resource);
+    mOgreData.root = new Ogre::Root(plugins, ogre);
 
     Ogre::RenderSystem* rs =
         mOgreData.root->getRenderSystemByName("OpenGL Rendering Subsystem");
