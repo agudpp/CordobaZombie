@@ -30,6 +30,16 @@ QtOgreAppBase::QtOgreAppBase(rrh::ResourceHandler* rh,
     // connect the frame event
     connect(mOgreWidget, SIGNAL(frameUpdate(float)), this, SLOT(frameUpdate(float)));
     connect(mOgreWidget, SIGNAL(systemsReady(void)), this, SLOT(systemsReady(void)));
+    connect(mOgreWidget, SIGNAL(keyPressEventSig(QKeyEvent*)),
+            this, SLOT(OgreWidgetKeyPressEvent(QKeyEvent*)));
+    connect(mOgreWidget, SIGNAL(keyReleaseEventSig(QKeyEvent*)),
+            this, SLOT(OgreWidgetKeyReleaseEvent(QKeyEvent*)));
+    connect(mOgreWidget, SIGNAL(mousePressEventSig(QMouseEvent*)),
+            this, SLOT(OgreWidgetMousePressEvent(QMouseEvent*)));
+    connect(mOgreWidget, SIGNAL(mouseReleaseEventSig(QMouseEvent*)),
+            this, SLOT(OgreWidgetMouseReleaseEvent(QMouseEvent*)));
+    connect(mOgreWidget, SIGNAL(mouseMoveEventSig(QMouseEvent*)),
+            this, SLOT(OgreWidgetMouseMoveEvent(QMouseEvent*)));
 }
 
 QtOgreAppBase::~QtOgreAppBase()

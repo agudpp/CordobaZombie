@@ -115,6 +115,33 @@ OgreWidget::moveEvent(QMoveEvent* e)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+void
+OgreWidget::keyPressEvent(QKeyEvent* event)
+{
+    emit keyPressEventSig(event);
+}
+void
+OgreWidget::keyReleaseEvent(QKeyEvent* event)
+{
+    emit keyReleaseEventSig(event);
+}
+void
+OgreWidget::mousePressEvent(QMouseEvent* event)
+{
+    emit mousePressEventSig(event);
+}
+void
+OgreWidget::mouseReleaseEvent(QMouseEvent* event)
+{
+    emit mouseReleaseEventSig(event);
+}
+void
+OgreWidget::mouseMoveEvent(QMouseEvent* event)
+{
+    emit mouseMoveEventSig(event);
+}
+
+////////////////////////////////////////////////////////////////////////////////
 bool
 OgreWidget::initSystems(const std::string& plugins,
                         const std::string& ogre,

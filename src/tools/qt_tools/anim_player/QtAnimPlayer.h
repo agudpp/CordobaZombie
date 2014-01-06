@@ -77,14 +77,21 @@ protected:
     //
     virtual void
     keyPressEvent(QKeyEvent* event);
+
+    // @brief Keypress / mouse events slots received from the OgreWidget.
+    //        By default all the events are ignored so the parent class can
+    //        catch this events.
+    //
     virtual void
-    keyReleaseEvent(QKeyEvent* event);
+    OgreWidgetKeyPressEvent(QKeyEvent* event);
     virtual void
-    mousePressEvent(QMouseEvent* event);
+    OgreWidgetKeyReleaseEvent(QKeyEvent* event);
     virtual void
-    mouseReleaseEvent(QMouseEvent* event);
+    OgreWidgetMousePressEvent(QMouseEvent* event);
     virtual void
-    mouseMoveEvent(QMouseEvent* event);
+    OgreWidgetMouseReleaseEvent(QMouseEvent* event);
+    virtual void
+    OgreWidgetMouseMoveEvent(QMouseEvent* event);
 
 private:
 

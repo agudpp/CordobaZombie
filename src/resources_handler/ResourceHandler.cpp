@@ -85,18 +85,20 @@ ogreLoadRsrcFile(const std::string &file,
     std::string secName, typeName, archName;
     while (seci.hasMoreElements()) {
         secName = seci.peekNextKey();
-        if(!secName.empty()){
-			sections.push_back(secName);
-			Ogre::ConfigFile::SettingsMultiMap *settings = seci.getNext();
-			Ogre::ConfigFile::SettingsMultiMap::iterator i;
-			for (i = settings->begin(); i != settings->end(); ++i) {
-				typeName = i->first;
-				archName = path + i->second;
-				Ogre::ResourceGroupManager::getSingleton().addResourceLocation(
-						archName, typeName, secName);
-			}
+        if (!secName.empty()) {
+            sections.push_back(secName);
+            Ogre::ConfigFile::SettingsMultiMap *settings = seci.getNext();
+            Ogre::ConfigFile::SettingsMultiMap::iterator i;
+            for (i = settings->begin(); i != settings->end(); ++i) {
+                typeName = i->first;
+                archName = path + i->second;
+                Ogre::ResourceGroupManager::getSingleton().addResourceLocation(archName,
+                                                                               typeName,
+                                                                               secName);
+            }
+        } else {
+            seci.moveNext();
         }
-        seci.moveNext();
     }
     Ogre::ResourceGroupManager::getSingleton().initialiseAllResourceGroups();
     return true;

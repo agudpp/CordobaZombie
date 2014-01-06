@@ -179,6 +179,7 @@ QtAnimPlayer::systemsReady(void)
     m3DAxis = core::PrimitiveDrawer::instance().create3DAxis(Ogre::Vector3::ZERO, 15);
 }
 
+
 ////////////////////////////////////////////////////////////////////////////////
 void
 QtAnimPlayer::keyPressEvent(QKeyEvent* event)
@@ -210,28 +211,29 @@ QtAnimPlayer::keyPressEvent(QKeyEvent* event)
 
 ////////////////////////////////////////////////////////////////////////////////
 void
-QtAnimPlayer::keyReleaseEvent(QKeyEvent* event)
+QtAnimPlayer::OgreWidgetKeyPressEvent(QKeyEvent* event)
+{
+    keyPressEvent(event);
+}
+
+void
+QtAnimPlayer::OgreWidgetKeyReleaseEvent(QKeyEvent* event)
 {
     event->ignore();
 }
-////////////////////////////////////////////////////////////////////////////////
 void
-QtAnimPlayer::mousePressEvent(QMouseEvent* event)
+QtAnimPlayer::OgreWidgetMousePressEvent(QMouseEvent* event)
 {
     mLastMousePoint = event->globalPos();
     event->ignore();
 }
-
-////////////////////////////////////////////////////////////////////////////////
 void
-QtAnimPlayer::mouseReleaseEvent(QMouseEvent* event)
+QtAnimPlayer::OgreWidgetMouseReleaseEvent(QMouseEvent* event)
 {
     event->ignore();
 }
-
-////////////////////////////////////////////////////////////////////////////////
 void
-QtAnimPlayer::mouseMoveEvent(QMouseEvent* event)
+QtAnimPlayer::OgreWidgetMouseMoveEvent(QMouseEvent* event)
 {
     if (!(event->buttons() & Qt::MouseButton::LeftButton)) {
         return;
@@ -362,7 +364,6 @@ QtAnimPlayer::onLoadResourceClicked(bool)
         // else is a cfg file
         loadResourceFile(rscPath);
     }
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////

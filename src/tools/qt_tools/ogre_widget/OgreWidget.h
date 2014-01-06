@@ -96,6 +96,19 @@ signals:
     void
     systemsReady(void);
 
+    // @brief Keypress / mouse events signals.
+    //
+    void
+    keyPressEventSig(QKeyEvent* event);
+    void
+    keyReleaseEventSig(QKeyEvent* event);
+    void
+    mousePressEventSig(QMouseEvent* event);
+    void
+    mouseReleaseEventSig(QMouseEvent* event);
+    void
+    mouseMoveEventSig(QMouseEvent* event);
+
 protected:
 
     // To be able to render into the widget we need to override this methods
@@ -110,6 +123,21 @@ protected:
     resizeEvent(QResizeEvent* e);
     virtual void
     moveEvent(QMoveEvent* e);
+
+    // Event methods for this tool. By default we will ignore the events
+    // so the parent of this class can pick the event.
+    // Each one of this events will emit a signal
+    //
+    virtual void
+    keyPressEvent(QKeyEvent* event);
+    virtual void
+    keyReleaseEvent(QKeyEvent* event);
+    virtual void
+    mousePressEvent(QMouseEvent* event);
+    virtual void
+    mouseReleaseEvent(QMouseEvent* event);
+    virtual void
+    mouseMoveEvent(QMouseEvent* event);
 
 private:
     // Ogre stuff

@@ -85,6 +85,21 @@ protected slots:
     virtual void
     systemsReady(void){};
 
+    // @brief Keypress / mouse events slots received from the OgreWidget.
+    //        By default all the events are ignored so the parent class can
+    //        catch this events.
+    //
+    virtual void
+    OgreWidgetKeyPressEvent(QKeyEvent* event){event->ignore();}
+    virtual void
+    OgreWidgetKeyReleaseEvent(QKeyEvent* event){event->ignore();}
+    virtual void
+    OgreWidgetMousePressEvent(QMouseEvent* event){event->ignore();}
+    virtual void
+    OgreWidgetMouseReleaseEvent(QMouseEvent* event){event->ignore();}
+    virtual void
+    OgreWidgetMouseMoveEvent(QMouseEvent* event){event->ignore();}
+
 protected:
     OgreWidget* mOgreWidget;
     QSet<QString> mLocations;
