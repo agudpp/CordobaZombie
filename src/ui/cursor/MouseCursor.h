@@ -42,6 +42,8 @@ public:
     // Method used to build the cursor with delay
     inline void
     build(void);
+    inline bool
+    isBuilt(void) const;
 
     inline void
     setCursor(Cursor c);
@@ -193,6 +195,12 @@ MouseCursor::build(void)
     // start using normal cursor
     setCursor(NORMAL_CURSOR);
 }
+inline bool
+MouseCursor::isBuilt(void) const
+{
+    return mGuiOverlay != 0;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 inline void
 MouseCursor::setCursor(Cursor c)

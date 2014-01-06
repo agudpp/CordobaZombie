@@ -23,6 +23,7 @@
 #include <qt_tools/ogre_widget/OgreWidget.h>
 #include <qt_tools/ogre_widget/QtOgreAppBase.h>
 #include <debug/PrimitiveDrawer.h>
+#include <cursor/MouseCursor.h>
 
 #include "ui_OverlayViewer.h"
 
@@ -66,6 +67,26 @@ protected slots:
     virtual void
     systemsReady(void);
 
+    // @brief Keypress / mouse events slots received from the OgreWidget.
+    //        By default all the events are ignored so the parent class can
+    //        catch this events.
+    //
+    virtual void
+    OgreWidgetKeyPressEvent(QKeyEvent* event);
+    virtual void
+    OgreWidgetKeyReleaseEvent(QKeyEvent* event);
+    virtual void
+    OgreWidgetMousePressEvent(QMouseEvent* event);
+    virtual void
+    OgreWidgetMouseReleaseEvent(QMouseEvent* event);
+    virtual void
+    OgreWidgetMouseMoveEvent(QMouseEvent* event);
+
+    // @brief Resize event
+    //
+    virtual void
+    OgreWidgetResizeEvent(QResizeEvent* event);
+
 protected:
 
     // QWidget events.
@@ -83,6 +104,7 @@ protected:
     mouseReleaseEvent(QMouseEvent* event);
     virtual void
     mouseMoveEvent(QMouseEvent* event);
+
 
 
 private:
@@ -134,6 +156,7 @@ private:
     std::vector<OverlayData*> mOverlayData;
     QWidget* mScrollWidget;
     QVBoxLayout* mScrollAreaLayout;
+    ui::MouseCursor mCursor;
 };
 
 }

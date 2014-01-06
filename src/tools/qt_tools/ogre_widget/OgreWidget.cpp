@@ -99,6 +99,7 @@ OgreWidget::resizeEvent(QResizeEvent* e)
             Real aspectRatio = Real(newSize.width()) / Real(newSize.height());
             mOgreData.camera->setAspectRatio(aspectRatio);
         }
+        emit resizeSig(e);
     }
 }
 

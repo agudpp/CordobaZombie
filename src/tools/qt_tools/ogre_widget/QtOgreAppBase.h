@@ -100,6 +100,11 @@ protected slots:
     virtual void
     OgreWidgetMouseMoveEvent(QMouseEvent* event){event->ignore();}
 
+    // @brief Resize signal received from the OgreWidget
+    //
+    virtual void
+    OgreWidgetResizeEvent(QResizeEvent* event) {};
+
 protected:
     OgreWidget* mOgreWidget;
     QSet<QString> mLocations;

@@ -109,6 +109,11 @@ signals:
     void
     mouseMoveEventSig(QMouseEvent* event);
 
+    // @brief Signal emitted when the OgreWidget is resized
+    //
+    void
+    resizeSig(QResizeEvent* e);
+
 protected:
 
     // To be able to render into the widget we need to override this methods

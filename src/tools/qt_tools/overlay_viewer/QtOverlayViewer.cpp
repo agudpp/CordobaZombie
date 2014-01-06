@@ -225,6 +225,61 @@ QtOverlayViewer::systemsReady(void)
                                 "execution of this app.\n");
         }
     }
+
+    // build the cursor now
+    mCursor.build();
+    Ogre::RenderWindow* rw = ogreWidget()->ogreData().renderWindow;
+    mCursor.setWindowDimensions(rw->getWidth(), rw->getHeight());
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void
+QtOverlayViewer::OgreWidgetKeyPressEvent(QKeyEvent* event)
+{
+
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void
+QtOverlayViewer::OgreWidgetKeyReleaseEvent(QKeyEvent* event)
+{
+
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void
+QtOverlayViewer::OgreWidgetMousePressEvent(QMouseEvent* event)
+{
+
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void
+QtOverlayViewer::OgreWidgetMouseReleaseEvent(QMouseEvent* event)
+{
+
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void
+QtOverlayViewer::OgreWidgetMouseMoveEvent(QMouseEvent* event)
+{
+    // set the position of the cursor
+    if (mCursor.isBuilt()) {
+        mCursor.updatePosition(event->x(), event->y());
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void
+QtOverlayViewer::OgreWidgetResizeEvent(QResizeEvent* event)
+{
+    if (mCursor.isBuilt()) {
+        ASSERT(ogreWidget());
+        Ogre::RenderWindow* rw = ogreWidget()->ogreData().renderWindow;
+        ASSERT(rw);
+        mCursor.setWindowDimensions(rw->getWidth(), rw->getHeight());
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -257,6 +312,7 @@ QtOverlayViewer::mouseReleaseEvent(QMouseEvent* event)
 void
 QtOverlayViewer::mouseMoveEvent(QMouseEvent* event)
 {
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -268,6 +324,7 @@ QtOverlayViewer::QtOverlayViewer(rrh::ResourceHandler* rh,
 ,   mLastPathLoaded(".")
 ,   mScrollWidget(new QWidget(this))
 ,   mScrollAreaLayout(new QVBoxLayout(mScrollWidget))
+,   mCursor(false)
 {
     ui.setupUi(this);
 
@@ -279,6 +336,10 @@ QtOverlayViewer::QtOverlayViewer(rrh::ResourceHandler* rh,
     ogrew->setSizePolicy(QSizePolicy::Policy::Expanding,
                          QSizePolicy::Policy::Expanding);
     ui.horizontalLayout->addWidget(ogreWidget());
+
+    // receive events when mouse is moving and hide the cursor
+    ogrew->setMouseTracking(true);
+    ogrew->setCursor(Qt::BlankCursor);
 }
 
 
