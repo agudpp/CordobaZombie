@@ -21,8 +21,15 @@
 #include <OgreConfigOptionMap.h>
 #include <OgreRenderSystem.h>
 
-#include <AL/al.h>
-#include <AL/alc.h>
+#if defined(_WIN32) || defined(CYGWIN) || defined(MINGW)
+#  include <OpenAL/al.h>
+#  include <OpenAL/alc.h>
+#elif defined(linux) || defined(_linux) || defined(__linux) || defined(__linux__)
+#  include <AL/al.h>
+#  include <AL/alc.h>
+#else
+#  error "Unsupported platform. ABORTING COMPILATION."
+#endif
 
 #include <cstring>
 #include "CbaZombieConfigDialog.h"

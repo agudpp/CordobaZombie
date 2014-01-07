@@ -22,14 +22,14 @@
 #include "SoundBuffer.h"
 #include "BufferBuilder.h"
 
-#if defined(_WIN32) || defined(CYGWIN)
+#if defined(_WIN32) || defined(CYGWIN) || defined(MINGW)
 #  include <OpenAL/al.h>
 #  include <OpenAL/alc.h>
 #elif defined(linux) || defined(_linux) || defined(__linux) || defined(__linux__)
 #  include <AL/al.h>
 #  include <AL/alc.h>
 #else
-#  error "Unsupported platform, aborting compilation."
+#  error "Unsupported platform. ABORTING COMPILATION."
 #endif
 
 namespace mm {
