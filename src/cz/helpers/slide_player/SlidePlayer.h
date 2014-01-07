@@ -134,6 +134,14 @@ public:
     bool
     prev(void);
 
+    // @brief Can go to the next/prev slide?
+    // @return true if we can | false otherwise
+    //
+    inline bool
+    canMoveNext(void) const;
+    inline bool
+    canMovePrev(void) const;
+
     // @brief Move to the i-th slide.
     // @return true if we can | false otherwise
     //
@@ -233,6 +241,17 @@ SlidePlayer::setVisible(bool visible)
             mConfigOverlay->hide();
         }
     }
+}
+
+inline bool
+SlidePlayer::canMoveNext(void) const
+{
+    return mCurrentSlide < (mSlides.size()-1);
+}
+inline bool
+SlidePlayer::canMovePrev(void) const
+{
+    return mCurrentSlide > 0;
 }
 
 inline bool

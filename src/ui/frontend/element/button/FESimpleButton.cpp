@@ -48,13 +48,14 @@ FESimpleButton::mouseOver(const FEInfo& info)
 
     // check if we release the button so we can emit the signal
     if (info.input.isMouseReleased(input::MouseButtonID::MB_Left)) {
+        // reset the atlas to be mouseOVER
+        setAtlasCoords(State::S_MOUSE_OVER);
+
         // call the signal if we have one
         if (mButtonPressedCallback) {
             mButtonPressedCallback(this, Event::E_RIGHT_PRESSED);
         }
 
-        // reset the atlas to be mouseOVER
-        setAtlasCoords(State::S_MOUSE_OVER);
     }
 }
 

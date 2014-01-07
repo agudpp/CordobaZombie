@@ -222,7 +222,7 @@ SlidePlayer::setSlides(const SlidesVec& slides)
 bool
 SlidePlayer::next(void)
 {
-    if (mCurrentSlide >= (mSlides.size()-1)) {
+    if (!canMoveNext()) {
         return false;
     }
 
@@ -277,7 +277,7 @@ SlidePlayer::next(void)
 bool
 SlidePlayer::prev(void)
 {
-    if (mCurrentSlide == 0) {
+    if (!canMovePrev()) {
         return false;
     }
 

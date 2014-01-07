@@ -84,8 +84,9 @@ MainMenuMainState::buttonPressed(ui::FESimpleButton* button,
         return;
     }
     // Play same sound for every button press
-    if (mSM.hasOpenALcontext())
+    if (mSM.hasOpenALcontext()) {
         mSM.playEnvSound("fxM1.ogg");
+    }
 
     // play a sound for every button press
     sSoundHandler->soundManager()->playEnvSound("fxM1.ogg", 1.f);

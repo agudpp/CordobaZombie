@@ -63,6 +63,29 @@ MainMenuHistoryState::getSlides(SlidePlayer::SlidesVec& slides)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+void
+MainMenuHistoryState::updateButtonStates(void)
+{
+    // update the buttons now
+    ui::FESimpleButton& buttonNext = mButtons[Buttons::NEXT_SLIDE];
+    ui::FESimpleButton& buttonPrev = mButtons[Buttons::PREV_SLIDE];
+    if (!mSlidePlayer.canMoveNext()) {
+        buttonNext.setEnabled(false);
+    } else {
+        if (!buttonNext.isEnabled()) {
+            buttonNext.setEnabled(true);
+        }
+    }
+    if (!mSlidePlayer.canMovePrev()) {
+        buttonPrev.setEnabled(false);
+    } else {
+        if (!buttonPrev.isEnabled()) {
+            buttonPrev.setEnabled(true);
+        }
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 MainMenuHistoryState::MainMenuHistoryState() :
     mOverlay(0)
@@ -88,9 +111,11 @@ MainMenuHistoryState::buttonPressed(ui::FESimpleButton* button,
     } else if (button == &(mButtons[Buttons::NEXT_SLIDE])) {
         // move to the next slide
         mSlidePlayer.next();
+        updateButtonStates();
     } else if (button == &(mButtons[Buttons::PREV_SLIDE])) {
         // move to the prev slide
         mSlidePlayer.prev();
+        updateButtonStates();
     }
 }
 
@@ -192,6 +217,9 @@ MainMenuHistoryState::show(void)
     mSlidePlayer.reset();
     mSlidePlayer.setVisible(true);
 
+    // update the buttons of the slide player
+    updateButtonStates();
+
     // we will continue as default
     mRetVal = MainMenuSubStateEvent::MMSSE_CONTINUE;
 
@@ -212,8 +240,10 @@ MainMenuHistoryState::update(float timeFrame)
     //
     if (sCommonHandlers.inputHelper->isKeyReleased(input::KeyCode::KC_LEFT)) {
         mSlidePlayer.prev();
+        updateButtonStates();
     } else if (sCommonHandlers.inputHelper->isKeyReleased(input::KeyCode::KC_RIGHT)) {
         mSlidePlayer.next();
+        updateButtonStates();
     }
 
     return mRetVal;

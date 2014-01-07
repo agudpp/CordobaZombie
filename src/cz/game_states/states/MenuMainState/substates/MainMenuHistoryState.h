@@ -122,6 +122,13 @@ private:
     void
     getSlides(SlidePlayer::SlidesVec& slides);
 
+    // @brief Update the state of the buttons of the slide. This way we can
+    //        set enabled or disabled the buttons when we cannot move anymore.
+    //        Issue #365
+    //
+    void
+    updateButtonStates(void);
+
 private:
     Ogre::Overlay* mOverlay;
     core::StackVector<ui::FESimpleButton, Buttons::COUNT> mButtons;
