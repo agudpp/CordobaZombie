@@ -36,7 +36,7 @@
 #include "SoundEnums.h"
 #include "SoundSource.h"
 
-#if defined(_WIN32) || defined(CYGWIN)
+#if defined(_WIN32) || defined(CYGWIN) || defined(MINGW)
 #  include <OpenAL/al.h>
 #  include <OpenAL/alc.h>
 #elif defined(linux) || defined(_linux) || defined(__linux) || defined(__linux__)
