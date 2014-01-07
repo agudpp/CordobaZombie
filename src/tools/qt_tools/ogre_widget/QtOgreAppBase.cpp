@@ -47,6 +47,7 @@ QtOgreAppBase::QtOgreAppBase(rrh::ResourceHandler* rh,
 
 QtOgreAppBase::~QtOgreAppBase()
 {
+    delete mOgreWidget;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

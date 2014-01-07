@@ -32,9 +32,10 @@ OgreWidget::~OgreWidget()
             delete mOgreData.renderWindow;
             mOgreData.renderWindow = 0;
         }
-
-        delete mOgreData.root;
+//        delete mOgreData.root;
+//        mOgreData.root = 0;
     }
+    mInitialised = false;
     destroy();
 }
 
