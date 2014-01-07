@@ -302,7 +302,8 @@ QtOverlayViewer::QtOverlayViewer(rrh::ResourceHandler* rh,
     QWidget* ogrew = ogreWidget();
     ogrew->setSizePolicy(QSizePolicy::Policy::Expanding,
                          QSizePolicy::Policy::Expanding);
-    ui.horizontalLayout->addWidget(ogreWidget());
+    mOgreWidget->resize(800, 600);
+    ogrew->show();
 
     // receive events when mouse is moving and hide the cursor
     ogrew->setMouseTracking(true);
