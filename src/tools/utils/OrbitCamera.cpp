@@ -29,12 +29,16 @@ OrbitCamera::setCameraType(CameraType type)
     switch (type) {
     case CameraType::FreeFly:
         mFreeNode->attachObject(mCamera);
-        mText.setText("CameraType: FreeFly", 0.02f);
+        if (mText) {
+            mText->setText("CameraType: FreeFly", 0.02f);
+        }
         break;
 
     case CameraType::Orbit:
         mZoomNode->attachObject(mCamera);
-        mText.setText("CameraType: Orbit", 0.02f);
+        if (mText) {
+            mText->setText("CameraType: Orbit", 0.02f);
+        }
         break;
     default:
         debugERROR("Type %d not supported\n", type);
@@ -46,7 +50,8 @@ OrbitCamera::setCameraType(CameraType type)
 ////////////////////////////////////////////////////////////////////////////////
 OrbitCamera::OrbitCamera(Ogre::Camera* camera,
                          Ogre::SceneManager* manager,
-                         float& globalTimeFrame) :
+                         float& globalTimeFrame,
+                         bool showText) :
     mCamera(camera)
 ,   mCamXNode(0)
 ,   mCamYNode(0)
@@ -56,6 +61,7 @@ OrbitCamera::OrbitCamera(Ogre::Camera* camera,
 ,   mZoom(50.f)
 ,   mCamVelocityFactor(1.f)
 ,   mGlobalTimeFrame(globalTimeFrame)
+,   mText(0)
 {
     ASSERT(camera);
     ASSERT(manager);
@@ -75,8 +81,11 @@ OrbitCamera::OrbitCamera(Ogre::Camera* camera,
     const Ogre::Vector3 distVec = mCamXNode->getPosition() - mZoomNode->getPosition();
     mStartDistance = distVec.length();
 
-    // configure the text
-    mText.setPos(0.75f, 0.97f);
+    if (showText) {
+        // configure the text
+        mText = new core::OgreText();
+        mText->setPos(0.75f, 0.97f);
+    }
     setCameraType(CameraType::Orbit);
 }
 
@@ -100,6 +109,18 @@ OrbitCamera::moveCamera(const Ogre::Vector3 &dir)
                     mGlobalTimeFrame * 200.f));
 
     mFreeNode->setPosition(mNextPosition);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void
+OrbitCamera::setZoomDist(float dist)
+{
+    if (mCamType != CameraType::Orbit) {
+        // not supported
+        return;
+    }
+    mZoom = dist;
+    mZoomNode->setPosition(0,0,dist);
 }
 
 } /* namespace tool */
