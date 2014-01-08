@@ -17,9 +17,10 @@
 
 #include <debug/DebugUtil.h>
 
-#include "BulletObject.h"
-#include "BulletCollisionObject.h"
+#include "RigidBody.h"
+#include "CollisionObject.h"
 #include "RaycastInfo.h"
+#include "BulletDebugDrawer.h"
 
 namespace physics {
 
@@ -30,14 +31,12 @@ namespace physics {
 
 // Forward
 //
-class DynamicWorld;
-typedef std::function<void (DynamicWorld*, BulletObject*)> MovementObjCb;
 
 class DynamicWorld
 {
 public:
     // Default constructor with the default gravity vector
-    DynamicWorld(const btVector3& gravity = btVector3(0,0,-10));
+    DynamicWorld(const Ogre::Vector3& gravity = Ogre::Vector3(0,0,-10));
     ~DynamicWorld();
 
     // @brief Set the gravity vector for this world.
@@ -63,57 +62,29 @@ public:
     inline void
     simulate(float fTime, unsigned int steps = 10);
 
-    // @brief Add a bulletObject to the world. Note that we will not check
+    // @brief Add a CollisionObject to the world. Note that we will not check
     //        anything, only add the object in the world directly.
-    // @param bo        The bullet object to add
-    // @param groupMask The group mask associated to this bo [optional]
-    // @param boMask    The object mask [optional]
+    // @param co            The Collision object to add
+    // @param groupMask     The group mask associated to this co
+    // @param filterMask    The object filter mask
     //
     inline void
-    addObject(BulletObject& bo, short int groupMask = ~0, short int boMask = ~0);
+    addCollisionObject(CollisionObject& co);
+    inline void
+    addCollisionObject(CollisionObject& co, short int groupMask, short int filterMask);
+    inline void
+    addRigidBody(RigidBody& rb);
+    inline void
+    addRigidBody(RigidBody& rb, short int groupMask, short int filterMask);
 
-    // @brief Remove a dynamic object from the world. We will not check for
-    //        anything, just call bullet->removeDynamic.
+    // @brief Remove a collision object / rigid body from the world.
+    //        We will not check for anything, just call bullet->removeDynamic.
     // @param bo        The bullet object to remove
     //
     inline void
-    removeObject(BulletObject& bo);
-
-    // @brief Add a collision object into the world. We will not check anything
-    //        just add it to the world directly
-    // @param bco       The bullet collision object to add
-    // @param groupMask The group mask associated to this bco [optional]
-    // @param bcoMask   The object mask [optional]
-    //
+    removeCollisionObject(CollisionObject& co);
     inline void
-    addObject(BulletCollisionObject& bco, short int groupMask = ~0, short int bcoMask = ~0);
-
-    // @brief Remove a collision object from the world. We will not check for
-    //        anything, just call bullet->removeCollisionObject().
-    // @param bo        The bullet collision object to remove
-    //
-    inline void
-    removeObject(BulletCollisionObject& bco);
-
-    ////////////////////////////////////////////////////////////////////////////
-
-    // @brief Add an BulletObject to be tracked until it stops moving. Note that
-    //        we must call the update() method each frame if we want to know
-    //        about this.
-    //        You need to call first the addObject to be updated by the physics
-    //        world.
-    // @param bo        The bullet object to check
-    // @param cb        The callback we will call once the object stops moving.
-    //
-    inline void
-    checkMovement(BulletObject* bo, MovementObjCb& cb);
-
-    // @brief Remove the object we are checking its movement.
-    // @param bo        The object we are checking its movement.
-    // @note This method will not call the callback associated.
-    //
-    inline void
-    stopCheckMovement(BulletObject* bo);
+    removeRigidBody(RigidBody& rb);
 
     ////////////////////////////////////////////////////////////////////////////
 
@@ -135,27 +106,6 @@ public:
     bool
     performRaycast(const RaycastInfo& ri, RaycastMultiResult& result) const;
 
-    ////////////////////////////////////////////////////////////////////////////
-
-    // @brief Update the objects we are tracking
-    //
-    inline void
-    update(void);
-
-private:
-
-    // Internal classes
-    //
-    struct MovementInfo {
-        BulletObject* object;
-        MovementObjCb callback;
-
-        MovementInfo(BulletObject* bo, MovementObjCb& cb) :
-            object(bo), callback(cb)
-        {}
-        MovementInfo(){}
-
-    };
 
 private:
     btDefaultCollisionConfiguration mDefConf;
@@ -163,7 +113,6 @@ private:
     btDbvtBroadphase mBroadPhase;
     btSequentialImpulseConstraintSolver mSeqSolver;
     btDiscreteDynamicsWorld mDynamicWorld;
-    std::vector<MovementInfo> mMovableObjects;
 };
 
 
@@ -200,72 +149,45 @@ DynamicWorld::simulate(float fTime, unsigned int steps)
     mDynamicWorld.stepSimulation(fTime, 10);
 }
 
+
 inline void
-DynamicWorld::addObject(BulletObject& bo, short int groupMask, short int boMask)
+DynamicWorld::addCollisionObject(CollisionObject& co)
 {
-    ASSERT(bo.rigidBody);
-    if (groupMask == ~0 && boMask == ~0) {
-        mDynamicWorld.addRigidBody(bo.rigidBody);
-    } else {
-        mDynamicWorld.addRigidBody(bo.rigidBody, groupMask, boMask);
-    }
+    ASSERT(co.bulletCollObj());
+    mDynamicWorld.addCollisionObject(co.bulletCollObj());
 }
 
 inline void
-DynamicWorld::removeObject(BulletObject& bo)
+DynamicWorld::addCollisionObject(CollisionObject& co, short int groupMask, short int filterMask)
 {
-    mDynamicWorld.removeRigidBody(bo.rigidBody);
+    ASSERT(co.bulletCollObj());
+    mDynamicWorld.addCollisionObject(co.bulletCollObj(), groupMask, filterMask);
+}
+inline void
+DynamicWorld::addRigidBody(RigidBody& rb)
+{
+    ASSERT(rb.bulletRigidBody());
+    mDynamicWorld.addRigidBody(rb.bulletRigidBody());
+}
+inline void
+DynamicWorld::addRigidBody(RigidBody& rb, short int groupMask, short int filterMask)
+{
+    ASSERT(rb.bulletRigidBody());
+    mDynamicWorld.addRigidBody(rb.bulletRigidBody(), groupMask, filterMask);
+
 }
 
 inline void
-DynamicWorld::addObject(BulletCollisionObject& bco,
-                        short int groupMask,
-                        short int bcoMask)
+DynamicWorld::removeCollisionObject(CollisionObject& co)
 {
-    ASSERT(bco.shape());
-    if (groupMask == ~0 && bcoMask == ~0) {
-        mDynamicWorld.addCollisionObject(&(bco.collObject));
-    } else {
-        mDynamicWorld.addCollisionObject(&(bco.collObject), groupMask, bcoMask);
-    }
+    ASSERT(co.bulletCollObj());
+    mDynamicWorld.removeCollisionObject(co.bulletCollObj());
 }
-
 inline void
-DynamicWorld::removeObject(BulletCollisionObject& bco)
+DynamicWorld::removeRigidBody(RigidBody& rb)
 {
-    mDynamicWorld.removeCollisionObject(&(bco.collObject));
-}
-
-inline void
-DynamicWorld::checkMovement(BulletObject* bo, MovementObjCb& cb)
-{
-    ASSERT(bo);
-    mMovableObjects.push_back(MovementInfo(bo, cb));
-    bo->motionState.setDirty(true);
-}
-
-inline void
-DynamicWorld::stopCheckMovement(BulletObject* bo)
-{
-    ASSERT(bo);
-    unsigned int i = 0, size = mMovableObjects.size();
-    while (i < size && mMovableObjects[i].object != bo) ++i;
-    if (i < size) {
-        // remove the element
-        mMovableObjects[i] = mMovableObjects.back();
-        mMovableObjects.pop_back();
-    }
-}
-
-inline void
-DynamicWorld::update(void)
-{
-    for (MovementInfo& mi : mMovableObjects) {
-        if (!mi.object->motionState.isDirty()) {
-            // we need to advise that this object is not being moved anymore
-            ASSERT(false && "TODO!");
-        }
-    }
+    ASSERT(rb.bulletRigidBody());
+    mDynamicWorld.removeRigidBody(rb.bulletRigidBody());
 }
 
 

@@ -4,21 +4,23 @@ include_directories(${THIRD_PARTY_LIBS}/include/bullet)
 
 # Define global sources here
 set(HDRS ${HDRS}
-	${DEV_ROOT_PATH}/coll_physics/physics/BulletObject.h
-	${DEV_ROOT_PATH}/coll_physics/physics/BulletCollisionObject.h
-	${DEV_ROOT_PATH}/coll_physics/physics/BulletUtils.h
-	${DEV_ROOT_PATH}/coll_physics/physics/DynamicWorld.h
-	${DEV_ROOT_PATH}/coll_physics/physics/RagDoll.h
-	${DEV_ROOT_PATH}/coll_physics/physics/BulletImporter.h
-	${DEV_ROOT_PATH}/coll_physics/physics/BulletLoader.h
+    ${DEV_ROOT_PATH}/coll_physics/physics/CollisionObject.h
+    ${DEV_ROOT_PATH}/coll_physics/physics/Shape.h
+    ${DEV_ROOT_PATH}/coll_physics/physics/RigidBody.h
+    ${DEV_ROOT_PATH}/coll_physics/physics/MotionState.h
+    ${DEV_ROOT_PATH}/coll_physics/physics/PhysicsBuilder.h
+    ${DEV_ROOT_PATH}/coll_physics/physics/DynamicWorld.h
+    ${DEV_ROOT_PATH}/coll_physics/physics/RagDoll.h
+    ${DEV_ROOT_PATH}/coll_physics/physics/BulletUtils.h
+    ${DEV_ROOT_PATH}/coll_physics/physics/BulletDebugDrawer.h
 )
 
 set(SRCS ${SRCS}
-	${DEV_ROOT_PATH}/coll_physics/physics/BulletUtils.cpp
-	${DEV_ROOT_PATH}/coll_physics/physics/DynamicWorld.cpp
-	${DEV_ROOT_PATH}/coll_physics/physics/RagDoll.cpp
-	${DEV_ROOT_PATH}/coll_physics/physics/BulletImporter.cpp
-	${DEV_ROOT_PATH}/coll_physics/physics/BulletLoader.cpp
+    ${DEV_ROOT_PATH}/coll_physics/physics/PhysicsBuilder.cpp
+    ${DEV_ROOT_PATH}/coll_physics/physics/DynamicWorld.cpp
+    ${DEV_ROOT_PATH}/coll_physics/physics/RagDoll.cpp
+    ${DEV_ROOT_PATH}/coll_physics/physics/BulletUtils.cpp
+    ${DEV_ROOT_PATH}/coll_physics/physics/BulletDebugDrawer.cpp
 )
 
 ################################################################################
