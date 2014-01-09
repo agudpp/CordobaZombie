@@ -7,12 +7,14 @@ set(HDRS ${HDRS}
 	${DEV_ROOT_PATH}/coll_physics/collisions/CollObject.h
 	${DEV_ROOT_PATH}/coll_physics/collisions/CollPreciseInfo.h
 	${DEV_ROOT_PATH}/coll_physics/collisions/CollPreciseInfoBuilder.h
+	${DEV_ROOT_PATH}/coll_physics/collisions/CollDebugDrawer.h
 )
 
 set(SRCS ${SRCS}
 	${DEV_ROOT_PATH}/coll_physics/collisions/CollisionHandler.cpp
 	${DEV_ROOT_PATH}/coll_physics/collisions/CollPreciseInfo.cpp
 	${DEV_ROOT_PATH}/coll_physics/collisions/CollPreciseInfoBuilder.cpp
+	${DEV_ROOT_PATH}/coll_physics/collisions/CollDebugDrawer.cpp
 )
 
 

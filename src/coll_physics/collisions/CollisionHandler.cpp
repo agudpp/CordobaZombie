@@ -14,6 +14,10 @@
 
 #include "CollObject.h"
 
+#ifdef DEBUG
+#include "CollDebugDrawer.h"
+#endif
+
 
 // Helper stuff
 //
@@ -139,6 +143,10 @@ CollisionHandler::CollisionHandler()
     letAllObjectsFreeAvailable();
     mMask.setSize(MAX_NUM_COLLOBJECTS);
     mOldAABB.resize(MAX_NUM_COLLOBJECTS);
+
+#ifdef DEBUG
+    mDebugDrawer = 0;
+#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -146,6 +154,20 @@ CollisionHandler::~CollisionHandler()
 {
     delete []mCollObjects.data;
 }
+
+////////////////////////////////////////////////////////////////////////////
+//                          General functions                             //
+////////////////////////////////////////////////////////////////////////////
+
+#ifdef DEBUG
+
+void
+CollisionHandler::setDebugDrawer(CollDebugDrawer* dbgDrawer)
+{
+    mDebugDrawer = dbgDrawer;
+}
+
+#endif
 
 ////////////////////////////////////////////////////////////////////////////
 //                          LifeTime functions                            //
@@ -394,6 +416,13 @@ CollisionHandler::update(void)
 
             current->flags.dirty = false;
             mOldAABB[current->id] = current->boundingBox();
+
+            #ifdef DEBUG
+            // now if we have the debug information we will show them
+            if (mDebugDrawer && mDebugDrawer->isEnabled()) {
+                mDebugDrawer->drawCollObject(current);
+            }
+            #endif
         }
         ++objBeg;
     }

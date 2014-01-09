@@ -52,8 +52,8 @@ CollPreciseInfo::createPolygonPrecise(const core::Vector2* vertices, unsigned in
     // now we have to move each vertex relative to the center...
     const core::Vector2 translationVec = center * -1.f; // (0,0) - center
 
-    ASSERT(count < 512); // if not, too fucking complex? yeah
-    b2Vec2 tpoints[512]; // translated points
+    ASSERT(count < 32); // if not, too fucking complex? yeah
+    b2Vec2 tpoints[32]; // translated points
 
     for (unsigned int i = 0; i < count; ++i) {
         tpoints[i].x = vertices[i].x + translationVec.x; // move them to be relative to (0,0)
