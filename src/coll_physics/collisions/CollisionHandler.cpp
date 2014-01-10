@@ -416,14 +416,15 @@ CollisionHandler::update(void)
 
             current->flags.dirty = false;
             mOldAABB[current->id] = current->boundingBox();
-
-            #ifdef DEBUG
-            // now if we have the debug information we will show them
-            if (mDebugDrawer && mDebugDrawer->isEnabled()) {
-                mDebugDrawer->drawCollObject(current);
-            }
-            #endif
         }
+
+#ifdef DEBUG
+        // now if we have the debug information we will show them
+        if (mDebugDrawer && mDebugDrawer->isEnabled()) {
+            mDebugDrawer->drawCollObject(current);
+        }
+#endif
+
         ++objBeg;
     }
 }

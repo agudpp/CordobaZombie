@@ -232,7 +232,6 @@ CollDebugDrawer::drawCollObject(const CollObject* co)
         debugWARNING("Null co?\n");
         return;
     }
-
     // check if we have precise information or not
     if (co->preciseInfo()) {
         // we need to analyze the precise information
