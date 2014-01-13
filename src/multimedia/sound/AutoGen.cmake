@@ -2,7 +2,8 @@
 # check if this module was already included
 if (NOT SOUNDSYSTEM_DEFINED)
     
-    set (SOUNDSYSTEM_DEFINED TRUE)
+	set (SOUNDSYSTEM_DEFINED TRUE)
+
     # Module headers
     set(HDRS ${HDRS}
     	${DEV_ROOT_PATH}/multimedia/sound/BufferBuilder.h
@@ -28,7 +29,8 @@ if (NOT SOUNDSYSTEM_DEFINED)
     	${DEV_ROOT_PATH}/multimedia/sound/SSS/SSoundSource.cpp
     )
     
-    # include the openal libs
+    # include the openal and RNG libs
     include(${DEV_ROOT_PATH}/multimedia/openal_handler/AutoGen.cmake)
+	include(${DEV_ROOT_PATH}/tools/random_generator/AutoGen.cmake)
 
 endif()
