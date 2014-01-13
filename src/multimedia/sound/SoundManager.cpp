@@ -720,9 +720,9 @@ SoundManager::getEnvSoundRepeat(const Ogre::String& sName) const
 ////////////////////////////////////////////////////////////////////////////////
 SSerror
 SoundManager::playEnvSound(const Ogre::String& sName,
-							   const Ogre::Real& gain,
-							   bool repeat,
-							   EnvSoundId id)
+                           const Ogre::Real& gain,
+                           bool repeat,
+                           EnvSoundId id)
 {
 	SoundBuffer* buf(0);
 	SoundSource* src(0);

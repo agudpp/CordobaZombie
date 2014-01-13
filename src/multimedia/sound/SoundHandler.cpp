@@ -25,7 +25,8 @@
 
 namespace mm {
 
-// SoundHandler's static member initialization
+// Initialization of SoundHandler static members
+const SingleSoundHandle INVALID_HANDLE = std::make_pair("", -1);
 SoundManager& SoundHandler::sSoundManager = SoundManager::getInstance();
 
 
@@ -148,9 +149,7 @@ Ogre::String
 SoundHandler::loadSounds(const std::vector<Ogre::String>& list,
                          SSbuftype bufType)
 {
-	SSerror err(SSerror::SS_NO_ERROR);
 	Ogre::String fails("");
-
 	for (unsigned int i=0 ; i < list.size() ; i++) {
 		// Check file's sound format, according to extension.
 		unsigned int pos = list[i].find_last_of('/') + 1;
@@ -160,31 +159,36 @@ SoundHandler::loadSounds(const std::vector<Ogre::String>& list,
 		if (0 == strcasecmp(sName.substr(pos).c_str(),"WAV")) {
 			// Load the file.
 			if (bufType == SSbuftype::SS_BUF_LOADED) {
-				err = sSoundManager.loadSound(sName, SSformat::SS_WAV,
-				                              SSbuftype::SS_BUF_LOADED);
+				mLastError = sSoundManager.loadSound(sName,
+				                                     SSformat::SS_WAV,
+				                                     SSbuftype::SS_BUF_LOADED);
 			} else { // bufType == SSbuftype::SS_BUF_STREAM_WAV
-				err = sSoundManager.loadSound(sName, SSformat::SS_WAV,
-				                              SSbuftype::SS_BUF_STREAM_WAV);
+				mLastError = sSoundManager.loadSound(sName,
+				                                     SSformat::SS_WAV,
+				                                     SSbuftype::SS_BUF_STREAM_WAV);
 			}
 		} else if (0 == strcasecmp(sName.substr(pos).c_str(),"OGG")) {
 			// Load the file
 			if (bufType == SSbuftype::SS_BUF_LOADED) {
-				err = sSoundManager.loadSound(sName, SSformat::SS_OGG,
-				                              SSbuftype::SS_BUF_LOADED);
+				mLastError = sSoundManager.loadSound(sName,
+				                                     SSformat::SS_OGG,
+				                                     SSbuftype::SS_BUF_LOADED);
 			} else { // bufType == SSbuftype::SS_BUF_STREAM_OGG
-				err = sSoundManager.loadSound(sName, SSformat::SS_OGG,
-				                              SSbuftype::SS_BUF_STREAM_OGG);
+				mLastError = sSoundManager.loadSound(sName,
+				                                     SSformat::SS_OGG,
+				                                     SSbuftype::SS_BUF_STREAM_OGG);
 			}
 		} else {
-			err = SSerror::SS_INVALID_FILE;
+			mLastError = SSerror::SS_INVALID_FILE;
 		}
 
-		if (err != SSerror::SS_NO_ERROR) {
-			fails += "  \""+ list[i] +"\", with error: "+ SSenumStr(err) +"\n";
+		if (mLastError != SSerror::SS_NO_ERROR) {
+			fails += "  \""+ list[i] +"\", with error: "
+			        + SSenumStr(mLastError) +"\n";
 		}
 	}
-
-	if (!fails.empty()) fails = "Some files failed to load:\n" + fails;
+	if (!fails.empty())
+	    fails = "Some files failed to load:\n" + fails;
 	return fails;
 }
 
@@ -220,11 +224,46 @@ SoundHandler::shutDown(void)
 
 
 ////////////////////////////////////////////////////////////////////////////////
+SingleSoundHandle
+SoundHandler::playSound(const Ogre::String& sName,
+                        const Ogre::Real& gain,
+                        bool repeat)
+{
+    SingleSoundHandle newHandle;
+
+    if (!sSoundManager.isSoundLoaded(sName)) {
+        mLastError = SSerror::SS_FILE_NOT_FOUND;
+        return INVALID_HANDLE;
+    }
+
+    if (mFreshSingleSoundIds.empty()) {
+        // Run out of free places, build some more
+        mSingles.reserve(mSingles.size() + HANDLER_MIN_CACHE_SIZE);
+        for (int i = mSingles.size()
+            ; i < mSingles.size() + HANDLER_MIN_CACHE_SIZE
+            ; i++)
+            mFreshSingleSoundIds.push_back(i);
+    }
+
+    int index = mFreshSingleSoundIds.front();
+    ASSERT(index >= 0);
+    SingleSoundHandle newHandle = std::make_pair(sName, index);
+    mLastError = sSoundManager.playEnvSound(sName, gain, repeat, index);
+
+    // FIXME: as unique SoundManager id: use index??? use &newHandle???
+
+    mFreshSingleSoundIds.pop_front();
+    // TODO complete this method implementation
+
+    return newHandle;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
 void
 SoundHandler::update(const float globalTimeFrame)
 {
 	Playlist *pl(0);
-	SSerror err(SSerror::SS_NO_ERROR);
 
 	// Update all internal buffers.
 	sSoundManager.update(globalTimeFrame, &mFinishedPlaylists, &mPausedPlaylists);
@@ -280,10 +319,10 @@ SoundHandler::update(const float globalTimeFrame)
 			// Mimic we're stopped, so we can invoke "startPlaylist"
 			setPlaylistState(pl, PLAYLIST_STOPPED);
 			unsetPlaylistState(pl, PLAYLIST_SILENCE);
-			err = startPlaylist(pl->mName, pl->mGain, pl);
-			if (err != SSerror::SS_NO_ERROR) {
+			mLastError = startPlaylist(pl->mName, pl->mGain, pl);
+			if (mLastError != SSerror::SS_NO_ERROR) {
 				debugERROR("Playlist \"%s\" failed after silence: %s.\n",
-						pl->mName.c_str(), SSenumStr(err));
+						pl->mName.c_str(), SSenumStr(mLastError));
 				stopPlaylist(pl->mName, pl);
 			}
 		}
@@ -537,7 +576,6 @@ SoundHandler::startPlaylist(const Ogre::String& name,
                             const Ogre::Real& gain,
                             Playlist *plp)
 {
-	SSerror err(SSerror::SS_NO_ERROR);
 	Playlist *pl = plp ? plp : getPlaylist(name);
 
 	if (!pl) {
@@ -580,12 +618,13 @@ SoundHandler::startPlaylist(const Ogre::String& name,
 		pl->mSilence = mRNG.getUniform_D(MIN_SILENCE, MAX_SILENCE);
 	}
 	// Start current sound as a (registered) Environmental Sound.
-	err = sSoundManager.playEnvSound(pl->mList[pl->mPlayOrder[pl->mCurrent]],
-									 gain,
-									 false,  // NEVER repeat individual sounds
-									 (void *)pl);
+	mLastError = sSoundManager.playEnvSound(
+	    pl->mList[pl->mPlayOrder[pl->mCurrent]],
+	    gain,
+	    false,  // NEVER repeat individual sounds
+	    (void *)pl);
 
-	if (err == SSerror::SS_NO_ERROR) {
+	if (mLastError == SSerror::SS_NO_ERROR) {
 		// Success
 		pl->mTimeSinceFinish = 0.0f;
 		pl->mGain = gain;
@@ -597,17 +636,17 @@ SoundHandler::startPlaylist(const Ogre::String& name,
 	} else {
 		// Failure
 		debugWARNING("Playlist \"%s\" failed to start: %s\n",
-					pl->mName.c_str(), SSenumStr(err));
+					pl->mName.c_str(), SSenumStr(mLastError));
 		setPlaylistState(pl, PLAYLIST_STOPPED);
 		unsetPlaylistState(pl, PLAYLIST_PLAYING
 							 | PLAYLIST_PAUSED
 							 | PLAYLIST_SILENCE
 							 | PLAYLIST_GLOBAL_MODE);
-		err = SSerror::SS_INTERNAL_ERROR;
+		mLastError = SSerror::SS_INTERNAL_ERROR;
 	}
 
 	checkPlaylistState(pl);
-	return err;
+	return mLastError;
 }
 
 
@@ -728,7 +767,6 @@ SoundHandler::fadeOutPlaylist(const Ogre::String& name,
 								  const bool pause)
 {
 	const Ogre::String *sound(0);
-	SSerror err(SSerror::SS_NO_ERROR);
 	Playlist *pl = getPlaylist(name);
 
 	if (!pl) {
@@ -766,17 +804,17 @@ SoundHandler::fadeOutPlaylist(const Ogre::String& name,
 		goto fail;
 	}
 
-	err = sSoundManager.fadeOutEnvSound(*sound, time, pause, pl);
+	mLastError = sSoundManager.fadeOutEnvSound(*sound, time, pause, pl);
 
-	if (err != SSerror::SS_NO_ERROR) {
+	if (mLastError != SSerror::SS_NO_ERROR) {
 		debugERROR("Playlist \"%s\" fade-out failed: %s",
-				pl->mName.c_str(), SSenumStr(err));
+				pl->mName.c_str(), SSenumStr(mLastError));
 		goto fail;
 	}
 
 	// Success
 	checkPlaylistState(pl);
-	return err;
+	return mLastError;
 
 	fail:
 		sSoundManager.stopEnvSound(*sound);
@@ -787,7 +825,8 @@ SoundHandler::fadeOutPlaylist(const Ogre::String& name,
 							 | PLAYLIST_PAUSED
 							 | PLAYLIST_SILENCE
 							 | PLAYLIST_GLOBAL_MODE);
-		return SSerror::SS_INTERNAL_ERROR;
+		mLastError = SSerror::SS_INTERNAL_ERROR;
+		return mLastError;
 }
 
 
@@ -797,7 +836,6 @@ SSerror
 SoundHandler::fadeInPlaylist(const Ogre::String& name,
 								 const Ogre::Real& time)
 {
-	SSerror err(SSerror::SS_NO_ERROR);
 	Playlist *pl = getPlaylist(name);
 
 	if (!pl) {
@@ -828,22 +866,23 @@ SoundHandler::fadeInPlaylist(const Ogre::String& name,
 
 	} else if (pl->mState & PLAYLIST_STOPPED) {
 		// Playlist is not active: we must start it first.
-		err = startPlaylist(name, 0.0f, pl);
-		if (err != SSerror::SS_NO_ERROR) {
+		mLastError = startPlaylist(name, 0.0f, pl);
+		if (mLastError != SSerror::SS_NO_ERROR) {
 			debugERROR("Couldn't start playlist \"%s\" fade-in: %s.\n",
-						pl->mName.c_str(), SSenumStr(err));
+						pl->mName.c_str(), SSenumStr(mLastError));
 			goto fail;
 		}
 		// Pause playback, so we can start gradually.
 		sSoundManager.pauseEnvSound(pl->mList[pl->mPlayOrder[pl->mCurrent]]);
 	}
 
-	err = sSoundManager.fadeInEnvSound(pl->mList[pl->mPlayOrder[pl->mCurrent]],
-									   time,
-									   pl);
-	if (err != SSerror::SS_NO_ERROR) {
+	mLastError = sSoundManager.fadeInEnvSound(
+	    pl->mList[pl->mPlayOrder[pl->mCurrent]],
+	    time,
+	    pl);
+	if (mLastError != SSerror::SS_NO_ERROR) {
 		debugERROR("Playlist \"%s\" fade-in failed: %s.\n",
-					pl->mName.c_str(), SSenumStr(err));
+					pl->mName.c_str(), SSenumStr(mLastError));
 		sSoundManager.stopEnvSound(pl->mList[pl->mPlayOrder[pl->mCurrent]]);
 		goto fail;
 	}
@@ -852,7 +891,7 @@ SoundHandler::fadeInPlaylist(const Ogre::String& name,
 	setPlaylistState(pl, PLAYLIST_PLAYING);
 	unsetPlaylistState(pl, PLAYLIST_PAUSED | PLAYLIST_STOPPED);
 	checkPlaylistState(pl);
-	return err;
+	return mLastError;
 
 	fail:
 		pl->mCurrent = 0;
@@ -862,7 +901,8 @@ SoundHandler::fadeInPlaylist(const Ogre::String& name,
 							 | PLAYLIST_PAUSED
 							 | PLAYLIST_SILENCE
 							 | PLAYLIST_GLOBAL_MODE);
-		return SSerror::SS_INTERNAL_ERROR;
+		mLastError = SSerror::SS_INTERNAL_ERROR;
+		return mLastError;
 }
 
 

@@ -37,6 +37,10 @@ class ResourceHandler;
 
 namespace mm {
 
+typedef std::pair<const Ogre::String,const int> SingleSoundHandle;
+static const SingleSoundHandle INVALID_HANDLE;  // Invalid SingleSoundHandle
+static const int HANDLER_MIN_CACHE_SIZE = 10;  // Mem reservation for some vectors
+
 class SoundHandler
 {
 	struct Playlist
@@ -124,11 +128,22 @@ public:
     void
     setOpenALHandler(OpenALHandler* handler);
 
+    /**
+     ** @brief
+     ** Set the camera attached to the SoundManager.
+     **
+     ** @remarks
+     ** The camera determines the position and orientation of the listener,
+     ** both of which get updated on each call to SceneManager::update()
+     **/
+    void
+    setCamera(const Ogre::Camera* cam);
+
 	/**
 	 ** @brief Lists available sound devices.
 	 **/
 	std::vector<std::string>
-	getAvailableSoundDevices();
+	getAvailableSoundDevices() const;
 
 	/**
 	 ** @brief
@@ -139,25 +154,27 @@ public:
 	 ** name of the opened sound device otherwise.
 	 **/
 	std::string
-	getSoundDevice();
+	getSoundDevice() const;
+
+    /**
+     ** @brief
+     ** Tells whether the ResourceHandler is ready to search for files
+     **/
+    bool
+    hasResourceHandler() const;
 
 	/**
 	 ** @brief
 	 ** Tells whether the OpenAL system is set up correctly
 	 **/
 	bool
-	hasOpenALcontext();
+	hasOpenALcontext() const;
 
 	/**
-	 ** @brief
-	 ** Set the camera attached to the SoundManager.
-	 **
-	 ** @remarks
-	 ** The camera determines the position and orientation of the listener,
-	 ** both of which get updated on each call to SceneManager::update()
+	 ** @brief Return the last error set internally.
 	 **/
-	void
-	setCamera(const Ogre::Camera* cam);
+	const SSerror
+	getError() const;
 
 
 	/*********************************************************************/
@@ -249,30 +266,145 @@ public:
 public:
     /**
      ** @brief
-     ** Plays audio file "sName" as an environmental sound.
+     ** Plays audio file "sName" as a single environmental sound.
      ** i.e. no orientation, no distance fade.
+     **
+     ** @param
+     **  sName: name of the audio file to play
+     **   gain: volume of the sound, in [ 0.0 , 1.0 ] scale
+     ** repeat: whether to repeat on end
+     **
+     ** @return
+     ** INVALID_HANDLE on error | Handle of generated sound otherwise
      **
      ** @remarks
      ** Sound "sName" should have already been loaded with loadSound()
      **
-     ** @param
-     **  sName: name of the audio file to play
-     **   gain: volume of the sound, in [ 0.0 , 1.0 ] scale (default: 0.07)
-     ** repeat: whether to repeat on end (default: false)
-     **
-     ** @return
-     ** SS_NO_ERROR         Playback started
-     ** SS_NO_SOURCES       No available sources to play sound.
-     ** SS_FILE_NOT_FOUND   Sound "sName" not found (no buffer "sName" loaded).
-     ** SS_INTERNAL_ERROR   Unspecified
+     ** @remarks
+     ** If INVALID_HANDLE is returned, getError() will return the specific
+     ** error code generated:
+     **  ¤ SS_NO_ERROR         Playback started
+     **  ¤ SS_NO_SOURCES       No available sources to play sound.
+     **  ¤ SS_FILE_NOT_FOUND   "sName" not found, no buffer "sName" loaded
+     **  ¤ SS_INTERNAL_ERROR   Unspecified
      **/
-	SSerror
+	SingleSoundHandle
 	playSound(const Ogre::String& sName,
               const Ogre::Real& gain = DEFAULT_ENV_GAIN,
               bool repeat = false);
 
-	// TODO: complete API for single sound control, see MantisBT issue #392
-	// Every sound will need a unique ID: create with mRNG and keep track
+
+	// TODO implement SingleSound methods from here downwards
+
+    /**
+     ** @brief
+     ** Pauses single sound
+     **
+     ** @param
+     ** h: handle to the single sound to pause
+     **
+     ** @return
+     ** SS_NO_ERROR         Single sound successfully paused.
+     ** SS_NO_BUFFER        "h" didn't match any single sound handle.
+     ** SS_INTERNAL_ERROR   Unspecified.
+     **
+     ** @remarks
+     ** If the handle did not match any single sound, nothing is done.
+     ** This function overrides fadings.
+     **/
+    void
+    pauseSound(const SingleSoundHandle& h);
+
+    /**
+     ** @brief
+     ** Stops single sound
+     **
+     ** @param
+     ** h: handle to the single sound to stop
+     **
+     ** @return
+     ** SS_NO_ERROR         Single sound stopped, resources released.
+     ** SS_NO_BUFFER        "h" didn't match any single sound handle.
+     ** SS_INTERNAL_ERROR   Unspecified.
+     **
+     ** @remarks
+     ** The single sound is destroyed, "h" is no longer a valid handle.
+     ** If the handle did not match any single sound, nothing is done.
+     **/
+    SSerror
+    stopEnvSound(SingleSoundHandle& h);
+
+    /**
+     ** @brief
+     ** Restarts single sound
+     **
+     ** @param
+     ** h: handle to the single sound to restart
+     **
+     ** @return
+     ** SS_NO_ERROR         Single sound successfully restarted.
+     ** SS_NO_BUFFER        "h" didn't match any single sound handle.
+     ** SS_INTERNAL_ERROR   Unspecified.
+     **
+     ** @remarks
+     ** If the sound was paused or playing, playback restarts from square one.
+     ** If the handle did not match any single sound, nothing is done.
+     ** This function overrides fadings, both individual and global.
+     **/
+    SSerror
+    restartEnvSound(const SingleSoundHandle& h);
+
+    /**
+     ** @brief
+     ** Fades out single sound
+     **
+     ** @param
+     **     h: handle to the single sound to fade out
+     **  time: fade out time, in seconds. If negative, defaults to 1.0
+     ** pause: whether to pause the sound once muted. Default: true.
+     **
+     ** @return
+     ** SS_NO_ERROR         Sound fade out started, or in an unexpected state
+     **                     (and was left untouched)
+     ** SS_NO_BUFFER        "h" didn't match any single sound handle.
+     ** SS_INTERNAL_ERROR   Unspecified.
+     **
+     ** @remarks
+     ** This funtion only affects sounds in a "plain" playing state.
+     ** So if the sound has been paused, or is under the effect of some other
+     ** fade, nothing is done.
+     ** If pause==true, fadeInSound() will restart playback when called.
+     ** If the handle did not match any single sound, nothing is done.
+     **/
+    SSerror
+    fadeOutSound(const SingleSoundHandle& h,
+                 const Ogre::Real& time = 1.0,
+                 const bool pause = true);
+
+    /**
+     ** @brief
+     ** Fades back in single sound to its original playback volume
+     **
+     ** @param
+     **    h: handle to the single sound to fade in
+     ** time: fade in time, in seconds. If negative, defaults to 1.0
+     **
+     ** @return
+     ** SS_NO_ERROR         Sound fade in started, or in an unexpected state
+     **                     (and was left untouched)
+     ** SS_NO_BUFFER        "h" didn't match any single sound handle.
+     ** SS_INTERNAL_ERROR   Unspecified.
+     **
+     ** @remarks
+     ** This function only affects sounds which have been paused,
+     ** or are under the effect of an individual fade out.
+     ** So if the sound is just playing, or is under the effect of
+     ** another fade, nothing is done.
+     ** Playback is restarted if the sound had been faded-out and/or paused.
+     ** If the handle did not match any single sound, nothing is done.
+     **/
+    SSerror
+    fadeInSound(const SingleSoundHandle& h, const Ogre::Real& time);
 
 
 	/*********************************************************************/
@@ -633,10 +765,13 @@ private:
 	typedef void* EnvSoundId;
 
 	static SoundManager&	sSoundManager;
+	SSerror                 mLastError;
     tool::RandomGenerator   mRNG;
 	std::vector<Playlist*>	mPlaylists;
 	std::vector<EnvSoundId>	mFinishedPlaylists;
 	std::vector<EnvSoundId>	mPausedPlaylists;
+    std::vector<SingleSoundHandle> mSingles;
+    std::list<int> mFreshSingleSoundIds;
 };
 
 
@@ -666,7 +801,14 @@ SoundHandler::soundManager(void) const
 
 
 ////////////////////////////////////////////////////////////////////////////////
-inline SoundHandler::SoundHandler() { /* Nothig to do. */ }
+inline SoundHandler::SoundHandler() :
+    mLastError(SSerror::SS_NO_ERROR)
+{
+    mPlaylists.reserve(HANDLER_MIN_CACHE_SIZE);
+    mSingles.reserve(HANDLER_MIN_CACHE_SIZE);
+    for (int i=0 ; i < HANDLER_MIN_CACHE_SIZE ; i++)
+        mFreshSingleSoundIds.push_back(i);
+}
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -697,8 +839,16 @@ SoundHandler::setOpenALHandler(OpenALHandler* handler)
 
 
 ////////////////////////////////////////////////////////////////////////////////
+inline void
+SoundHandler::setCamera(const Ogre::Camera* cam)
+{
+    sSoundManager.setCamera(cam);
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
 inline std::vector<std::string>
-SoundHandler::getAvailableSoundDevices()
+SoundHandler::getAvailableSoundDevices() const
 {
 	return sSoundManager.getAvailableSoundDevices();
 }
@@ -706,25 +856,30 @@ SoundHandler::getAvailableSoundDevices()
 
 ////////////////////////////////////////////////////////////////////////////////
 inline std::string
-SoundHandler::getSoundDevice()
+SoundHandler::getSoundDevice() const
 {
 	return sSoundManager.getSoundDevice();
 }
 
+
 ////////////////////////////////////////////////////////////////////////////////
 inline bool
-SoundHandler::hasOpenALcontext()
+SoundHandler::hasResourceHandler() const
+{
+    return sSoundManager.hasResourceHandler();
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+inline bool
+SoundHandler::hasOpenALcontext() const
 {
     return sSoundManager.hasOpenALcontext();
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////
-inline void
-SoundHandler::setCamera(const Ogre::Camera* cam)
-{
-	sSoundManager.setCamera(cam);
-}
+inline const SSerror SoundHandler::getError() const { return mLastError; }
 
 
 ////////////////////////////////////////////////////////////////////////////////

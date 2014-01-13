@@ -171,8 +171,10 @@ SoundTest::SoundTest() :
 
     // Check initial sound system status is OK
     testBEGIN("Revisando la creación del SoundHandler.\n");
-    mSH.soundManager()->setOpenALHandler(&mOpenALHandler);
+    mSH.setOpenALHandler(&mOpenALHandler);
     ASSERT(&mSH == &mm::SoundHandler::getInstance());
+    ASSERT(mSH.hasResourceHandler());
+    ASSERT(mSH.hasOpenALcontext());
     printDevices();
     testSUCCESS("SoundHandler creado correctamente.\n");
 

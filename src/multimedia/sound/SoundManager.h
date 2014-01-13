@@ -153,10 +153,9 @@ private:
 	playExistentSound(ActiveSound& s, float gain, bool repeat);
 
 
-
 	/*********************************************************************/
 	/**********************    INITIALIZATION    *************************/
-public:
+protected:
     /**
      ** @brief
      ** Set the ResourceHandler to be used by this instance.
@@ -184,6 +183,18 @@ public:
     void
     setOpenALHandler(OpenALHandler* handler);
 
+    /**
+     ** @brief
+     ** Set the camera attached to the SoundManager.
+     **
+     ** @remarks
+     ** The camera determines the position and orientation of the listener,
+     ** both of which get updated on each call to SceneManager::update()
+     **/
+    void
+    setCamera(const Ogre::Camera* cam);
+
+public:
 	/**
 	 ** @brief
 	 ** Lists available sound devices
@@ -203,27 +214,18 @@ public:
 	getSoundDevice() const;
 
     /**
-     ** @brief Tells whether the ResourceHandler is ready to search for files
+     ** @brief
+     ** Tells whether the ResourceHandler is ready to search for files
      **/
     bool
     hasResourceHandler() const;
 
     /**
-	 ** @brief Tells whether the OpenAL system is set up correctly
+	 ** @brief
+	 ** Tells whether the OpenAL system is set up correctly
 	 **/
 	bool
 	hasOpenALcontext() const;
-
-	/**
-	 ** @brief
-	 ** Set the camera attached to the SoundManager.
-	 **
-	 ** @remarks
-	 ** The camera determines the position and orientation of the listener,
-	 ** both of which get updated on each call to SceneManager::update()
-	 **/
-	void
-	setCamera(const Ogre::Camera* cam);
 
 	/**
 	 ** @brief
@@ -243,6 +245,7 @@ public:
 	std::pair<Ogre::Vector3, Ogre::Vector3>
 	getOrientation() const;
 
+protected:
 	/**
 	 ** @brief
 	 ** Adds "numSources" new Loaded Sound Sources to the SoundManager.
@@ -320,13 +323,6 @@ public:
 
 	/**
 	 ** @brief
-	 ** Tells whether sName is a loaded buffer in the system.
-	 **/
-	bool
-	isSoundLoaded(const Ogre::String& sName);
-
-	/**
-	 ** @brief
 	 ** Unloads the audio buffer named "sName" from (the SoundSystem) memory.
 	 ** If no such buffer exists, nothing is done.
 	 **
@@ -337,22 +333,30 @@ public:
 	void
 	unloadSound(const Ogre::String& sName);
 
-
+public:
     /**
      ** @brief
-     ** Destroy and uninitialize all the buffers and sources already loaded. This
-     ** method will stop all the current active sounds and will destory everything
-     ** else. Basically, is simulating the "destructor" since is a singleton
-     ** class. This should be fixed when we change this class to not be anymore
-     ** a singleton.
-     **
+     ** Tells whether sName is a loaded buffer in the system.
+     **/
+    bool
+    isSoundLoaded(const Ogre::String& sName);
+
+private:
+    /**
+     ** @brief
+     ** Destroy and uninitialize all the buffers and sources already loaded.
+     ** This method will stop all the current active sounds and will destory
+     ** everything else.
+     ** Basically, is simulating the "destructor" since is a singleton class.
+     ** TODO Fix when we change this class to stop being a singleton.
      **/
     void
     destroyAll(void);
 
+
 	/*********************************************************************/
 	/****************    GLOBAL PLAYBACK CONTROLS    *********************/
-public:
+protected:
 	/** XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX **
 	 * XXX   All these global methods should be accessed     XXX *
 	 * XXX   via the stubs implemented in the SoundHandler.  XXX */
@@ -452,7 +456,6 @@ public:
 	globalFadeIn(const Ogre::Real& time);
 
 
-
 	/*********************************************************************/
 	/******************    ENVIRONMENTAL SOUNDS    ***********************/
 public:
@@ -516,6 +519,7 @@ public:
 	bool
 	getEnvSoundRepeat(const Ogre::String& sName) const;
 
+protected:
 	/**
 	 ** @brief
 	 ** Plays audio file "sName" as an environmental sound.
@@ -666,7 +670,6 @@ public:
 					 EnvSoundId id=0);
 
 
-
 	/*********************************************************************/
 	/*******************    UNITS' APIS SOUNDS    ************************/
 public:
@@ -678,7 +681,7 @@ public:
 	bool
 	isActiveAPISound(const Ogre::String& sName) const;
 
-private:
+protected:
 	/**
 	 ** @brief
 	 ** Checks whether the SoundAPI is playing some sound.
