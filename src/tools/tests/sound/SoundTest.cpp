@@ -323,9 +323,6 @@ SoundTest::loadAditionalData(void)
         exit(EXIT_FAILURE);
     }
 
-    // Initialize RNG
-    std::srand(time(NULL));
-
     // Try to play some sounds
     if (!initSoundsPlayback()) {
         debugERROR("Errors found when trying to play some sounds. ABORTING.\n");

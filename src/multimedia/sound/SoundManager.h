@@ -59,11 +59,13 @@ class SoundBuffer;
 class LSoundSource;
 class SSoundSource;
 class SoundAPI;
+class SoundHandler;
 class OpenALHandler;
 
 
 class SoundManager
 {
+    friend class SoundHandler;
 	friend class SoundAPI;
 	typedef void* EnvSoundId;
 
@@ -155,15 +157,29 @@ private:
 	/*********************************************************************/
 	/**********************    INITIALIZATION    *************************/
 public:
+    /**
+     ** @brief
+     ** Set the ResourceHandler to be used by this instance.
+     **
+     ** @param
+     ** A pointer to the handler which will be used to load audio files.
+     **
+     ** @remarks
+     ** The ResourceHandler is needed to load audio files into the sound system.
+     **/
+	void
+	setResourceHandler(rrh::ResourceHandler* rh);
 
 	/**
      ** @brief
-     ** Set the OpenALHandler to be used by this instance
+     ** Set the OpenALHandler to be used by this instance.
      **
      ** @param
-     ** The handler pointer to be used. Note that we need this handler over all
-     ** the life time of this instance, so you cannot destory it before this
-     ** class.
+     ** A pointer to the handler which will be used to play sounds.
+     **
+     ** @remarks
+     ** The OpenALHandler is needed to access the configured audio device,
+     ** and play/pause/stop sounds in it.
      **/
     void
     setOpenALHandler(OpenALHandler* handler);
@@ -173,7 +189,7 @@ public:
 	 ** Lists available sound devices
 	 **/
 	std::vector<std::string>
-	getAvailableSoundDevices();
+	getAvailableSoundDevices() const;
 
 	/**
 	 ** @brief
@@ -184,15 +200,19 @@ public:
 	 ** name of the opened sound device otherwise.
 	 **/
 	std::string
-	getSoundDevice();
+	getSoundDevice() const;
 
+    /**
+     ** @brief Tells whether the ResourceHandler is ready to search for files
+     **/
+    bool
+    hasResourceHandler() const;
 
-
-	/**
-	 ** @brief Tells whether OpenAL system is set up correctly
+    /**
+	 ** @brief Tells whether the OpenAL system is set up correctly
 	 **/
-	inline bool
-	hasOpenALcontext(void);
+	bool
+	hasOpenALcontext() const;
 
 	/**
 	 ** @brief
@@ -202,15 +222,15 @@ public:
 	 ** The camera determines the position and orientation of the listener,
 	 ** both of which get updated on each call to SceneManager::update()
 	 **/
-	inline void
+	void
 	setCamera(const Ogre::Camera* cam);
 
 	/**
 	 ** @brief
 	 ** View current listener 3D position.
 	 **/
-	inline Ogre::Vector3
-	getPosition();
+	Ogre::Vector3
+	getPosition() const;
 
 	/**
 	 ** @brief
@@ -220,8 +240,8 @@ public:
 	 ** Uses AT/UP vector format. For an explanation visit:
 	 ** http://stackoverflow.com/questions/7861306/clarification-on-openal-listener-orientation
 	 **/
-	inline std::pair<Ogre::Vector3, Ogre::Vector3>
-	getOrientation();
+	std::pair<Ogre::Vector3, Ogre::Vector3>
+	getOrientation() const;
 
 	/**
 	 ** @brief
@@ -271,7 +291,6 @@ public:
 	 ** Loads audio file "sName" for playback.
 	 **
 	 ** @param
-	 **     rh: reference to the resource handler with access to the file
 	 **  sName: name of the audio file (realtive path, i.e., filename only)
 	 ** format: file's audio compression format (WAV, OGG, MP3)
 	 **   type: buffer's type (streaming vs mem.loaded)
@@ -291,12 +310,11 @@ public:
 	 ** SS_NO_BUFFER		Audio file "sName" had already been loaded.
 	 ** SS_NO_MEMORY		Not enough memory to work with. Go buy some.
 	 ** SS_INVALID_FILE		Unsupported/erroneous file audio format
-	 ** SS_FILE_NOT_FOUND	Audio file not found. Is it listed as resource?
+	 ** SS_FILE_NOT_FOUND	Audio file not found. Was the ResourceHandler set?
 	 ** SS_INTERNAL_ERROR	Something went wrong. Does an OpenAL context exist?
 	 **/
 	SSerror
-	loadSound(rrh::ResourceHandler& rh,
-	          const Ogre::String& sName,
+	loadSound(const Ogre::String& sName,
 	          SSformat format = SSformat::SS_NOTHING,
 	          SSbuftype type = SSbuftype::SS_BUF_LOADED);
 
@@ -437,7 +455,7 @@ public:
 
 	/*********************************************************************/
 	/******************    ENVIRONMENTAL SOUNDS    ***********************/
-public:
+private:
 	/**
 	 ** @brief
 	 ** Searchs an environmental sound by given sName,
@@ -448,7 +466,7 @@ public:
 	 ** false: environmental sound "sName" is not playing |OR| it wasn't found
 	 **/
 	bool
-	isPlayingEnvSound(const Ogre::String& sName);
+	isPlayingEnvSound(const Ogre::String& sName) const;
 
 	/**
 	 ** @brief
@@ -460,7 +478,7 @@ public:
 	 ** false: environmental sound is not playing |OR| it wasn't found.
 	 **/
 	bool
-	isPlayingEnvSound(EnvSoundId id=0);
+	isPlayingEnvSound(EnvSoundId id=0) const;
 
 	/**
 	 ** @brief
@@ -472,7 +490,7 @@ public:
 	 ** false: environmental sound "sName" is not active |OR| it wasn't found
 	 **/
 	bool
-	isActiveEnvSound(const Ogre::String& sName);
+	isActiveEnvSound(const Ogre::String& sName) const;
 
 	/**
 	 ** @brief
@@ -484,7 +502,7 @@ public:
 	 ** false: environmental sound is not active |OR| it wasn't found.
 	 **/
 	bool
-	isActiveEnvSound(EnvSoundId id=0);
+	isActiveEnvSound(EnvSoundId id=0) const;
 
 	/**
 	 ** @brief
@@ -496,7 +514,7 @@ public:
 	 **        or "sName" is NOT an active environmental sound
 	 **/
 	bool
-	getEnvSoundRepeat(const Ogre::String& sName);
+	getEnvSoundRepeat(const Ogre::String& sName) const;
 
 	/**
 	 ** @brief
@@ -817,9 +835,6 @@ private:
 	// Units' Sounds
 	typedef std::pair<SoundAPI*, ActiveSound*> UnitSound;
 
-	// Current OpenAL context
-	ALCcontext* mOpenALcontext;
-
 	// Camera from which position and orientation are obtained for update().
 	const Ogre::Camera* mCam;
 
@@ -844,7 +859,10 @@ private:
 	// Pointers to the active units sounds.
 	std::vector<UnitSound> mUnitSounds;
 
-	// The OpenALHandler to be used
+    // Current resources handler
+    rrh::ResourceHandler* mResourceHandler;
+
+	// Current OpenAL handler
 	OpenALHandler* mOpenALHandler;
 };
 
@@ -882,8 +900,6 @@ SoundManager::getInstance()
 	return instance;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-inline bool SoundManager::hasOpenALcontext() { return mOpenALcontext!=0; }
 
 ////////////////////////////////////////////////////////////////////////////////
 inline void SoundManager::setCamera(const Ogre::Camera* cam) { mCam = cam; }
@@ -891,7 +907,7 @@ inline void SoundManager::setCamera(const Ogre::Camera* cam) { mCam = cam; }
 
 ////////////////////////////////////////////////////////////////////////////////
 inline Ogre::Vector3
-SoundManager::getPosition()
+SoundManager::getPosition() const
 {
 	Ogre::Vector3 pos;
 	alGetListener3f(AL_POSITION, &(pos.x), &(pos.y), &(pos.z));
@@ -901,7 +917,7 @@ SoundManager::getPosition()
 
 ////////////////////////////////////////////////////////////////////////////////
 inline std::pair<Ogre::Vector3, Ogre::Vector3>
-SoundManager::getOrientation()
+SoundManager::getOrientation() const
 {
 	float ori[6];
 	alGetListenerfv(AL_ORIENTATION, ori);

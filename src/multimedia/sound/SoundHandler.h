@@ -110,7 +110,23 @@ public:
 	inline const SoundManager*
 	soundManager(void) const;
 
-	/** Lists available sound devices. */
+    /**
+     ** @brief
+     ** Set the ResourceHandler to be used for audio files loading.
+     **/
+    void
+    setResourceHandler(rrh::ResourceHandler* rh);
+
+    /**
+     ** @brief
+     ** Set the OpenALHandler to be used for sounds playback in an audio device
+     **/
+    void
+    setOpenALHandler(OpenALHandler* handler);
+
+	/**
+	 ** @brief Lists available sound devices.
+	 **/
 	std::vector<std::string>
 	getAvailableSoundDevices();
 
@@ -129,7 +145,7 @@ public:
 	 ** @brief
 	 ** Tells whether the OpenAL system is set up correctly
 	 **/
-	inline bool
+	bool
 	hasOpenALcontext();
 
 	/**
@@ -140,7 +156,7 @@ public:
 	 ** The camera determines the position and orientation of the listener,
 	 ** both of which get updated on each call to SceneManager::update()
 	 **/
-	inline void
+	void
 	setCamera(const Ogre::Camera* cam);
 
 
@@ -150,8 +166,7 @@ public:
 	/**
 	 ** @brief Loads a list of sound files, to be played in streaming fashion
 	 **
-	 ** @param rh   Reference to the resource handler with access to the files
-	 ** @param list Names of the sound files to load
+	 ** @param  list    Names of the sound files to load
      **
      ** @return
      ** List of files which failed to load, with respective error message.
@@ -162,14 +177,12 @@ public:
 	 ** (e.g., *.mp3, *.wav, *.ogg, etc.)
 	 **/
 	Ogre::String
-	loadStreamSounds(rrh::ResourceHandler& rh,
-	                 const std::vector<Ogre::String>& list);
+	loadStreamSounds(const std::vector<Ogre::String>& list);
 
 	/**
 	 ** @brief Loads a list of sound files, to be played directly from memory
 	 **
-     ** @param rh   Reference to the resource handler with access to the files
-     ** @param list Names of the sound files to load
+     ** @param  list    Names of the sound files to load
      **
 	 ** @remarks
 	 ** Filenames are expected to contain the sound format extension
@@ -180,8 +193,7 @@ public:
 	 ** File names are separated with UNIX newline characters (viz. '\n')
 	 **/
 	Ogre::String
-	loadDirectSounds(rrh::ResourceHandler& rh,
-                     const std::vector<Ogre::String>& list);
+	loadDirectSounds(const std::vector<Ogre::String>& list);
 
 	/**
 	 ** @brief
@@ -230,6 +242,37 @@ public:
 	 **/
 	void
 	shutDown(void);
+
+
+    /*********************************************************************/
+    /*************    SINGLE-SOUND PLAYBACK CONTROLS    ******************/
+public:
+    /**
+     ** @brief
+     ** Plays audio file "sName" as an environmental sound.
+     ** i.e. no orientation, no distance fade.
+     **
+     ** @remarks
+     ** Sound "sName" should have already been loaded with loadSound()
+     **
+     ** @param
+     **  sName: name of the audio file to play
+     **   gain: volume of the sound, in [ 0.0 , 1.0 ] scale (default: 0.07)
+     ** repeat: whether to repeat on end (default: false)
+     **
+     ** @return
+     ** SS_NO_ERROR         Playback started
+     ** SS_NO_SOURCES       No available sources to play sound.
+     ** SS_FILE_NOT_FOUND   Sound "sName" not found (no buffer "sName" loaded).
+     ** SS_INTERNAL_ERROR   Unspecified
+     **/
+	SSerror
+	playSound(const Ogre::String& sName,
+              const Ogre::Real& gain = DEFAULT_ENV_GAIN,
+              bool repeat = false);
+
+	// TODO: complete API for single sound control, see MantisBT issue #392
+	// Every sound will need a unique ID: create with mRNG and keep track
 
 
 	/*********************************************************************/
@@ -566,8 +609,7 @@ public:
 	/********************    AUXILIARY FUNCTIONS    **********************/
 private:
 	Ogre::String
-	loadSounds(rrh::ResourceHandler& rh,
-	           const std::vector<Ogre::String>&,
+	loadSounds(const std::vector<Ogre::String>&,
 	           SSbuftype);
 
 	const Playlist*
@@ -639,6 +681,22 @@ inline SoundHandler::~SoundHandler()
 
 
 ////////////////////////////////////////////////////////////////////////////////
+inline void
+SoundHandler::setResourceHandler(rrh::ResourceHandler* rh)
+{
+    sSoundManager.setResourceHandler(rh);
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+inline void
+SoundHandler::setOpenALHandler(OpenALHandler* handler)
+{
+    sSoundManager.setOpenALHandler(handler);
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
 inline std::vector<std::string>
 SoundHandler::getAvailableSoundDevices()
 {
@@ -671,19 +729,17 @@ SoundHandler::setCamera(const Ogre::Camera* cam)
 
 ////////////////////////////////////////////////////////////////////////////////
 inline Ogre::String
-SoundHandler::loadStreamSounds(rrh::ResourceHandler& rh,
-                               const std::vector<Ogre::String>& list)
+SoundHandler::loadStreamSounds(const std::vector<Ogre::String>& list)
 {
-	return loadSounds(rh, list, SSbuftype::SS_BUF_STREAM_OGG);
+	return loadSounds(list, SSbuftype::SS_BUF_STREAM_OGG);
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////
 inline Ogre::String
-SoundHandler::loadDirectSounds(rrh::ResourceHandler& rh,
-                               const std::vector<Ogre::String>& list)
+SoundHandler::loadDirectSounds(const std::vector<Ogre::String>& list)
 {
-	return loadSounds(rh, list, SSbuftype::SS_BUF_LOADED);
+	return loadSounds(list, SSbuftype::SS_BUF_LOADED);
 }
 
 

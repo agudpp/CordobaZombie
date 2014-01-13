@@ -55,7 +55,7 @@ namespace mm {
 ////////////////////////////////////////////////////////////////////////////////
 SoundManager::SoundManager() :
     mCam(0)
-,   mOpenALcontext(0)
+,   mResourceHandler(0)
 ,   mOpenALHandler(0)
 {
 	mActiveSounds.reserve(NUM_PARALLEL_SOUNDS);
@@ -201,28 +201,36 @@ SoundManager::playExistentSound(ActiveSound& s, float gain, bool repeat)
 /**************************    INITIALIZATION    ******************************/
 
 void
-SoundManager::SoundManager::setOpenALHandler(OpenALHandler* handler)
+SoundManager::setResourceHandler(rrh::ResourceHandler* rh)
 {
-    ASSERT(handler);
-    mOpenALHandler = handler;
+    ASSERT(rh);
+    mResourceHandler = rh;
+}
 
-    ASSERT(mOpenALHandler->hasDevice());
-    ASSERT(mOpenALHandler->hasContext());
 
+////////////////////////////////////////////////////////////////////////////////
+void
+SoundManager::setOpenALHandler(OpenALHandler* handler)
+{
     float ori[6] = {0.0, 0.0, -1.0,  // 'at' vector (i.e. my nose)
                     0.0, 1.0, 0.0};  // 'up' vector (i.e. top of head)
 
-    /* Initialize listener propperties */
+    ASSERT(handler);
+    ASSERT(handler->hasDevice());
+    ASSERT(handler->hasContext());
+    mOpenALHandler = handler;
+
+    // Initialize listener properties
     alListenerf(AL_GAIN, 1.0f);
     alListener3f(AL_POSITION, 0.0, 0.0, 0.0);
     alListener3f(AL_VELOCITY, 0.0, 0.0, 0.0);
     alListenerfv(AL_ORIENTATION, ori);
-
 }
+
 
 ////////////////////////////////////////////////////////////////////////////////
 std::vector<std::string>
-SoundManager::getAvailableSoundDevices()
+SoundManager::getAvailableSoundDevices() const
 {
     // we will use the openal handler here
     ASSERT(mOpenALHandler);
@@ -235,12 +243,39 @@ SoundManager::getAvailableSoundDevices()
 
 ////////////////////////////////////////////////////////////////////////////////
 std::string
-SoundManager::getSoundDevice()
+SoundManager::getSoundDevice() const
 {
     // we will use the openal handler here
     ASSERT(mOpenALHandler);
     return mOpenALHandler->deviceName();
 }
+
+
+////////////////////////////////////////////////////////////////////////////////
+bool
+SoundManager::hasResourceHandler() const
+{
+    if (!mResourceHandler)
+        return false;
+    else if (mResourceHandler->getResourceRootPath().empty())
+        return false;
+    else
+        return true;  // We're not sure, but things seem ok
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+bool
+SoundManager::hasOpenALcontext() const
+{
+    if (!mOpenALHandler)
+        return false;
+    else if (!mOpenALHandler->hasContext())
+        return false;
+    else
+        return true;
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 SSerror
@@ -275,8 +310,7 @@ SoundManager::removeSoundSources(unsigned int numSources)
 
 ////////////////////////////////////////////////////////////////////////////////
 SSerror
-SoundManager::loadSound(rrh::ResourceHandler& rh,
-                        const Ogre::String& sName,
+SoundManager::loadSound(const Ogre::String& sName,
                         SSformat format,
                         SSbuftype type)
 {
@@ -291,9 +325,12 @@ SoundManager::loadSound(rrh::ResourceHandler& rh,
 	}
 
     // Compose audio file absolute path
-    bool found = rh.getResourcePath(SOUNDS_RESOURCE_GROUP_NAME,
-                                    sName,
-                                    sNameFullPath);
+	if (!hasResourceHandler()) {
+	    debugERROR("The ResourceHandler has not yet been properly set\n");
+	    return SSerror::SS_FILE_NOT_FOUND;
+	}
+    bool found = mResourceHandler->getResourcePath(
+                        SOUNDS_RESOURCE_GROUP_NAME, sName, sNameFullPath);
     if (!found) {
         debugWARNING("Sound file \"%s\" could not be found.\n", sName.c_str());
         return SSerror::SS_FILE_NOT_FOUND;
@@ -325,14 +362,15 @@ SoundManager::unloadSound(const Ogre::String& sName)
 	return;
 }
 
+
 ////////////////////////////////////////////////////////////////////////////////
 void
 SoundManager::destroyAll(void)
 {
-    /* Stop and erase remaining active sounds */
+    // Stop and erase remaining active sounds
     globalStop();
 
-    /* Delete sources */
+    // Delete sources
     for (int i = mAvailableLSS.size()-1 ; i >= 0 ; i--) {
             delete mAvailableLSS[i];
     }
@@ -342,10 +380,10 @@ SoundManager::destroyAll(void)
     }
     mAvailableSSS.clear();
 
-    /* Free buffers */
+    // Free buffers
     for (HashStrBuff::iterator it = mLoadedBuffers.begin() ;
             it != mLoadedBuffers.end() ; it++) {
-        // Can't call clear() method directly because values are pointers.
+        // Can't call clear() member directly because values are pointers.
         delete it->second;
     }
     mLoadedBuffers.clear();
@@ -609,7 +647,7 @@ SoundManager::globalFadeIn(const Ogre::Real& time)
 
 ////////////////////////////////////////////////////////////////////////////////
 bool
-SoundManager::isPlayingEnvSound(const Ogre::String& sName)
+SoundManager::isPlayingEnvSound(const Ogre::String& sName) const
 {
 	// Check whether "sName" is a playing environmental sound.
 	for (unsigned int i=0 ; i < mEnvSounds.size() ; i++) {
@@ -623,7 +661,7 @@ SoundManager::isPlayingEnvSound(const Ogre::String& sName)
 
 ////////////////////////////////////////////////////////////////////////////////
 bool
-SoundManager::isPlayingEnvSound(EnvSoundId id)
+SoundManager::isPlayingEnvSound(EnvSoundId id) const
 {
 	if (!id) return false;
 	for (unsigned int i=0 ; i < mEnvSounds.size() ; i++) {
@@ -637,7 +675,7 @@ SoundManager::isPlayingEnvSound(EnvSoundId id)
 
 ////////////////////////////////////////////////////////////////////////////////
 bool
-SoundManager::isActiveEnvSound(const Ogre::String& sName)
+SoundManager::isActiveEnvSound(const Ogre::String& sName) const
 {
 	// Check whether "sName" is an active environmental sound.
 	for (unsigned int i=0 ; i < mEnvSounds.size() ; i++) {
@@ -652,7 +690,7 @@ SoundManager::isActiveEnvSound(const Ogre::String& sName)
 
 ////////////////////////////////////////////////////////////////////////////////
 bool
-SoundManager::isActiveEnvSound(EnvSoundId id)
+SoundManager::isActiveEnvSound(EnvSoundId id) const
 {
 	if (!id) return false;
 	for (unsigned int i=0 ; i < mEnvSounds.size() ; i++) {
@@ -667,7 +705,7 @@ SoundManager::isActiveEnvSound(EnvSoundId id)
 
 ////////////////////////////////////////////////////////////////////////////////
 bool
-SoundManager::getEnvSoundRepeat(const Ogre::String& sName)
+SoundManager::getEnvSoundRepeat(const Ogre::String& sName) const
 {
 	// If the environmental sound "sName" exists, return its repeat value.
 	for (unsigned int i=0 ; i < mEnvSounds.size() ; i++) {

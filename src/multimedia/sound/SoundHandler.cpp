@@ -145,8 +145,7 @@ SoundHandler::Playlist::~Playlist(void)
 
 ////////////////////////////////////////////////////////////////////////////////
 Ogre::String
-SoundHandler::loadSounds(rrh::ResourceHandler& rh,
-                         const std::vector<Ogre::String>& list,
+SoundHandler::loadSounds(const std::vector<Ogre::String>& list,
                          SSbuftype bufType)
 {
 	SSerror err(SSerror::SS_NO_ERROR);
@@ -161,19 +160,19 @@ SoundHandler::loadSounds(rrh::ResourceHandler& rh,
 		if (0 == strcasecmp(sName.substr(pos).c_str(),"WAV")) {
 			// Load the file.
 			if (bufType == SSbuftype::SS_BUF_LOADED) {
-				err = sSoundManager.loadSound(rh, sName, SSformat::SS_WAV,
+				err = sSoundManager.loadSound(sName, SSformat::SS_WAV,
 				                              SSbuftype::SS_BUF_LOADED);
 			} else { // bufType == SSbuftype::SS_BUF_STREAM_WAV
-				err = sSoundManager.loadSound(rh, sName, SSformat::SS_WAV,
+				err = sSoundManager.loadSound(sName, SSformat::SS_WAV,
 				                              SSbuftype::SS_BUF_STREAM_WAV);
 			}
 		} else if (0 == strcasecmp(sName.substr(pos).c_str(),"OGG")) {
 			// Load the file
 			if (bufType == SSbuftype::SS_BUF_LOADED) {
-				err = sSoundManager.loadSound(rh, sName, SSformat::SS_OGG,
+				err = sSoundManager.loadSound(sName, SSformat::SS_OGG,
 				                              SSbuftype::SS_BUF_LOADED);
 			} else { // bufType == SSbuftype::SS_BUF_STREAM_OGG
-				err = sSoundManager.loadSound(rh, sName, SSformat::SS_OGG,
+				err = sSoundManager.loadSound(sName, SSformat::SS_OGG,
 				                              SSbuftype::SS_BUF_STREAM_OGG);
 			}
 		} else {
