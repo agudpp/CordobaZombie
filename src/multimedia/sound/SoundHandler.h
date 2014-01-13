@@ -27,6 +27,7 @@
 #include "SoundEnums.h"
 #include "SoundManager.h"
 #include "SoundSource.h"
+#include <random_generator/RandomGenerator.h>
 
 
 // Forward declarations
@@ -590,6 +591,7 @@ private:
 	typedef void* EnvSoundId;
 
 	static SoundManager&	sSoundManager;
+    tool::RandomGenerator   mRNG;
 	std::vector<Playlist*>	mPlaylists;
 	std::vector<EnvSoundId>	mFinishedPlaylists;
 	std::vector<EnvSoundId>	mPausedPlaylists;

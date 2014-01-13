@@ -77,13 +77,29 @@ struct RandomGenerator
      * @remarks every possible ordering of the sequence is equally likely
      */
     template<typename _RandomAccessIterator>
-    inline void
-    randomShuffle(_RandomAccessIterator __first,
-                  _RandomAccessIterator __last) const;
+    void
+    randomShuffle(_RandomAccessIterator first,
+                  _RandomAccessIterator last) const;
 
 private:
     drand48_data* RNGstate;
 };
+
+
+/******************************************************************************/
+/****************************     INLINES     *********************************/
+
+template<typename _RandomAccessIterator>
+inline void
+RandomGenerator::randomShuffle(_RandomAccessIterator first,
+                               _RandomAccessIterator last) const
+{
+    if (first == last)
+        return;  // Single element, nothing to shuffle
+    for (_RandomAccessIterator it = first + 1 ; it != last ; it++)
+        std::iter_swap(it, first + (getStdUniform_L() % ((it-first) + 1)));
+}
+///////////////////////////////////////////////////////////////////////////////
 
 } /* namespace tool */
 

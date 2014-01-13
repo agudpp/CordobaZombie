@@ -25,8 +25,7 @@
 
 namespace mm {
 
-
-// SoundHandler's static member initialization.
+// SoundHandler's static member initialization
 SoundManager& SoundHandler::sSoundManager = SoundManager::getInstance();
 
 
@@ -575,12 +574,11 @@ SoundHandler::startPlaylist(const Ogre::String& name,
 	// If we're at the beginning and random order was chosen,
 	// shuffle the play order.
 	if ((pl->mCurrent == 0) && (pl->mState & PLAYLIST_RANDOM_ORDER)) {
-		std::random_shuffle(pl->mPlayOrder.begin(), pl->mPlayOrder.end());
+		mRNG.randomShuffle(pl->mPlayOrder.begin(), pl->mPlayOrder.end());
 	}
 	// If random silence was chosen, well then, you know...
 	if (pl->mState & PLAYLIST_RANDOM_SILENCE) {
-		pl->mSilence = MIN_SILENCE +
-					(std::rand()/((float)RAND_MAX))*(MAX_SILENCE-MIN_SILENCE);
+		pl->mSilence = mRNG.getUniform_D(MIN_SILENCE, MAX_SILENCE);
 	}
 	// Start current sound as a (registered) Environmental Sound.
 	err = sSoundManager.playEnvSound(pl->mList[pl->mPlayOrder[pl->mCurrent]],

@@ -122,17 +122,5 @@ RandomGenerator::getStdUniform_L(bool negatives) const
 ///////////////////////////////////////////////////////////////////////////////
 
 
-template<typename RandomAccessIterator>
-inline void
-RandomGenerator::randomShuffle(RandomAccessIterator first,
-                               RandomAccessIterator last) const
-{
-    if (first == last)
-        return;  // Single element, nothing to shuffle
-    for (RandomAccessIterator it = first + 1 ; it != last ; it++)
-        std::iter_swap(it, first + (getStdUniform_L() % ((it-first) + 1)));
-}
-///////////////////////////////////////////////////////////////////////////////
-
 
 } /* namespace tool */
