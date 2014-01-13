@@ -62,6 +62,8 @@ OrbitCamera::OrbitCamera(Ogre::Camera* camera,
 ,   mCamVelocityFactor(1.f)
 ,   mGlobalTimeFrame(globalTimeFrame)
 ,   mText(0)
+,   mYawDegree(0.f)
+,   mPitchDegree(0.f)
 {
     ASSERT(camera);
     ASSERT(manager);

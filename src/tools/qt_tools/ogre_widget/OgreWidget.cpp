@@ -144,6 +144,11 @@ OgreWidget::mouseMoveEvent(QMouseEvent* event)
 {
     emit mouseMoveEventSig(event);
 }
+void
+OgreWidget::wheelEvent(QWheelEvent * event)
+{
+    emit wheelEventSig(event);
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 bool

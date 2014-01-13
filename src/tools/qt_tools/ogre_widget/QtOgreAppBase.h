@@ -99,6 +99,8 @@ protected slots:
     OgreWidgetMouseReleaseEvent(QMouseEvent* event){event->ignore();}
     virtual void
     OgreWidgetMouseMoveEvent(QMouseEvent* event){event->ignore();}
+    virtual void
+    OgreWidgetWheelEvent(QWheelEvent * event){event->ignore();}
 
     // @brief Resize signal received from the OgreWidget
     //

@@ -1,0 +1,83 @@
+/*
+ * ConfigAssetGUI.cpp
+ *
+ *  Created on: Jan 13, 2014
+ *      Author: agustin
+ */
+
+#include "ConfigAssetGUI.h"
+
+namespace tool {
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+ConfigAssetGUI::ConfigAssetGUI(QWidget* parent) :
+    QWidget(parent)
+,   mCurrentAsset(0)
+{
+    ui.setupUi(this);
+
+    // connect signals and slots
+    connect(ui.saveAssetBtn, SIGNAL(clicked(bool)),
+            this, SLOT(onSaveButtonClicked(bool)));
+
+}
+
+////////////////////////////////////////////////////////////////////////////////
+ConfigAssetGUI::~ConfigAssetGUI()
+{
+    // TODO Auto-generated destructor stub
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void
+ConfigAssetGUI::setAssetToConfigure(core::Asset* asset)
+{
+    ASSERT(false && "TODO: IMPLEMENT THIS");
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void
+ConfigAssetGUI::onMeshBtnClicked(bool)
+{
+    ASSERT(false && "TODO: IMPLEMENT THIS");
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void
+ConfigAssetGUI::onColl2DBtnClicked(bool)
+{
+    ASSERT(false && "TODO: IMPLEMENT THIS");
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void
+ConfigAssetGUI::onPhysicsBtnClicked(bool)
+{
+    ASSERT(false && "TODO: IMPLEMENT THIS");
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+void
+ConfigAssetGUI::onGraphicRepClicked(int)
+{
+    ASSERT(false && "TODO: IMPLEMENT THIS");
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void
+ConfigAssetGUI::onColl2DRepClicked(int)
+{
+    ASSERT(false && "TODO: IMPLEMENT THIS");
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void
+ConfigAssetGUI::onPhysicRepClicked(int)
+{
+    ASSERT(false && "TODO: IMPLEMENT THIS");
+}
+
+
+}
