@@ -455,7 +455,7 @@ public:
 
 	/*********************************************************************/
 	/******************    ENVIRONMENTAL SOUNDS    ***********************/
-private:
+public:
 	/**
 	 ** @brief
 	 ** Searchs an environmental sound by given sName,

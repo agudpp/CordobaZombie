@@ -12,7 +12,6 @@
 #include <OgreOverlayManager.h>
 
 #include <ResourceGroup.h>
-#include <global_data/GlobalData.h>
 #include <game_states/states/MenuMainState/helper/MainMenuHelper.h>
 #include <frontend/FEManager.h>
 #include <sound/SoundHandler.h>
@@ -58,7 +57,7 @@ MainMenuMainState::MainMenuMainState() :
         for (int i=0 ; i < NUM_SOUNDS ; i++) {
             if (!SOUNDS_NAME[i])
                 continue;
-            mm::SSerror err = mSM.loadSound(*GlobalData::rscHandler, SOUNDS_NAME[i]);
+            mm::SSerror err = mSM.loadSound(SOUNDS_NAME[i]);
             if (err != mm::SSerror::SS_NO_ERROR)
                 debugERROR("Couldn't load sound \"%s\"\n", SOUNDS_NAME[i]);
         }
@@ -169,8 +168,7 @@ MainMenuMainState::load(void)
     mm::SoundManager* soundMngr = sSoundHandler->soundManager();
     for (unsigned int i = 0; i < NUM_SOUNDS; ++i) {
         if (SOUNDS_NAME[i]) {
-            mm::SSerror err = soundMngr->loadSound(*GlobalData::rscHandler,
-                                                   SOUNDS_NAME[i]);
+            mm::SSerror err = soundMngr->loadSound(SOUNDS_NAME[i]);
             // this we will let it pass, as not critical for now.
             if (err != mm::SSerror::SS_NO_ERROR) {
                 debugERROR("Error loading sound %s.\n", SOUNDS_NAME[i]);

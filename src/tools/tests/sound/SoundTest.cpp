@@ -156,10 +156,11 @@ SoundTest::SoundTest() :
 {
     // Setup resources system
     testBEGIN("Indexando archivos de audio del sistema.\n");
-    if (!loadResources()) {
-        testFAIL("Falló la carga de recursos.\n");
+    if (!findResources()) {
+        testFAIL("Falló la búsqueda de recursos.\n");
         exit(EXIT_FAILURE);
     }
+    mSH.setResourceHandler(mRH);
     testSUCCESS("%d archivos de recursos indexados con éxito.\n",
                 SOUNDTEST_NUM_RC_FILES);
 
@@ -175,44 +176,13 @@ SoundTest::SoundTest() :
     printDevices();
     testSUCCESS("SoundHandler creado correctamente.\n");
 
-    // Load sounds into the system.
-    // Streaming buffers.
-    std::vector<Ogre::String> sounds;
-    sounds.push_back("fxA20.ogg"); // "water sound"
-    sounds.push_back("Siren.ogg");
-    sounds.push_back("Siren.wav");
-    testBEGIN("Cargando sonidos streaming.\n");
-    Ogre::String fails = mSH.loadStreamSounds(*mRH, sounds);
-    if (fails.empty()) {
-        testSUCCESS("%lu sonidos streaming cargados.\n", sounds.size());
-    } else {
-        testFAIL("Falló la carga de algunos de los archivos:\n%s",
-                 fails.c_str());
+    // Load audio files into the sound system
+    testBEGIN("Cargando archivos de audio dentro del sound system.\n");
+    if (!loadSoundFiles()) {
+        testFAIL("Falló la carga de recursos.\n");
         exit(EXIT_FAILURE);
     }
-    // Direct (loaded) buffers.
-    sounds.clear();
-    sounds.push_back("roar.wav");
-    sounds.push_back("fxM2.ogg"); // "button pressed"
-    sounds.push_back("fxZ1.ogg");
-    sounds.push_back("fxZ2.ogg");
-    sounds.push_back("fxZ3.ogg");
-    sounds.push_back("fxZ4.ogg");
-    sounds.push_back("fxZ5.ogg");
-    sounds.push_back("fxZ6.ogg");
-    sounds.push_back("fxZ7.ogg"); // "ferneeeee" variant 2
-    sounds.push_back("fxZ8.ogg");
-    sounds.push_back("fxZ9.ogg"); // "ole"
-    sounds.push_back("fxZ10.ogg");
-    testBEGIN("Cargando sonidos directos (loaded)\n");
-    fails = mSH.loadDirectSounds(*mRH, sounds);
-    if (fails.empty()) {
-        testSUCCESS("%lu sonidos directos cargados.\n", sounds.size());
-    } else {
-        testFAIL("Falló la carga de algunos de los archivos:\n%s",
-                 fails.c_str());
-        exit(EXIT_FAILURE);
-    }
+    testSUCCESS("Archivos de audio cargados con éxito.\n");
 
     // Create sound sources to play the sounds.
     testBEGIN("%s", "Creando sources para streaming sounds.\n");
@@ -245,7 +215,7 @@ SoundTest::~SoundTest()
 
 ///////////////////////////////////////////////////////////////////////////////
 bool
-SoundTest::loadResources()
+SoundTest::findResources()
 {
     TiXmlDocument cfgFile;
     const TiXmlElement* xmlElem(0);
@@ -299,6 +269,54 @@ SoundTest::loadResources()
             return false;
         }
     }
+
+    return true;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+bool
+SoundTest::loadSoundFiles()
+{
+    // Streaming buffers.
+    std::vector<Ogre::String> sounds;
+    sounds.push_back("fxA20.ogg"); // "water sound"
+    sounds.push_back("Siren.ogg");
+    sounds.push_back("Siren.wav");
+    testBEGIN("Cargando sonidos streaming.\n");
+    Ogre::String fails = mSH.loadStreamSounds(sounds);
+    if (fails.empty()) {
+        testSUCCESS("%lu sonidos streaming cargados.\n", sounds.size());
+    } else {
+        testFAIL("Falló la carga de algunos de los archivos:\n%s",
+                 fails.c_str());
+        return false;
+    }
+
+    // Direct (loaded) buffers.
+    sounds.clear();
+    sounds.push_back("roar.wav");
+    sounds.push_back("fxM2.ogg"); // "button pressed"
+    sounds.push_back("fxZ1.ogg");
+    sounds.push_back("fxZ2.ogg");
+    sounds.push_back("fxZ3.ogg");
+    sounds.push_back("fxZ4.ogg");
+    sounds.push_back("fxZ5.ogg");
+    sounds.push_back("fxZ6.ogg");
+    sounds.push_back("fxZ7.ogg"); // "ferneeeee" variant 2
+    sounds.push_back("fxZ8.ogg");
+    sounds.push_back("fxZ9.ogg"); // "ole"
+    sounds.push_back("fxZ10.ogg");
+    testBEGIN("Cargando sonidos directos (loaded)\n");
+    fails = mSH.loadDirectSounds(sounds);
+    if (fails.empty()) {
+        testSUCCESS("%lu sonidos directos cargados.\n", sounds.size());
+    } else {
+        testFAIL("Falló la carga de algunos de los archivos:\n%s",
+                 fails.c_str());
+        return false;
+    }
+
     return true;
 }
 
@@ -506,7 +524,7 @@ SoundTest::initSoundsPlayback(void)
         return false;
     }
     ASSERT(mSH.existsPlaylist(playlist[3]));
-    err = mSH.startPlaylist(playlist[3], 0.5);
+    err = mSH.startPlaylist(playlist[3], 0.1);
     if (err == mm::SSerror::SS_NO_ERROR) {
         testSUCCESS("Playlist \"%s\" creado e iniciado con éxito.\n",
                     playlist[2].c_str());

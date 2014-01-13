@@ -41,48 +41,63 @@ public:
     SoundTest();
     ~SoundTest();
 
-    /** @brief Load additional stuff before launching update cycle.
-     **/
+    /**
+     * @brief Load additional stuff before launching update cycle.
+     */
     void
     loadAditionalData(void);
 
-    /** @brief Function called every frame. Use GlobalObjects::lastTimeFrame
-     **/
+    /**
+     * @brief Function called every frame. Use GlobalObjects::lastTimeFrame
+     */
     void
     update();
 
 private:
-    /** @brief Initalize resources system.
-     ** @return true on success | false otherwise
-     ** @remarks Requires file "EngineConfig.xml" properly set in CWD
-     **/
+    /**
+     * @brief Initalize resources system.
+     * @return true on success | false otherwise
+     * @remarks Requires file "EngineConfig.xml" properly set in CWD
+     */
     bool
-    loadResources(void);
+    findResources(void);
 
-    /** @brief Initalize various sounds playback.
-     ** @return true on success | false otherwise
-     **/
+    /**
+     * @brief Loads the needed sounds into the sound system.
+     * @remarks findResources() should have been called beforehand.
+     */
+    bool
+    loadSoundFiles(void);
+
+    /**
+     * @brief Initalize various sounds playback.
+     * @return true on success | false otherwise
+     */
     bool
     initSoundsPlayback(void);
 
-    /** @brief Interpret keyboard & mouse input to handle camera
-     **/
+    /**
+     * @brief Interpret keyboard & mouse input to handle camera
+     */
     void
     handleCameraInput(void);
 
-    /** @brief Interpret keyboard input to handle the sound system.
-     **/
+    /**
+     * @brief Interpret keyboard input to handle the sound system.
+     */
     void
     handleSoundInput(void);
 
-    /** @brief Locate and print out available audio devices
-     **/
+    /**
+     * @brief Locate and print out available audio devices
+     */
     void
     printDevices(void);
 
-    /** @brief Load a plane 2D floor into Ogre world.
-     ** @return true on success | false otherwise
-     **/
+    /**
+     * @brief Load a 2D floor plane into the rendered Ogre world.
+     * @return true on success | false otherwise
+     */
     bool
     loadFloor(void);
 

@@ -55,7 +55,7 @@ RandomGenerator::seed(unsigned int s)
     }
     int ok = srand48_r(static_cast<long int>(s), RNGstate);
 #ifdef DEBUG
-    if (!ok)
+    if (ok < 0)
         debugERROR("RNG seeding failed\n");
 #endif
 }
