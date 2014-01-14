@@ -311,7 +311,7 @@ protected:
 	 ** @return
 	 ** SS_NO_ERROR			Audio file "sName" successfully loaded as buffer.
 	 ** SS_NO_BUFFER		Audio file "sName" had already been loaded.
-	 ** SS_NO_MEMORY		Not enough memory to work with. Go buy some.
+	 ** SS_NO_MEMORY		System ran out of memory. Go buy some, quick!
 	 ** SS_INVALID_FILE		Unsupported/erroneous file audio format
 	 ** SS_FILE_NOT_FOUND	Audio file not found. Was the ResourceHandler set?
 	 ** SS_INTERNAL_ERROR	Something went wrong. Does an OpenAL context exist?

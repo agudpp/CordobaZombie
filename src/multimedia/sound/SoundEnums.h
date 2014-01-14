@@ -90,7 +90,8 @@ typedef enum {
 	SS_NO_MEMORY,
 	SS_NO_SOURCES,			  // No free sources to start playback
 	SS_NO_BUFFER,             // NULL or invalid buffer parameter
-	SS_INVALID_FILE,	  	  // Unsupported/erroneous file audio format
+    SS_INVALID_HANDLE,        // Handle is not valid in the sound system
+    SS_INVALID_FILE,          // Unsupported/erroneous file audio format
 	SS_FILE_TOO_SMALL,		  // File size insufficient for streaming playback
 	SS_FILE_NOT_FOUND,		  // Inexistent filename (sound not loaded)
 	SS_NO_BUFFER_ATTACHED,	  // Can't play, no buffers attached to source
