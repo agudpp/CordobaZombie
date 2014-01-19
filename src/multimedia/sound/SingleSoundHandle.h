@@ -27,6 +27,8 @@ namespace mm {
 
 struct SingleSoundHandle
 {
+    friend struct SoundHandler::SingleSound;
+
     SingleSoundHandle(SoundHandler& sh,
                       SoundHandler::SingleSound& ss,
                       int index);

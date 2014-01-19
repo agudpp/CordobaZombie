@@ -68,6 +68,7 @@ class SoundManager
     friend class SoundHandler;
 	friend class SoundAPI;
 	typedef void* EnvSoundId;
+	static const EnvSoundId INVALID_ENVSOUND_ID;
 
 	/* SoundSource wrapping useful for SoundManager manipulations. */
 	struct ActiveSound

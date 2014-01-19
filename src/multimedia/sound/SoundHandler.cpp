@@ -19,8 +19,10 @@
 #include <string>
 #include <strings.h>  // strcasecmp
 
-#include "SoundHandler.h"
 #include "SoundEnums.h"
+#include "SoundHandler.h"
+#include "PlaylistHandle.h"
+#include "SingleSoundHandle.h"
 
 
 namespace mm {
@@ -51,35 +53,40 @@ typedef enum {
 
 
 ////////////////////////////////////////////////////////////////////////////////
-SoundHandler::Playlist::Playlist(const Ogre::String& name) :
-	mName(name),
-	mCurrent(0),
-	mState(PLAYLIST_STOPPED | PLAYLIST_REPEAT),
-	mSilence(0.0f),
-	mTimeSinceFinish(0.0f),
-	mGain(DEFAULT_ENV_GAIN)
-{}
+SoundHandler::Playlist::Playlist() :
+	mCurrent(0)
+,	mState(PLAYLIST_STOPPED | PLAYLIST_REPEAT)
+,	mSilence(0.0f)
+,	mTimeSinceFinish(0.0f)
+,	mGain(DEFAULT_ENV_GAIN)
+,   mHandle(0)
+,   mPlayID(SoundManager::INVALID_ENVSOUND_ID)
+{
+    ASSERT(mList.empty());
+    ASSERT(mPlayOrder.empty());
+}
 
 
 ////////////////////////////////////////////////////////////////////////////////
-SoundHandler::Playlist::Playlist(const Ogre::String& name,
-								 const std::vector<Ogre::String>& list,
-								 bool  repeat,
-								 bool  randomOrder,
-								 bool  randomSilence,
-								 float silence,
-								 float gain) :
-	mName(name),
-	mList(list),
-	mCurrent(0u),
-	mState(PLAYLIST_STOPPED),
-	mSilence(silence),
-	mTimeSinceFinish(0.0f),
-	mGain(gain)
+SoundHandler::Playlist::Playlist(const std::vector<Ogre::String>& list,
+                                 bool  repeat,
+                                 bool  randomOrder,
+                                 bool  randomSilence,
+                                 float silence,
+                                 float gain) :
+	mList(list)
+,	mCurrent(0u)
+,   mState(PLAYLIST_STOPPED)
+,	mSilence(silence)
+,	mTimeSinceFinish(0.0f)
+,	mGain(gain)
+,   mHandle(0)
+,   mPlayID(SoundManager::INVALID_ENVSOUND_ID)
 {
 	// Initialize play order (if necessary, will be shuffled on play time)
 	mPlayOrder.resize(list.size());
-	for (unsigned int i=0 ; i < list.size() ; i++) { mPlayOrder[i] = i; }
+	for (unsigned int i=0 ; i < list.size() ; i++)
+	    mPlayOrder[i] = i;
 	// Set internal state according to calling parameters
 	mState |= (repeat ? PLAYLIST_REPEAT : 0)
 			| (randomOrder ? PLAYLIST_RANDOM_ORDER : 0)
@@ -88,17 +95,18 @@ SoundHandler::Playlist::Playlist(const Ogre::String& name,
 
 
 ////////////////////////////////////////////////////////////////////////////////
-SoundHandler::Playlist::Playlist(const Playlist& pl) :
-		mName(pl.mName)
-,		mList(pl.mList)
-,		mPlayOrder(pl.mPlayOrder)
-,		mCurrent(pl.mCurrent)
-,		mState(pl.mState)
-,		mSilence(pl.mSilence)
-,		mTimeSinceFinish(0.0f)
-,       mGain(pl.mGain)
+SoundHandler::Playlist::Playlist(const SoundHandler::Playlist& pl) :
+	mList(pl.mList)
+,	mPlayOrder(pl.mPlayOrder)
+,	mCurrent(pl.mCurrent)
+,	mState(pl.mState)
+,	mSilence(pl.mSilence)
+,	mTimeSinceFinish(0.0f)
+,   mGain(pl.mGain)
+,   mHandle(pl.mHandle)
+,   mPlayID(pl.mPlayID)
 {
-	// Default cpytor suffices.
+	/* Default copy ctor suffices */
 }
 
 
@@ -107,8 +115,6 @@ SoundHandler::Playlist&
 SoundHandler::Playlist::operator=(const Playlist& pl)
 {
 	if (this == &pl) return *this;
-
-	mName = pl.mName;
 
 	mList.resize(pl.mList.size());
 	for (unsigned int i=0 ; i < pl.mList.size() ; i++) {
@@ -127,6 +133,8 @@ SoundHandler::Playlist::operator=(const Playlist& pl)
 	mSilence = pl.mSilence;
 	mTimeSinceFinish = pl.mTimeSinceFinish;
 	mGain = pl.mGain;
+	mHandle = pl.mHandle;
+	mPlayID = pl.mPlayID;
 
 	return *this;
 }
@@ -135,10 +143,15 @@ SoundHandler::Playlist::operator=(const Playlist& pl)
 ////////////////////////////////////////////////////////////////////////////////
 SoundHandler::Playlist::~Playlist(void)
 {
+    // TODO: consider changing condition check to
+    //        "mPlayID != SoundManager::INALID_ENV_SOUND_ID"
 	if ((mState & PLAYLIST_PLAYING) && (mList.size() > 0)) {
 		if (sSoundManager.isActiveEnvSound(mList[mPlayOrder[mCurrent]])) {
 			sSoundManager.stopEnvSound(mList[mPlayOrder[mCurrent]]);
 		}
+	}
+	if (mHandle && mHandle->isValid()) {
+	    mHandle->mSH.deletePlaylist(*mHandle);
 	}
 }
 
@@ -541,6 +554,20 @@ SoundHandler::newPlaylist(const Ogre::String& name,
 
 
 ////////////////////////////////////////////////////////////////////////////////
+bool
+SoundHandler::existsPlaylist(const PlaylistHandle& ph) const
+{
+    for (unsigned int i=0 ; i < mPlaylists.size() ; i++) {
+        if (mPlaylists[i]->mName == name) {
+            return true;
+        }
+    }
+    return false;
+}
+
+
+
+////////////////////////////////////////////////////////////////////////////////
 void
 SoundHandler::deletePlaylist(const Ogre::String& name)
 {
@@ -761,6 +788,16 @@ SoundHandler::stopPlaylist(const Ogre::String& name, Playlist *plp)
 
 ////////////////////////////////////////////////////////////////////////////////
 SSerror
+SoundHandler::restartPlaylist(PlaylistHandle& ph)
+{
+    stopPlaylist(name, pl);
+    return startPlaylist(name, (pl ? pl->mGain : DEFAULT_ENV_GAIN), pl);
+}
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+SSerror
 SoundHandler::fadeOutPlaylist(const Ogre::String& name,
 								  const Ogre::Real& time,
 								  const bool pause)
@@ -903,6 +940,22 @@ SoundHandler::fadeInPlaylist(const Ogre::String& name,
 		mLastError = SSerror::SS_INTERNAL_ERROR;
 		return mLastError;
 }
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+const std::vector<Ogre::String>
+SoundHandler::getPlaylistSoundlist(const PlaylistHandle& ph) const
+{
+    const std::vector<Ogre::String> notFound;
+    for (unsigned int i=0 ; i < mPlaylists.size() ; i++) {
+        if (mPlaylists[i]->mName == name) {
+            return mPlaylists[i]->mList;
+        }
+    }
+    return notFound;
+}
+
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1049,6 +1102,24 @@ SoundHandler::getPlaylistRandomSilence(const Ogre::String& name, bool* found) co
 }
 
 
+
+////////////////////////////////////////////////////////////////////////////////
+void
+SoundHandler::setPlaylistState(Playlist *pl, unsigned long flags)
+{
+    pl->mState |= flags;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+void
+SoundHandler::unsetPlaylistState(Playlist *pl, unsigned long flags)
+{
+    pl->mState &= ~flags;
+}
+
+
+
 ////////////////////////////////////////////////////////////////////////////////
 #ifdef DEBUG
 void
@@ -1070,7 +1141,8 @@ SoundHandler::checkPlaylistState(const Playlist *pl) const
 			+ (pst == (PLAYLIST_PAUSED	| PLAYLIST_GLOBAL_MODE
 										| PLAYLIST_SILENCE)));
 }
-// else "checkPlaylistState(pl)" is defined in the header file
+#else
+void SoundHandler::checkPlaylistState(const Playlist *pl) const {}
 #endif
 
 }

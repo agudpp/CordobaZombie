@@ -72,9 +72,6 @@ class SoundHandler  // Top level class of the sound system
 
 	struct Playlist
 	{
-        // TODO reimplement this struct to support changes:
-        //        · two new members: mHandle and mPlayID
-        //        · one member deleted: mName
 		Playlist();  // repeat = true
 		Playlist(const std::vector<Ogre::String>& list,
 				 bool  repeat = true,
@@ -85,7 +82,7 @@ class SoundHandler  // Top level class of the sound system
 		Playlist(const Playlist& pl);
 		Playlist& operator=(const Playlist& pl);
 		~Playlist(void);
-	public:
+	private:
 		std::vector<Ogre::String>	mList;      // Sounds names list
 		std::vector<unsigned int>   mPlayOrder; // Sounds playing order
 		unsigned int				mCurrent;   // Current position in mPlayOrder
@@ -856,6 +853,8 @@ private:
 	static SoundManager&	sSoundManager;
 	SSerror                 mLastError;
     core::RandomGenerator   mRNG;
+
+    // TODO: update fields to contain new handle classes
 	std::vector<Playlist*>	mPlaylists;
 	std::vector<EnvSoundId>	mFinishedPlaylists;
 	std::vector<EnvSoundId>	mPausedPlaylists;
@@ -1003,54 +1002,6 @@ SoundHandler::addDirectSources(unsigned int N)
 }
 
 
-////////////////////////////////////////////////////////////////////////////////
-inline bool
-SoundHandler::existsPlaylist(const Ogre::String& name) const
-{
-	for (unsigned int i=0 ; i < mPlaylists.size() ; i++) {
-		if (mPlaylists[i]->mName == name) {
-			return true;
-		}
-	}
-	return false;
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-inline SSerror
-SoundHandler::restartPlaylist(const Ogre::String& name, Playlist *pl)
-{
-	stopPlaylist(name, pl);
-	return startPlaylist(name, (pl ? pl->mGain : DEFAULT_ENV_GAIN), pl);
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-inline bool
-SoundHandler::renamePlaylist(const Ogre::String& oldName, const Ogre::String& newName)
-{
-	for (unsigned int i=0 ; i < mPlaylists.size() ; i++) {
-		if (mPlaylists[i]->mName == oldName) {
-			mPlaylists[i]->mName = newName;
-			return true;
-		}
-	}
-	return false;
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-inline const std::vector<Ogre::String>
-SoundHandler::getPlaylistSounds(const Ogre::String& name) const
-{
-	const std::vector<Ogre::String> notFound;
-	for (unsigned int i=0 ; i < mPlaylists.size() ; i++) {
-		if (mPlaylists[i]->mName == name) {
-			return mPlaylists[i]->mList;
-		}
-	}
-	return notFound;
-}
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1078,29 +1029,5 @@ SoundHandler::getPlaylist(const Ogre::String& name)
 	return 0;
 }
 
-
-////////////////////////////////////////////////////////////////////////////////
-inline void
-SoundHandler::setPlaylistState(Playlist *pl, unsigned long flags)
-{
-	pl->mState |= flags;
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-inline void
-SoundHandler::unsetPlaylistState(Playlist *pl, unsigned long flags)
-{
-	pl->mState &= ~flags;
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-#ifndef DEBUG
-inline void SoundHandler::checkPlaylistState(const Playlist *pl) const {}
-// else "checkPlaylistState(pl)" is defined in the source file
-#endif
-
-}
 
 #endif /* SOUNDHANDLER_H_ */

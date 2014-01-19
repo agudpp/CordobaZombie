@@ -51,6 +51,9 @@
 
 namespace mm {
 
+// Initialization of SoundHandler static members
+const SoundManager::EnvSoundId SoundManager::INVALID_ENVSOUND_ID = -1;
+
 
 ////////////////////////////////////////////////////////////////////////////////
 SoundManager::SoundManager() :

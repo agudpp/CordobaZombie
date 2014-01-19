@@ -28,6 +28,8 @@ namespace mm {
 
 struct PlaylistHandle
 {
+    friend struct SoundHandler::Playlist;
+
     PlaylistHandle(SoundHandler& sh,
                       SoundHandler::Playlist& p,
                       int index);
