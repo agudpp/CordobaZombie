@@ -11,7 +11,7 @@
 // Forward declarations
 struct drand48_data;
 
-namespace tool {
+namespace core {
 
 struct RandomGenerator
 {

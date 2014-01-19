@@ -26,7 +26,6 @@
 namespace mm {
 
 // Initialization of SoundHandler static members
-const SingleSoundHandle INVALID_HANDLE = std::make_pair("", -1);
 SoundManager& SoundHandler::sSoundManager = SoundManager::getInstance();
 
 

@@ -109,7 +109,8 @@ typedef enum {
 	SS_FADING_OUT_AND_PAUSE = (1<<2),
 	SS_FADING_OUT	= (1<<3),
 	SS_FADING_IN	= (1<<4),
-	SS_FINISHED		= (1<<5)
+	SS_FINISHED		= (1<<5),
+	SS_SILENCE      = (1<<6)
 } SSplayback;
 
 

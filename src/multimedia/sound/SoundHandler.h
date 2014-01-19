@@ -30,25 +30,28 @@
 #include <random_generator/RandomGenerator.h>
 
 
-// Forward declarations
+// XXX Forward declarations
 namespace rrh {
-class ResourceHandler;
+    class ResourceHandler;
+}
+namespace mm {
+    struct SingleSoundHandle;   // Handle for user on sound creation
+    struct PlaylistHandle;      // Handle for user on playlist creation
 }
 
-namespace mm {
 
-// Handles returned to the user on sound creation
-typedef std::pair<const Ogre::String,const int> SingleSoundHandle;
-typedef SingleSoundHandle PlaylistHandle;
-static const SingleSoundHandle INVALID_HANDLE;
+// XXX Class/Struct definitions
+namespace mm {
 
 // For internal containers memory policies:
 static const int HANDLER_MIN_CACHE_SIZE = 10;
 
 
-// Main class of the sound system
-class SoundHandler
+class SoundHandler  // Top level class of the sound system
 {
+    friend class SingleSoundHandle;
+    friend class PlaylistHandle;
+
     struct SingleSound
     {
         // TODO implement this struct in the source file
@@ -63,7 +66,7 @@ class SoundHandler
     public:
         Ogre::String                mSoundName;
         float                       mGain;
-        SingleSoundHandle           mHandle;  // For user referencing
+        SingleSoundHandle*          mHandle;  // For user referencing
         SoundManager::EnvSoundId    mPlayID;  // For SoundManager internals
     };
 
@@ -90,7 +93,7 @@ class SoundHandler
 		float                       mSilence;   // Wait time between sounds (sec)
 		float                       mTimeSinceFinish;
 		float                       mGain;
-		PlaylistHandle              mHandle;  // For user referencing
+		PlaylistHandle*             mHandle;  // For user referencing
         SoundManager::EnvSoundId    mPlayID;  // For SoundManager internals
 	};
 
@@ -480,10 +483,10 @@ public:
      ** SS_PLAYING      Playing (maybe fading in/out)
      ** SS_PAUSED       Paused
      ** SS_FINISHED     Stopped
-     ** SS_NONE         Playlist not found
+     ** SS_NONE         SingleSound handle not found
      **/
     const SSplayback
-    getSoundPlayState(const SingleSoundHandle& name) const;
+    getSoundPlayState(const SingleSoundHandle& h) const;
 
     /**
      ** @brief
@@ -492,16 +495,11 @@ public:
      ** @return
      ** Setters: true on success | false if handle "h" was invalid
      ** Getters: condition value
-     **
-     ** @remarks
-     ** For getters, optional boolean "found" parameter will be filled with:
-     ** true    if operation successfull
-     ** false   if "h" didn't point to a valid SingleSound.
      **/
     bool setSoundGain(const SingleSoundHandle& h, float gain);
-    float getSoundGain(const SingleSoundHandle& h, bool* found=0) const;
+    float getSoundGain(const SingleSoundHandle& h) const;
     bool setSoundRepeat(const SingleSoundHandle& h, bool  repeat);
-    bool getSoundRepeat(const SingleSoundHandle& h, bool* found=0) const;
+    bool getSoundRepeat(const SingleSoundHandle& h) const;
 
 
     /*********************************************************************/
@@ -707,13 +705,14 @@ public:
      ** Get the Playlist playing state.
      **
      ** @return
-     ** SS_PLAYING      Playing (maybe in silence, or fading in/out)
-     ** SS_PAUSED       Paused  (maybe in silence)
+     ** SS_PLAYING      Playing (could be fading in/out)
+     ** SS_PAUSED       Paused
      ** SS_FINISHED     Stopped
-     ** SS_NONE         Playlist not found
+     ** SS_SILENCE      In silence (could be paused/running)
+     ** SS_NONE         Playlist handle not found
      **/
     SSplayback
-    getPlaylistPlayState(const Ogre::String& name) const;
+    getPlaylistPlayState(const PlaylistHandle& h) const;
 
     /**
      ** @brief
@@ -722,20 +721,15 @@ public:
      ** @return
      ** Setters: true on success | false if handle "h" was invalid
      ** Getters: condition value
-     **
-     ** @remarks
-     ** For getters, optional boolean "found" parameter will be filled with:
-     ** true    if operation successfull
-     ** false   if "h" didn't point to a valid Playlist.
      **/
     bool setPlaylistGain(const PlaylistHandle& h, float gain);
-    float getPlaylistGain(const PlaylistHandle& h, bool* found=0) const;
+    float getPlaylistGain(const PlaylistHandle& h) const;
     bool setPlaylistRepeat(const PlaylistHandle& h, bool  repeat);
-    bool getPlaylistRepeat(const PlaylistHandle& h, bool* found=0) const;
+    bool getPlaylistRepeat(const PlaylistHandle& h) const;
     bool setPlaylistRandomOrder(const PlaylistHandle& h, bool  random);
-    bool getPlaylistRandomOrder(const PlaylistHandle& h, bool* found=0) const;
+    bool getPlaylistRandomOrder(const PlaylistHandle& h) const;
     bool setPlaylistRandomSilence(const PlaylistHandle& h, bool  random);
-    bool getPlaylistRandomSilence(const PlaylistHandle& h, bool* found=0) const;
+    bool getPlaylistRandomSilence(const PlaylistHandle& h) const;
 
 
 	/*********************************************************************/
@@ -861,7 +855,7 @@ private:
 
 	static SoundManager&	sSoundManager;
 	SSerror                 mLastError;
-    tool::RandomGenerator   mRNG;
+    core::RandomGenerator   mRNG;
 	std::vector<Playlist*>	mPlaylists;
 	std::vector<EnvSoundId>	mFinishedPlaylists;
 	std::vector<EnvSoundId>	mPausedPlaylists;

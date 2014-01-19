@@ -14,7 +14,7 @@
 #include <debug/DebugUtil.h>
 #include <random_generator/RandomGenerator.h>
 
-namespace tool {
+namespace core {
 
 
 /**********************************************************************
