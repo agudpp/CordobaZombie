@@ -22,7 +22,7 @@ namespace mm {
 
 
 SingleSoundHandle::SingleSoundHandle(SoundHandler& sh,
-                  SoundHandler::SingleSound& ss,
+                  SoundHandler::SingleSound* ss,
                   int index) :
     mSH(sh)
 ,   mSS(ss)
@@ -34,8 +34,10 @@ SingleSoundHandle::SingleSoundHandle(SoundHandler& sh,
 
 SingleSoundHandle::~SingleSoundHandle()
 {
-    if (mSH.existsSound(*this))  // Forgot to delete reference to us?
-        mSH.deleteSound(*this);  // We do it for you!
+    if (getPlaystate() != SSplayback::SS_FINISHED &&
+        getPlaystate() != SSplayback::SS_NONE)
+        stop();  // Stop playback
+    delete mSS; // Release memory
 }
 
 
@@ -75,7 +77,7 @@ SingleSoundHandle::operator==(const SingleSoundHandle& ssh)
 bool
 SingleSoundHandle::isValid() const
 {
-    return mSH.existsSound(*this);
+    return mSH.isValidSound(*this);
 }
 
 
@@ -207,5 +209,20 @@ SingleSoundHandle::getGain(bool* found) const
         return -1.0;
     }
 }
+
+SoundHandler::SingleSound* const
+SingleSoundHandle::getSingleSound(bool* found=0) const
+{
+    if (isValid()) {
+        if (found)
+            *found = true;
+        return mSS;
+    } else {
+        if (found)
+            *found = false;
+        return 0;
+    }
+}
+
 
 } /* namespace mm */

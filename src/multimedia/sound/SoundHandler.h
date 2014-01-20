@@ -30,7 +30,7 @@
 #include <random_generator/RandomGenerator.h>
 
 
-// XXX Forward declarations
+// Forward declarations
 namespace rrh {
     class ResourceHandler;
 }
@@ -40,7 +40,7 @@ namespace mm {
 }
 
 
-// XXX Class/Struct definitions
+// Class/Struct definitions
 namespace mm {
 
 // For internal containers memory policies:
@@ -54,26 +54,28 @@ class SoundHandler  // Top level class of the sound system
 
     struct SingleSound
     {
-        // TODO implement this struct in the source file
-        // XXX  Plagiarize the Playlist struct
-        SingleSound(const Ogre::String& soundName="");  // repeat = true
+        SingleSound(const SoundHandler& sh);  // repeat = false
         SingleSound(const Ogre::String& soundName,
-                    bool  repeat = true,
+                    const SoundHandler& sh,
+                    bool  repeat = false,
                     float gain = DEFAULT_ENV_GAIN);
         SingleSound(const SingleSound& ss);
         SingleSound& operator=(const SingleSound& ss);
         ~SingleSound();
     public:
         Ogre::String                mSoundName;
+        unsigned int                mState;     // Repeat/Playstate
         float                       mGain;
-        SingleSoundHandle*          mHandle;  // For user referencing
+        SoundHandler&               mSH;
+        SingleSoundHandle*          mHandle;  // For user referencing FIXME remove?
         SoundManager::EnvSoundId    mPlayID;  // For SoundManager internals
     };
 
 	struct Playlist
 	{
-		Playlist();  // repeat = true
+		Playlist(const SoundHandler& sh);  // repeat = true
 		Playlist(const std::vector<Ogre::String>& list,
+                 const SoundHandler& sh,
 				 bool  repeat = true,
 				 bool  randomOrder = false,
 				 bool  randomSilence = false,
@@ -90,7 +92,8 @@ class SoundHandler  // Top level class of the sound system
 		float                       mSilence;   // Wait time between sounds (sec)
 		float                       mTimeSinceFinish;
 		float                       mGain;
-		PlaylistHandle*             mHandle;  // For user referencing
+        SoundHandler&               mSH;
+		PlaylistHandle*             mHandle;  // For user referencing FIXME remove?
         SoundManager::EnvSoundId    mPlayID;  // For SoundManager internals
 	};
 
@@ -115,7 +118,7 @@ public:
 	getInstance();
 
 	/*********************************************************************/
-	/***************    CTOR, DTOR & INITIALIZATIONS    ******************/
+	/************XXX    CTOR, DTOR & INITIALIZATIONS    ******************/
 private:
 	/* Prevent the compiler from generating methods to copy the instance: */
 	SoundHandler(SoundHandler const&);    // Don't implement!
@@ -131,16 +134,6 @@ private:
 	~SoundHandler();
 
 public:
-
-	/**
-	 ** @brief Return the instance of the SoundManager associated to this class
-	 **
-	 */
-	inline SoundManager*
-	soundManager(void);
-	inline const SoundManager*
-	soundManager(void) const;
-
     /**
      ** @brief
      ** Set the ResourceHandler to be used for audio files loading.
@@ -205,7 +198,7 @@ public:
 
 
 	/*********************************************************************/
-	/*****************    SOUNDS LOADING/UNLOADING    ********************/
+	/**************XXX    SOUNDS LOADING/UNLOADING    ********************/
 public:
 	/**
 	 ** @brief Loads a list of sound files, to be played in streaming fashion
@@ -289,13 +282,12 @@ public:
 
 
     /*********************************************************************/
-    /*************    SINGLE-SOUND PLAYBACK CONTROLS    ******************/
+    /**********XXX    SINGLE-SOUND PLAYBACK CONTROLS    ******************/
 public:
 
 	// TODO implement EVERY single-sound method in the source file
 	// XXX  READ THE HEADER COMMENTS, everything is said there
     // XXX  Copy the state-transition logic from the Playlist methods!!!
-	// XXX  I'd better deal with Playlists first (see below)
 
 	/**
 	 ** @brief
@@ -307,12 +299,12 @@ public:
 	 ** repeat: whether to repeat on end
 	 **
      ** @return
-     ** INVALID_HANDLE on error | Handle of generated SingleSound otherwise
+     ** Invalid handle on error | Handle of generated SingleSound otherwise
      **
      ** @remarks
      ** Sound "sName" should have been loaded into the sound system beforehand,
      ** with either loadDirectSounds() or loadStreamSounds()
-     ** If INVALID_HANDLE is returned, getError() will show an error code
+     ** If an invalid handle is returned, getError() will show an error code
      ** describing what went wrong internally:
      **  · SS_NO_ERROR         Things are OK! Why did you call getError()?
      **  · SS_NO_MEMORY        System ran out of memory. Go buy some, quick!
@@ -329,7 +321,7 @@ public:
 	 ** Whether the handle points to a valid SingleSound in the system
 	 **/
 	bool
-	existsSound(const SingleSoundHandle& h) const;
+	isValidSound(const SingleSoundHandle& h) const;
 
     /**
      ** @brief
@@ -500,7 +492,7 @@ public:
 
 
     /*********************************************************************/
-    /*************************    PLAYLISTS    ***************************/
+    /**********************XXX    PLAYLISTS    ***************************/
 public:
 
     // TODO: reimplement EVERY playlist method in the source file
@@ -550,7 +542,7 @@ public:
      ** Whether the handle points to a valid Playlist in the system
      **/
     bool
-    existsPlaylist(const PlaylistHandle& h) const;
+    isValidPlaylist(const PlaylistHandle& h) const;
 
     /**
      ** @brief
@@ -730,7 +722,7 @@ public:
 
 
 	/*********************************************************************/
-	/****************    GLOBAL PLAYBACK CONTROLS    *********************/
+	/*************XXX    GLOBAL PLAYBACK CONTROLS    *********************/
 public:
 	/**
 	 ** @brief
@@ -824,7 +816,7 @@ public:
 
 
 	/*********************************************************************/
-	/********************    AUXILIARY FUNCTIONS    **********************/
+	/*****************XXX    AUXILIARY FUNCTIONS    **********************/
 private:
 	Ogre::String
 	loadSounds(const std::vector<Ogre::String>&,
@@ -845,21 +837,23 @@ private:
 
 
 	/*********************************************************************/
-	/***********************    CLASS MEMBERS    *************************/
+	/********************XXX    CLASS MEMBERS    *************************/
 private:
-
-	typedef void* EnvSoundId;
-
-	static SoundManager&	sSoundManager;
-	SSerror                 mLastError;
-    core::RandomGenerator   mRNG;
-
-    // TODO: update fields to contain new handle classes
-	std::vector<Playlist*>	mPlaylists;
-	std::vector<EnvSoundId>	mFinishedPlaylists;
-	std::vector<EnvSoundId>	mPausedPlaylists;
-    std::vector<SingleSoundHandle> mSingles;
-    std::list<int> mFreshSingleSoundIds;
+	static const int    sInvalidIndex = -1;
+	// Core fields
+	static SoundManager& sSoundManager;
+	SSerror               mLastError;
+    core::RandomGenerator mRNG;
+    std::vector<SingleSoundHandle*> mSingleSounds;
+    std::vector<PlaylistHandle*>    mPlaylists;
+    // Efficiency booster fields
+    std::list<int>  mSingleSoundIds;
+    std::list<int>  mPlaylistIds;
+	std::vector<SoundManager::EnvSoundId>   mFinishedPlaylists;
+	std::vector<SoundManager::EnvSoundId>   mPausedPlaylists;
+    // TODO: erase commented lines below
+//    std::vector<SingleSoundHandle> mSingles;
+//    std::list<int> mFreshSingleSoundIds;
 };
 
 
@@ -876,33 +870,23 @@ SoundHandler::getInstance()
 }
 
 
-inline SoundManager*
-SoundHandler::soundManager(void)
-{
-    return &sSoundManager;
-}
-inline const SoundManager*
-SoundHandler::soundManager(void) const
-{
-    return &sSoundManager;
-}
-
-
 ////////////////////////////////////////////////////////////////////////////////
 inline SoundHandler::SoundHandler() :
     mLastError(SSerror::SS_NO_ERROR)
 {
+    mSingleSounds.reserve(HANDLER_MIN_CACHE_SIZE);
     mPlaylists.reserve(HANDLER_MIN_CACHE_SIZE);
-    mSingles.reserve(HANDLER_MIN_CACHE_SIZE);
-    for (int i=0 ; i < HANDLER_MIN_CACHE_SIZE ; i++)
-        mFreshSingleSoundIds.push_back(i);
+    for (int i=0 ; i < HANDLER_MIN_CACHE_SIZE ; i++) {
+        mSingleSoundIds.push_back(i);
+        mPlaylistIds.push_back(i);
+    }
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////
 inline SoundHandler::~SoundHandler()
 {
-    if (mPlaylists.size() > 0 && hasOpenALcontext()) {
+    if (hasOpenALcontext()) {
         // They forgot to shut us down?
         debugWARNING("Destroying SoundHandler, shutDown() forced.\n");
         shutDown();

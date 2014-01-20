@@ -32,7 +32,7 @@ SoundManager& SoundHandler::sSoundManager = SoundManager::getInstance();
 
 
 /******************************************************************************/
-/************************    LOCAL AUXILIARY STUFF    *************************/
+/*********************XXX    LOCAL AUXILIARY STUFF    *************************/
 namespace {
 
 // Playlist state bit-flags
@@ -52,13 +52,178 @@ typedef enum {
 }
 
 
+
+/******************************************************************************/
+/***********************XXX    SINGLE SOUNDS    *******************************/
+
 ////////////////////////////////////////////////////////////////////////////////
-SoundHandler::Playlist::Playlist() :
+SoundHandler::SingleSound::SingleSound(const SoundHandler& sh) :
+    mSoundName("")
+,   mState(PLAYLIST_STOPPED)
+,   mGain(DEFAULT_ENV_GAIN)
+,   mSH(sh)
+,   mHandle(0)
+,   mPlayID(SoundManager::INVALID_ENVSOUND_ID)
+{
+    /* Default ctor suffices */
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+SoundHandler::SingleSound::SingleSound(const Ogre::String& soundName,
+                                       const SoundHandler& sh,
+                                       bool  repeat,
+                                       float gain) :
+    mSoundName(soundName)
+,   mState(PLAYLIST_STOPPED | (repeat ? PLAYLIST_REPEAT : 0))
+,   mGain(gain)
+,   mSH(sh)
+,   mHandle(0)
+,   mPlayID(SoundManager::INVALID_ENVSOUND_ID)
+{
+    /* Default ctor suffices */
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+SoundHandler::SingleSound::SingleSound(const SoundHandler::SingleSound& ss) :
+    mSoundName(ss.mSoundName)
+,   mState(ss.mState)
+,   mGain(ss.mGain)
+,   mSH(ss.mSH)
+,   mHandle(ss.mHandle)
+,   mPlayID(ss.mPlayID)
+{
+    /* Default copy ctor suffices */
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+SoundHandler::SingleSound&
+SoundHandler::SingleSound::operator=(const SingleSound& ss)
+{
+    if (this == &ss) return *this;
+
+    // We copy the shuffle and repeat state, but not the ssaying state.
+    // We start stopped, and in the first sound of the list.
+    mSoundName = ss.mSoundName;
+    mState  = ss.mState;
+    mGain   = ss.mGain;
+    mSH     = ss.mSH;
+    mHandle = ss.mHandle;
+    mPlayID = ss.mPlayID;
+
+    return *this;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+SoundHandler::SingleSound::~SingleSound(void)
+{
+    // TODO: consider changing condition check to
+    //        "mPlayID != SoundManager::INALID_ENV_SOUND_ID"
+    if ((mState & PLAYLIST_PLAYING)) {
+        if (sSoundManager.isActiveEnvSound(mSoundName)) {
+            sSoundManager.stopEnvSound(mSoundName);
+        }
+    }
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+SingleSoundHandle
+SoundHandler::newSound(const Ogre::String& sName, float gain, bool repeat)
+{
+    if (!sSoundManager.isSoundLoaded(sName)) {
+        mLastError = SSerror::SS_FILE_NOT_FOUND;
+        return SingleSoundHandle(*this, 0, sInvalidIndex);  // Invalid handle
+    }
+
+    if (mSingleSoundIds.empty()) {
+        // Run out of free places, build some more
+        mSingleSounds.reserve(mSingleSounds.size() + HANDLER_MIN_CACHE_SIZE);
+        for (int i = mSingleSounds.size()
+            ; i < mSingleSounds.size() + HANDLER_MIN_CACHE_SIZE
+            ; i++)
+            mSingleSoundIds.push_back(i);
+    }
+
+    // Create the SingleSound and its handle
+    int index = mSingleSoundIds.front(); ASSERT(index >= 0);
+    mSingleSoundIds.pop_front();
+    SingleSoundHandle* newHandle = new SingleSoundHandle(
+        *this,
+        new SingleSound(sName, *this, repeat, gain),
+        index);
+    ASSERT(newHandle);
+    mSingleSounds[index] = newHandle;
+    ASSERT(isValidSound(*newHandle));
+
+    return *newHandle;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+bool
+SoundHandler::isValidSound(const SingleSoundHandle& h) const
+{
+    return (h.mSS   != 0                    &&
+            h.mIndex >  0                    &&
+            h.mIndex != sInvalidIndex        &&
+            h.mIndex <  mSingleSounds.size() &&
+            mSingleSounds[h.mIndex] == &h);
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+void
+SoundHandler::deleteSound(SingleSoundHandle& h)
+{
+    if (!isValidSound(h))
+        return;
+    if (h.getPlaystate() != SSplayback::SS_FINISHED &&
+        h.getPlaystate() != SSplayback::SS_NONE)
+        stopSound(h);  // Stop playback
+    // Reinsert handle index as fresh index
+    mSingleSoundIds.push_back(h.mIndex);
+    mSingleSounds[h.mIndex] = 0;
+    // Delete handle and all its content
+    delete h;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+SSerror
+SoundHandler::startSound(SingleSoundHandle& h)
+{
+    if (!isValidSound(h))
+        return SSerror::SS_INVALID_HANDLE;
+    SingleSound* ss = h.getSingleSound();
+
+    // TODO: continue from here, must make SoundManager generate the play index
+}
+
+
+
+
+
+
+
+
+
+
+
+/******************************************************************************/
+/**************************XXX    PLAYLISTS    ********************************/
+
+////////////////////////////////////////////////////////////////////////////////
+SoundHandler::Playlist::Playlist(const SoundHandler& sh) :
 	mCurrent(0)
 ,	mState(PLAYLIST_STOPPED | PLAYLIST_REPEAT)
 ,	mSilence(0.0f)
 ,	mTimeSinceFinish(0.0f)
 ,	mGain(DEFAULT_ENV_GAIN)
+,   mSH(sh)
 ,   mHandle(0)
 ,   mPlayID(SoundManager::INVALID_ENVSOUND_ID)
 {
@@ -69,6 +234,7 @@ SoundHandler::Playlist::Playlist() :
 
 ////////////////////////////////////////////////////////////////////////////////
 SoundHandler::Playlist::Playlist(const std::vector<Ogre::String>& list,
+                                 const SoundHandler& sh,
                                  bool  repeat,
                                  bool  randomOrder,
                                  bool  randomSilence,
@@ -80,6 +246,7 @@ SoundHandler::Playlist::Playlist(const std::vector<Ogre::String>& list,
 ,	mSilence(silence)
 ,	mTimeSinceFinish(0.0f)
 ,	mGain(gain)
+,   mSH(sh)
 ,   mHandle(0)
 ,   mPlayID(SoundManager::INVALID_ENVSOUND_ID)
 {
@@ -103,6 +270,7 @@ SoundHandler::Playlist::Playlist(const SoundHandler::Playlist& pl) :
 ,	mSilence(pl.mSilence)
 ,	mTimeSinceFinish(0.0f)
 ,   mGain(pl.mGain)
+,   mSH(pl.mSH)
 ,   mHandle(pl.mHandle)
 ,   mPlayID(pl.mPlayID)
 {
@@ -132,7 +300,8 @@ SoundHandler::Playlist::operator=(const Playlist& pl)
 	mState   = pl.mState;
 	mSilence = pl.mSilence;
 	mTimeSinceFinish = pl.mTimeSinceFinish;
-	mGain = pl.mGain;
+	mGain   = pl.mGain;
+	mSH     = pl.mSH;
 	mHandle = pl.mHandle;
 	mPlayID = pl.mPlayID;
 
@@ -151,10 +320,26 @@ SoundHandler::Playlist::~Playlist(void)
 		}
 	}
 	if (mHandle && mHandle->isValid()) {
-	    mHandle->mSH.deletePlaylist(*mHandle);
+	    mSH.deletePlaylist(*mHandle);
 	}
 }
 
+
+////////////////////////////////////////////////////////////////////////////////
+bool
+SoundHandler::isValidPlaylist(const PlaylistHandle& h) const
+{
+    return (h.mP    != 0                   &&
+            h.mIndex >  0                   &&
+            h.mIndex != sInvalidIndex       &&
+            h.mIndex <  mPlaylists.size()   &&
+            mPlaylists[h.mIndex] == &h);
+}
+
+
+
+/******************************************************************************/
+/*******************XXX    GLOBAL/GENERIC OPERATIONS    ***********************/
 
 ////////////////////////////////////////////////////////////////////////////////
 Ogre::String
@@ -232,42 +417,6 @@ SoundHandler::shutDown(void)
 	}
 	debugRED("SoundHandler shutting down.\n");
 	return;
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-SingleSoundHandle
-SoundHandler::playSound(const Ogre::String& sName,
-                        const Ogre::Real& gain,
-                        bool repeat)
-{
-    SingleSoundHandle newHandle;
-
-    if (!sSoundManager.isSoundLoaded(sName)) {
-        mLastError = SSerror::SS_FILE_NOT_FOUND;
-        return INVALID_HANDLE;
-    }
-
-    if (mFreshSingleSoundIds.empty()) {
-        // Run out of free places, build some more
-        mSingles.reserve(mSingles.size() + HANDLER_MIN_CACHE_SIZE);
-        for (int i = mSingles.size()
-            ; i < mSingles.size() + HANDLER_MIN_CACHE_SIZE
-            ; i++)
-            mFreshSingleSoundIds.push_back(i);
-    }
-
-    int index = mFreshSingleSoundIds.front();
-    ASSERT(index >= 0);
-    SingleSoundHandle newHandle = std::make_pair(sName, index);
-    mLastError = sSoundManager.playEnvSound(sName, gain, repeat, index);
-
-    // FIXME: as unique SoundManager id: use index??? use &newHandle???
-
-    mFreshSingleSoundIds.pop_front();
-    // TODO complete this method implementation
-
-    return newHandle;
 }
 
 

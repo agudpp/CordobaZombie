@@ -21,7 +21,7 @@
 namespace mm {
 
 PlaylistHandle::PlaylistHandle(SoundHandler& sh,
-                  SoundHandler::Playlist& p,
+                  SoundHandler::Playlist* p,
                   int index) :
     mSH(sh)
 ,   mP(p)
@@ -33,8 +33,10 @@ PlaylistHandle::PlaylistHandle(SoundHandler& sh,
 
 PlaylistHandle::~PlaylistHandle()
 {
-    if (mSH.existsPlaylist(*this))  // Forgot to delete reference to us?
-        mSH.deletePlaylist(*this);  // We do it for you!
+    if (getPlaystate() != SSplayback::SS_FINISHED &&
+        getPlaystate() != SSplayback::SS_NONE)
+        stop();  // Stop playback
+    delete mP; // Release memory
 }
 
 
@@ -74,7 +76,7 @@ PlaylistHandle::operator==(const PlaylistHandle& ssh)
 bool
 PlaylistHandle::isValid() const
 {
-    return mSH.existsPlaylist(*this);
+    return mSH.isValidPlaylist(*this);
 }
 
 
@@ -267,6 +269,20 @@ PlaylistHandle::getRandomSilence(bool* found) const
         if (found)
             *found = false;
         return false;
+    }
+}
+
+SoundHandler::Playlist* const
+PlaylistHandle::getPlaylist(bool* found=0) const
+{
+    if (isValid()) {
+        if (found)
+            *found = true;
+        return mP;
+    } else {
+        if (found)
+            *found = false;
+        return 0;
     }
 }
 

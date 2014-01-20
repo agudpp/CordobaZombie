@@ -30,7 +30,7 @@ struct SingleSoundHandle
     friend struct SoundHandler::SingleSound;
 
     SingleSoundHandle(SoundHandler& sh,
-                      SoundHandler::SingleSound& ss,
+                      SoundHandler::SingleSound* ss,
                       int index);
     ~SingleSoundHandle();
     SingleSoundHandle(const SingleSoundHandle& ssh);
@@ -117,11 +117,12 @@ struct SingleSoundHandle
     bool getRepeat(bool* found=0) const;
     bool setGain(float gain);
     float getGain(bool* found=0) const;
+    SoundHandler::SingleSound* const getSingleSound(bool* found=0) const;
 
 private:
     const int mIndex;              // Position index inside the handler
     SoundHandler& mSH;              // Reference to the handler
-    SoundHandler::SingleSound& mSS; // Reference to sound inside the handler
+    SoundHandler::SingleSound* mSS; // Reference to sound inside the handler
 };
 
 

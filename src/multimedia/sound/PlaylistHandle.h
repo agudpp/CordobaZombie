@@ -31,7 +31,7 @@ struct PlaylistHandle
     friend struct SoundHandler::Playlist;
 
     PlaylistHandle(SoundHandler& sh,
-                      SoundHandler::Playlist& p,
+                      SoundHandler::Playlist* p,
                       int index);
     ~PlaylistHandle();
     PlaylistHandle(const PlaylistHandle& ph);
@@ -130,11 +130,12 @@ struct PlaylistHandle
     bool getRandomOrder(bool* found=0) const;
     bool setRandomSilence(bool  random);
     bool getRandomSilence(bool* found=0) const;
+    SoundHandler::Playlist* const getPlaylist(bool* found=0) const;
 
 private:
     const int mIndex;          // Position index inside the handler
     SoundHandler& mSH;          // Reference to the handler
-    SoundHandler::Playlist& mP; // Reference to playlist inside the handler
+    SoundHandler::Playlist* mP; // Reference to playlist inside the handler
 };
 
 } /* namespace mm */
