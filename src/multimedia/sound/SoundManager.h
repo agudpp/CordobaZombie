@@ -21,9 +21,8 @@
 #ifndef SOUNDMANAGER_H_
 #define SOUNDMANAGER_H_
 
-#include <cstdint>  // uint64_t
+
 #include <vector>
-#include <tuple>
 #include <deque>
 #include <utility>	// std::pair
 #include <unordered_map>
@@ -67,10 +66,11 @@ class SoundManager
 {
     friend class SoundHandler;
 	friend class SoundAPI;
-	typedef void* EnvSoundId;
+
+	typedef int EnvSoundId;
 	static const EnvSoundId INVALID_ENVSOUND_ID;
 
-	/* SoundSource wrapping useful for SoundManager manipulations. */
+	// SoundSource wrapping
 	struct ActiveSound
 	{
 		inline ActiveSound(SoundSource*  src = 0,
@@ -155,7 +155,7 @@ private:
 
 
 	/*********************************************************************/
-	/**********************    INITIALIZATION    *************************/
+	/*******************XXX    INITIALIZATION    *************************/
 protected:
     /**
      ** @brief
@@ -258,7 +258,7 @@ protected:
 	 **
 	 ** @return
 	 ** SS_NO_ERROR			Sources successfully added.
-	 ** SS_NO_MEMORY		Insufficient memory for operation, nothing was done.
+     ** SS_NO_MEMORY        System ran out of memory. Go buy some, quick!
 	 ** SS_INTERNAL_ERROR	Unspecified.
 	 **/
 	SSerror
@@ -274,7 +274,7 @@ protected:
 	 **
 	 ** @return
 	 ** SS_NO_ERROR			Sources successfully added.
-	 ** SS_NO_MEMORY		Insufficient memory for operation, nothing was done.
+     ** SS_NO_MEMORY        System ran out of memory. Go buy some, quick!
 	 ** SS_INTERNAL_ERROR	Unspecified.
 	 **/
 	SSerror
@@ -337,10 +337,18 @@ protected:
 public:
     /**
      ** @brief
-     ** Tells whether sName is a loaded buffer in the system.
+     ** Tells whether sName is a loaded buffer in the sound system.
      **/
     bool
     isSoundLoaded(const Ogre::String& sName);
+
+    /**
+     ** @brief
+     ** Tells whether id identifies a valid environmental sound index in the
+     ** sound system.
+     **/
+    bool
+    isValidIndex(EnvSoundId id);
 
 private:
     /**
@@ -352,16 +360,12 @@ private:
      ** TODO Fix when we change this class to stop being a singleton.
      **/
     void
-    destroyAll(void);
+    shutDown(void);
 
 
 	/*********************************************************************/
-	/****************    GLOBAL PLAYBACK CONTROLS    *********************/
+	/*************XXX    GLOBAL PLAYBACK CONTROLS    *********************/
 protected:
-	/** XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX **
-	 * XXX   All these global methods should be accessed     XXX *
-	 * XXX   via the stubs implemented in the SoundHandler.  XXX */
-
 	/**
 	 ** @brief
 	 ** Updates all sounds currently active in the system.
@@ -458,221 +462,211 @@ protected:
 
 
 	/*********************************************************************/
-	/******************    ENVIRONMENTAL SOUNDS    ***********************/
+	/***************XXX    ENVIRONMENTAL SOUNDS    ***********************/
 public:
-	/**
-	 ** @brief
-	 ** Searchs an environmental sound by given sName,
-	 ** and tells whether it is currently playing.
-	 **
-	 ** @return
-	 **  true: environmental sound "sName" is playing.
-	 ** false: environmental sound "sName" is not playing |OR| it wasn't found
-	 **/
-	bool
-	isPlayingEnvSound(const Ogre::String& sName) const;
+    /**
+     ** @brief
+     ** Is the environmental sound valid?
+     **
+     ** @return
+     **  true: sID represents some valid environmental sound
+     ** false: sID does not represent any valid sound in the system
+     **
+     ** @remarks
+     ** For current implementation, "valid" environmental sounds are only those
+     ** which are playing or paused, perhaps in some fading state.
+     **/
+    bool
+    isValidEnvSound(const EnvSoundId& sID) const;
 
 	/**
 	 ** @brief
-	 ** Searchs an environmental sound by given id,
-	 ** and tells whether it is currently playing.
+	 ** Is the environmental sound playing?
 	 **
 	 ** @return
-	 **  true: environmental sound was found and is playing.
-	 ** false: environmental sound is not playing |OR| it wasn't found.
+	 **  true: sID (is valid and) is some playing environmental sound
+	 ** false: sID is not playing |OR| is invalid
 	 **/
 	bool
-	isPlayingEnvSound(EnvSoundId id=0) const;
+	isPlayingEnvSound(const EnvSoundId& sID) const;
 
 	/**
 	 ** @brief
-	 ** Searchs an environmental sound by given sName,
-	 ** and tells whether it is currently active (viz. playing or paused)
+	 ** Is the environmental sound going to repeat on end?
 	 **
 	 ** @return
-	 **  true: environmental sound "sName" is active.
-	 ** false: environmental sound "sName" is not active |OR| it wasn't found
+	 **  true: sID (is valid and) has the repeat option turned on
+	 ** false: sID has the repeat option turned off |OR| is invalid
 	 **/
 	bool
-	isActiveEnvSound(const Ogre::String& sName) const;
-
-	/**
-	 ** @brief
-	 ** Searchs an environmental sound by given id,
-	 ** and tells whether it is currently active (viz. playing or paused)
-	 **
-	 ** @return
-	 **  true: environmental sound was found and is active.
-	 ** false: environmental sound is not active |OR| it wasn't found.
-	 **/
-	bool
-	isActiveEnvSound(EnvSoundId id=0) const;
-
-	/**
-	 ** @brief
-	 ** Tells whether environmental sound "sName" was started with repeat.
-	 **
-	 ** @return
-	 **  true: "sName" is an active environmental sound with repeat option.
-	 ** false: "sName" is an active environmental sound with NO repeat option,
-	 **        or "sName" is NOT an active environmental sound
-	 **/
-	bool
-	getEnvSoundRepeat(const Ogre::String& sName) const;
+	getEnvSoundRepeat(const EnvSoundId& sID) const;
 
 protected:
 	/**
 	 ** @brief
-	 ** Plays audio file "sName" as an environmental sound.
-	 ** i.e. no orientation, no distance fade.
+	 ** Create a new environmental sound from audio file "sName", and play it
 	 **
-	 ** @remarks
-	 ** Sound "sName" should have already been loaded with loadSound()
-	 ** At most one environmental sound "sName" can be active at any time.
-	 ** That is, if the file "sName" is already playing as an env. sound,
-	 ** calls to playEnvSound(sName) will return sucessfully but will NOT
-	 ** start any new playback.
-	 ** This function affects ONLY PAUSED OR NEW SOUNDS.
-	 ** Nothing will be done if "sName" was playing or in a fading state.
+     ** @param
+     **    sID: storage for the id of the new sound
+     **  sName: name of the audio file to play
+     **   gain: default volume of the sound, in [ 0.0 , 1.0 ] scale
+     ** repeat: whether to repeat on end
+     **
+     ** @return
+     ** SS_NO_ERROR         New sound started, "sID" is now a valid EnvSoundId
+     ** SS_NO_MEMORY        System ran out of memory. Go buy some, quick!
+     ** SS_NO_SOURCES       No available sources to play sound
+     ** SS_FILE_NOT_FOUND   Sound "sName" not found (no buffer "sName" loaded)
+     ** SS_INTERNAL_ERROR   Unspecified
+     **
+     ** @remarks
+     ** Environmental sounds have no orientation nor distance fade.
+     ** They are always attached to the listener, thus heard in first person.
+     ** Sound "sName" should have already been loaded with loadSound()
+     ** On success "sID" will identifying the new sound inside the system.
+     ** This is the id which shall be passed for later sound manipulations.
+	 **/
+    SSerror
+    startNewEnvSound(EnvSoundId& sID,
+                     const Ogre::String& sName,
+                     const Ogre::Real& gain = DEFAULT_ENV_GAIN,
+                     bool repeat = false);
+
+	/**
+	 ** @brief
+	 ** Play the (supposedly paused) environmental sound "sID"
 	 **
 	 ** @param
-	 **  sName: name of the audio file to play
-	 **   gain: volume of the sound, in [ 0.0 , 1.0 ] scale (default: 0.07)
-	 ** repeat: whether to repeat on end (default: false)
-	 **     id: if not NULL, give an ID to this sound for tracking
+     ** sID: internal sound id, generated with startNewEnvSound()
 	 **
 	 ** @return
-	 ** SS_NO_ERROR			Playback started
-	 ** SS_NO_SOURCES		No available sources to play sound.
-	 ** SS_FILE_NOT_FOUND	Sound "sName" not found (no buffer "sName" loaded).
-	 ** SS_INTERNAL_ERROR	Unspecified
+	 ** SS_NO_ERROR         Playback started
+	 ** SS_NO_SOURCES       No available sources to play sound.
+	 ** SS_INVALID_HANDLE   "sID" didn't match any valid environmental sound
+	 ** SS_INTERNAL_ERROR   Unspecified
+     **
+     ** @remarks
+     ** This function affects only paused environmental sounds,
+     ** starting playback again at the correct point in time.
+     ** Nothing will be done if the sound existed and was playing,
+     ** or in some (any!) fading state.
 	 **/
 	SSerror
-	playEnvSound(const Ogre::String& sName,
-				 const Ogre::Real& gain = DEFAULT_ENV_GAIN,
-				 bool repeat = false,
-				 EnvSoundId id = 0);
+	playEnvSound(const EnvSoundId& sID);
 
 	/**
 	 ** @brief
-	 ** Pauses environmental sound "sName"
+     ** Pause the environmental sound "sID"
 	 **
-	 ** @param
-	 ** sName: name of the audio file to pause
-	 **    id: if not NULL, only EnvSound with matching id will be paused
-	 **
+     ** @param
+     ** sID: internal sound id, generated with startNewEnvSound()
+     **
+     ** @return
+     ** SS_NO_ERROR         Playback paused
+     ** SS_INVALID_HANDLE   "sID" didn't match any valid environmental sound
+     ** SS_INTERNAL_ERROR   Unspecified
+     **
 	 ** @remarks
-	 ** If no environmental sound with such name/id exists, nothing is done.
-	 ** This function overrides fadings.
-	 **/
-	void
-	pauseEnvSound(const Ogre::String& sName, EnvSoundId id=0);
-
-	/**
-	 ** @brief
-	 ** Stops environmental sound "sName"
-	 **
-	 ** @param
-	 ** sName: name of the audio file to stop
-	 **    id: if not NULL, only EnvSound with matching id will be stopped
-	 **
-	 ** @remarks
-	 ** The sound is detached from the active sounds list.
-	 ** The associated source and buffer are released.
-	 ** If no environmental sound "sName" exists, nothing is done.
-	 **
-	 ** @return
-	 ** SS_NO_ERROR			Sound successfully stopped, resources released.
-	 ** SS_NO_BUFFER		"sName" didn't match any existent env. sound
-	 ** SS_INTERNAL_ERROR	Unspecified.
+	 ** This function overrides (non-global) fadings.
 	 **/
 	SSerror
-	stopEnvSound(const Ogre::String& sName, EnvSoundId id=0);
+	pauseEnvSound(const EnvSoundId& sID);
 
 	/**
 	 ** @brief
-	 ** Restarts environmental sound "sName"
+     ** Stop the environmental sound "sID"
 	 **
+     ** @param
+     ** sID: internal sound id, generated with startNewEnvSound()
+     **
+     ** @return
+     ** SS_NO_ERROR         Playback stopped
+     ** SS_INVALID_HANDLE   "sID" didn't match any valid environmental sound
+     ** SS_INTERNAL_ERROR   Unspecified
+     **
+     ** @remarks
+     ** This function DESTROYS the sound, rendering its id invalid.
+     ** Upon successfull stopping, "sID" will no longer be valid in the system.
+     ** To play this sound again call startNewEnvSound() with the same
+     ** parameters used before.
+	 **/
+	SSerror
+	stopEnvSound(EnvSoundId& sID);
+
+	/**
+	 ** @brief
+     ** Restart the environmental sound "sID"
 	 **
-	 ** @param
-	 ** sName: name of the audio file to restart
-	 **    id: if not NULL, only EnvSound with matching id will be restarted
-	 **
+     ** @param
+     ** sID: internal sound id, generated with startNewEnvSound()
+     **
+     ** @return
+     ** SS_NO_ERROR         Playback restarted
+     ** SS_INVALID_HANDLE   "sID" didn't match any valid environmental sound
+     ** SS_INTERNAL_ERROR   Unspecified
+     **
 	 ** @remarks
-	 ** If paused or playing, playback restarts from the beginning.
-	 ** If stopped, or if no environmental sound by the name "sName"
-	 ** had been created, nothing is done.
+	 ** Playback restarts from the beginning of the audio file.
 	 ** This function overrides fadings, both individual and global.
-	 **
-	 ** @return
-	 ** SS_NO_ERROR			     Sound playback successfully restarted.
-	 ** SS_NO_BUFFER             "sName" didn't match any existent env. sound
-	 ** SS_INTERNAL_ERROR	     Unspecified.
 	 **/
 	SSerror
-	restartEnvSound(const Ogre::String& sName, EnvSoundId id=0);
+	restartEnvSound(const EnvSoundId& sID);
 
 	/**
 	 ** @brief
-	 ** Fades out environmental sound "sName" playback volume.
+     ** Fade out the environmental sound "sID" playback volume
 	 **
+     ** @param
+     **   sID: internal sound id, generated with startNewEnvSound()
+     **  time: fade out time, in seconds. If negative defaults to 1.0
+     ** pause: whether to pause the sound once muted
+     **
+     ** @return
+     ** SS_NO_ERROR             Playback restarted
+     ** SS_INVALID_HANDLE       "sID" didn't match any valid environmental sound
+     ** SS_ILLEGAL_OPERATION    Unexpected play state, sound was left untouched
+     ** SS_INTERNAL_ERROR       Unspecified
+     **
 	 ** @remarks
 	 ** This funtion only affects sounds in a "plain" playing state.
 	 ** So if the sound has been paused, or is under the effect of
 	 ** another fade, nothing is done.
 	 ** If pause==true, fadeInEnvSound() will restart playback when called.
-	 ** If no environmental sound with such name exists, nothing is done.
-	 **
-	 ** @param
-	 ** sName: name of the environmental sound
-	 **  time: fade-out time, in seconds. If negative, defaults to 1.0
-	 ** pause: whether to pause the sound once muted. Default: true.
-	 **    id: if not NULL, only EnvSound with matching id will be faded-out
-	 **
-	 ** @return
-	 ** SS_NO_ERROR			Sound fade-out started, or in an unexpected state
-	 ** 					(and was left untouched)
-	 ** SS_NO_BUFFER		"sName" didn't match any existent env. sound
-	 ** SS_INTERNAL_ERROR	Unspecified.
 	 **/
 	SSerror
-	fadeOutEnvSound(const Ogre::String& sName,
-					  const Ogre::Real& time,
-					  const bool pause=true,
-					  EnvSoundId id=0);
+	fadeOutEnvSound(const EnvSoundId& sID,
+					  const Ogre::Real& time = 1.0,
+					  const bool pause = true);
 
 	/**
 	 ** @brief
-	 ** Fades back in the environmental sound "sName" playback volume
-	 ** to its original value.
+     ** Fade back in the environmental sound "sID" playback volume
+     ** to its original value.
 	 **
+     ** @param
+     **  sID: internal sound id, generated with startNewEnvSound()
+     ** time: fadein time, in seconds. If negative defaults to 1.0
+     **
+     ** @return
+     ** SS_NO_ERROR             Playback restarted
+     ** SS_INVALID_HANDLE       "sID" didn't match any valid environmental sound
+     ** SS_ILLEGAL_OPERATION    Unexpected play state, sound was left untouched
+     ** SS_INTERNAL_ERROR       Unspecified
+     **
 	 ** @remarks
 	 ** This function only affects sounds which have been paused,
 	 ** or are under the effect of an individual fade out.
 	 ** So if the sound is just playing, or is under the effect of
 	 ** another fade, nothing is done.
-	 ** Playback is restarted if the sound had been faded-out and/or paused.
-	 ** If no environmental sound named "sName" exists, nothing is done.
-	 **
-	 ** @param
-	 ** sName: name of the environmental sound
-	 **  time: fade-in time, in seconds. If negative, defaults to 1.0
-	 **    id: if not NULL, only EnvSound with matching id will be faded-out
-	 **
-	 ** @return
-	 ** SS_NO_ERROR			Sound fade-in started, or in an unexpected state
-	 ** 					(and was left untouched)
-	 ** SS_NO_BUFFER		"sName" didn't match any existent env. sound
-	 ** SS_INTERNAL_ERROR	Unspecified.
+	 ** Playback is restarted if the sound has been faded out and/or paused.
 	 **/
 	SSerror
-	fadeInEnvSound(const Ogre::String& sName,
-					 const Ogre::Real& time,
-					 EnvSoundId id=0);
+	fadeInEnvSound(const EnvSoundId& sID,
+                   const Ogre::Real& time = 1.0);
 
 
 	/*********************************************************************/
-	/*******************    UNITS' APIS SOUNDS    ************************/
+	/****************XXX    UNITS' APIS SOUNDS    ************************/
 public:
 	/**
 	 ** @brief
@@ -830,12 +824,12 @@ protected:
 
 
 	/*********************************************************************/
-	/**********************    CLASS MEMBERS    **************************/
+	/*******************XXX    CLASS MEMBERS    **************************/
 private:
 
 	typedef std::unordered_map<Ogre::String, SoundBuffer*> HashStrBuff;
 	// Environmental Sounds
-	typedef std::tuple<Ogre::String, ActiveSound*, EnvSoundId> EnvSound;
+	typedef std::pair<EnvSoundId*, ActiveSound*> EnvSound;
 	// Units' Sounds
 	typedef std::pair<SoundAPI*, ActiveSound*> UnitSound;
 
@@ -868,6 +862,9 @@ private:
 
 	// Current OpenAL handler
 	OpenALHandler* mOpenALHandler;
+
+	// EnvSoundId handling
+	std::set<EnvSoundId> mActiveEnvSoundIds;
 };
 
 
@@ -877,8 +874,10 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 inline
-SoundManager::ActiveSound::ActiveSound(SoundSource* src, SSplayback pState,
-										float gain, int index) :
+SoundManager::ActiveSound::ActiveSound(SoundSource* src,
+                                       SSplayback pState,
+                                       float gain,
+                                       int index) :
 	mSource(src),
 	mPlayState(pState),
 	mGlobalState(SSplayback::SS_NONE),
@@ -891,9 +890,7 @@ SoundManager::ActiveSound::ActiveSound(SoundSource* src, SSplayback pState,
 
 ////////////////////////////////////////////////////////////////////////////////
 inline SoundManager::ActiveSound::~ActiveSound()
-{
-	/* Default dtor. suffices. */
-}
+{ /* Default dtor. suffices. */ }
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -937,22 +934,6 @@ SoundManager::isSoundLoaded(const Ogre::String& sName)
 	return (mLoadedBuffers.find(sName) != mLoadedBuffers.end());
 }
 
-
-////////////////////////////////////////////////////////////////////////////////
-inline void
-SoundManager::pauseEnvSound(const Ogre::String& sName, EnvSoundId id)
-{
-	for (int i=0 ; i < mEnvSounds.size() ; i++) {
-		if (std::get<0>(mEnvSounds[i]) == sName &&
-			std::get<1>(mEnvSounds[i])->mGlobalState != SSplayback::SS_PAUSED) {
-			if (id && id != std::get<2>(mEnvSounds[i]))
-				continue;  // Not our sound.
-			std::get<1>(mEnvSounds[i])->mSource->pause();
-			std::get<1>(mEnvSounds[i])->mPlayState = SSplayback::SS_PAUSED;
-			std::get<1>(mEnvSounds[i])->mGlobalState = SSplayback::SS_NONE;
-		}
-	}
-}
 
 }
 

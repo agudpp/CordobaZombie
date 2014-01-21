@@ -411,10 +411,9 @@ SoundHandler::unloadSounds(const std::vector<Ogre::String>& list)
 void
 SoundHandler::shutDown(void)
 {
-	sSoundManager.destroyAll();
-	for (int i=0 ; i < mPlaylists.size() ; i++) {
-		deletePlaylist(mPlaylists[i]->mName);
-	}
+    for (int i=0 ; i < mPlaylists.size() ; i++)
+        deletePlaylist(*mPlaylists[i]);
+	sSoundManager.shutDown();
 	debugRED("SoundHandler shutting down.\n");
 	return;
 }

@@ -45,8 +45,8 @@
 
 
 
-// Expected maximum number of parallel playing sounds
-#define  NUM_PARALLEL_SOUNDS  (1<<6)  /* 64 */
+// Maximum expected number of parallel playing sounds (both env and API)
+#define  NUM_PARALLEL_SOUNDS  (1<<7)  // 128
 
 
 namespace mm {
@@ -62,6 +62,7 @@ SoundManager::SoundManager() :
 ,   mOpenALHandler(0)
 {
 	mActiveSounds.reserve(NUM_PARALLEL_SOUNDS);
+	ASSERT(mActiveEnvSoundIds.empty());
 
 	// we are assuming that we have a context already created.
 	// Since this is a static singleton, we cannot pass the
@@ -86,7 +87,11 @@ SoundManager::SoundManager() :
 ////////////////////////////////////////////////////////////////////////////////
 SoundManager::~SoundManager()
 {
-    destroyAll();
+    if (hasOpenALcontext()) {
+        // They forgot to shut us down?
+        debugWARNING("Destroying SoundManager, shutDown() forced.\n");
+        shutDown();
+    }
 }
 
 
@@ -201,7 +206,7 @@ SoundManager::playExistentSound(ActiveSound& s, float gain, bool repeat)
 
 /******************************************************************************/
 /******************************************************************************/
-/**************************    INITIALIZATION    ******************************/
+/***********************XXX    INITIALIZATION    ******************************/
 
 void
 SoundManager::setResourceHandler(rrh::ResourceHandler* rh)
@@ -367,11 +372,20 @@ SoundManager::unloadSound(const Ogre::String& sName)
 
 
 ////////////////////////////////////////////////////////////////////////////////
+bool
+SoundManager::isValidIndex(EnvSoundId id)
+{
+    return (mActiveEnvSoundIds.find(id) != mActiveEnvSoundIds.end());
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
 void
-SoundManager::destroyAll(void)
+SoundManager::shutDown(void)
 {
     // Stop and erase remaining active sounds
     globalStop();
+    mActiveEnvSoundIds.clear();
 
     // Delete sources
     for (int i = mAvailableLSS.size()-1 ; i >= 0 ; i--) {
@@ -390,12 +404,17 @@ SoundManager::destroyAll(void)
         delete it->second;
     }
     mLoadedBuffers.clear();
+
+    // Invalidate the other members
+    mCam = 0;
+    mResourceHandler = 0;
+    mOpenALHandler = 0;
 }
 
 
 /******************************************************************************/
 /******************************************************************************/
-/********************    GLOBAL PLAYBACK CONTROLS    **************************/
+/*****************XXX    GLOBAL PLAYBACK CONTROLS    **************************/
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -645,79 +664,71 @@ SoundManager::globalFadeIn(const Ogre::Real& time)
 
 /******************************************************************************/
 /******************************************************************************/
-/**********************    ENVIRONMENTAL SOUNDS    ****************************/
+/*******************XXX  ENVIRONMENTAL SOUNDS    ****************************/
 
 
 ////////////////////////////////////////////////////////////////////////////////
 bool
-SoundManager::isPlayingEnvSound(const Ogre::String& sName) const
+SoundManager::isValidEnvSound(const EnvSoundId& sID) const
 {
-	// Check whether "sName" is a playing environmental sound.
-	for (unsigned int i=0 ; i < mEnvSounds.size() ; i++) {
-		if (std::get<0>(mEnvSounds[i]) == sName) {
-			return std::get<1>(mEnvSounds[i])->mSource->isPlaying();
-		}
-	}
-	return false;
+    return (mActiveEnvSoundIds.find(sID) != mActiveEnvSoundIds.end());
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////
 bool
-SoundManager::isPlayingEnvSound(EnvSoundId id) const
+SoundManager::isPlayingEnvSound(const EnvSoundId& sID) const
 {
-	if (!id) return false;
-	for (unsigned int i=0 ; i < mEnvSounds.size() ; i++) {
-		if (std::get<2>(mEnvSounds[i]) == id) {
-			return std::get<1>(mEnvSounds[i])->mSource->isPlaying();
-		}
-	}
-	return false;
+    if (!isValidEnvSound(sID))
+        return false;
+    else
+        return mEnvSounds[sID].second->mSource->isPlaying();
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////
 bool
-SoundManager::isActiveEnvSound(const Ogre::String& sName) const
+SoundManager::getEnvSoundRepeat(const EnvSoundId& sID) const
 {
-	// Check whether "sName" is an active environmental sound.
-	for (unsigned int i=0 ; i < mEnvSounds.size() ; i++) {
-		if (std::get<0>(mEnvSounds[i]) == sName) {
-			ASSERT(std::get<1>(mEnvSounds[i])->mSource->isActive());
-			return true;
-		}
-	}
-	return false;
+    if (!isValidEnvSound(sID))
+        return false;
+    else
+        return mEnvSounds[sID].second->mSource->getRepeat();
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////
-bool
-SoundManager::isActiveEnvSound(EnvSoundId id) const
+SSerror
+SoundManager::startNewEnvSound(EnvSoundId& sID,
+                               const Ogre::String& sName,
+                               const Ogre::Real& gain,
+                               bool repeat)
 {
-	if (!id) return false;
-	for (unsigned int i=0 ; i < mEnvSounds.size() ; i++) {
-		if (std::get<2>(mEnvSounds[i]) == id) {
-			ASSERT(std::get<1>(mEnvSounds[i])->mSource->isActive());
-			return true;
-		}
-	}
-	return false;
+    /*
+     * TODO Continue from here
+     *
+     * Idea: use as EnvSoundId the position inside the mEnvSounds vector
+     *
+     *       "EnvSound" is now typedef std::tuple<EnvSoundId*, ActiveSound*>
+     *       This way we can manipulate the "sID" index from inside here,
+     *       i.e. automatic updates in case of SoundManager self-modifications
+     *       (e.g. upon changes in the order of some internal container)
+     *
+     *       For this idea to work, we must also have access from here to the
+     *       "mIndex" field of the SingleSoundHandle, which is what the
+     *       SoundHandler will actually store (and give us back on later calls)
+     *
+     *       Remember to put inside mActiveEnvSoundIds the new sID.
+     */
+
 }
 
 
-////////////////////////////////////////////////////////////////////////////////
-bool
-SoundManager::getEnvSoundRepeat(const Ogre::String& sName) const
-{
-	// If the environmental sound "sName" exists, return its repeat value.
-	for (unsigned int i=0 ; i < mEnvSounds.size() ; i++) {
-		if (std::get<0>(mEnvSounds[i]) == sName) {
-			return std::get<1>(mEnvSounds[i])->mSource->getRepeat();
-		}
-	}
-	return false;
-}
+
+
+
+
+
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -794,6 +805,23 @@ SoundManager::playEnvSound(const Ogre::String& sName,
 	}
 
 	return err;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+void
+SoundManager::pauseEnvSound(const Ogre::String& sName, EnvSoundId id)
+{
+    for (int i=0 ; i < mEnvSounds.size() ; i++) {
+        if (std::get<0>(mEnvSounds[i]) == sName &&
+            std::get<1>(mEnvSounds[i])->mGlobalState != SSplayback::SS_PAUSED) {
+            if (id && id != std::get<2>(mEnvSounds[i]))
+                continue;  // Not our sound.
+            std::get<1>(mEnvSounds[i])->mSource->pause();
+            std::get<1>(mEnvSounds[i])->mPlayState = SSplayback::SS_PAUSED;
+            std::get<1>(mEnvSounds[i])->mGlobalState = SSplayback::SS_NONE;
+        }
+    }
 }
 
 
@@ -972,7 +1000,7 @@ SoundManager::fadeInEnvSound(const Ogre::String& sName,
 
 /******************************************************************************/
 /******************************************************************************/
-/***********************    UNITS' APIS SOUNDS    *****************************/
+/********************XXX    UNITS' APIS SOUNDS    *****************************/
 
 
 ////////////////////////////////////////////////////////////////////////////////
