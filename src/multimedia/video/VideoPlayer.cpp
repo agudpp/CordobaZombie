@@ -5,22 +5,21 @@
  * Author: Raul
  */
 
-//#############################################################################/
+///////////////////////////////////////////////////////////////////////////////
 
 #include <map>
 #include <inttypes.h>
 #include <string.h>
-
 extern "C" {
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
 #include <libavutil/avutil.h>
 #include <libswscale/swscale.h>
 }
-
 #include <openal_handler/OpenALHandler.h>
-
 #include "VideoPlayer.h"
+
+///////////////////////////////////////////////////////////////////////////////
 
 
 /*
@@ -31,18 +30,20 @@ extern "C" {
 #define AVCODEC_MAX_AUDIO_FRAME_SIZE 192000
 #endif
 
+
 namespace mm {
 
+
 ///////////////////////////////////////////////////////////////////////////////
-// DEFINITIONS AND GLOBAL CONSTANTS
+//                      DEFINITIONS AND GLOBAL CONSTANTS
 
 #define SC(t,x) static_cast<t>(x)
-
 const double EPS = 10e-12; // For double precision comparisons
 
 
 ///////////////////////////////////////////////////////////////////////////////
-// DEBUGING COLOR PRINT DEFINITIONS
+//                      DEBUGING COLOR PRINT DEFINITIONS
+
 #ifdef DEBUG
 #define lightGreenPrint(format, ...) \
 						printf("\33[01;32m" format "\33[0m", ## __VA_ARGS__)
@@ -63,25 +64,15 @@ const double EPS = 10e-12; // For double precision comparisons
 #define debugVIDEO(format, ...)
 #endif
 
-
 ///////////////////////////////////////////////////////////////////////////////
 /*
- * TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+ * TODO s
  *
  * 	1. Arreglar el tema de los pixel format para poder usar memcopy y que sea
- *  mas eficiente.
- *
- *  3. Leaks
+ *  mas eficiente. (el croto de Ogre no te asegura nada :S)
  *
  *	10. Cambiar double por float que tiene hasta 7 decimales de presicion y es
  *		mas que suficiente y supongo trae menos problemas con las cuentas.
- *
- *	11. Liberar recursos de openal en unload y ~VideoPlayer. Mejorar el load
- *	para que no tenga que hacer todo de nuevo lo de openal sino que use lo que
- *	ya viene del ultimo video.
- *
- *	12. Reinicializar todas las variables (o al menos todas las necesarias)
- *	cada vez que se haga load, para evitar sorpresas como las que ya tuve :D.
  *
  *	15. Limpiar los buffers de sonido para que no haga ruido de basura al
  *	darle play a un nuevo video.
@@ -89,16 +80,11 @@ const double EPS = 10e-12; // For double precision comparisons
  *	16. Buscar una mejor solucion para no usar viejos audio packets al hacer
  *	get_playing_time luego de un seek. Usar la variable apnvfts es muy McCaco.
  *
- *	17. Función para crear el alplayer una sola vez, funcion para tomar datos
- *	de audio packet. Usar estos datos para cargar correctamente el audio player.
- *	Asegurarse de que no estamos tirando mil threads :S.
- *
  *	18. Choose a much better and "scientific" way to decide the max size and
  *	critical size of the queues length.
  *
  *	19. mNumAPacks y mNumVPacks no deberian ser menor a 0 nunca !!!
  *
- * TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
  */
 
 /*FIXME'S
@@ -138,11 +124,10 @@ const double EPS = 10e-12; // For double precision comparisons
  *
  */
 
-static int runoutvideo = 0;
-static int runoutaudio = 0;
-
 
 ///////////////////////////////////////////////////////////////////////////////
+
+
 VideoPlayer::VideoPlayer(VideoBuffer *screen) :
     pFormatCtx(0),
     pCodecCtx(0),
@@ -183,7 +168,7 @@ VideoPlayer::VideoPlayer(VideoBuffer *screen) :
     mALHandler(0)
 
 {
-
+#ifdef DEBUG
 #if OGRE_ENDIAN == OGRE_ENDIAN_BIG
     debugGREEN("OGRE SAYS BIGENDIAN\n");
 #else
@@ -193,6 +178,7 @@ VideoPlayer::VideoPlayer(VideoBuffer *screen) :
     debugGREEN("AV SAYS BIGENDIAN\n");
 #else
     debugGREEN("AV SAYS LITTLENDIAN\n");
+#endif
 #endif
 
     ASSERT(mScreen);
@@ -210,7 +196,6 @@ VideoPlayer::VideoPlayer(VideoBuffer *screen) :
 
     // remove all the logs, so they don't appear in the console
     av_log_set_level( AV_LOG_QUIET);
-
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -240,7 +225,6 @@ VideoPlayer::~VideoPlayer()
         pCodecCtx = 0;
     }
 
-
     // Free and close audio devices, buffers and packets
     if (audio_decoded_frame) {
         av_free(audio_decoded_frame);
@@ -258,21 +242,15 @@ VideoPlayer::~VideoPlayer()
         audio_decoding_pkt = 0;
     }
 
-
     // delete AVPackets:
     for(int i = 0; i < mVDataQueue.size();i++){
         delete mVDataQueue[i];
     }
-
     for(int i = 0; i < mADataQueue.size();i++){
         delete mADataQueue[i];
     }
-
-
 }
-//#############################################################################
 
-//#############################################################################
 ///////////////////////////////////////////////////////////////////////////////
 
 int
@@ -476,15 +454,7 @@ VideoPlayer::load(const char *fileName)
 
         ASSERT(mNumAPacks == 0);
         ASSERT(mNumVPacks == 0);
-
-//        if (preload_audio() == VIDEO_ERROR) {
-//            debugERROR("Couldn't pre-load audio :s\n");
-//            return VIDEO_ERROR;
-//        }
-
     }
-
-    //print_video_info();
 
     return VIDEO_OK;
 }
@@ -501,8 +471,7 @@ VideoPlayer::play(void)
         } else {
 
             bool needaudio = mNumVPacks < 0;
-            bool needvideo = mNumAPacks < 0 &&
-                audioStream != -1;
+            bool needvideo = mNumAPacks < 0 && audioStream != -1;
             //fetch some packets before start
             while ((needaudio || needvideo) && get_more_data(needaudio,
                                                              needvideo)) {
@@ -541,9 +510,7 @@ VideoPlayer::unload(void)
     // Clear the packet queues
     empty_data_queues();
 
-
     // Clean audio buffers:
-
     // remove the source first
     if (alGetError() != AL_NO_ERROR) {
         debugERROR("We already have an error when trying to delete"
@@ -565,10 +532,9 @@ VideoPlayer::unload(void)
     }
 
     if (alGetError() != AL_NO_ERROR) {
-        debugERROR("Some error occur when deleting the openal sources or buffers "
-            "in the video player\n");
+        debugERROR("Some error occur when deleting the openal sources or "
+            "buffers in the video player\n");
     }
-
 
     // In case we where decoding something.
     if (audio_decoding_pkt) {
@@ -588,9 +554,6 @@ VideoPlayer::unload(void)
     avformat_close_input(&pFormatCtx);
     isLoaded = false;
 
-    // Number of time we run out of audio and video respectably in our queues
-    debugGREEN("roa<%i> rov<%i>\n", runoutaudio, runoutvideo);
-
     return VIDEO_OK;
 }
 
@@ -599,7 +562,6 @@ VideoPlayer::unload(void)
 int
 VideoPlayer::seek_time_stamp(double ts)
 {
-
     // Out of range?
     if (ts + EPS < 0 || ts > mVideoLength + EPS) {
         debugERROR("Tried to seek out of range\n");
@@ -632,9 +594,9 @@ VideoPlayer::seek_time_stamp(double ts)
 
     // Seek now
     debugGREEN("Seeking for %ld(%lf in seconds) in %s\n", seek_target, ts,
-               pFormatCtx->filename);
+        pFormatCtx->filename);
     if (av_seek_frame(pFormatCtx, stream_index, seek_target, flag) < 0) {
-        // Didn't finid it forward/backward try the other way
+        // Didn't find it forward/backward try the other way
         flag = !flag ? AVSEEK_FLAG_BACKWARD : 0;
         if (av_seek_frame(pFormatCtx, stream_index, seek_target, flag) < 0) {
             debugERROR("Error while seeking in %s target %ld\n",
@@ -667,7 +629,7 @@ VideoPlayer::seek_time_stamp(double ts)
 int
 VideoPlayer::empty_data_queues(void)
 {
-//TODO watch out for deletes that don't correspond
+    //TODO watch out for deletes that don't correspond
 
     //TODO check if this is correct
     while (mNumAPacks) {
@@ -685,8 +647,7 @@ VideoPlayer::empty_data_queues(void)
         mNumVPacks--;
     }
 
-    ASSERT(mNumAPacks == 0);
-    ASSERT(mNumVPacks == 0);
+    ASSERT(mNumAPacks == 0); ASSERT(mNumVPacks == 0);
 
     return VIDEO_OK;
 }
@@ -710,11 +671,11 @@ VideoPlayer::get_al_audio_player(void)
     // Generate buffers and source
     alGenBuffers(NUM_BUFFERS, buffers);
 
-    if(!source){
+    if (!source) {
         alGenSources(1, &source);
     }
     if (alGetError() != AL_NO_ERROR) {
-        debugERROR("Problem with me and openal.\n");
+        debugERROR("Problem between me and openal.\n");
         return VIDEO_ERROR;
     }
 
@@ -739,7 +700,7 @@ VideoPlayer::get_al_audio_player(void)
     alSourceQueueBuffers(source, NUM_BUFFERS, buffers);
     alSourcePlay(source);
     if (alGetError() != AL_NO_ERROR) {
-        debugRED("Algo pasa con el reproductor de openal y no inicia\n");
+        debugERROR("OPenal sound player is not working :S\n");
         return VIDEO_ERROR;
     }
 
@@ -748,7 +709,6 @@ VideoPlayer::get_al_audio_player(void)
     do {
         alGetSourcei(source, AL_BUFFERS_PROCESSED, &val);
     } while (val < NUM_BUFFERS);
-
 
     //get size of buffers in seconds
     ALint sizeInBytes = 0;
@@ -763,10 +723,6 @@ VideoPlayer::get_al_audio_player(void)
         * static_cast<double> (al_frequency));
 
     buffLenInSec = (static_cast<double> (sizeInBytes) * 8.0f) / fxcxb;
-//    debugGREEN("Buffers size in seconds: %lf %lf %lf %lf %lf\n",
-//    static_cast<double>(sizeInBytes), static_cast<double>(channels),
-//    static_cast<double>(bits), static_cast<double>(al_frequency),
-//    buffLenInSec);
 
     // Sound up
     alListenerf(AL_GAIN, 1.0f);
@@ -787,11 +743,8 @@ VideoPlayer::preload_audio(void)
     // check if buffers need to be filled
     alGetSourcei(source, AL_BUFFERS_PROCESSED, &val);
     if (val <= 0) {
-
         return VIDEO_OK;
-
     } else {
-
         //get data for each buffer that is ready
         for (int i = 0; i < val; i++) {
 
@@ -824,11 +777,8 @@ VideoPlayer::preload_audio(void)
                 break;
 
             } else if (g_audio_ret == VIDEO_ERROR) {
-
                 return VIDEO_ERROR;
-
             } else {
-
                 ASSERT(false);
             }
         }
@@ -842,7 +792,6 @@ VideoPlayer::preload_audio(void)
 int
 VideoPlayer::update(double timesincelastframe)
 {
-
     int video_ret = VIDEO_OK, audio_ret = VIDEO_OK;
 
     // Don't do nothing if its not playing
@@ -853,8 +802,7 @@ VideoPlayer::update(double timesincelastframe)
     mplayingtime += timesincelastframe;
 
     // if one of the queues is running out of packets
-    bool needaudio = mNumAPacks <= 0 && audioStream
-        != -1;
+    bool needaudio = mNumAPacks <= 0 && audioStream != -1;
     bool needvideo = mNumVPacks <= 0;
     if (needaudio || needvideo) {
         get_more_data(needaudio, needvideo);
@@ -875,13 +823,13 @@ VideoPlayer::update(double timesincelastframe)
     }
 
     // FIXME if ((audioStream == -1 || audio_ret == VIDEO_ENDED) && video_ret
-    if (audio_ret == VIDEO_ENDED  && video_ret == VIDEO_ENDED) {
+    if (audio_ret == VIDEO_ENDED && video_ret == VIDEO_ENDED) {
         ASSERT(!mNumAPacks);
         ASSERT(!mNumVPacks);
         debugGREEN("Video of length %lf ended at time %lf\n",
             mVideoLength, mplayingtime);
-        if(abs(mVideoLength-mplayingtime)<0.1){
-            debugERROR("Ending too soon or too late? ended=%lf, "
+        if (abs(mVideoLength - mplayingtime) < 0.1) {
+            debugWARNING("Ending too soon or too late? ended=%lf, "
                 "should have been=%lf:S\n", mplayingtime, mVideoLength);
         }
         isPlaying = false;
@@ -892,7 +840,6 @@ VideoPlayer::update(double timesincelastframe)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
 
 int
 VideoPlayer::update_video(void)
@@ -908,16 +855,13 @@ VideoPlayer::update_video(void)
         }
     }
 
-//    debugGREEN("Number of video packets: %i, of audio: %i\n", mNumVPacks, mNumAPacks);
-
     ASSERT(mNumVPacks);
     AVPacket * pkt = mVDataQueue.front();
 
     ASSERT( &(*pkt) == mVDataQueue.front());
-    ASSERT(pkt->stream_index == videoStream && \
-           "Se mezclaron los packetes en la cola :S\n");
-    ASSERT(pkt);
-    ASSERT(pkt->data);
+    ASSERT(pkt->stream_index == videoStream &&
+        "Audio and video packets got mixed up in the queues:S\n");
+    ASSERT(pkt); ASSERT(pkt->data);
 
     double t = 0.;
     if (VIDEO_ERROR == get_playing_time(t)) {
@@ -943,7 +887,7 @@ VideoPlayer::update_video(void)
         pkt = 0; //being careful
         mNumVPacks--;
 
-        //convert frame to rgb image
+        // Convert frame to RGB image
         sws_scale(pImgConvertCtx,
                   pFrame->data,
                   pFrame->linesize,
@@ -952,7 +896,7 @@ VideoPlayer::update_video(void)
                   pFrameRGB->data,
                   pFrameRGB->linesize);
 
-        //Actualizar la textura de la pantalla
+        /* Update the screen texture */
         unsigned char * img = pFrameRGB->data[0];
 
         mScreen->fillBuffer(img,
@@ -962,7 +906,6 @@ VideoPlayer::update_video(void)
 
     return VIDEO_OK;
 }
-
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -1093,8 +1036,8 @@ VideoPlayer::audio_decode_frame(uint8_t **buffer, int buffer_size)
 
     ASSERT(buffer_size > 0);
 
-    // FIXME: justificar por qué uso un paquete auxiliar y ver si es correcto
-    // hacerlo.
+    /* FIXME: justify the use of an auxiliary packet to see if it's really
+     needed. */
     AVPacket auxpack;
     av_init_packet(&auxpack);
 
@@ -1107,11 +1050,10 @@ VideoPlayer::audio_decode_frame(uint8_t **buffer, int buffer_size)
                 break;
             }
 
-            // Si ya envie toda la data de la ultima frame busco uno nuevo.
+            /* If I ran out of data from old frame then I get a new one. */
             if (decoded_data_size <= 0) {
 
-                ASSERT(audio_decoding_pkt);
-                ASSERT(audio_decoded_frame);
+                ASSERT(audio_decoding_pkt); ASSERT(audio_decoded_frame);
 
                 if (decoding_pkt_size <= 0) {
                     // Get new Packet
@@ -1140,10 +1082,10 @@ VideoPlayer::audio_decode_frame(uint8_t **buffer, int buffer_size)
                     // got frame
                     decoded_data_size
                         = av_samples_get_buffer_size(NULL,
-                                             aCodecCtx->channels,
-                                             audio_decoded_frame->nb_samples,
-                                             aCodecCtx->sample_fmt,
-                                             1);
+                                                     aCodecCtx->channels,
+                                                     audio_decoded_frame->nb_samples,
+                                                     aCodecCtx->sample_fmt,
+                                                     1);
 
                     if (decoded_data_size < 0) {
                         debugERROR("bad size %d\n", decoded_data_size);
@@ -1158,35 +1100,30 @@ VideoPlayer::audio_decode_frame(uint8_t **buffer, int buffer_size)
                 continue;
             }
 
-            //si todavia tengo datos de un frame viejo o acabo de conseguir
-            //un nuevo frame entonces los mando.
-
-            ASSERT(decoded_data_size > 0);
-            ASSERT(decoded_frame_data_ptr != 0)
-
-            //Apunto buffer al inicio de los datos decodificados
+            /* If I already have data from an old frame or I've just got data
+             * from a new one then I send it:
+             */
+            ASSERT(decoded_data_size > 0); ASSERT(decoded_frame_data_ptr != 0)
+            // Point buffer to the beginning of the data
             *buffer = decoded_frame_data_ptr;
 
             if (decoded_data_size > buffer_size) {
 
-                // Decodifique mas de lo que se necesitaba
+                // Decoded more than I needed
                 decoded_data_size -= buffer_size;
                 decoded_frame_data_ptr += buffer_size;
                 return buffer_size;
 
             } else {
 
-                //Quizas no tengo tanta info como quiero todavia. Asi que el de
-                //afuerda debera copiar estos datos en algun lado y llamarnos
-                //para pedir mas.
+                /* We may not have all the needed data yet. So who ever has
+                 * called us should save this data and call us again.
+                 */
                 int ret = decoded_data_size;
                 decoded_data_size = 0;
                 return ret;
             }
-        }
-
-        ASSERT(decoded_data_size == 0);
-
+        } ASSERT(decoded_data_size == 0);
         // Free old packet before getting new one, we don't have one the
         // first time, thats the reason for the if clause.
         if (audio_decoding_pkt) {
@@ -1206,15 +1143,11 @@ VideoPlayer::audio_decode_frame(uint8_t **buffer, int buffer_size)
 
             audio_decoding_pkt = mADataQueue.front();
 
-            ASSERT(audio_decoding_pkt->stream_index == audioStream && \
-                   "Se mezclaron los packetes en la cola :S\n");
+            ASSERT(audio_decoding_pkt->stream_index == audioStream &&
+                "Audio and video packets got mixed in the queues:S\n");
 
-            //ASSERT(audio_decoding_pkt && "Aca la cagamos antes");
-            //ASSERT(audio_decoding_pkt->data && "Aca la cagamos");
             if (audio_decoding_pkt->pts != AV_NOPTS_VALUE) {
                 synchroPTS = static_cast<double> (audio_decoding_pkt->pts);
-                //debugGREEN("synchroPTS %lf audio... %ld\n", synchroPTS,
-                //            audio_decoding_pkt->pts);
             }
             // save for restoring later
             decoding_pkt_size = audio_decoding_pkt->size;
@@ -1236,7 +1169,6 @@ VideoPlayer::audio_decode_frame(uint8_t **buffer, int buffer_size)
 int
 VideoPlayer::get_playing_time(double & t)
 {
-
     if (!audio_decoding_pkt || apnvfts || audioStream == -1) {
         // we can't get the synchronized time so we return the real time
         t = mplayingtime;
@@ -1252,25 +1184,13 @@ VideoPlayer::get_playing_time(double & t)
     // offset in buffers (sound loaded in buffers but already played)
     ALfloat samples = 0;
     alGetSourcef(source, AL_SAMPLE_OFFSET, &samples);
-    //debugRED("samples %f\n", samples);
     double offset = static_cast<double> (samples)
         / static_cast<double> (aCodecCtx->sample_rate);
-
-    //debugRED("Hz %lf\n",static_cast<double>(aCodecCtx->sample_rate));
-    //debugRED("Offset %lf\n",offset);
-
-    ASSERT(fxcxb>0);
-    ASSERT(audio_decoding_pkt);
+    ASSERT(fxcxb>0);ASSERT(audio_decoding_pkt);
     //size in seconds of data loaded from last packet
     double lastpckloadedsize = ((audio_decoding_pkt->size - decoding_pkt_size)
         * 8.0f) / fxcxb;
-
-    //debugRED("lastpckloadedsize %lf\n",lastpckloadedsize );
-
     ASSERT(SC(double,atbaseden)>0);
-    //debugRED("synchroPTS %lf, %lf, %lf, %lf\n",
-    //synchroPTS*(SC(double,atbasenum) / SC(double,atbaseden)),synchroPTS,
-    //SC(double,atbasenum),SC(double,atbaseden));
     t = synchroPTS * (SC(double,atbasenum) / SC(double,atbaseden))
         - ((SC(double,nloadedbuffs) - 1.0f) * buffLenInSec) + offset
         + lastpckloadedsize;
@@ -1283,11 +1203,6 @@ VideoPlayer::get_playing_time(double & t)
 int
 VideoPlayer::get_more_data(bool audio, bool video)
 {
-
-    //debugRED("v<%i,%i> a<%i,%i>\n", video, mNumVPacks, audio, mNumAPacks );
-    if(audio) runoutaudio++;
-    if(video) runoutvideo++;
-
     bool got_audio = !audio || audioStream == -1;
     bool got_video = !video;
 
@@ -1301,7 +1216,7 @@ VideoPlayer::get_more_data(bool audio, bool video)
         if (mNumVPacks >= mVDataQueue.size()) {
             // if the queue is full we need a new packet
             debugWARNING("Video queue was full v<%i> a<%i>\n", mNumVPacks,
-                       mNumAPacks);
+                mNumAPacks);
             newPacket = new AVPacket;
             alloced = true;
             debugERROR("HORRIBLE\n");
@@ -1330,12 +1245,11 @@ VideoPlayer::get_more_data(bool audio, bool video)
 
             } else if (newPacket->stream_index == audioStream) {
                 // it was an audio packet, not what we supposed
-                // debugGREEN("%i --- %i\n",mNumAPacks, SC(int,mADataQueue.size()));
                 ASSERT(mNumAPacks <= SC(int,mADataQueue.size()));
                 // exchange packets between queues
                 if (mNumAPacks >= mADataQueue.size()) {
                     debugWARNING("Audio queue was full v<%i> a<%i>\n",
-                                 mNumVPacks, mNumAPacks);
+                        mNumVPacks, mNumAPacks);
                     mADataQueue.push_back(newPacket);
                     if (!alloced) {
                         mVDataQueue[mNumVPacks] = new AVPacket;
@@ -1352,24 +1266,15 @@ VideoPlayer::get_more_data(bool audio, bool video)
                     }
                     mADataQueue[mNumAPacks] = newPacket;
                 }
-
                 newPacket = 0;
                 mNumAPacks++;
                 got_audio = mNumAPacks >= AUDIO_QUEUE_CRITICAL_LOW_SIZE;
-
             } else {
-
                 debugVIDEO("Not my stream :s\n");
                 av_free_packet(newPacket);
-
             }
         }
     }
-
-    //    debugGREEN("video: %i, audio: %i\n",mNumVPacks,mNumAPacks);
-    //    ASSERT(mADataQueue[mNumAPacks]->data != 0 && "va a causar double free");
-    //    ASSERT(mVDataQueue[mNumVPacks]->data != 0 && "va a causar double free");
-
     return VIDEO_OK;
 }
 
@@ -1378,7 +1283,6 @@ VideoPlayer::get_more_data(bool audio, bool video)
 void
 VideoPlayer::print_video_info(void)
 {
-
     cyanPrint("VIDEO DEBUG\n");
     lightGreenPrint("Video nb of streams %d\n", pFormatCtx->nb_streams);
     if (audioStream != -1) {
@@ -1395,7 +1299,6 @@ VideoPlayer::print_video_info(void)
     cyanPrint("OTHER DEBUGS\n");
     lightGreenPrint("AVCODEC_MAX_AUDIO_FRAME_SIZE: %d\n",
         AVCODEC_MAX_AUDIO_FRAME_SIZE); cyanPrint("***********\n");
-
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1413,10 +1316,8 @@ VideoPlayer::paint_screen(unsigned char R, unsigned char G, unsigned char B)
     mScreen->fillBuffer(img,
                         VideoBuffer::Format::RGB,
                         pCodecCtx->width * pCodecCtx->height * 3);
-
     return VIDEO_OK;
 }
-
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -1441,15 +1342,9 @@ VideoPlayer::paint_black_screen(void)
 }
 
 
-/*----------------------------------------------------------------------------*/
-/*----------------------------- EXTRA FUNCTIONS ------------------------------*/
-/*----------------------------------------------------------------------------*/
+/*-----------------------------  EXTRA METHODS  ------------------------------*/
 
-/*
- * @VideoPlayer::SaveFrame
- * Saves an RGB24 (RGBRGBRGB...) (one byte for R, one for G and one for B) to
- * the hard drive in ppm format. We only use it for debug issues.
- */
+
 void
 VideoPlayer::SaveFrame(AVFrame *pFrame, int width, int height, int iFrame)
 {
@@ -1473,5 +1368,6 @@ VideoPlayer::SaveFrame(AVFrame *pFrame, int width, int height, int iFrame)
     // Close file
     fclose(pFile);
 }
+
 
 } //namespace mm

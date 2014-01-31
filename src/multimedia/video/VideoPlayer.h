@@ -378,7 +378,9 @@ protected:
 public: // Extra methods
 
     /*
-     * Useful as debug
+     * @VideoPlayer::SaveFrame
+     * Saves an RGB24 (RGBRGBRGB...) (one byte for R, one for G and one for B)
+     * to the hard drive in ppm format. We only use it for debug issues.
      */
     void
     SaveFrame(AVFrame *pFrame, int width, int height, int iFrame);
