@@ -23,6 +23,9 @@
 #include <qt_tools/ogre_widget/QtOgreAppBase.h>
 #include <debug/PrimitiveDrawer.h>
 
+#include <asset/Asset.h>
+
+#include "ConfigAssetGUI.h"
 #include "ui_AssetManager.h"
 
 namespace tool {
@@ -74,6 +77,13 @@ protected slots:
     virtual void
     OgreWidgetWheelEvent(QWheelEvent * event);
 
+    // @brief When we click on load asset or create an asset buttons
+    //
+    void
+    onCreateAssetClicked(bool);
+    void
+    onLoadAssetClicked(bool);
+
 protected:
 
     // QWidget events.
@@ -92,12 +102,25 @@ protected:
 //    virtual void
 //    mouseMoveEvent(QMouseEvent* event);
 
+    // @brief This method will be used to show the current asset and all its data
+    //        in the ogre windows. If we already have something in the past being
+    //        rendered on the ogre window then we will remove it and show the
+    //        current one (mCurrentAsset).
+    //
+    void
+    updateCurrentAsset(void);
+
 private:
     Ui::AssetManager ui;
 
     OrbitCamera* mOrbitCamera;
     core::Primitive* m3DAxis;
+    core::Asset mCurrentAsset;
+
     QPoint mLastMousePoint;
+    QString mLastPathLoaded;
+    ConfigAssetGUI mConfigWindow;
+
 };
 
 }

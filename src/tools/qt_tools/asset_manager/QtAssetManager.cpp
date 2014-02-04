@@ -7,12 +7,20 @@
 
 #include "QtAssetManager.h"
 
+#include <QFileDialog>
+#include <QFileInfo>
 
 #include <os_utils/OSHelper.h>
+#include <asset/AssetFile.h>
 
 namespace tool {
 
-
+////////////////////////////////////////////////////////////////////////////////
+void
+QtAssetManager::updateCurrentAsset(void)
+{
+    ASSERT(false && "TODO: here we will show all the data associated to the asset");
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -22,6 +30,8 @@ QtAssetManager::QtAssetManager(rrh::ResourceHandler* rh,
                                const std::string& resource) :
     QtOgreAppBase(rh, plugins, ogre, resource)
 ,   mOrbitCamera(0)
+,   mLastPathLoaded(".")
+,   mConfigWindow(0)
 {
     ui.setupUi(this);
 
@@ -34,6 +44,9 @@ QtAssetManager::QtAssetManager(rrh::ResourceHandler* rh,
                          QSizePolicy::Policy::Expanding);
     mOgreWidget->resize(800, 600);
     ui.verticalLayout->addWidget(ogrew);
+
+    // configure the ConfigAssetGUI
+    mConfigWindow.setOgreData(ogrew->ogreData());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -185,5 +198,78 @@ QtAssetManager::OgreWidgetWheelEvent(QWheelEvent * event)
     const float currentZoom = mOrbitCamera->zoom();
     mOrbitCamera->setZoomDist(currentZoom + 0.5f * event->delta());
 }
+
+////////////////////////////////////////////////////////////////////////////////
+void
+QtAssetManager::onCreateAssetClicked(bool)
+{
+    // here we need to create an asset from an existing .mesh file
+    // so we will open the FileDialog and let only .mesh files be visible.
+    // We also need to check that we haven't an existing .assetInfo file in the
+    // same directory.
+    // try to load the .mesh file
+    const QString fileName = QFileDialog::getOpenFileName(this,
+                                                          tr("Create Asset from an Ogre Mesh"),
+                                                          mLastPathLoaded,
+                                                          tr("OgreMesh files (*.mesh)"));
+    if (fileName.isEmpty()) {
+        // do nothing
+        return;
+    }
+
+    // check if we already have an .assetInfo file over there
+    QFileInfo finfo(fileName);
+    const QString path = finfo.path();
+    QFileInfo assetInfo(path + finfo.baseName() + ".assetInfo");
+    if (assetInfo.exists()) {
+        QTDEBUG_WARNING("El directorio en donde se encuentra el archivo " <<
+                        fileName.toStdString() << " ya contiene"
+            " un .assetInfo, por lo que deberia cargarlo en vez de crearlo. Si quiere"
+            " borrarlo hagalo manualmente y luego vuelva a intentar crear el asset.\n");
+        return;
+    }
+
+    // now we can just create the asset
+    mCurrentAsset = core::Asset();
+
+    // configure the ConfigWindow
+    mConfigWindow.setAssetToConfigure(&mCurrentAsset);
+    mConfigWindow.show();
+
+    // update the render window with the current asset
+    updateCurrentAsset();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void
+QtAssetManager::onLoadAssetClicked(bool)
+{
+    // here we need to load the asset file directly and then show it. To do that
+    // we will use the AssetFile class
+    const QString fileName = QFileDialog::getOpenFileName(this,
+                                                          tr("Create Asset from an Ogre Mesh"),
+                                                          mLastPathLoaded,
+                                                          tr("OgreMesh files (*.mesh)"));
+    if (fileName.isEmpty()) {
+        // do nothing
+        return;
+    }
+    core::Asset tmpAsset;
+    if (!core::AssetFile::assetFromFile(fileName.toStdString(), tmpAsset)) {
+        QTDEBUG_WARNING("Error al intentar cargar el archivo asset " <<
+                        fileName.toStdString() << "\n");
+        return;
+    }
+
+    // replace the asset to be used now
+    mCurrentAsset = tmpAsset;
+    // configure the ConfigWindow
+    mConfigWindow.setAssetToConfigure(&mCurrentAsset);
+    mConfigWindow.show();
+
+    // update the render window with the current asset
+    updateCurrentAsset();
+}
+
 
 }

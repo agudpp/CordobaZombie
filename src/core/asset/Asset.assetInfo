@@ -25,7 +25,8 @@
             ASSET_MAT_ROCK,
 -->
 
-<Asset  name="zombie"
+<Asset  version="1"
+        name="zombie"
         meshName="zombie.mesh"
         type="ASSET_STATIC_WORLD_ELEMENT"
         materialType="ASSET_MAT_WOOD"
