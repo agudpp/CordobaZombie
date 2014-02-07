@@ -112,6 +112,12 @@ BulletDebugDrawer::setEnable(bool enabled)
     }
 }
 
+bool
+BulletDebugDrawer::isEnabled(void)
+{
+    return mDynamicWorld && mDynamicWorld->getDebugDrawer() != 0;
+}
+
 void
 BulletDebugDrawer::drawLine(const btVector3 &from,
                             const btVector3 &to,

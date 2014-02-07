@@ -14,12 +14,14 @@ set(HDRS ${HDRS}
     ${DEV_ROOT_PATH}/world_object/MaskData.h
     ${DEV_ROOT_PATH}/world_object/GraphicRepresentation.h
     ${DEV_ROOT_PATH}/world_object/WorldObject.h
+    ${DEV_ROOT_PATH}/world_object/WorldObjectBuilder.h
 )
 
 set(SRCS ${SRCS}
     ${DEV_ROOT_PATH}/world_object/Coll2DRepresentation.cpp
     ${DEV_ROOT_PATH}/world_object/PhysicsRepresentation.cpp
     ${DEV_ROOT_PATH}/world_object/WorldObject.cpp
+    ${DEV_ROOT_PATH}/world_object/WorldObjectBuilder.cpp
 )
 
 endif()

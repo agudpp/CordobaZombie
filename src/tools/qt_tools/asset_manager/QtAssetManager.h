@@ -16,14 +16,18 @@
 #include <OgreSceneNode.h>
 #include <OgreEntity.h>
 
-#include <utils/OrbitCamera.h>
-
 #include <qt_tools/qt_debug/QtDebug.h>
 #include <qt_tools/ogre_widget/OgreWidget.h>
 #include <qt_tools/ogre_widget/QtOgreAppBase.h>
-#include <debug/PrimitiveDrawer.h>
 
+#include <utils/OrbitCamera.h>
+#include <debug/PrimitiveDrawer.h>
 #include <asset/Asset.h>
+#include <WorldObject.h>
+#include <collisions/CollisionHandler.h>
+#include <collisions/CollDebugDrawer.h>
+#include <physics/DynamicWorld.h>
+#include <physics/BulletDebugDrawer.h>
 
 #include "ConfigAssetGUI.h"
 #include "ui_AssetManager.h"
@@ -102,13 +106,15 @@ protected:
 //    virtual void
 //    mouseMoveEvent(QMouseEvent* event);
 
+protected:
     // @brief This method will be used to show the current asset and all its data
     //        in the ogre windows. If we already have something in the past being
     //        rendered on the ogre window then we will remove it and show the
     //        current one (mCurrentAsset).
+    // @param newAsset      The new asset to be used
     //
     void
-    updateCurrentAsset(void);
+    updateCurrentAsset(const core::Asset& newAsset);
 
 private:
     Ui::AssetManager ui;
@@ -116,10 +122,18 @@ private:
     OrbitCamera* mOrbitCamera;
     core::Primitive* m3DAxis;
     core::Asset mCurrentAsset;
+    w_o::WorldObject mCurrentWO;
+
+    // handlers
+    coll::CollisionHandler mCollHandler;
+    coll::CollDebugDrawer* mCollDbgDrawer;
+    physics::DynamicWorld mDynamicWorld;
+    physics::BulletDebugDrawer* mBulletDbgDrawer;
 
     QPoint mLastMousePoint;
     QString mLastPathLoaded;
     ConfigAssetGUI mConfigWindow;
+
 
 };
 

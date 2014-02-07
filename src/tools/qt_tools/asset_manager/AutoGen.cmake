@@ -1,6 +1,13 @@
 # include here all the project modules dependencies
 #
 include(${DEV_ROOT_PATH}/core/debug/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/core/ogre_utils/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/core/xml/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/core/asset/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/coll_physics/physics/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/coll_physics/collisions/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/coll_physics/collisions/helpers/AutoGen.cmake)
+include(${DEV_ROOT_PATH}/world_object/AutoGen.cmake)
 
 
 # This are the variables we can use / set in almost all the QtTools that we will
@@ -9,12 +16,14 @@ include(${DEV_ROOT_PATH}/core/debug/AutoGen.cmake)
 # Qt tool
 #
 SET(QtApp_MOCS ${QtApp_MOCS} 
-               ${DEV_ROOT_PATH}/tools/qt_tools/asset_manager/QtAssetManager.h)
+               ${DEV_ROOT_PATH}/tools/qt_tools/asset_manager/QtAssetManager.h
+               ${DEV_ROOT_PATH}/tools/qt_tools/asset_manager/ConfigAssetGUI.h)
 
 # All the .ui files of our tool
 #
 SET(QtApp_UIS ${QtApp_UIS}
-              ${DEV_ROOT_PATH}/tools/qt_tools/asset_manager/AssetManager.ui)
+              ${DEV_ROOT_PATH}/tools/qt_tools/asset_manager/AssetManager.ui
+              ${DEV_ROOT_PATH}/tools/qt_tools/asset_manager/ConfigAsset.ui)
 
 # All the .qrc files of our tool (resource files, probably none)
 #
@@ -27,11 +36,13 @@ SET(QtApp_RCCS ${QtApp_RCCS})
 #
 set(HDRS ${HDRS}
     ${DEV_ROOT_PATH}/tools/qt_tools/asset_manager/QtAssetManager.h
+    ${DEV_ROOT_PATH}/tools/qt_tools/asset_manager/ConfigAssetGUI.h
     ${DEV_ROOT_PATH}/tools/utils/OrbitCamera.h
 )
 
 set(SRCS ${SRCS}
     ${DEV_ROOT_PATH}/tools/qt_tools/asset_manager/QtAssetManager.cpp
+    ${DEV_ROOT_PATH}/tools/qt_tools/asset_manager/ConfigAssetGUI.cpp
     ${DEV_ROOT_PATH}/tools/qt_tools/asset_manager/main.cpp
     ${DEV_ROOT_PATH}/tools/utils/OrbitCamera.cpp
 )

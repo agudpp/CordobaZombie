@@ -12,14 +12,57 @@
 
 #include <os_utils/OSHelper.h>
 #include <asset/AssetFile.h>
+#include <WorldObjectBuilder.h>
 
 namespace tool {
 
 ////////////////////////////////////////////////////////////////////////////////
 void
-QtAssetManager::updateCurrentAsset(void)
+QtAssetManager::updateCurrentAsset(const core::Asset& newAsset)
 {
-    ASSERT(false && "TODO: here we will show all the data associated to the asset");
+    ASSERT(ogreWidget()->ogreData().sceneManager);
+    Ogre::SceneManager* scnMngr = ogreWidget()->ogreData().sceneManager;
+
+    // destroy the current world object if we have any one
+    w_o::WorldObjectBuilder::destroyPlainWorldObject(scnMngr, mCurrentWO);
+
+    // now we have to construct the new one from the new asset
+    if (!w_o::WorldObjectBuilder::buildFromAsset(newAsset,
+                                                 scnMngr,
+                                                 mCurrentWO)) {
+        QTDEBUG_WARNING("Error trying to construct the WorldObject from the asset" <<
+                        newAsset.fullAssetPath << "\n");
+        return;
+    }
+
+    // we have a new asset now
+    mCurrentAsset = newAsset;
+
+    // configure the panel we will use to handle the visual stuff.
+    if (mCurrentWO.hasGraphicRepresentation()) {
+        // we know that the entity is already visible
+        ui.graphicCheckbox->setChecked(true);
+        ui.graphicCheckbox->setEnabled(true);
+    } else {
+        ui.graphicCheckbox->setEnabled(false);
+    }
+
+    // configure now the coll2d checkbox
+    if (mCurrentWO.hasColl2DRepresentation()) {
+        ui.coll2DCheckbox->setEnabled(true);
+        ui.coll2DCheckbox->setChecked(mCollHandler.debugDrawer() != 0);
+    } else {
+        ui.coll2DCheckbox->setEnabled(false);
+    }
+
+    // physics
+    if (mCurrentWO.hasPhysicsRepresentation() && mBulletDbgDrawer) {
+        ui.physicsCheckbox->setEnabled(true);
+        ui.physicsCheckbox->setChecked(mBulletDbgDrawer->isEnabled());
+    } else {
+        ui.physicsCheckbox->setEnabled(false);
+    }
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -32,6 +75,8 @@ QtAssetManager::QtAssetManager(rrh::ResourceHandler* rh,
 ,   mOrbitCamera(0)
 ,   mLastPathLoaded(".")
 ,   mConfigWindow(0)
+,   mCollDbgDrawer(0)
+,   mBulletDbgDrawer(0)
 {
     ui.setupUi(this);
 
@@ -46,20 +91,26 @@ QtAssetManager::QtAssetManager(rrh::ResourceHandler* rh,
     ui.verticalLayout->addWidget(ogrew);
 
     // configure the ConfigAssetGUI
-    mConfigWindow.setOgreData(ogrew->ogreData());
+    mConfigWindow.setOgreData(ogreWidget()->ogreData());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 QtAssetManager::~QtAssetManager()
 {
     delete mOrbitCamera;
+    delete mCollDbgDrawer;
+    delete mBulletDbgDrawer;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void
 QtAssetManager::frameUpdate(float fp)
 {
+    // update dynamic world
+    mDynamicWorld.simulate(fp);
 
+    // update coll2D world
+    mCollHandler.update();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -98,6 +149,13 @@ QtAssetManager::systemsReady(void)
 
     // create the axis to be shown in the scene
     m3DAxis = core::PrimitiveDrawer::instance().create3DAxis(Ogre::Vector3::ZERO, 15);
+
+    // construct the Physics and collisions debug drawer
+    Ogre::SceneManager* scnMngr = ogreWidget()->ogreData().sceneManager;
+
+    mCollDbgDrawer = new coll::CollDebugDrawer(scnMngr);
+    mBulletDbgDrawer = new physics::BulletDebugDrawer(scnMngr,
+                                                      &(mDynamicWorld.bulletDynamicWorld()));
 }
 
 
@@ -230,14 +288,14 @@ QtAssetManager::onCreateAssetClicked(bool)
     }
 
     // now we can just create the asset
-    mCurrentAsset = core::Asset();
+    core::Asset tmpAsset;
+
+    // update the render window with the current asset
+    updateCurrentAsset(tmpAsset);
 
     // configure the ConfigWindow
     mConfigWindow.setAssetToConfigure(&mCurrentAsset);
     mConfigWindow.show();
-
-    // update the render window with the current asset
-    updateCurrentAsset();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -261,14 +319,13 @@ QtAssetManager::onLoadAssetClicked(bool)
         return;
     }
 
-    // replace the asset to be used now
-    mCurrentAsset = tmpAsset;
+    // update the render window with the current asset
+    updateCurrentAsset(tmpAsset);
+
     // configure the ConfigWindow
     mConfigWindow.setAssetToConfigure(&mCurrentAsset);
     mConfigWindow.show();
 
-    // update the render window with the current asset
-    updateCurrentAsset();
 }
 
 

@@ -113,6 +113,14 @@ PhysicsBuilder::createShapeFromMesh(Shape& shape, const Ogre::Mesh* mesh)
     return true;
 }
 
+////////////////////////////////////////////////////////////////////////////
+void
+PhysicsBuilder::destroyShape(Shape& shape)
+{
+    delete shape.bulletShape();
+    shape.setShape(0);
+}
+
 
 ////////////////////////////////////////////////////////////////////////////
 //                     CollisionObject construction
@@ -142,6 +150,15 @@ PhysicsBuilder::createCollObjectFromShape(CollisionObject& co, Shape& shape)
     co.setShape(shape);
 
     return true;
+}
+
+////////////////////////////////////////////////////////////////////////////
+void
+PhysicsBuilder::destroyCollObjectAndShape(CollisionObject& co)
+{
+    destroyShape(co.shape());
+    delete co.bulletCollObj();
+    co.setBullettCollObject(0);
 }
 
 ////////////////////////////////////////////////////////////////////////////

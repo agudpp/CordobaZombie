@@ -74,6 +74,10 @@ public:
     //
     void
     setDebugDrawer(CollDebugDrawer* dbgDrawer);
+    inline CollDebugDrawer*
+    debugDrawer(void);
+    inline const CollDebugDrawer*
+    debugDrawer(void) const;
 #endif
 
     ////////////////////////////////////////////////////////////////////////////
@@ -268,6 +272,19 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 // Inline stuff
 //
+
+#ifdef DEBUG
+inline CollDebugDrawer*
+CollisionHandler::debugDrawer(void)
+{
+    return mDebugDrawer;
+}
+inline const CollDebugDrawer*
+CollisionHandler::debugDrawer(void) const
+{
+    return mDebugDrawer;
+}
+#endif
 
 inline int
 CollisionHandler::findObject(CollObject* o)

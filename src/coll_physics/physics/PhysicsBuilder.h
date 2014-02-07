@@ -67,6 +67,14 @@ public:
     static bool
     createShapeFromMesh(Shape& shape, const Ogre::Mesh* mesh);
 
+    // @brief Destroy a shape (deallocating its bullet memory).
+    //        Note that we will just free its memory, we will not check if the
+    //        shape is being used, or anything.
+    // @param shape     The shape to destroy
+    //
+    static void
+    destroyShape(Shape& shape);
+
 
     ////////////////////////////////////////////////////////////////////////////
     //                     CollisionObject construction
@@ -82,6 +90,14 @@ public:
     //
     static bool
     createCollObjectFromShape(CollisionObject& co, Shape& shape);
+
+    // @brief Destroy a collision object and its associated shape, without checking
+    //        if the shape nor the collision object are being shared or used
+    //        anywhere else.
+    // @param co        The collision object to destroy
+    //
+    static void
+    destroyCollObjectAndShape(CollisionObject& co);
 
     ////////////////////////////////////////////////////////////////////////////
     //                     RigidBody construction

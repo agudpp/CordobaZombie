@@ -30,6 +30,8 @@ public:
     //
     void
     setEnable(bool enabled);
+    bool
+    isEnabled(void);
 
     virtual void
     drawLine(const btVector3 &from,

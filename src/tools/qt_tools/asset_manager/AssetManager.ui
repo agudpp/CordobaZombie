@@ -6,32 +6,61 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
+    <width>670</width>
     <height>300</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>QtAssetManager</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
+  <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <property name="sizeConstraint">
-      <enum>QLayout::SetMinimumSize</enum>
-     </property>
+    <layout class="QVBoxLayout" name="verticalLayout">
      <item>
-      <widget class="QPushButton" name="showCreateAssetBtn">
-       <property name="text">
-        <string>Crear asset</string>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <property name="sizeConstraint">
+        <enum>QLayout::SetMinimumSize</enum>
        </property>
-      </widget>
+       <item>
+        <widget class="QPushButton" name="showCreateAssetBtn">
+         <property name="text">
+          <string>Crear asset</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="loadAssetBtn">
+         <property name="text">
+          <string>Cargar Asset</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
      <item>
-      <widget class="QPushButton" name="loadAssetBtn">
-       <property name="text">
-        <string>Cargar Asset</string>
-       </property>
-      </widget>
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+        <widget class="QCheckBox" name="graphicCheckbox">
+         <property name="text">
+          <string>Representacion Grafica</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="coll2DCheckbox">
+         <property name="text">
+          <string>Collisiones 2D</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="physicsCheckbox">
+         <property name="text">
+          <string>Representacion fisica</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
     </layout>
    </item>

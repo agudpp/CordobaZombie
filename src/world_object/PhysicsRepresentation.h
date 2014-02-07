@@ -63,6 +63,17 @@ public:
     void
     setRigidBodyElement(physics::RigidBody* collElement);
 
+    // @brief Get the collision data
+    //
+    inline physics::CollisionObject*
+    collisionObject(void);
+    inline const physics::CollisionObject*
+    collisionObject(void) const;
+    inline physics::RigidBody*
+    rigidBody(void);
+    inline const physics::RigidBody*
+    rigidBody(void) const;
+
     // @brief Return the type of physics element we have
     //
     inline PhysicsType
@@ -155,6 +166,49 @@ PhysicsRepresentation::setDynamicWorld(physics::DynamicWorld* dw)
 {
     ASSERT(dw);
     sDynamicWorld = dw;
+}
+
+inline physics::CollisionObject*
+PhysicsRepresentation::collisionObject(void)
+{
+#ifdef DEBUG
+    if (physicsType() != PhysicsRepresentation::PhysicsType::Physics_CollObject) {
+        debugWARNING("We are trying to get a collision object but we have a rigid\n");
+    }
+#endif
+    return mCollData.co;
+}
+inline const physics::CollisionObject*
+PhysicsRepresentation::collisionObject(void) const
+{
+#ifdef DEBUG
+    if (physicsType() != PhysicsRepresentation::PhysicsType::Physics_CollObject) {
+        debugWARNING("We are trying to get a collision object but we have a rigid\n");
+    }
+#endif
+    return mCollData.co;
+}
+inline physics::RigidBody*
+PhysicsRepresentation::rigidBody(void)
+{
+#ifdef DEBUG
+    if (physicsType() != PhysicsRepresentation::PhysicsType::Physics_RigidBody) {
+        debugWARNING("We are trying to get a rigid body object but we have a "
+            "collision one\n");
+    }
+#endif
+    return mCollData.rb;
+}
+inline const physics::RigidBody*
+PhysicsRepresentation::rigidBody(void) const
+{
+#ifdef DEBUG
+    if (physicsType() != PhysicsRepresentation::PhysicsType::Physics_RigidBody) {
+        debugWARNING("We are trying to get a rigid body object but we have a "
+            "collision one\n");
+    }
+#endif
+    return mCollData.rb;
 }
 
 inline PhysicsRepresentation::PhysicsType
