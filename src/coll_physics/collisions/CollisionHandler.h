@@ -23,6 +23,7 @@
 #include "CollObject.h"
 #include "CollPreciseInfo.h"
 
+
 namespace coll {
 
 // @brief This class will handle the collisions in all the world, it will
@@ -34,7 +35,9 @@ namespace coll {
 //
 
 struct CollPreciseInfo;
-
+#ifdef DEBUG
+class CollDebugDrawer;
+#endif
 
 class CollisionHandler
 {
@@ -56,6 +59,26 @@ class CollisionHandler
 public:
     CollisionHandler();
     ~CollisionHandler();
+
+    ////////////////////////////////////////////////////////////////////////////
+    //                          General functions                             //
+    ////////////////////////////////////////////////////////////////////////////
+
+#ifdef DEBUG
+    // @brief Set the DebugDrawer to be used (already configured by the caller).
+    //        You can also enable / disable the debugDrawer by your own enabling
+    //        or disabling the DebugDrawer. Note that the instance you are passing
+    //        should remain alive during all the life of this instance or call
+    //        setDebugDrawer(0) to remove the drawer!.
+    // @param dbgDrawer     The CollDebugDrawer instance to be used.
+    //
+    void
+    setDebugDrawer(CollDebugDrawer* dbgDrawer);
+    inline CollDebugDrawer*
+    debugDrawer(void);
+    inline const CollDebugDrawer*
+    debugDrawer(void) const;
+#endif
 
     ////////////////////////////////////////////////////////////////////////////
     //                          LifeTime functions                            //
@@ -233,6 +256,11 @@ private:
     // already selected in each query (the result should contain unique elements).
     //
     core::BoolCountingMask<> mMask;
+
+#ifdef DEBUG
+    // debug drawer, in debug mode only
+    CollDebugDrawer* mDebugDrawer;
+#endif
 };
 
 
@@ -244,6 +272,19 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 // Inline stuff
 //
+
+#ifdef DEBUG
+inline CollDebugDrawer*
+CollisionHandler::debugDrawer(void)
+{
+    return mDebugDrawer;
+}
+inline const CollDebugDrawer*
+CollisionHandler::debugDrawer(void) const
+{
+    return mDebugDrawer;
+}
+#endif
 
 inline int
 CollisionHandler::findObject(CollObject* o)

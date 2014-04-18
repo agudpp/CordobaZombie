@@ -47,8 +47,12 @@ public:
     rotateCamera(const Ogre::Radian yaw, const Ogre::Radian pitch);
     inline void
     setYawAngle(const Ogre::Degree angle);
+    inline Ogre::Degree
+    yawAngle(void) const;
     inline void
     setPitchAngle(const Ogre::Degree angle);
+    inline Ogre::Degree
+    pitchAngle(void) const;
     inline void
     setZoom(const Ogre::Real zoom);
     inline Ogre::Real
@@ -78,6 +82,8 @@ private:
     Ogre::Real mCamVelocityFactor;
     float& mGlobalTimeFrame;
     core::OgreText* mText;
+    Ogre::Degree mYawDegree;
+    Ogre::Degree mPitchDegree;
 };
 
 
@@ -116,12 +122,19 @@ OrbitCamera::setYawAngle(const Ogre::Degree angle)
     {
         Ogre::Quaternion rot(angle, Ogre::Vector3::UNIT_X);
         mCamYNode->setOrientation(rot);
+        mYawDegree = angle;
     }
         break;
     default:
         ASSERT(false);
     }
 }
+inline Ogre::Degree
+OrbitCamera::yawAngle(void) const
+{
+    return mYawDegree;
+}
+
 inline void
 OrbitCamera::setPitchAngle(const Ogre::Degree angle)
 {
@@ -132,11 +145,18 @@ OrbitCamera::setPitchAngle(const Ogre::Degree angle)
     {
         Ogre::Quaternion rot(angle, Ogre::Vector3::UNIT_Y);
         mCamXNode->setOrientation(rot);
+        mPitchDegree = angle;
     }
         break;
     default:
         ASSERT(false);
     }
+}
+
+inline Ogre::Degree
+OrbitCamera::pitchAngle(void) const
+{
+    return mPitchDegree;
 }
 
 inline void

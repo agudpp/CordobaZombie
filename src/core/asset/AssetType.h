@@ -39,6 +39,28 @@ assetStringTypeToEnumType(const std::string& strType,
     return enumType != AssetType::ASSET_INVALID;
 }
 
+// @brief The inverse method (enum to string)
+//
+static inline bool
+assetTypeEnumToStringType(const AssetType& enumType,
+                          const char*& strType)
+{
+    strType = 0;
+
+    if (enumType == AssetType::ASSET_STATIC_WORLD_ELEMENT) {
+        strType = "ASSET_STATIC_WORLD_ELEMENT";
+    } else if (enumType == AssetType::ASSET_STATIC_WORLD_FLOOR) {
+        strType = "ASSET_STATIC_WORLD_FLOOR";
+    }
+
+    if (strType == 0) {
+        strType = "ASSET_INVALID";
+        return false;
+    }
+
+    return true;
+}
+
 }
 
 

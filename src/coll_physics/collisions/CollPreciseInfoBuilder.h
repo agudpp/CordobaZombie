@@ -13,6 +13,10 @@
 #include <math/Vec2.h>
 #include <math/AABB.h>
 
+#ifdef DEBUG
+#include <debug/PrimitiveDrawer.h>
+#endif
+
 #include "CollPreciseInfo.h"
 #include "CollisionHandler.h"
 

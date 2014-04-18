@@ -108,6 +108,8 @@ signals:
     mouseReleaseEventSig(QMouseEvent* event);
     void
     mouseMoveEventSig(QMouseEvent* event);
+    void
+    wheelEventSig(QWheelEvent * event);
 
     // @brief Signal emitted when the OgreWidget is resized
     //
@@ -143,6 +145,8 @@ protected:
     mouseReleaseEvent(QMouseEvent* event);
     virtual void
     mouseMoveEvent(QMouseEvent* event);
+    virtual void
+    wheelEvent(QWheelEvent * event);
 
 private:
     // Ogre stuff

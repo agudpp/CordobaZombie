@@ -40,6 +40,8 @@ QtOgreAppBase::QtOgreAppBase(rrh::ResourceHandler* rh,
             this, SLOT(OgreWidgetMouseReleaseEvent(QMouseEvent*)));
     connect(mOgreWidget, SIGNAL(mouseMoveEventSig(QMouseEvent*)),
             this, SLOT(OgreWidgetMouseMoveEvent(QMouseEvent*)));
+    connect(mOgreWidget, SIGNAL(wheelEventSig(QWheelEvent*)),
+            this, SLOT(OgreWidgetWheelEvent(QWheelEvent*)));
 
     connect(mOgreWidget, SIGNAL(resizeSig(QResizeEvent*)),
             this, SLOT(OgreWidgetResizeEvent(QResizeEvent*)));

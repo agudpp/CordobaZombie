@@ -22,6 +22,10 @@ namespace coll {
 //
 class CollisionHandler;
 class CollCell;
+#ifdef DEBUG
+class CollDebugDrawer;
+#endif
+
 
 class CollObject {
 public:
@@ -225,6 +229,9 @@ private:
     // Here we will define some data used by the Handler and the CollCell only
     friend class CollisionHandler;
     friend class CollCell;
+#ifdef DEBUG
+    friend class CollDebugDrawer;
+#endif
 
     struct Flags {
         unsigned char enabled : 1;

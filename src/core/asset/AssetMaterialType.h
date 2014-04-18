@@ -39,6 +39,31 @@ assetStringTypeToMaterialEnumType(const std::string& strType,
     return enumType != AssetMaterialType::ASSET_MAT_NONE;
 }
 
+// @brief Method used to transform a Material enum type into a string.
+// @param enumType      The enum type to be transformed
+// @param strType       The string converted type
+// @return true on success | false on error
+//
+static inline bool
+assetMaterialEnumTypeToStringType(const AssetMaterialType& enumType,
+                                  const char*& strType)
+{
+    strType = 0;
+    if (enumType == AssetMaterialType::ASSET_MAT_METAL) {
+        strType = "ASSET_MAT_METAL";
+    } else if (enumType == AssetMaterialType::ASSET_MAT_WOOD) {
+        strType = "ASSET_MAT_WOOD";
+    } else if (enumType == AssetMaterialType::ASSET_MAT_ROCK) {
+        strType = "ASSET_MAT_ROCK";
+    }
+
+    if (strType == 0) {
+        strType = "ASSET_MAT_NONE";
+        return false;
+    }
+    return true;
+}
+
 }
 
 

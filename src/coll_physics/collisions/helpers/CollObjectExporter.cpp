@@ -117,13 +117,6 @@ buildFromFile(const std::string& collPath,
     result = builder.constructPreciseInfo();
     aabb = builder.getBoundingBox();
 
-#ifdef DEBUG
-    if (result) {
-        result->_primitive = builder.buildDebugInfo();
-        debugBLUE("Primitive created for CollPreciseInfo\n");
-    }
-#endif
-
     return true;
 }
 

@@ -158,6 +158,7 @@ include_directories( ${OIS_INCLUDE_DIRS}
     ${DEV_ROOT_PATH}/effect
     ${DEV_ROOT_PATH}/resources_handler
     ${DEV_ROOT_PATH}/engine
+    ${DEV_ROOT_PATH}/world_object
 )
 
 # we will include the logger as default since we will almost always will

@@ -14,11 +14,11 @@
 
 namespace physics {
 
-DynamicWorld::DynamicWorld(const btVector3& gravity) :
+DynamicWorld::DynamicWorld(const Ogre::Vector3& gravity) :
     mDispatcher(&mDefConf)
 ,   mDynamicWorld(&mDispatcher, &mBroadPhase, &mSeqSolver, &mDefConf)
 {
-    mDynamicWorld.setGravity(gravity);
+    setGravity(gravity);
 }
 
 DynamicWorld::~DynamicWorld()
